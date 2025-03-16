@@ -32,11 +32,11 @@ const Header = () => {
     <header 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-10',
-        isScrolled ? 'bg-white/90 backdrop-blur-lg shadow-soft' : 'bg-transparent'
+        isScrolled ? 'bg-white/95 backdrop-blur-lg shadow-soft' : 'bg-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <a href="#hero" className="text-xl font-bold tracking-tight font-display">
+        <a href="#hero" className="text-2xl font-bold tracking-tight font-display">
           <span className="text-primary">VISION</span> 
           <span className="text-black">TECH</span>
         </a>
@@ -58,7 +58,7 @@ const Header = () => {
         {/* Contact Button */}
         <a 
           href="#contact"
-          className="hidden md:inline-flex items-center justify-center h-10 px-6 rounded-full bg-primary text-white text-sm font-medium transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20"
+          className="hidden md:inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white text-sm font-medium transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20"
         >
           Contactez-nous
         </a>

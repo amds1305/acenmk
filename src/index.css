@@ -51,7 +51,7 @@
   }
   
   .glass-panel {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-soft rounded-2xl;
+    @apply bg-white/90 backdrop-blur-lg border border-white/20 shadow-soft rounded-2xl;
   }
   
   .section {
@@ -70,11 +70,15 @@
     @apply transition-all duration-300 hover:shadow-elegant hover:-translate-y-1;
   }
 
-  /* Nouveaux styles inspirés de KBase */
+  /* Styles KBase */
   .gradient-bg {
     @apply bg-gradient-to-br from-blue-50 to-indigo-50;
   }
   
+  .kbase-gradient {
+    @apply bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50;
+  }
+
   .animated-border {
     @apply relative before:absolute before:inset-0 before:p-[2px] before:rounded-2xl before:bg-gradient-to-r before:from-primary/40 before:to-primary/60 before:opacity-50 before:blur-sm;
   }
@@ -85,6 +89,20 @@
 
   .heading-underline-center {
     @apply relative inline-block after:content-[''] after:absolute after:w-24 after:h-1 after:bg-primary/70 after:-bottom-4 after:left-1/2 after:-translate-x-1/2;
+  }
+
+  .feature-card {
+    @apply relative overflow-hidden rounded-xl transition-all duration-300 
+    hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  .feature-card::after {
+    @apply content-[''] absolute top-0 right-0 w-32 h-32 bg-primary/5 
+    rounded-full -mr-10 -mt-10 transition-transform duration-500;
+  }
+
+  .feature-card:hover::after {
+    @apply scale-[2.5];
   }
 }
 
