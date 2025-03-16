@@ -22,12 +22,12 @@ const values = [
 
 const About = () => {
   return (
-    <section id="about" className="section bg-secondary/40">
+    <section id="about" className="section gradient-bg">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="space-y-8 order-2 lg:order-1">
           <div>
-            <h2 className="section-title">À propos de nous</h2>
-            <p className="text-lg text-gray-600 mb-6">
+            <h2 className="section-title heading-underline">À propos de nous</h2>
+            <p className="text-lg text-gray-600 mb-6 mt-12">
               Fondée en 2015, notre ESN s'est rapidement imposée comme un acteur incontournable du numérique, combinant expertise technique et vision stratégique.
             </p>
             <p className="text-gray-600 mb-6">
@@ -53,8 +53,8 @@ const About = () => {
         </div>
         
         <div className="relative order-1 lg:order-2">
-          <div className="glass-panel p-6 md:p-10 animate-fade-in">
-            <h3 className="text-2xl font-semibold mb-6">Nos valeurs</h3>
+          <div className="glass-panel p-6 md:p-10 animate-fade-in animated-border">
+            <h3 className="text-2xl font-semibold mb-6 font-display">Nos valeurs</h3>
             <div className="space-y-6">
               {values.map((value, index) => (
                 <div key={index} className="flex space-x-4">
@@ -62,7 +62,7 @@ const About = () => {
                     {value.icon}
                   </div>
                   <div>
-                    <h4 className="text-lg font-medium">{value.title}</h4>
+                    <h4 className="text-lg font-medium font-display">{value.title}</h4>
                     <p className="text-gray-600 mt-1">{value.description}</p>
                   </div>
                 </div>

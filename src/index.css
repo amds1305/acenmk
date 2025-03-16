@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -51,7 +51,7 @@
   }
   
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-soft rounded-2xl;
+    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-soft rounded-2xl;
   }
   
   .section {
@@ -59,7 +59,7 @@
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl font-semibold mb-3 tracking-tight;
+    @apply text-4xl md:text-5xl font-semibold mb-3 tracking-tight font-display;
   }
   
   .section-subtitle {
@@ -68,6 +68,23 @@
   
   .card-hover {
     @apply transition-all duration-300 hover:shadow-elegant hover:-translate-y-1;
+  }
+
+  /* Nouveaux styles inspirés de KBase */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-blue-50 to-indigo-50;
+  }
+  
+  .animated-border {
+    @apply relative before:absolute before:inset-0 before:p-[2px] before:rounded-2xl before:bg-gradient-to-r before:from-primary/40 before:to-primary/60 before:opacity-50 before:blur-sm;
+  }
+  
+  .heading-underline {
+    @apply relative inline-block after:content-[''] after:absolute after:w-24 after:h-1 after:bg-primary/70 after:-bottom-4 after:left-0;
+  }
+
+  .heading-underline-center {
+    @apply relative inline-block after:content-[''] after:absolute after:w-24 after:h-1 after:bg-primary/70 after:-bottom-4 after:left-1/2 after:-translate-x-1/2;
   }
 }
 

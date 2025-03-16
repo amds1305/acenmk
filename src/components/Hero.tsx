@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const Hero = () => {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center pt-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center pt-20 px-4 sm:px-6 lg:px-8 overflow-hidden gradient-bg">
       {/* Background decoration */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl"></div>
@@ -16,7 +17,7 @@ const Hero = () => {
               <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
                 Entreprise de Services du Numérique
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-display">
                 Solutions numériques <span className="text-primary">innovantes</span> pour votre entreprise
               </h1>
               <p className="mt-6 text-lg text-gray-600 max-w-lg">
@@ -27,10 +28,14 @@ const Hero = () => {
             <div className="flex flex-wrap gap-4">
               <a 
                 href="#services" 
-                className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white font-medium transition-colors hover:bg-primary/90"
+                className={cn(
+                  "group inline-flex items-center justify-center h-12 px-6 rounded-full",
+                  "bg-primary text-white font-medium transition-all duration-300",
+                  "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                )}
               >
                 Découvrir nos services
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </a>
               
               <a 
@@ -44,17 +49,23 @@ const Hero = () => {
             <div className="flex items-center space-x-6 pt-6">
               <p className="text-sm font-medium text-gray-500">Ils nous font confiance :</p>
               <div className="flex space-x-6">
-                {/* Placeholder for client logos */}
-                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-8 w-20 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                {/* Client logos */}
+                <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
+                </div>
+                <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
+                </div>
+                <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
+                </div>
               </div>
             </div>
           </div>
           
           <div className="relative">
-            <div className="glass-panel p-5 md:p-8 animate-blur-in">
-              <div className="aspect-video rounded-lg bg-gray-100 overflow-hidden">
+            <div className="glass-panel p-5 md:p-8 animate-blur-in animated-border animate-float">
+              <div className="aspect-video rounded-lg overflow-hidden">
                 <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
                   <div className="text-center p-8">
                     <div className="inline-block p-3 rounded-full bg-primary/10 mb-4">
@@ -62,7 +73,7 @@ const Hero = () => {
                         <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"/>
                       </svg>
                     </div>
-                    <h3 className="text-xl font-medium text-gray-900">Explorez notre univers digital</h3>
+                    <h3 className="text-xl font-medium text-gray-900 font-display">Explorez notre univers digital</h3>
                     <p className="mt-2 text-gray-600">
                       Découvrez comment nos solutions transforment les entreprises.
                     </p>
