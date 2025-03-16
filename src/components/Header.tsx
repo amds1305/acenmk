@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Menu, X, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -77,6 +79,20 @@ const Header = () => {
             ))}
           </div>
           
+          {/* Auth Links */}
+          <div className="flex items-center space-x-3">
+            <Link to="/login">
+              <Button variant="ghost" className="text-sm font-medium">
+                Connexion
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="default" className="text-sm font-medium">
+                Inscription
+              </Button>
+            </Link>
+          </div>
+          
           {/* Contact Button */}
           <a 
             href="#contact"
@@ -126,6 +142,24 @@ const Header = () => {
                   <link.icon size={20} />
                 </a>
               ))}
+            </div>
+            
+            {/* Auth Links in Mobile Menu */}
+            <div className="flex space-x-4 mt-2">
+              <Link 
+                to="/login" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-6 py-2 border border-gray-300 rounded-full text-gray-800 hover:bg-gray-100 transition-colors"
+              >
+                Connexion
+              </Link>
+              <Link 
+                to="/signup" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-6 py-2 bg-primary rounded-full text-white hover:bg-primary/90 transition-colors"
+              >
+                Inscription
+              </Link>
             </div>
             
             <a 
