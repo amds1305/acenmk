@@ -5,6 +5,8 @@ import Hero from '@/components/Hero';
 import Services from '@/components/Services';
 import About from '@/components/About';
 import Team from '@/components/Team';
+import Testimonials from '@/components/Testimonials';
+import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 
@@ -40,11 +42,13 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow dark:bg-gray-900">
         <Hero />
         <Services />
         <About />
         <Team />
+        <Testimonials />
+        <FaqSection />
         <Contact />
       </main>
       <Footer />
