@@ -41,7 +41,7 @@ const Header = () => {
     <header 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-8 px-6 md:px-10',
-        isScrolled ? 'bg-white shadow-soft' : 'bg-white'
+        isScrolled ? 'bg-white shadow-soft' : 'bg-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -57,10 +57,10 @@ const Header = () => {
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-theme-navy hover:text-theme-blue transition-colors relative group"
+                className="text-sm font-medium text-theme-navy hover:text-[#753749] transition-colors relative group"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-theme-teal transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#753749] transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
           </nav>
@@ -82,12 +82,12 @@ const Header = () => {
           {/* Auth Links */}
           <div className="flex items-center space-x-3">
             <Link to="/login">
-              <Button variant="ghost" className="text-sm font-medium text-theme-navy hover:text-theme-blue">
+              <Button variant="ghost" className="text-sm font-medium text-theme-navy hover:text-[#753749]">
                 Connexion
               </Button>
             </Link>
             <Link to="/signup">
-              <Button variant="default" className="text-sm font-medium bg-theme-navy hover:bg-theme-blue">
+              <Button variant="default" className="text-sm font-medium bg-theme-navy hover:bg-[#753749]">
                 Inscription
               </Button>
             </Link>
@@ -114,7 +114,7 @@ const Header = () => {
                 href={link.href} 
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "text-xl font-medium text-theme-navy hover:text-theme-blue animate-fade-in-up",
+                  "text-xl font-medium text-theme-navy hover:text-[#753749] animate-fade-in-up",
                   `animation-delay-${index * 100}`
                 )}
               >
@@ -129,7 +129,7 @@ const Header = () => {
                   key={index}
                   href={link.href}
                   aria-label={link.ariaLabel}
-                  className="text-theme-navy hover:text-theme-blue transition-colors border border-current rounded-full p-2 flex items-center justify-center"
+                  className="text-theme-navy hover:text-[#753749] transition-colors border border-current rounded-full p-2 flex items-center justify-center"
                 >
                   <link.icon size={20} />
                 </a>
@@ -141,14 +141,14 @@ const Header = () => {
               <Link 
                 to="/login" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy hover:bg-theme-mint transition-colors"
+                className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy hover:bg-[#753749] hover:text-white hover:border-[#753749] transition-colors"
               >
                 Connexion
               </Link>
               <Link 
                 to="/signup" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 bg-theme-navy rounded-full text-white hover:bg-theme-blue transition-colors"
+                className="px-6 py-2 bg-theme-navy rounded-full text-white hover:bg-[#753749] transition-colors"
               >
                 Inscription
               </Link>
