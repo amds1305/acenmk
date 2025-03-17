@@ -46,8 +46,8 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="#hero" className="text-2xl font-bold tracking-tight font-display">
-          <span className="text-theme-navy">VISION</span> 
-          <span className="text-theme-pink">TECH</span>
+          <span className="font-bold text-theme-navy">Ace</span>
+          <span className="font-normal text-theme-navy">nümerik</span>
         </a>
         
         {/* Desktop Navigation and Social Links */}
@@ -57,10 +57,10 @@ const Header = () => {
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-theme-navy hover:text-[#753749] transition-colors relative group"
+                className="text-sm font-medium text-theme-navy hover:text-[#ca3c66] transition-colors relative group"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#753749] transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#ca3c66] transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
           </nav>
@@ -72,7 +72,7 @@ const Header = () => {
                 key={index}
                 href={link.href}
                 aria-label={link.ariaLabel}
-                className="text-theme-navy hover:text-theme-blue transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
+                className="text-theme-navy hover:text-[#ca3c66] transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
               >
                 <link.icon size={18} />
               </a>
@@ -82,12 +82,12 @@ const Header = () => {
           {/* Auth Links */}
           <div className="flex items-center space-x-3">
             <Link to="/login">
-              <Button variant="ghost" className="text-sm font-medium text-theme-navy hover:text-[#753749]">
+              <Button variant="ghost" className="text-sm font-medium text-theme-navy hover:text-[#ca3c66]">
                 Connexion
               </Button>
             </Link>
             <Link to="/signup">
-              <Button variant="default" className="text-sm font-medium bg-theme-navy hover:bg-[#753749]">
+              <Button variant="default" className="text-sm font-medium bg-theme-navy hover:bg-[#ca3c66]">
                 Inscription
               </Button>
             </Link>
@@ -114,7 +114,7 @@ const Header = () => {
                 href={link.href} 
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "text-xl font-medium text-theme-navy hover:text-[#753749] animate-fade-in-up",
+                  "text-xl font-medium text-theme-navy hover:text-[#ca3c66] animate-fade-in-up",
                   `animation-delay-${index * 100}`
                 )}
               >
@@ -129,7 +129,7 @@ const Header = () => {
                   key={index}
                   href={link.href}
                   aria-label={link.ariaLabel}
-                  className="text-theme-navy hover:text-[#753749] transition-colors border border-current rounded-full p-2 flex items-center justify-center"
+                  className="text-theme-navy hover:text-[#ca3c66] transition-colors border border-current rounded-full p-2 flex items-center justify-center"
                 >
                   <link.icon size={20} />
                 </a>
@@ -141,14 +141,14 @@ const Header = () => {
               <Link 
                 to="/login" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy hover:bg-[#753749] hover:text-white hover:border-[#753749] transition-colors"
+                className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy hover:bg-[#ca3c66] hover:text-white hover:border-[#ca3c66] transition-colors"
               >
                 Connexion
               </Link>
               <Link 
                 to="/signup" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 bg-theme-navy rounded-full text-white hover:bg-[#753749] transition-colors"
+                className="px-6 py-2 bg-theme-navy rounded-full text-white hover:bg-[#ca3c66] transition-colors"
               >
                 Inscription
               </Link>
