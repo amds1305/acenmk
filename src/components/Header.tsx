@@ -41,7 +41,7 @@ const Header = () => {
     <header 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-8 px-6 md:px-10',
-        isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-soft' : 'bg-transparent'
+        isScrolled ? 'bg-white shadow-soft' : 'bg-white'
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -72,7 +72,7 @@ const Header = () => {
                 key={index}
                 href={link.href}
                 aria-label={link.ariaLabel}
-                className="text-theme-navy hover:text-theme-blue transition-colors"
+                className="text-theme-navy hover:text-theme-blue transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
               >
                 <link.icon size={18} />
               </a>
@@ -129,7 +129,7 @@ const Header = () => {
                   key={index}
                   href={link.href}
                   aria-label={link.ariaLabel}
-                  className="text-theme-navy hover:text-theme-blue transition-colors p-2"
+                  className="text-theme-navy hover:text-theme-blue transition-colors border border-current rounded-full p-2 flex items-center justify-center"
                 >
                   <link.icon size={20} />
                 </a>
