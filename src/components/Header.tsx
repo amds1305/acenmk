@@ -40,14 +40,14 @@ const Header = () => {
   return (
     <header 
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-6 px-6 md:px-10',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-8 px-6 md:px-10',
         isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-soft' : 'bg-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="#hero" className="text-2xl font-bold tracking-tight font-display">
-          <span className="text-primary">VISION</span> 
-          <span className="text-black">TECH</span>
+          <span className="text-theme-navy">VISION</span> 
+          <span className="text-theme-pink">TECH</span>
         </a>
         
         {/* Desktop Navigation and Social Links */}
@@ -57,10 +57,10 @@ const Header = () => {
               <a 
                 key={link.name}
                 href={link.href} 
-                className="text-sm font-medium text-gray-700 hover:text-primary transition-colors relative group"
+                className="text-sm font-medium text-theme-navy hover:text-theme-blue transition-colors relative group"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-theme-teal transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
           </nav>
@@ -72,7 +72,7 @@ const Header = () => {
                 key={index}
                 href={link.href}
                 aria-label={link.ariaLabel}
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-theme-navy hover:text-theme-blue transition-colors"
               >
                 <link.icon size={18} />
               </a>
@@ -82,24 +82,16 @@ const Header = () => {
           {/* Auth Links */}
           <div className="flex items-center space-x-3">
             <Link to="/login">
-              <Button variant="ghost" className="text-sm font-medium">
+              <Button variant="ghost" className="text-sm font-medium text-theme-navy hover:text-theme-blue">
                 Connexion
               </Button>
             </Link>
             <Link to="/signup">
-              <Button variant="default" className="text-sm font-medium">
+              <Button variant="default" className="text-sm font-medium bg-theme-navy hover:bg-theme-blue">
                 Inscription
               </Button>
             </Link>
           </div>
-          
-          {/* Contact Button */}
-          <a 
-            href="#contact"
-            className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white text-sm font-medium transition-all hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20"
-          >
-            Contactez-nous
-          </a>
         </div>
         
         {/* Mobile Menu Button */}
@@ -108,7 +100,7 @@ const Header = () => {
           onClick={toggleMobileMenu}
           aria-label="Toggle Menu"
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={24} className="text-theme-navy" /> : <Menu size={24} className="text-theme-navy" />}
         </button>
       </div>
       
@@ -122,7 +114,7 @@ const Header = () => {
                 href={link.href} 
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "text-xl font-medium text-gray-800 hover:text-primary animate-fade-in-up",
+                  "text-xl font-medium text-theme-navy hover:text-theme-blue animate-fade-in-up",
                   `animation-delay-${index * 100}`
                 )}
               >
@@ -137,7 +129,7 @@ const Header = () => {
                   key={index}
                   href={link.href}
                   aria-label={link.ariaLabel}
-                  className="text-gray-600 hover:text-primary transition-colors p-2"
+                  className="text-theme-navy hover:text-theme-blue transition-colors p-2"
                 >
                   <link.icon size={20} />
                 </a>
@@ -149,26 +141,18 @@ const Header = () => {
               <Link 
                 to="/login" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 border border-gray-300 rounded-full text-gray-800 hover:bg-gray-100 transition-colors"
+                className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy hover:bg-theme-mint transition-colors"
               >
                 Connexion
               </Link>
               <Link 
                 to="/signup" 
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-6 py-2 bg-primary rounded-full text-white hover:bg-primary/90 transition-colors"
+                className="px-6 py-2 bg-theme-navy rounded-full text-white hover:bg-theme-blue transition-colors"
               >
                 Inscription
               </Link>
             </div>
-            
-            <a 
-              href="#contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-4 inline-flex items-center justify-center h-12 px-8 rounded-full bg-primary text-white font-medium transition-colors hover:bg-primary/90 animate-fade-in-up animation-delay-500"
-            >
-              Contactez-nous
-            </a>
           </div>
         </div>
       )}
