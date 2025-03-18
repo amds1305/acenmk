@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Briefcase } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -52,8 +52,11 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">À propos</a></li>
               <li><a href="#team" className="text-gray-400 hover:text-white transition-colors">Notre équipe</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Carrières</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+              <li><a href="/careers" className="text-gray-400 hover:text-white transition-colors flex items-center">
+                <Briefcase className="mr-1 h-4 w-4" />
+                Carrières
+              </a></li>
+              <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
               <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Presse</a></li>
             </ul>
           </div>

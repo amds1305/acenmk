@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Linkedin, Twitter } from 'lucide-react';
+import { Linkedin, Twitter, Briefcase } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const teamMembers = [
   {
@@ -81,12 +82,15 @@ const Team = () => {
           <p className="text-gray-600 mb-6">
             Nous sommes toujours à la recherche de talents passionnés par la technologie et l'innovation.
           </p>
-          <a 
-            href="#contact" 
-            className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white font-medium transition-colors hover:bg-primary/90"
-          >
-            Voir nos offres d'emploi
-          </a>
+          <Button asChild>
+            <a 
+              href="/careers" 
+              className="inline-flex items-center justify-center"
+            >
+              <Briefcase className="mr-2 h-4 w-4" />
+              Voir nos offres d'emploi
+            </a>
+          </Button>
         </div>
       </div>
     </section>

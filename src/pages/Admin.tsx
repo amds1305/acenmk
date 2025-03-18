@@ -12,6 +12,7 @@ import AdminAbout from '@/components/admin/AdminAbout';
 import AdminTeam from '@/components/admin/AdminTeam';
 import AdminTestimonials from '@/components/admin/AdminTestimonials';
 import AdminFaq from '@/components/admin/AdminFaq';
+import AdminCareers from '@/components/admin/AdminCareers';
 
 const Admin = () => {
   return (
@@ -27,6 +28,7 @@ const Admin = () => {
           <Route path="/team" element={<AdminTeam />} />
           <Route path="/testimonials" element={<AdminTestimonials />} />
           <Route path="/faq" element={<AdminFaq />} />
+          <Route path="/careers" element={<AdminCareers />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>

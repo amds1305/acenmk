@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Menu, X, Facebook, Twitter, Instagram, Linkedin, Moon, Sun, Search } from 'lucide-react';
+import { Menu, X, Facebook, Twitter, Instagram, Linkedin, Moon, Sun, Search, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -38,6 +38,7 @@ const Header = () => {
     { name: 'Portfolio', href: '/portfolio' },
     { name: 'Blog', href: '/blog' },
     { name: 'FAQ', href: '/faq' },
+    { name: 'Carrières', href: '/careers' },
     { name: 'Contact', href: '/#contact' },
   ];
   

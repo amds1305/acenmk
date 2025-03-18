@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, FileText, Settings, Users, Star, HelpCircle, 
-  LogOut, Menu, X, LayoutDashboard, Eye as EyeIcon
+  LogOut, Menu, X, LayoutDashboard, Eye as EyeIcon, Briefcase
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -59,6 +59,11 @@ const sidebarItems: SidebarItem[] = [
     icon: <HelpCircle className="mr-2 h-4 w-4" />, 
     label: 'FAQ', 
     href: '/admin/faq' 
+  },
+  { 
+    icon: <Briefcase className="mr-2 h-4 w-4" />, 
+    label: 'Carrières', 
+    href: '/admin/careers' 
   },
 ];
 
