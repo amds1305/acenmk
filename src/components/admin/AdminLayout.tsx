@@ -1,155 +1,181 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Home, 
-  Settings, 
-  Users, 
-  MessageSquare, 
-  HelpCircle, 
-  LogOut, 
-  Moon, 
-  Sun, 
-  Menu, 
-  X,
-  GripHorizontal
-} from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Separator } from '@/components/ui/separator';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
-import { useToast } from '@/hooks/use-toast';
+import { 
+  Home, FileText, Settings, Users, Star, HelpCircle, 
+  LogOut, Menu, X, LayoutDashboard, Eye as EyeIcon
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
-const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
-  const { toast } = useToast();
+interface SidebarItem {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+}
+
+const sidebarItems: SidebarItem[] = [
+  { 
+    icon: <LayoutDashboard className="mr-2 h-4 w-4" />, 
+    label: 'Tableau de bord', 
+    href: '/admin' 
+  },
+  { 
+    icon: <FileText className="mr-2 h-4 w-4" />, 
+    label: 'Articles', 
+    href: '/admin/blog' 
+  },
+  { 
+    icon: <Home className="mr-2 h-4 w-4" />, 
+    label: 'Page d\'accueil', 
+    href: '/admin/home' 
+  },
+  { 
+    icon: <Settings className="mr-2 h-4 w-4" />, 
+    label: 'Services', 
+    href: '/admin/services' 
+  },
+  { 
+    icon: <Users className="mr-2 h-4 w-4" />, 
+    label: 'Équipe', 
+    href: '/admin/team' 
+  },
+  { 
+    icon: <Star className="mr-2 h-4 w-4" />, 
+    label: 'Témoignages', 
+    href: '/admin/testimonials' 
+  },
+  { 
+    icon: <HelpCircle className="mr-2 h-4 w-4" />, 
+    label: 'FAQ', 
+    href: '/admin/faq' 
+  },
+];
+
+const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
-    toast({
-      title: "Déconnexion réussie",
-      description: "Vous êtes maintenant déconnecté",
-    });
+    navigate('/');
   };
 
-  const mainNavItems = [
-    { name: 'Tableau de bord', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
-    { name: 'Blog', path: '/admin/blog', icon: <FileText className="h-5 w-5" /> },
-    { name: 'Page d\'accueil', path: '/admin/home', icon: <Home className="h-5 w-5" /> },
-    { name: 'Services', path: '/admin/services', icon: <Settings className="h-5 w-5" /> },
-    { name: 'À propos', path: '/admin/about', icon: <Users className="h-5 w-5" /> },
-    { name: 'Équipe', path: '/admin/team', icon: <Users className="h-5 w-5" /> },
-    { name: 'Témoignages', path: '/admin/testimonials', icon: <MessageSquare className="h-5 w-5" /> },
-    { name: 'FAQ', path: '/admin/faq', icon: <HelpCircle className="h-5 w-5" /> },
-  ];
+  const isActive = (path: string) => {
+    if (path === '/admin' && location.pathname === '/admin') {
+      return true;
+    }
+    return location.pathname.startsWith(path) && path !== '/admin';
+  };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
-        {/* Sidebar pour desktop */}
-        <Sidebar className="border-r border-gray-200 dark:border-gray-800">
-          <SidebarContent>
-            <div className="flex items-center justify-between p-4">
-              <Link to="/admin" className="flex items-center space-x-2">
-                <GripHorizontal className="h-8 w-8 text-primary" />
-                <span className="font-bold text-xl">Admin</span>
-              </Link>
-              <SidebarTrigger className="lg:hidden" />
-            </div>
-            
-            {user && (
-              <div className="px-4 py-2">
-                <div className="bg-primary/10 rounded-md p-3">
-                  <div className="font-medium text-sm">{user.name}</div>
-                  <div className="text-xs text-muted-foreground">{user.email}</div>
-                </div>
-              </div>
-            )}
-            
-            <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {mainNavItems.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          to={item.path}
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
-                            location.pathname === item.path && "bg-primary/10 text-primary dark:bg-primary/20"
-                          )}
-                        >
-                          {item.icon}
-                          <span>{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-            
-            <div className="mt-auto p-4">
-              <Separator className="my-4" />
-              <div className="flex flex-col space-y-2">
-                <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center gap-2 transition-colors">
-                  <Eye className="h-5 w-5" />
-                  <span>Voir le site</span>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  className="justify-start px-2 text-gray-600 dark:text-gray-400 hover:text-destructive dark:hover:text-destructive"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="h-5 w-5 mr-2" />
-                  <span>Déconnexion</span>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="self-end">
-                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-              </div>
-            </div>
-          </SidebarContent>
-        </Sidebar>
-
-        {/* Contenu principal */}
-        <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-          {/* Header mobile */}
-          <header className="sticky top-0 z-10 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 lg:hidden">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center space-x-3">
-                <SidebarTrigger />
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b bg-background">
+        <div className="container flex h-16 items-center">
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle sidebar</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[240px] sm:max-w-none border-r">
+              <div className="px-2 py-6 flex items-center">
+                <X
+                  className="mr-2 h-4 w-4 cursor-pointer"
+                  onClick={() => setSidebarOpen(false)}
+                />
                 <Link to="/admin" className="flex items-center space-x-2">
-                  <GripHorizontal className="h-6 w-6 text-primary" />
-                  <span className="font-bold">Admin</span>
+                  <span className="font-bold">Administration</span>
                 </Link>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-              </div>
-            </div>
-          </header>
-
-          {/* Contenu de la page */}
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
-            {children}
-          </main>
+              <nav className="grid gap-2 px-2 py-4">
+                {sidebarItems.map((item, i) => (
+                  <Link
+                    key={i}
+                    to={item.href}
+                    className={`flex items-center px-3 py-2 text-sm rounded-md ${
+                      isActive(item.href)
+                        ? 'bg-accent text-accent-foreground'
+                        : 'hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+          <div className="flex items-center space-x-4">
+            <Link to="/admin" className="font-semibold hidden md:block">
+              Administration
+            </Link>
+          </div>
+          <div className="flex-1" />
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/" target="_blank">
+                <EyeIcon className="mr-2 h-3.5 w-3.5" />
+                Voir le site
+              </Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="" />
+                  <AvatarFallback>{user?.name.charAt(0) || 'A'}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+      </header>
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        <aside className="hidden md:flex flex-col w-64 border-r bg-background">
+          <nav className="grid gap-2 px-4 py-6">
+            {sidebarItems.map((item, i) => (
+              <Link
+                key={i}
+                to={item.href}
+                className={`flex items-center px-3 py-2 text-sm rounded-md ${
+                  isActive(item.href)
+                    ? 'bg-accent text-accent-foreground'
+                    : 'hover:bg-accent hover:text-accent-foreground'
+                }`}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+        <main className="flex-1 p-6 overflow-auto">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 

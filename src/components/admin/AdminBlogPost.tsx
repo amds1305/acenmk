@@ -7,12 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Eye, Image, Trash } from 'lucide-react';
+import { ArrowLeft, Save, Eye as EyeIcon, Image, Trash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import WysiwygEditor from './WysiwygEditor';
 
 // Mock data pour un article individuel
 const MOCK_BLOG_POST = {
@@ -110,7 +111,7 @@ const AdminBlogPost = () => {
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => navigate(`/blog/${id}`)} disabled={isNewPost}>
-            <Eye className="mr-2 h-4 w-4" />
+            <EyeIcon className="mr-2 h-4 w-4" />
             Aperçu
           </Button>
           <Button onClick={form.handleSubmit(onSubmit)}>
@@ -245,10 +246,10 @@ const AdminBlogPost = () => {
                   <FormItem>
                     <FormLabel>Contenu</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Contenu de l'article..." 
-                        {...field} 
-                        className="min-h-[300px]" 
+                      <WysiwygEditor
+                        content={field.value}
+                        onChange={field.onChange}
+                        placeholder="Commencez à rédiger votre article..."
                       />
                     </FormControl>
                     <FormMessage />
