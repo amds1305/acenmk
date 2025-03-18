@@ -12,6 +12,7 @@ import Portfolio from "./pages/Portfolio";
 import BlogPost from "./pages/BlogPost";
 import PortfolioDetail from "./pages/PortfolioDetail";
 import Faq from "./pages/Faq";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/portfolio/:id" element={<PortfolioDetail />} />
             <Route path="/faq" element={<Faq />} />
+            <Route path="/admin/*" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
