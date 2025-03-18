@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -21,11 +22,22 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Separator } from '@/components/ui/separator';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Déconnexion réussie",
+      description: "Vous êtes maintenant déconnecté",
+    });
+  };
 
   const mainNavItems = [
     { name: 'Tableau de bord', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -51,6 +63,15 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
               </Link>
               <SidebarTrigger className="lg:hidden" />
             </div>
+            
+            {user && (
+              <div className="px-4 py-2">
+                <div className="bg-primary/10 rounded-md p-3">
+                  <div className="font-medium text-sm">{user.name}</div>
+                  <div className="text-xs text-muted-foreground">{user.email}</div>
+                </div>
+              </div>
+            )}
             
             <SidebarGroup>
               <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -78,12 +99,20 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             
             <div className="mt-auto p-4">
               <Separator className="my-4" />
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col space-y-2">
                 <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center gap-2 transition-colors">
-                  <LogOut className="h-5 w-5" />
-                  <span>Retour au site</span>
+                  <Eye className="h-5 w-5" />
+                  <span>Voir le site</span>
                 </Link>
-                <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                <Button 
+                  variant="ghost" 
+                  className="justify-start px-2 text-gray-600 dark:text-gray-400 hover:text-destructive dark:hover:text-destructive"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-5 w-5 mr-2" />
+                  <span>Déconnexion</span>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="self-end">
                   {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
               </div>
@@ -103,9 +132,14 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                   <span className="font-bold">Admin</span>
                 </Link>
               </div>
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
+              </div>
             </div>
           </header>
 
