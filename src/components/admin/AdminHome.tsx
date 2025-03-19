@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { SaveIcon, EyeIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import HomeHeader from './home/HomeHeader';
+import HomeVisibilityCard from './home/HomeVisibilityCard';
+import HeroEditCard from './home/HeroEditCard';
+import SectionRedirectCard from './home/SectionRedirectCard';
 
 const AdminHome = () => {
   const { toast } = useToast();
@@ -51,121 +48,12 @@ const AdminHome = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Page d'accueil</h1>
-          <p className="text-muted-foreground">
-            Personnalisez les différentes sections de votre page d'accueil.
-          </p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => window.open('/', '_blank')}>
-            <EyeIcon className="mr-2 h-4 w-4" />
-            Voir le site
-          </Button>
-          <Button onClick={handleSave}>
-            <SaveIcon className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
-        </div>
-      </div>
+      <HomeHeader onSave={handleSave} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Visibilité des sections</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Activez ou désactivez les sections qui apparaissent sur la page d'accueil.
-          </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-hero" className="font-medium">Section Hero</Label>
-                <p className="text-sm text-muted-foreground">La bannière principale en haut de la page</p>
-              </div>
-              <Switch 
-                id="toggle-hero" 
-                checked={visibleSections.hero} 
-                onCheckedChange={() => toggleSection('hero')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-services" className="font-medium">Section Services</Label>
-                <p className="text-sm text-muted-foreground">Présentation des services offerts</p>
-              </div>
-              <Switch 
-                id="toggle-services" 
-                checked={visibleSections.services} 
-                onCheckedChange={() => toggleSection('services')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-about" className="font-medium">Section À propos</Label>
-                <p className="text-sm text-muted-foreground">Présentation de l'entreprise</p>
-              </div>
-              <Switch 
-                id="toggle-about" 
-                checked={visibleSections.about} 
-                onCheckedChange={() => toggleSection('about')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-team" className="font-medium">Section Équipe</Label>
-                <p className="text-sm text-muted-foreground">Présentation des membres de l'équipe</p>
-              </div>
-              <Switch 
-                id="toggle-team" 
-                checked={visibleSections.team} 
-                onCheckedChange={() => toggleSection('team')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-testimonials" className="font-medium">Section Témoignages</Label>
-                <p className="text-sm text-muted-foreground">Témoignages clients</p>
-              </div>
-              <Switch 
-                id="toggle-testimonials" 
-                checked={visibleSections.testimonials} 
-                onCheckedChange={() => toggleSection('testimonials')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <Label htmlFor="toggle-faq" className="font-medium">Section FAQ</Label>
-                <p className="text-sm text-muted-foreground">Questions fréquemment posées</p>
-              </div>
-              <Switch 
-                id="toggle-faq" 
-                checked={visibleSections.faq} 
-                onCheckedChange={() => toggleSection('faq')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="toggle-contact" className="font-medium">Section Contact</Label>
-                <p className="text-sm text-muted-foreground">Formulaire de contact</p>
-              </div>
-              <Switch 
-                id="toggle-contact" 
-                checked={visibleSections.contact} 
-                onCheckedChange={() => toggleSection('contact')}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <HomeVisibilityCard 
+        visibleSections={visibleSections} 
+        toggleSection={toggleSection} 
+      />
 
       <Tabs defaultValue="hero" className="w-full">
         <TabsList className="mb-4 grid grid-cols-3 sm:grid-cols-5">
@@ -177,143 +65,43 @@ const AdminHome = () => {
         </TabsList>
         
         <TabsContent value="hero" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Hero</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="hero-title">Titre</Label>
-                <Input 
-                  id="hero-title" 
-                  value={heroData.title} 
-                  onChange={(e) => setHeroData({...heroData, title: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="hero-subtitle">Sous-titre</Label>
-                <Textarea 
-                  id="hero-subtitle" 
-                  value={heroData.subtitle} 
-                  onChange={(e) => setHeroData({...heroData, subtitle: e.target.value})}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="hero-cta">Texte du bouton principal</Label>
-                  <Input 
-                    id="hero-cta" 
-                    value={heroData.ctaText} 
-                    onChange={(e) => setHeroData({...heroData, ctaText: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="hero-cta-secondary">Texte du bouton secondaire</Label>
-                  <Input 
-                    id="hero-cta-secondary" 
-                    value={heroData.ctaSecondaryText} 
-                    onChange={(e) => setHeroData({...heroData, ctaSecondaryText: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="hero-background">Image de fond</Label>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <Input 
-                      id="hero-background" 
-                      value={heroData.backgroundImage} 
-                      onChange={(e) => setHeroData({...heroData, backgroundImage: e.target.value})}
-                    />
-                  </div>
-                  <Button variant="outline">Parcourir</Button>
-                </div>
-                {heroData.backgroundImage && (
-                  <div className="mt-2 border rounded-md overflow-hidden h-40 bg-gray-50">
-                    <div className="aspect-video h-full flex items-center justify-center text-gray-400">
-                      [Aperçu de l'image]
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <HeroEditCard heroData={heroData} setHeroData={setHeroData} />
         </TabsContent>
         
         <TabsContent value="services">
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Services</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Vous pouvez gérer la section Services dans l'onglet dédié dans le menu latéral.
-              </p>
-              <div className="mt-4">
-                <Button variant="outline" onClick={() => window.location.href = '/admin/services'}>
-                  Gérer les services
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SectionRedirectCard
+            title="Section Services"
+            description="Vous pouvez gérer la section Services dans l'onglet dédié dans le menu latéral."
+            redirectPath="/admin/services"
+            buttonText="Gérer les services"
+          />
         </TabsContent>
         
         <TabsContent value="about">
-          <Card>
-            <CardHeader>
-              <CardTitle>Section À propos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Vous pouvez gérer la section À propos dans l'onglet dédié dans le menu latéral.
-              </p>
-              <div className="mt-4">
-                <Button variant="outline" onClick={() => window.location.href = '/admin/about'}>
-                  Gérer la section À propos
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SectionRedirectCard
+            title="Section À propos"
+            description="Vous pouvez gérer la section À propos dans l'onglet dédié dans le menu latéral."
+            redirectPath="/admin/about"
+            buttonText="Gérer la section À propos"
+          />
         </TabsContent>
         
         <TabsContent value="team">
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Équipe</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Vous pouvez gérer les membres de l'équipe dans l'onglet dédié dans le menu latéral.
-              </p>
-              <div className="mt-4">
-                <Button variant="outline" onClick={() => window.location.href = '/admin/team'}>
-                  Gérer l'équipe
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SectionRedirectCard
+            title="Section Équipe"
+            description="Vous pouvez gérer les membres de l'équipe dans l'onglet dédié dans le menu latéral."
+            redirectPath="/admin/team"
+            buttonText="Gérer l'équipe"
+          />
         </TabsContent>
         
         <TabsContent value="testimonials">
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Témoignages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Vous pouvez gérer les témoignages clients dans l'onglet dédié dans le menu latéral.
-              </p>
-              <div className="mt-4">
-                <Button variant="outline" onClick={() => window.location.href = '/admin/testimonials'}>
-                  Gérer les témoignages
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SectionRedirectCard
+            title="Section Témoignages"
+            description="Vous pouvez gérer les témoignages clients dans l'onglet dédié dans le menu latéral."
+            redirectPath="/admin/testimonials"
+            buttonText="Gérer les témoignages"
+          />
         </TabsContent>
       </Tabs>
     </div>
