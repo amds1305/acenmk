@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
-import SearchBar from './SearchBar';
+import Search from './Search';
 import Logo from './header/Logo';
 import DesktopNav from './header/DesktopNav';
 import MobileNav from './header/MobileNav';
@@ -43,10 +43,10 @@ const Header = () => {
         />
       </div>
       
-      {/* Search Bar */}
+      {/* Search */}
       {searchOpen && (
         <div className="max-w-3xl mx-auto mt-4 animate-fade-in">
-          <SearchBar onClose={() => toggleSearch()} />
+          <Search />
         </div>
       )}
       

@@ -13,6 +13,7 @@ import AdminTeam from '@/components/admin/AdminTeam';
 import AdminTestimonials from '@/components/admin/AdminTestimonials';
 import AdminFaq from '@/components/admin/AdminFaq';
 import AdminCareers from '@/components/admin/AdminCareers';
+import AdminApplications from '@/components/admin/AdminApplications';
 
 const Admin = () => {
   return (
@@ -29,6 +30,7 @@ const Admin = () => {
           <Route path="/testimonials" element={<AdminTestimonials />} />
           <Route path="/faq" element={<AdminFaq />} />
           <Route path="/careers" element={<AdminCareers />} />
+          <Route path="/applications" element={<AdminApplications />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>

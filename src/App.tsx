@@ -16,6 +16,7 @@ import Faq from "./pages/Faq";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import Careers from "./pages/Careers";
+import ProjectEstimation from "./pages/ProjectEstimation";
 import ChatbotBubble from "./components/chatbot/ChatbotBubble";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/portfolio/:id" element={<PortfolioDetail />} />
               <Route path="/faq" element={<Faq />} />
               <Route path="/careers" element={<Careers />} />
+              <Route path="/estimate" element={<ProjectEstimation />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/*" element={<Admin />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1,49 +1,60 @@
 
 import { useState, useEffect } from 'react';
-import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+
+// Types
 import { NavLink, SocialLink } from './types';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  
+
+  // Navigation links
+  const navLinks: NavLink[] = [
+    { label: 'Accueil', href: '/' },
+    { label: 'Services', href: '/#services' },
+    { label: 'Portfolio', href: '/portfolio' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Estimer un projet', href: '/estimate' },
+    { label: 'À propos', href: '/#about' },
+    { label: 'Contact', href: '/#contact' },
+    { label: 'Carrières', href: '/careers' },
+  ];
+
+  // Social media links
+  const socialLinks: SocialLink[] = [
+    { platform: 'twitter', url: 'https://twitter.com' },
+    { platform: 'linkedin', url: 'https://linkedin.com' },
+    { platform: 'github', url: 'https://github.com' },
+  ];
+
+  // Handle scroll for header background
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
+  // Toggle mobile menu
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    if (searchOpen) setSearchOpen(false);
   };
-  
+
+  // Toggle search
   const toggleSearch = () => {
     setSearchOpen(!searchOpen);
+    if (mobileMenuOpen) setMobileMenuOpen(false);
   };
-  
-  const navLinks: NavLink[] = [
-    { name: 'Accueil', href: '/' },
-    { name: 'Services', href: '/#services' },
-    { name: 'À propos', href: '/#about' },
-    { name: 'Équipe', href: '/#team' },
-    { name: 'Portfolio', href: '/portfolio' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'FAQ', href: '/faq' },
-    { name: 'Carrières', href: '/careers' },
-    { name: 'Contact', href: '/#contact' },
-  ];
-  
-  const socialLinks: SocialLink[] = [
-    { icon: Facebook, href: '#', ariaLabel: 'Facebook' },
-    { icon: Twitter, href: '#', ariaLabel: 'Twitter' },
-    { icon: Instagram, href: '#', ariaLabel: 'Instagram' },
-    { icon: Linkedin, href: '#', ariaLabel: 'LinkedIn' },
-  ];
-  
+
+  // Close mobile menu (for when a link is clicked)
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return {
     isScrolled,
     mobileMenuOpen,
@@ -52,7 +63,6 @@ export const useHeader = () => {
     toggleSearch,
     navLinks,
     socialLinks,
-    closeMobileMenu: () => setMobileMenuOpen(false),
-    closeSearch: () => setSearchOpen(false),
+    closeMobileMenu,
   };
 };
