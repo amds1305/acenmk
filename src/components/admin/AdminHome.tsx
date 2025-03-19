@@ -6,6 +6,7 @@ import HomeHeader from './home/HomeHeader';
 import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
+import { SectionVisibility } from '@/pages/Index';
 
 const AdminHome = () => {
   const { toast } = useToast();
@@ -18,7 +19,7 @@ const AdminHome = () => {
     backgroundImage: '/images/hero-bg.jpg'
   });
 
-  const [visibleSections, setVisibleSections] = React.useState({
+  const [visibleSections, setVisibleSections] = React.useState<SectionVisibility>({
     hero: true,
     services: true,
     about: true,
@@ -28,10 +29,25 @@ const AdminHome = () => {
     contact: true,
   });
 
+  // Load saved settings from localStorage on component mount
+  React.useEffect(() => {
+    const savedVisibility = localStorage.getItem('homeVisibility');
+    if (savedVisibility) {
+      try {
+        setVisibleSections(JSON.parse(savedVisibility));
+      } catch (error) {
+        console.error('Error parsing saved visibility settings:', error);
+      }
+    }
+  }, []);
+
   const handleSave = () => {
-    // Ici, nous enverrions normalement les données à une API
+    // Save to localStorage for demo purposes
+    // In a real app, this would be an API call
+    localStorage.setItem('homeVisibility', JSON.stringify(visibleSections));
+    
+    // Here we would normally save heroData to the backend too
     console.log('Hero data', heroData);
-    console.log('Visible sections', visibleSections);
     
     toast({
       title: "Modifications enregistrées",
@@ -39,7 +55,7 @@ const AdminHome = () => {
     });
   };
 
-  const toggleSection = (section: keyof typeof visibleSections) => {
+  const toggleSection = (section: keyof SectionVisibility) => {
     setVisibleSections(prev => ({
       ...prev,
       [section]: !prev[section]

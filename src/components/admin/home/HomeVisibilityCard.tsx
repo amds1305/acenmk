@@ -3,16 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-
-interface SectionVisibility {
-  hero: boolean;
-  services: boolean;
-  about: boolean;
-  team: boolean;
-  testimonials: boolean;
-  faq: boolean;
-  contact: boolean;
-}
+import { SectionVisibility } from '@/pages/Index';
 
 interface HomeVisibilityCardProps {
   visibleSections: SectionVisibility;

@@ -25,6 +25,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface WysiwygEditorProps {
   content: string;
@@ -37,6 +40,11 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   onChange,
   placeholder = 'Commencez à écrire...'
 }) => {
+  const [linkUrl, setLinkUrl] = React.useState('');
+  const [imageUrl, setImageUrl] = React.useState('');
+  const [showLinkDialog, setShowLinkDialog] = React.useState(false);
+  const [showImageDialog, setShowImageDialog] = React.useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -62,29 +70,27 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   }
 
   const addImage = () => {
-    const url = window.prompt('URL de l\'image');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+    if (imageUrl && editor) {
+      editor.chain().focus().setImage({ src: imageUrl }).run();
+      setImageUrl('');
+      setShowImageDialog(false);
     }
   };
 
   const setLink = () => {
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL du lien', previousUrl);
-    
-    // cancelled
-    if (url === null) {
-      return;
-    }
-
-    // empty
-    if (url === '') {
+    if (linkUrl) {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: linkUrl }).run();
+    } else {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
     }
+    setLinkUrl('');
+    setShowLinkDialog(false);
+  };
 
-    // update link
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  const openLinkDialog = () => {
+    const previousUrl = editor.getAttributes('link').href || '';
+    setLinkUrl(previousUrl);
+    setShowLinkDialog(true);
   };
 
   return (
@@ -193,12 +199,73 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         
         <Separator orientation="vertical" className="h-6 mx-1" />
         
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={setLink} title="Lien">
-          <LinkIcon className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={addImage} title="Image">
-          <ImageIcon className="h-4 w-4" />
-        </Button>
+        <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0" 
+              onClick={openLinkDialog} 
+              title="Lien"
+            >
+              <LinkIcon className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Ajouter un lien</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="link-url">URL du lien</Label>
+                <Input 
+                  id="link-url" 
+                  placeholder="https://example.com" 
+                  value={linkUrl} 
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowLinkDialog(false)}>Annuler</Button>
+                <Button onClick={setLink}>Appliquer</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0" 
+              onClick={() => setShowImageDialog(true)} 
+              title="Image"
+            >
+              <ImageIcon className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Ajouter une image</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="image-url">URL de l'image</Label>
+                <Input 
+                  id="image-url" 
+                  placeholder="https://example.com/image.jpg" 
+                  value={imageUrl} 
+                  onChange={(e) => setImageUrl(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowImageDialog(false)}>Annuler</Button>
+                <Button onClick={addImage}>Insérer</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
         
         <Separator orientation="vertical" className="h-6 mx-1" />
         

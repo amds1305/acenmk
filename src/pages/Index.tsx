@@ -9,9 +9,21 @@ import Testimonials from '@/components/Testimonials';
 import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import { useQuery } from '@tanstack/react-query';
 
-// Ce tableau pourrait être récupéré depuis l'API/base de données dans un contexte réel
-const DEFAULT_VISIBLE_SECTIONS = {
+// Interface for section visibility
+export interface SectionVisibility {
+  hero: boolean;
+  services: boolean;
+  about: boolean;
+  team: boolean;
+  testimonials: boolean;
+  faq: boolean;
+  contact: boolean;
+}
+
+// Default visibility configuration
+const DEFAULT_VISIBLE_SECTIONS: SectionVisibility = {
   hero: true,
   services: true,
   about: true,
@@ -21,12 +33,31 @@ const DEFAULT_VISIBLE_SECTIONS = {
   contact: true
 };
 
+// Simulated API call to fetch homepage configuration
+const fetchHomeConfig = async (): Promise<{ visibleSections: SectionVisibility }> => {
+  // In a real app, this would be an API call
+  // For demo, we'll use localStorage if available
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('homeVisibility');
+    if (stored) {
+      return { visibleSections: JSON.parse(stored) };
+    }
+  }
+  return { visibleSections: DEFAULT_VISIBLE_SECTIONS };
+};
+
 const Index = () => {
-  // Dans une application réelle, on récupérerait cette configuration depuis le backend
-  const [visibleSections, setVisibleSections] = useState(DEFAULT_VISIBLE_SECTIONS);
+  // Use React Query to fetch and cache the homepage configuration
+  const { data: homeConfig, isLoading } = useQuery({
+    queryKey: ['homeConfig'],
+    queryFn: fetchHomeConfig,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+  
+  const visibleSections = homeConfig?.visibleSections || DEFAULT_VISIBLE_SECTIONS;
   
   useEffect(() => {
-    // Initialisation de l'observateur d'intersection pour les animations
+    // Initialize intersection observer for animations
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -42,27 +73,9 @@ const Index = () => {
       });
     }, observerOptions);
 
-    // Observer tous les éléments avec des classes d'animation
+    // Observe all elements with animation classes
     const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-fade-in-up, .animate-slide-in-right, .animate-blur-in');
     animatedElements.forEach((el) => observer.observe(el));
-
-    // Simulation de la récupération de la configuration depuis le backend
-    // Dans une application réelle, on ferait un appel API ici
-    const fetchVisibilityConfig = async () => {
-      try {
-        // Simulation d'un délai d'API
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Dans une vraie application, on récupérerait ces données depuis le backend
-        // const response = await fetch('/api/home-config');
-        // const data = await response.json();
-        // setVisibleSections(data.visibleSections);
-      } catch (error) {
-        console.error('Erreur lors de la récupération de la configuration:', error);
-      }
-    };
-
-    fetchVisibilityConfig();
 
     return () => {
       if (animatedElements) {
@@ -70,6 +83,10 @@ const Index = () => {
       }
     };
   }, []);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
