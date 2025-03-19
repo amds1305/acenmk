@@ -16,6 +16,7 @@ import Faq from "./pages/Faq";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import Careers from "./pages/Careers";
+import ChatbotBubble from "./components/chatbot/ChatbotBubble";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <ChatbotBubble />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
