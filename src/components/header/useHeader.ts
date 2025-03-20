@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Github, Linkedin, Twitter } from 'lucide-react';
 
 // Types
 import { NavLink, SocialLink } from './types';
@@ -11,21 +12,33 @@ export const useHeader = () => {
 
   // Navigation links
   const navLinks: NavLink[] = [
-    { label: 'Accueil', href: '/' },
-    { label: 'Services', href: '/#services' },
-    { label: 'Portfolio', href: '/portfolio' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Estimer un projet', href: '/estimate' },
-    { label: 'À propos', href: '/#about' },
-    { label: 'Contact', href: '/#contact' },
-    { label: 'Carrières', href: '/careers' },
+    { name: 'Accueil', href: '/' },
+    { name: 'Services', href: '/#services' },
+    { name: 'Portfolio', href: '/portfolio' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Estimer un projet', href: '/estimate' },
+    { name: 'À propos', href: '/#about' },
+    { name: 'Contact', href: '/#contact' },
+    { name: 'Carrières', href: '/careers' },
   ];
 
   // Social media links
   const socialLinks: SocialLink[] = [
-    { platform: 'twitter', url: 'https://twitter.com' },
-    { platform: 'linkedin', url: 'https://linkedin.com' },
-    { platform: 'github', url: 'https://github.com' },
+    { 
+      icon: Twitter, 
+      href: 'https://twitter.com', 
+      ariaLabel: 'Twitter/X'
+    },
+    { 
+      icon: Linkedin, 
+      href: 'https://linkedin.com', 
+      ariaLabel: 'LinkedIn'
+    },
+    { 
+      icon: Github, 
+      href: 'https://github.com', 
+      ariaLabel: 'GitHub'
+    },
   ];
 
   // Handle scroll for header background
