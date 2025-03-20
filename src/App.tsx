@@ -18,6 +18,10 @@ import AdminLogin from "./pages/AdminLogin";
 import Careers from "./pages/Careers";
 import ProjectEstimation from "./pages/ProjectEstimation";
 import ChatbotBubble from "./components/chatbot/ChatbotBubble";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 // Importer les variables CSS des thèmes
 import "./lib/theme-variables.css";
@@ -41,8 +45,18 @@ const App = () => (
               <Route path="/faq" element={<Faq />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/estimate" element={<ProjectEstimation />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/*" element={<Admin />} />
+              <Route 
+                path="/admin/*" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <Admin />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

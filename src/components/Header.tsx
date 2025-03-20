@@ -9,6 +9,7 @@ import MobileNav from './header/MobileNav';
 import MobileMenu from './header/MobileMenu';
 import { useHeader } from './header/useHeader';
 import ThemeSelector from './header/ThemeSelector';
+import UserMenu from './header/UserMenu';
 
 const Header = () => {
   const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu } = useHeader();
@@ -32,6 +33,11 @@ const Header = () => {
           toggleSearch={toggleSearch}
           themeSelector={<ThemeSelector />}
         />
+        
+        {/* User Menu */}
+        <div className="hidden md:flex ml-4">
+          <UserMenu />
+        </div>
         
         {/* Mobile Menu Button */}
         <MobileNav 
