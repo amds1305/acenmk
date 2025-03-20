@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +21,6 @@ const Login = () => {
 
   const from = location.state?.from?.pathname || '/profile';
 
-  // Rediriger si déjà authentifié
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate('/profile');

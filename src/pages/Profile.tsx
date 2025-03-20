@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import Header from '@/components/Header'; // Fixed import
+import Footer from '@/components/Footer'; // Fixed import
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, User, Briefcase, Phone, Mail, Edit2, Save, MessageSquare, BarChart2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
