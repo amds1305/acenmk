@@ -28,8 +28,6 @@ const Header = () => {
         <DesktopNav 
           navLinks={navLinks}
           socialLinks={socialLinks}
-          theme={theme}
-          toggleTheme={toggleTheme}
           toggleSearch={toggleSearch}
         />
         

@@ -19,6 +19,9 @@ import Careers from "./pages/Careers";
 import ProjectEstimation from "./pages/ProjectEstimation";
 import ChatbotBubble from "./components/chatbot/ChatbotBubble";
 
+// Importer les variables CSS des thèmes
+import "./lib/theme-variables.css";
+
 const queryClient = new QueryClient();
 
 const App = () => (

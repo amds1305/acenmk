@@ -1,41 +1,60 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-type Theme = "light" | "dark";
+// Définir les types de thèmes disponibles
+export type ThemeName = "light" | "dark" | "purple" | "blue" | "green";
 
 type ThemeContextType = {
-  theme: Theme;
+  theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
   toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Check for saved theme preference or use system preference
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme) return savedTheme;
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    // Vérifier les préférences sauvegardées ou utiliser la préférence système
+    const savedTheme = localStorage.getItem("theme") as ThemeName;
+    if (savedTheme && ["light", "dark", "purple", "blue", "green"].includes(savedTheme)) {
+      return savedTheme;
+    }
     
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
 
-  // Update local storage and document class when theme changes
+  // Mettre à jour le localStorage et la classe du document lorsque le thème change
   useEffect(() => {
     localStorage.setItem("theme", theme);
     
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
+    // Supprimer toutes les classes de thème précédentes
+    document.documentElement.classList.remove("light", "dark", "theme-purple", "theme-blue", "theme-green");
+    
+    // Ajouter la classe appropriée en fonction du thème
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.classList.add(theme);
     } else {
-      document.documentElement.classList.remove("dark");
+      // Pour les thèmes personnalisés, on garde le mode de base (light/dark) et on ajoute la classe du thème
+      const baseTheme = theme.startsWith("dark-") ? "dark" : "light";
+      document.documentElement.classList.add(baseTheme);
+      document.documentElement.classList.add(`theme-${theme}`);
     }
   }, [theme]);
 
+  // Fonction pour basculer entre les modes sombre et clair uniquement
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === "light" ? "dark" : "light"));
+    setTheme((prevTheme) => {
+      if (prevTheme === "light" || prevTheme === "dark") {
+        return prevTheme === "light" ? "dark" : "light";
+      } else {
+        // Si on est sur un thème personnalisé, on alterne entre light et dark
+        return prevTheme.includes("dark") ? "light" : "dark";
+      }
+    });
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -2,22 +2,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
+import ThemeSelector from './ThemeSelector';
 
 interface DesktopNavProps {
   navLinks: NavLink[];
   socialLinks: SocialLink[];
-  theme: string;
-  toggleTheme: () => void;
   toggleSearch: () => void;
 }
 
 const DesktopNav: React.FC<DesktopNavProps> = ({
   navLinks,
   socialLinks,
-  theme,
-  toggleTheme,
   toggleSearch
 }) => {
   return (
@@ -35,14 +32,8 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
         ))}
       </nav>
       
-      {/* Theme toggle */}
-      <button
-        onClick={toggleTheme}
-        className="text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
-        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
+      {/* Theme Selector */}
+      <ThemeSelector />
       
       {/* Search button */}
       <button

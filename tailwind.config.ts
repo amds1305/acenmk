@@ -57,13 +57,21 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
-        // Nouvelles couleurs personnalisées
+        // Thèmes personnalisés
         theme: {
           navy: '#344E79',
           blue: '#90B7CF',
           teal: '#B3DDCD',
           mint: '#D0E7DA',
-          pink: '#E8BED3'
+          pink: '#E8BED3',
+          purple: {
+            light: '#9b87f5',
+            dark: '#6E59A5'
+          },
+          green: {
+            light: '#7CD992',
+            dark: '#2C9D4E'
+          }
         }
       },
       borderRadius: {
