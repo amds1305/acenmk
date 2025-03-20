@@ -378,9 +378,9 @@ const ProjectEstimation = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="urgent">Urgent (< 1 mois)</SelectItem>
+                              <SelectItem value="urgent">Urgent (&lt; 1 mois)</SelectItem>
                               <SelectItem value="normal">Normal (1-3 mois)</SelectItem>
-                              <SelectItem value="relaxed">Flexible (> 3 mois)</SelectItem>
+                              <SelectItem value="relaxed">Flexible (&gt; 3 mois)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
