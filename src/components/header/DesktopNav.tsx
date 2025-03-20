@@ -1,75 +1,63 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
-import ThemeSelector from './ThemeSelector';
 
 interface DesktopNavProps {
   navLinks: NavLink[];
   socialLinks: SocialLink[];
   toggleSearch: () => void;
+  themeSelector: React.ReactNode;
 }
 
-const DesktopNav: React.FC<DesktopNavProps> = ({
-  navLinks,
-  socialLinks,
-  toggleSearch
-}) => {
+const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: DesktopNavProps) => {
   return (
-    <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
-      <nav className="flex space-x-4 lg:space-x-8">
+    <div className="hidden md:flex items-center space-x-8">
+      {/* Navigation Links */}
+      <nav className="flex items-center space-x-6">
         {navLinks.map((link) => (
-          <a 
-            key={link.name}
-            href={link.href} 
-            className="text-sm font-medium text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors relative group"
+          <a
+            key={link.href}
+            href={link.href}
+            className="text-gray-700 dark:text-gray-200 hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors text-sm font-medium"
           >
             {link.name}
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#ca3c66] transition-all duration-300 group-hover:w-full"></span>
           </a>
         ))}
       </nav>
       
-      {/* Theme Selector */}
-      <ThemeSelector />
-      
-      {/* Search button */}
-      <button
-        onClick={toggleSearch}
-        className="text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
-        aria-label="Search"
-      >
-        <Search size={18} />
-      </button>
-      
-      {/* Social Links */}
-      <div className="flex items-center space-x-4">
-        {socialLinks.map((link, index) => (
-          <a 
-            key={index}
-            href={link.href}
-            aria-label={link.ariaLabel}
-            className="text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors border border-current rounded-full p-1.5 flex items-center justify-center"
-          >
-            <link.icon size={18} />
-          </a>
-        ))}
-      </div>
-      
-      {/* Auth Links */}
-      <div className="flex items-center space-x-3">
-        <Link to="/login">
-          <Button variant="ghost" className="text-sm font-medium text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66]">
-            Connexion
-          </Button>
-        </Link>
-        <Link to="/signup">
-          <Button variant="default" className="text-sm font-medium bg-theme-navy dark:bg-[#ca3c66] hover:bg-[#ca3c66]">
-            Inscription
-          </Button>
-        </Link>
+      {/* Social & Action Links */}
+      <div className="flex items-center gap-3">
+        {/* Social Links */}
+        <div className="flex items-center space-x-2">
+          {socialLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors"
+              aria-label={link.ariaLabel}
+            >
+              <link.icon size={18} />
+            </a>
+          ))}
+        </div>
+        
+        {/* Theme Selector */}
+        {themeSelector}
+        
+        {/* Search Button */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={toggleSearch}
+          className="text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors border border-current rounded-full w-9 h-9"
+        >
+          <Search size={18} />
+          <span className="sr-only">Rechercher</span>
+        </Button>
       </div>
     </div>
   );

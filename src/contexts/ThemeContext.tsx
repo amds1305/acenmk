@@ -34,9 +34,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     if (theme === "light" || theme === "dark") {
       document.documentElement.classList.add(theme);
     } else {
-      // Pour les thèmes personnalisés, on garde le mode de base (light/dark) et on ajoute la classe du thème
-      const baseTheme = theme.startsWith("dark-") ? "dark" : "light";
-      document.documentElement.classList.add(baseTheme);
+      // Pour les thèmes personnalisés, on garde le mode clair et on ajoute la classe du thème
+      document.documentElement.classList.add("light");
       document.documentElement.classList.add(`theme-${theme}`);
     }
   }, [theme]);
@@ -48,7 +47,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         return prevTheme === "light" ? "dark" : "light";
       } else {
         // Si on est sur un thème personnalisé, on alterne entre light et dark
-        return prevTheme.includes("dark") ? "light" : "dark";
+        return "dark";
       }
     });
   };

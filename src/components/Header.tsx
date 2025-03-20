@@ -8,6 +8,7 @@ import DesktopNav from './header/DesktopNav';
 import MobileNav from './header/MobileNav';
 import MobileMenu from './header/MobileMenu';
 import { useHeader } from './header/useHeader';
+import ThemeSelector from './header/ThemeSelector';
 
 const Header = () => {
   const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu } = useHeader();
@@ -29,6 +30,7 @@ const Header = () => {
           navLinks={navLinks}
           socialLinks={socialLinks}
           toggleSearch={toggleSearch}
+          themeSelector={<ThemeSelector />}
         />
         
         {/* Mobile Menu Button */}
