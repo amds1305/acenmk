@@ -1,7 +1,29 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type User = {
+export type Project = {
+  id: string;
+  title: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  lastUpdated: string;
+};
+
+export type Estimate = {
+  id: string;
+  title: string;
+  status: 'pending' | 'approved' | 'rejected';
+  date: string;
+  amount: number;
+};
+
+export type Message = {
+  id: string;
+  content: string;
+  date: string;
+  read: boolean;
+  sender: 'user' | 'admin';
+};
+
+export type User = {
   id: string;
   email: string;
   name: string;
@@ -12,29 +34,6 @@ type User = {
   createdAt: string;
   projects?: Project[];
   estimates?: Estimate[];
-};
-
-type Project = {
-  id: string;
-  title: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  lastUpdated: string;
-};
-
-type Estimate = {
-  id: string;
-  title: string;
-  status: 'pending' | 'approved' | 'rejected';
-  date: string;
-  amount: number;
-};
-
-type Message = {
-  id: string;
-  content: string;
-  date: string;
-  read: boolean;
-  sender: 'user' | 'admin';
 };
 
 type AuthContextType = {
