@@ -7,12 +7,23 @@ import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import SectionsManager from './home/SectionsManager';
 import { useSections } from '@/contexts/SectionsContext';
+import { HeroData } from '@/components/Hero';
 
 const AdminHome = () => {
   const { config, updateExistingSectionData, saveChanges } = useSections();
   
-  const handleHeroDataChange = (heroData: any) => {
-    updateExistingSectionData('hero', heroData);
+  // Create a properly typed heroData object with default values
+  const heroData: HeroData = {
+    title: 'Solutions numériques innovantes pour votre entreprise',
+    subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+    ctaText: 'Découvrir nos services',
+    ctaSecondaryText: 'Nous contacter',
+    backgroundImage: '',
+    ...(config.sectionData.hero || {}) // Merge with existing data if available
+  };
+
+  const handleHeroDataChange = (updatedHeroData: HeroData) => {
+    updateExistingSectionData('hero', updatedHeroData);
   };
 
   const handleSave = () => {
@@ -36,7 +47,7 @@ const AdminHome = () => {
         
         <TabsContent value="hero" className="space-y-4">
           <HeroEditCard 
-            heroData={config.sectionData.hero || {}} 
+            heroData={heroData} 
             setHeroData={handleHeroDataChange} 
             onSave={handleSave}
           />
