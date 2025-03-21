@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
@@ -10,6 +10,7 @@ import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/sectionsService';
 
 // Interface for section visibility
 export interface SectionVisibility {
@@ -22,39 +23,29 @@ export interface SectionVisibility {
   contact: boolean;
 }
 
-// Default visibility configuration
-const DEFAULT_VISIBLE_SECTIONS: SectionVisibility = {
-  hero: true,
-  services: true,
-  about: true,
-  team: true,
-  testimonials: true,
-  faq: true,
-  contact: true
-};
-
-// Simulated API call to fetch homepage configuration
-const fetchHomeConfig = async (): Promise<{ visibleSections: SectionVisibility }> => {
-  // In a real app, this would be an API call
-  // For demo, we'll use localStorage if available
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('homeVisibility');
-    if (stored) {
-      return { visibleSections: JSON.parse(stored) };
-    }
-  }
-  return { visibleSections: DEFAULT_VISIBLE_SECTIONS };
+// Component map for rendering sections
+const sectionComponents: Record<string, React.FC> = {
+  hero: Hero,
+  services: Services,
+  about: About,
+  team: Team,
+  testimonials: Testimonials,
+  faq: FaqSection,
+  contact: Contact,
 };
 
 const Index = () => {
   // Use React Query to fetch and cache the homepage configuration
   const { data: homeConfig, isLoading } = useQuery({
     queryKey: ['homeConfig'],
-    queryFn: fetchHomeConfig,
+    queryFn: () => getHomepageConfig(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
-  const visibleSections = homeConfig?.visibleSections || DEFAULT_VISIBLE_SECTIONS;
+  // Obtain sections to display
+  const sectionsToDisplay = homeConfig?.sections
+    .filter(section => section.visible)
+    .sort((a, b) => a.order - b.order) || [];
   
   useEffect(() => {
     // Initialize intersection observer for animations
@@ -82,7 +73,7 @@ const Index = () => {
         animatedElements.forEach((el) => observer.unobserve(el));
       }
     };
-  }, []);
+  }, [sectionsToDisplay]);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
@@ -92,13 +83,16 @@ const Index = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow dark:bg-gray-900">
-        {visibleSections.hero && <Hero />}
-        {visibleSections.services && <Services />}
-        {visibleSections.about && <About />}
-        {visibleSections.team && <Team />}
-        {visibleSections.testimonials && <Testimonials />}
-        {visibleSections.faq && <FaqSection />}
-        {visibleSections.contact && <Contact />}
+        {sectionsToDisplay.map((section) => {
+          const SectionComponent = sectionComponents[section.type];
+          
+          if (!SectionComponent) {
+            console.warn(`Section component not found for type: ${section.type}`);
+            return null;
+          }
+          
+          return <SectionComponent key={section.id} />;
+        })}
       </main>
       <Footer />
     </div>

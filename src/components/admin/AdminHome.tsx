@@ -1,85 +1,29 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
 import HomeHeader from './home/HomeHeader';
 import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
-import { SectionVisibility } from '@/pages/Index';
-import { HeroData } from '@/components/Hero';
+import SectionsManager from './home/SectionsManager';
+import { useSections } from '@/contexts/SectionsContext';
 
 const AdminHome = () => {
-  const { toast } = useToast();
+  const { config, updateExistingSectionData, saveChanges } = useSections();
   
-  const [heroData, setHeroData] = React.useState<HeroData>({
-    title: 'Transformez Votre Vision en Réalité Numérique',
-    subtitle: 'Solutions innovantes de développement web et mobile pour propulser votre entreprise vers l\'avenir',
-    ctaText: 'Discuter de votre projet',
-    ctaSecondaryText: 'Découvrir nos services',
-    backgroundImage: '/images/hero-bg.jpg'
-  });
-
-  const [visibleSections, setVisibleSections] = React.useState<SectionVisibility>({
-    hero: true,
-    services: true,
-    about: true,
-    team: true,
-    testimonials: true,
-    faq: true,
-    contact: true,
-  });
-
-  // Load saved settings from localStorage on component mount
-  useEffect(() => {
-    // Charger les paramètres de visibilité
-    const savedVisibility = localStorage.getItem('homeVisibility');
-    if (savedVisibility) {
-      try {
-        setVisibleSections(JSON.parse(savedVisibility));
-      } catch (error) {
-        console.error('Error parsing saved visibility settings:', error);
-      }
-    }
-    
-    // Charger les données du Hero
-    const savedHeroData = localStorage.getItem('heroData');
-    if (savedHeroData) {
-      try {
-        setHeroData(JSON.parse(savedHeroData));
-      } catch (error) {
-        console.error('Error parsing saved hero data:', error);
-      }
-    }
-  }, []);
-
-  const handleSave = () => {
-    // Save to localStorage for demo purposes
-    // In a real app, this would be an API call
-    localStorage.setItem('homeVisibility', JSON.stringify(visibleSections));
-    localStorage.setItem('heroData', JSON.stringify(heroData));
-    
-    toast({
-      title: "Modifications enregistrées",
-      description: "Les paramètres de la page d'accueil ont été mis à jour avec succès.",
-    });
+  const handleHeroDataChange = (heroData: any) => {
+    updateExistingSectionData('hero', heroData);
   };
 
-  const toggleSection = (section: keyof SectionVisibility) => {
-    setVisibleSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+  const handleSave = () => {
+    saveChanges();
   };
 
   return (
     <div className="space-y-6">
       <HomeHeader onSave={handleSave} />
-
-      <HomeVisibilityCard 
-        visibleSections={visibleSections} 
-        toggleSection={toggleSection} 
-      />
+      
+      <SectionsManager />
 
       <Tabs defaultValue="hero" className="w-full">
         <TabsList className="mb-4 grid grid-cols-3 sm:grid-cols-5">
@@ -92,8 +36,8 @@ const AdminHome = () => {
         
         <TabsContent value="hero" className="space-y-4">
           <HeroEditCard 
-            heroData={heroData} 
-            setHeroData={setHeroData} 
+            heroData={config.sectionData.hero || {}} 
+            setHeroData={handleHeroDataChange} 
             onSave={handleSave}
           />
         </TabsContent>

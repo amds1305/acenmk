@@ -6,29 +6,46 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
 import { HeroData } from '@/components/Hero';
 
 interface HeroEditCardProps {
   heroData: HeroData;
-  setHeroData: React.Dispatch<React.SetStateAction<HeroData>>;
+  setHeroData: (data: HeroData) => void;
   onSave?: () => void;
 }
 
 const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSave }) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Utiliser un état local pour éviter des mises à jour partielles
+  const [localHeroData, setLocalHeroData] = useState<HeroData>({
+    title: 'Solutions numériques innovantes pour votre entreprise',
+    subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+    ctaText: 'Découvrir nos services',
+    ctaSecondaryText: 'Nous contacter',
+    backgroundImage: '',
+    ...heroData
+  });
+
+  // Mettre à jour l'état local quand heroData change
+  useEffect(() => {
+    setLocalHeroData({
+      title: 'Solutions numériques innovantes pour votre entreprise',
+      subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+      ctaText: 'Découvrir nos services',
+      ctaSecondaryText: 'Nous contacter',
+      backgroundImage: '',
+      ...heroData
+    });
+  }, [heroData]);
 
   const handleSaveHero = () => {
     setIsSaving(true);
     
     try {
-      // Sauvegarder dans localStorage
-      localStorage.setItem('heroData', JSON.stringify(heroData));
-      
-      // Invalider le cache React Query pour que le composant Hero se mette à jour
-      queryClient.invalidateQueries({ queryKey: ['heroData'] });
+      // Mettre à jour les données en utilisant le setter fourni
+      setHeroData(localHeroData);
       
       toast({
         title: "Modifications sauvegardées",
@@ -55,25 +72,25 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (heroData.backgroundImage) {
+    if (localHeroData.backgroundImage) {
       // Si c'est une URL valide, utilisez-la directement
-      if (heroData.backgroundImage.startsWith('http')) {
-        setPreviewSrc(heroData.backgroundImage);
+      if (localHeroData.backgroundImage.startsWith('http')) {
+        setPreviewSrc(localHeroData.backgroundImage);
       } else {
         // Sinon, essayez de charger depuis les assets locaux
-        setPreviewSrc(heroData.backgroundImage);
+        setPreviewSrc(localHeroData.backgroundImage);
       }
     } else {
       setPreviewSrc(null);
     }
-  }, [heroData.backgroundImage]);
+  }, [localHeroData.backgroundImage]);
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Section Hero</CardTitle>
         <Button onClick={handleSaveHero} disabled={isSaving}>
-          {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+          {isSaving ? 'Sauvegarde...' : 'Appliquer les modifications'}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -81,8 +98,8 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
           <Label htmlFor="hero-title">Titre</Label>
           <Input 
             id="hero-title" 
-            value={heroData.title} 
-            onChange={(e) => setHeroData({...heroData, title: e.target.value})}
+            value={localHeroData.title} 
+            onChange={(e) => setLocalHeroData({...localHeroData, title: e.target.value})}
           />
         </div>
         
@@ -90,8 +107,8 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
           <Label htmlFor="hero-subtitle">Sous-titre</Label>
           <Textarea 
             id="hero-subtitle" 
-            value={heroData.subtitle} 
-            onChange={(e) => setHeroData({...heroData, subtitle: e.target.value})}
+            value={localHeroData.subtitle} 
+            onChange={(e) => setLocalHeroData({...localHeroData, subtitle: e.target.value})}
             rows={3}
           />
         </div>
@@ -101,8 +118,8 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
             <Label htmlFor="hero-cta">Texte du bouton principal</Label>
             <Input 
               id="hero-cta" 
-              value={heroData.ctaText} 
-              onChange={(e) => setHeroData({...heroData, ctaText: e.target.value})}
+              value={localHeroData.ctaText} 
+              onChange={(e) => setLocalHeroData({...localHeroData, ctaText: e.target.value})}
             />
           </div>
           
@@ -110,8 +127,8 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
             <Label htmlFor="hero-cta-secondary">Texte du bouton secondaire</Label>
             <Input 
               id="hero-cta-secondary" 
-              value={heroData.ctaSecondaryText} 
-              onChange={(e) => setHeroData({...heroData, ctaSecondaryText: e.target.value})}
+              value={localHeroData.ctaSecondaryText} 
+              onChange={(e) => setLocalHeroData({...localHeroData, ctaSecondaryText: e.target.value})}
             />
           </div>
         </div>
@@ -122,15 +139,15 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
             <div className="flex-1">
               <Input 
                 id="hero-background" 
-                value={heroData.backgroundImage} 
-                onChange={(e) => setHeroData({...heroData, backgroundImage: e.target.value})}
+                value={localHeroData.backgroundImage} 
+                onChange={(e) => setLocalHeroData({...localHeroData, backgroundImage: e.target.value})}
                 placeholder="https://exemple.com/image.jpg"
               />
             </div>
             <Button 
               variant="outline" 
-              onClick={() => setHeroData({...heroData, backgroundImage: ''})}
-              disabled={!heroData.backgroundImage}
+              onClick={() => setLocalHeroData({...localHeroData, backgroundImage: ''})}
+              disabled={!localHeroData.backgroundImage}
             >
               Effacer
             </Button>
@@ -152,7 +169,7 @@ const HeroEditCard: React.FC<HeroEditCardProps> = ({ heroData, setHeroData, onSa
               />
             </div>
           )}
-          {!previewSrc && heroData.backgroundImage && (
+          {!previewSrc && localHeroData.backgroundImage && (
             <div className="mt-2 border rounded-md overflow-hidden h-40 bg-gray-50 flex items-center justify-center text-gray-400">
               [Aperçu non disponible]
             </div>

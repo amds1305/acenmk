@@ -3,6 +3,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/sectionsService';
 
 export interface HeroData {
   title: string;
@@ -14,11 +15,11 @@ export interface HeroData {
 
 // Fonction pour récupérer les données du Hero
 const fetchHeroData = async (): Promise<HeroData> => {
-  // Dans une application réelle, ce serait un appel d'API
-  // Pour cette démo, on utilise le localStorage
-  const storedData = localStorage.getItem('heroData');
-  if (storedData) {
-    return JSON.parse(storedData);
+  // Utiliser le nouveau service pour récupérer les données
+  const config = getHomepageConfig();
+  
+  if (config.sectionData && config.sectionData.hero) {
+    return config.sectionData.hero as HeroData;
   }
   
   // Valeurs par défaut si aucune donnée n'est stockée
