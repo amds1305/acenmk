@@ -22,6 +22,7 @@ import ChatbotBubble from "./components/chatbot/ChatbotBubble";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Appointments from "./pages/Appointments";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 // Importer les variables CSS des thèmes
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="/faq" element={<Faq />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/estimate" element={<ProjectEstimation />} />
+                <Route path="/appointments" element={<Appointments />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile />} />
