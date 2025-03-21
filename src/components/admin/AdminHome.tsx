@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import HomeHeader from './home/HomeHeader';
@@ -7,11 +7,12 @@ import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import { SectionVisibility } from '@/pages/Index';
+import { HeroData } from '@/components/Hero';
 
 const AdminHome = () => {
   const { toast } = useToast();
   
-  const [heroData, setHeroData] = React.useState({
+  const [heroData, setHeroData] = React.useState<HeroData>({
     title: 'Transformez Votre Vision en Réalité Numérique',
     subtitle: 'Solutions innovantes de développement web et mobile pour propulser votre entreprise vers l\'avenir',
     ctaText: 'Discuter de votre projet',
@@ -30,7 +31,8 @@ const AdminHome = () => {
   });
 
   // Load saved settings from localStorage on component mount
-  React.useEffect(() => {
+  useEffect(() => {
+    // Charger les paramètres de visibilité
     const savedVisibility = localStorage.getItem('homeVisibility');
     if (savedVisibility) {
       try {
@@ -39,15 +41,23 @@ const AdminHome = () => {
         console.error('Error parsing saved visibility settings:', error);
       }
     }
+    
+    // Charger les données du Hero
+    const savedHeroData = localStorage.getItem('heroData');
+    if (savedHeroData) {
+      try {
+        setHeroData(JSON.parse(savedHeroData));
+      } catch (error) {
+        console.error('Error parsing saved hero data:', error);
+      }
+    }
   }, []);
 
   const handleSave = () => {
     // Save to localStorage for demo purposes
     // In a real app, this would be an API call
     localStorage.setItem('homeVisibility', JSON.stringify(visibleSections));
-    
-    // Here we would normally save heroData to the backend too
-    console.log('Hero data', heroData);
+    localStorage.setItem('heroData', JSON.stringify(heroData));
     
     toast({
       title: "Modifications enregistrées",
@@ -81,7 +91,11 @@ const AdminHome = () => {
         </TabsList>
         
         <TabsContent value="hero" className="space-y-4">
-          <HeroEditCard heroData={heroData} setHeroData={setHeroData} />
+          <HeroEditCard 
+            heroData={heroData} 
+            setHeroData={setHeroData} 
+            onSave={handleSave}
+          />
         </TabsContent>
         
         <TabsContent value="services">

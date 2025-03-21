@@ -2,8 +2,42 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+
+export interface HeroData {
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaSecondaryText: string;
+  backgroundImage: string;
+}
+
+// Fonction pour récupérer les données du Hero
+const fetchHeroData = async (): Promise<HeroData> => {
+  // Dans une application réelle, ce serait un appel d'API
+  // Pour cette démo, on utilise le localStorage
+  const storedData = localStorage.getItem('heroData');
+  if (storedData) {
+    return JSON.parse(storedData);
+  }
+  
+  // Valeurs par défaut si aucune donnée n'est stockée
+  return {
+    title: 'Solutions numériques innovantes pour votre entreprise',
+    subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+    ctaText: 'Découvrir nos services',
+    ctaSecondaryText: 'Nous contacter',
+    backgroundImage: '',
+  };
+};
 
 const Hero = () => {
+  const { data: heroData } = useQuery({
+    queryKey: ['heroData'],
+    queryFn: fetchHeroData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center pt-20 px-4 sm:px-6 lg:px-8 overflow-hidden kbase-gradient">
       {/* Background decoration */}
@@ -19,10 +53,10 @@ const Hero = () => {
                 Entreprise de Services du Numérique
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-display">
-                Solutions numériques <span className="text-primary">innovantes</span> pour votre entreprise
+                {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
               </h1>
               <p className="mt-6 text-lg text-gray-600 max-w-lg">
-                Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.
+                {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
               </p>
             </div>
             
@@ -35,7 +69,7 @@ const Hero = () => {
                   "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
                 )}
               >
-                Découvrir nos services
+                {heroData?.ctaText || 'Découvrir nos services'}
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               
@@ -43,7 +77,7 @@ const Hero = () => {
                 href="#contact" 
                 className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-gray-300 bg-white/80 backdrop-blur-sm text-gray-800 font-medium transition-colors hover:bg-gray-50"
               >
-                Nous contacter
+                {heroData?.ctaSecondaryText || 'Nous contacter'}
               </a>
             </div>
             
