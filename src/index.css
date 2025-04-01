@@ -16,16 +16,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221 83% 53%; /* Plus vibrant: #3B82F6 */
+    --primary: 221 83% 53%; /* #3B82F6 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 217 33% 17%; /* Plus contrasté: #1E293B */
+    --secondary: 217 33% 17%; /* #1E293B */
     --secondary-foreground: 210 40% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 221 83% 95%; /* Accent assorti au primaire */
+    --accent: 221 83% 95%; 
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -51,11 +51,11 @@
   }
   
   .glass-panel {
-    @apply bg-white/90 backdrop-blur-lg border border-white/20 shadow-md rounded-2xl;
+    @apply bg-white shadow-lg rounded-xl border border-gray-100;
   }
   
   .section {
-    @apply py-28 px-4 sm:px-6 md:px-8 lg:px-12 max-w-7xl mx-auto; /* Plus d'espace vertical */
+    @apply py-24 px-4 sm:px-6 md:px-8 lg:px-12 max-w-7xl mx-auto;
   }
   
   .section-title {
@@ -63,32 +63,32 @@
   }
   
   .section-subtitle {
-    @apply text-lg text-muted-foreground mb-16 max-w-3xl; /* Plus d'espace après le sous-titre */
+    @apply text-lg text-gray-500 mb-16 max-w-3xl;
   }
   
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
 
-  /* Styles KBase */
+  /* Style inspiré de shelf.nu */
   .gradient-bg {
-    @apply bg-gradient-to-br from-blue-50 to-indigo-50;
+    @apply bg-white;
   }
   
   .kbase-gradient {
-    @apply bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50;
+    @apply bg-white;
   }
 
   .animated-border {
-    @apply relative before:absolute before:inset-0 before:p-[2px] before:rounded-2xl before:bg-gradient-to-r before:from-primary/60 before:to-primary/80 before:opacity-70 before:blur-sm;
+    @apply relative;
   }
   
   .heading-underline {
-    @apply relative inline-block after:content-[''] after:absolute after:w-28 after:h-1 after:bg-primary after:-bottom-4 after:left-0;
+    @apply relative after:content-[''] after:absolute after:w-16 after:h-1 after:bg-primary after:-bottom-4 after:left-0;
   }
 
   .heading-underline-center {
-    @apply relative inline-block after:content-[''] after:absolute after:w-28 after:h-1 after:bg-primary after:-bottom-4 after:left-1/2 after:-translate-x-1/2;
+    @apply relative after:content-[''] after:absolute after:w-16 after:h-1 after:bg-primary after:-bottom-4 after:left-1/2 after:-translate-x-1/2;
   }
 
   .feature-card {
@@ -96,31 +96,16 @@
     hover:-translate-y-1 hover:shadow-xl;
   }
 
-  .feature-card::after {
-    @apply content-[''] absolute top-0 right-0 w-32 h-32 bg-primary/5 
-    rounded-full -mr-10 -mt-10 transition-transform duration-500;
-  }
-
-  .feature-card:hover::after {
-    @apply scale-[2.5];
-  }
-
-  /* Nouveaux styles pour un look plus moderne */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-8 py-3 rounded-full
-    bg-primary text-white font-medium transition-all duration-300
-    hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg
+    bg-primary text-white font-medium shadow-sm transition-all duration-200
+    hover:shadow-md hover:bg-primary/90;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-8 py-3 rounded-full
-    border border-gray-300 bg-white/80 backdrop-blur-sm text-gray-800 font-medium 
-    transition-colors hover:bg-gray-50 hover:border-primary/20;
-  }
-
-  .card-modern {
-    @apply bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 
-    rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg
+    border border-gray-200 bg-white text-gray-700 font-medium shadow-sm 
+    transition-colors hover:bg-gray-50;
   }
 }
 

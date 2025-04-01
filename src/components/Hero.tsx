@@ -40,31 +40,27 @@ const Hero = () => {
   });
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center pt-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-[url('https://kbase.vedicthemes.com/wp-content/uploads/2023/11/Polygon-12.svg')] bg-contain bg-no-repeat bg-right-top opacity-30"></div>
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
+    <section id="hero" className="relative min-h-screen flex items-center pt-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
+      {/* Background decoration - Simplifiée comme sur shelf.nu */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-blue-50/80"></div>
+        <div className="absolute bottom-32 left-10 w-40 h-40 rounded-full bg-blue-50/50"></div>
+      </div>
       
       <div className="max-w-7xl mx-auto w-full z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-6 items-center">
-          <div className="space-y-8 animate-fade-in-up">
-            <div>
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
-                Entreprise de Services du Numérique
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-display text-secondary">
-                {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
-              </h1>
-              <p className="mt-6 text-lg text-gray-600 max-w-lg">
-                {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
-              </p>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+          <div className="lg:col-span-3 space-y-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-secondary">
+              {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl">
+              {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
+            </p>
             
-            <div className="flex flex-wrap gap-4">
-              <a href="#services" className="btn-primary group">
+            <div className="flex flex-wrap gap-4 pt-4">
+              <a href="#services" className="btn-primary flex items-center gap-2">
                 {heroData?.ctaText || 'Découvrir nos services'}
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4" />
               </a>
               
               <a href="#contact" className="btn-secondary">
@@ -72,45 +68,33 @@ const Hero = () => {
               </a>
             </div>
             
-            <div className="flex items-center space-x-6 pt-6">
+            <div className="flex flex-col gap-2 pt-8">
               <p className="text-sm font-medium text-gray-500">Ils nous font confiance :</p>
-              <div className="flex space-x-8">
-                {/* Client logos */}
-                <div className="h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+              <div className="flex flex-wrap gap-8 items-center">
+                {/* Client logos avec style shelf.nu */}
+                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
                   <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
                 </div>
-                <div className="h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
                   <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
                 </div>
-                <div className="h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
                   <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="relative">
-            <div className="glass-panel p-5 md:p-10 animate-blur-in animated-border animate-float">
-              <div className="aspect-video rounded-lg overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="inline-block p-4 rounded-full bg-primary/10 mb-4">
-                      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-2xl font-medium text-secondary font-display">Explorez notre univers digital</h3>
-                    <p className="mt-2 text-gray-600">
-                      Découvrez comment nos solutions transforment les entreprises.
-                    </p>
-                  </div>
-                </div>
+          <div className="lg:col-span-2">
+            <div className="glass-panel shadow-xl overflow-hidden rounded-2xl">
+              <div className="w-full">
+                <img 
+                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop" 
+                  alt="Digital Solutions" 
+                  className="w-full h-auto object-cover aspect-video"
+                />
               </div>
             </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-primary/20 rounded-xl animate-slide-in-right animation-delay-200"></div>
-            <div className="absolute -top-6 -left-6 h-16 w-16 border border-primary/20 rounded-lg animate-slide-in-right animation-delay-300"></div>
           </div>
         </div>
       </div>
