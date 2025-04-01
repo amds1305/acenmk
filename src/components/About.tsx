@@ -36,7 +36,7 @@ const About = () => {
             </p>
           </div>
           
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {[
               'Plus de 100 projets réalisés avec succès',
               'Une équipe de 50+ experts passionnés',
@@ -62,7 +62,7 @@ const About = () => {
         
         <div className="relative order-1 lg:order-2">
           <div className="glass-panel p-8 overflow-hidden">
-            <h3 className="text-2xl font-semibold mb-6 text-secondary">Nos valeurs</h3>
+            <h3 className="text-2xl font-medium mb-6 text-secondary">Nos valeurs</h3>
             <div className="space-y-6">
               {values.map((value, index) => (
                 <div key={index} className="flex items-start gap-4">

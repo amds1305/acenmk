@@ -53,18 +53,18 @@ const Services = () => {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
         {services.map((service, index) => (
           <div 
             key={index}
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
+            className="bg-white p-8 rounded-lg border border-gray-100 transition-colors hover:border-primary/20"
           >
-            <div className="mb-4 inline-flex items-center justify-center p-2 rounded-lg bg-primary/10">
+            <div className="mb-5 inline-flex items-center justify-center p-3 rounded-lg bg-primary/10">
               {service.icon}
             </div>
             
-            <h3 className="text-xl font-semibold mb-3 text-secondary">{service.title}</h3>
-            <p className="text-gray-600 mb-4">{service.description}</p>
+            <h3 className="text-xl font-medium mb-3 text-secondary">{service.title}</h3>
+            <p className="text-gray-600 mb-5">{service.description}</p>
             
             <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">
               En savoir plus

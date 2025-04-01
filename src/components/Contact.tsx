@@ -62,7 +62,7 @@ const Contact = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mt-16">
         <div className="space-y-6 opacity-0 animate-fade-in-up">
-          <h3 className="text-2xl font-semibold mb-6">Laissez-nous un message</h3>
+          <h3 className="text-2xl font-medium mb-6">Laissez-nous un message</h3>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -75,7 +75,7 @@ const Contact = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
                   placeholder="Votre nom"
                 />
               </div>
@@ -88,7 +88,7 @@ const Contact = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -103,7 +103,7 @@ const Contact = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
                   placeholder="+33 6 12 34 56 78"
                 />
               </div>
@@ -115,7 +115,7 @@ const Contact = () => {
                   required
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition bg-white"
                 >
                   <option value="">Sélectionnez un sujet</option>
                   <option value="Projet web">Projet web</option>
@@ -136,14 +136,14 @@ const Contact = () => {
                 rows={5}
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
                 placeholder="Décrivez votre projet ou votre demande..."
               ></textarea>
             </div>
             
             <button
               type="submit"
-              className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white font-medium transition-colors hover:bg-primary/90 w-full md:w-auto"
+              className="px-6 py-3 rounded-lg bg-primary text-white font-medium transition-colors hover:bg-primary/90 w-full md:w-auto"
             >
               Envoyer le message
             </button>
@@ -152,7 +152,7 @@ const Contact = () => {
         
         <div className="opacity-0 animate-fade-in-up animation-delay-300">
           <div className="glass-panel p-6 md:p-8 h-full">
-            <h3 className="text-2xl font-semibold mb-8">Informations de contact</h3>
+            <h3 className="text-2xl font-medium mb-8">Informations de contact</h3>
             
             <div className="space-y-6 mb-10">
               {contactInfo.map((info, index) => (
