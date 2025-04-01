@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -183,7 +182,7 @@ const Appointments = () => {
             
             <TabsContent value="new" className="space-y-8">
               {!isAuthenticated && (
-                <Alert variant="warning" className="my-4">
+                <Alert variant="default" className="my-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Information</AlertTitle>
                   <AlertDescription>

@@ -1,5 +1,5 @@
 
-import { Appointment, AppointmentType, TimeSlot } from '@/types/appointment';
+import { Appointment, AppointmentType, TimeSlot, AppointmentStatus } from '@/types/appointment';
 import { v4 as uuidv4 } from 'uuid';
 
 // Mock data for appointment types
