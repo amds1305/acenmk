@@ -33,9 +33,10 @@ const teamMembers = [
 
 const Team = () => {
   return (
-    <section id="team" className="section">
+    <section id="team" className="section bg-gradient-to-b from-gray-50 to-white">
       <div className="text-center">
-        <h2 className="section-title">Notre équipe</h2>
+        <span className="bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full inline-block mb-4">Notre Équipe</span>
+        <h2 className="section-title heading-underline-center text-secondary">Experts Passionnés</h2>
         <p className="section-subtitle mx-auto">
           Des experts passionnés qui font la différence dans chaque projet
         </p>
@@ -51,12 +52,12 @@ const Team = () => {
             )}
           >
             <div className="relative group">
-              <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center">
                   <div className="text-5xl font-light text-gray-300">{member.name.charAt(0)}</div>
                 </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-6">
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-6">
                 <div className="flex space-x-4">
                   <a href="#" className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/40 transition-colors">
                     <Linkedin className="h-5 w-5 text-white" />
@@ -68,7 +69,7 @@ const Team = () => {
               </div>
             </div>
             <div className="p-6">
-              <h3 className="text-lg font-semibold">{member.name}</h3>
+              <h3 className="text-lg font-semibold text-secondary">{member.name}</h3>
               <p className="text-primary text-sm font-medium mt-1">{member.role}</p>
               <p className="text-gray-600 text-sm mt-3">{member.bio}</p>
             </div>
@@ -78,11 +79,11 @@ const Team = () => {
       
       <div className="mt-20 flex items-center justify-center">
         <div className="glass-panel p-8 max-w-2xl text-center opacity-0 animate-fade-in animation-delay-500">
-          <h3 className="text-xl font-medium mb-4">Rejoignez notre équipe !</h3>
+          <h3 className="text-xl font-medium mb-4 text-secondary">Rejoignez notre équipe !</h3>
           <p className="text-gray-600 mb-6">
             Nous sommes toujours à la recherche de talents passionnés par la technologie et l'innovation.
           </p>
-          <Button asChild>
+          <Button asChild className="bg-primary hover:bg-primary/90">
             <a 
               href="/careers" 
               className="inline-flex items-center justify-center"

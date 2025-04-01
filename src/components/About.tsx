@@ -27,8 +27,8 @@ const About = () => {
         <div className="space-y-8 order-2 lg:order-1">
           <div>
             <span className="bg-primary/10 text-primary text-sm font-medium px-4 py-1.5 rounded-full inline-block mb-4">À propos de nous</span>
-            <h2 className="section-title heading-underline">Notre Histoire</h2>
-            <p className="text-lg text-gray-600 mb-6 mt-12">
+            <h2 className="section-title heading-underline text-secondary">Notre Histoire</h2>
+            <p className="text-lg text-gray-700 mb-6 mt-12">
               Fondée en 2015, notre ESN s'est rapidement imposée comme un acteur incontournable du numérique, combinant expertise technique et vision stratégique.
             </p>
             <p className="text-gray-600 mb-6">
@@ -53,16 +53,16 @@ const About = () => {
           </ul>
 
           <div className="pt-4">
-            <a href="#team" className="inline-flex items-center text-primary font-medium hover:text-primary/80 transition-colors">
+            <a href="#team" className="btn-primary group">
               Découvrez notre équipe
-              <ChevronRight className="ml-1 h-4 w-4" />
+              <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
           </div>
         </div>
         
         <div className="relative order-1 lg:order-2">
           <div className="glass-panel p-8 md:p-10 animate-fade-in animated-border">
-            <h3 className="text-2xl font-semibold mb-8 font-display">Nos valeurs</h3>
+            <h3 className="text-2xl font-semibold mb-8 font-display text-secondary">Nos valeurs</h3>
             <div className="space-y-8">
               {values.map((value, index) => (
                 <div key={index} className="flex space-x-5">
@@ -70,7 +70,7 @@ const About = () => {
                     {value.icon}
                   </div>
                   <div>
-                    <h4 className="text-xl font-medium font-display">{value.title}</h4>
+                    <h4 className="text-xl font-medium font-display text-secondary">{value.title}</h4>
                     <p className="text-gray-600 mt-2">{value.description}</p>
                   </div>
                 </div>

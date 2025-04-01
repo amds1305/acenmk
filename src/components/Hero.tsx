@@ -40,9 +40,9 @@ const Hero = () => {
   });
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center pt-20 px-4 sm:px-6 lg:px-8 overflow-hidden kbase-gradient">
+    <section id="hero" className="relative min-h-screen flex items-center pt-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-[url('https://kbase.vedicthemes.com/wp-content/uploads/2023/11/Polygon-12.svg')] bg-contain bg-no-repeat bg-right-top opacity-50"></div>
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-[url('https://kbase.vedicthemes.com/wp-content/uploads/2023/11/Polygon-12.svg')] bg-contain bg-no-repeat bg-right-top opacity-30"></div>
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"></div>
       
@@ -53,7 +53,7 @@ const Hero = () => {
               <div className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
                 Entreprise de Services du Numérique
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-display">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-display text-secondary">
                 {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
               </h1>
               <p className="mt-6 text-lg text-gray-600 max-w-lg">
@@ -62,22 +62,12 @@ const Hero = () => {
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <a 
-                href="#services" 
-                className={cn(
-                  "group inline-flex items-center justify-center h-14 px-8 rounded-full",
-                  "bg-primary text-white font-medium transition-all duration-300",
-                  "hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
-                )}
-              >
+              <a href="#services" className="btn-primary group">
                 {heroData?.ctaText || 'Découvrir nos services'}
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               
-              <a 
-                href="#contact" 
-                className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-gray-300 bg-white/80 backdrop-blur-sm text-gray-800 font-medium transition-colors hover:bg-gray-50"
-              >
+              <a href="#contact" className="btn-secondary">
                 {heroData?.ctaSecondaryText || 'Nous contacter'}
               </a>
             </div>
@@ -109,7 +99,7 @@ const Hero = () => {
                         <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"/>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-medium text-gray-900 font-display">Explorez notre univers digital</h3>
+                    <h3 className="text-2xl font-medium text-secondary font-display">Explorez notre univers digital</h3>
                     <p className="mt-2 text-gray-600">
                       Découvrez comment nos solutions transforment les entreprises.
                     </p>
@@ -119,7 +109,7 @@ const Hero = () => {
             </div>
             
             {/* Decorative elements */}
-            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-secondary rounded-xl animate-slide-in-right animation-delay-200"></div>
+            <div className="absolute -bottom-6 -right-6 h-24 w-24 bg-primary/20 rounded-xl animate-slide-in-right animation-delay-200"></div>
             <div className="absolute -top-6 -left-6 h-16 w-16 border border-primary/20 rounded-lg animate-slide-in-right animation-delay-300"></div>
           </div>
         </div>
