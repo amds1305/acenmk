@@ -40,60 +40,65 @@ const Hero = () => {
   });
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center pt-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
-      {/* Background decoration - Simplifiée comme sur shelf.nu */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-blue-50/80"></div>
-        <div className="absolute bottom-32 left-10 w-40 h-40 rounded-full bg-blue-50/50"></div>
-      </div>
+    <section id="hero" className="relative min-h-[90vh] flex items-center elite-gradient text-white overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 dot-pattern opacity-20"></div>
       
-      <div className="max-w-7xl mx-auto w-full z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-          <div className="lg:col-span-3 space-y-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-secondary">
-              {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl">
+      {/* Blue light effect */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-400 rounded-full blur-3xl opacity-20"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-10"></div>
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 z-10 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 space-y-8">
+            <div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
+              </h1>
+              <div className="w-20 h-1.5 bg-primary mt-8"></div>
+            </div>
+            
+            <p className="text-xl text-gray-200 max-w-2xl mt-6">
               {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
             </p>
             
-            <div className="flex flex-wrap gap-4 pt-4">
-              <a href="#services" className="btn-primary flex items-center gap-2">
+            <div className="flex flex-wrap gap-4 pt-8">
+              <a href="#services" className="elite-button group">
                 {heroData?.ctaText || 'Découvrir nos services'}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               
-              <a href="#contact" className="btn-secondary">
+              <a href="#contact" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-white/10 text-white backdrop-blur-sm border border-white/20 font-medium transition-all duration-200 hover:bg-white/20">
                 {heroData?.ctaSecondaryText || 'Nous contacter'}
               </a>
             </div>
-            
-            <div className="flex flex-col gap-2 pt-8">
-              <p className="text-sm font-medium text-gray-500">Ils nous font confiance :</p>
-              <div className="flex flex-wrap gap-8 items-center">
-                {/* Client logos avec style shelf.nu */}
-                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
-                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
-                </div>
-                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
-                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
-                </div>
-                <div className="h-8 w-auto grayscale opacity-70 hover:opacity-100 transition-opacity">
-                  <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto" />
-                </div>
+          </div>
+          
+          <div className="lg:col-span-5">
+            <div className="relative">
+              <div className="absolute -top-6 -left-6 w-full h-full bg-primary/20 rounded-xl"></div>
+              <div className="glass-panel bg-white/5 backdrop-blur-sm border border-white/20 overflow-hidden rounded-xl relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" 
+                  alt="Digital Solutions" 
+                  className="w-full h-auto"
+                />
               </div>
             </div>
           </div>
-          
-          <div className="lg:col-span-2">
-            <div className="glass-panel shadow-xl overflow-hidden rounded-2xl">
-              <div className="w-full">
-                <img 
-                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop" 
-                  alt="Digital Solutions" 
-                  className="w-full h-auto object-cover aspect-video"
-                />
-              </div>
+        </div>
+        
+        <div className="mt-24 pt-10 border-t border-white/10">
+          <p className="text-sm font-medium text-gray-300 mb-4">Ils nous font confiance</p>
+          <div className="flex flex-wrap gap-8 items-center">
+            <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert" />
+            </div>
+            <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert" />
+            </div>
+            <div className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert" />
             </div>
           </div>
         </div>

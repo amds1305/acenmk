@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
@@ -42,65 +42,72 @@ const Testimonials = () => {
   };
   
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="elite-section elite-gradient text-white">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center">
-          <h2 className="section-title">Ce que nos clients disent</h2>
-          <p className="section-subtitle mx-auto mt-4">
+          <span className="inline-block text-sm font-medium text-white/80 uppercase tracking-wider mb-4">Témoignages</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ce que nos clients disent</h2>
+          <div className="w-20 h-1 bg-primary mx-auto"></div>
+          <p className="text-xl text-gray-200 mt-8 max-w-3xl mx-auto">
             La satisfaction de nos clients est notre priorité absolue
           </p>
         </div>
         
         <div className="mt-16 relative">
-          <div className="relative max-w-3xl mx-auto">
+          <div className="relative max-w-4xl mx-auto">
+            <div className="absolute top-0 left-0 -translate-x-8 -translate-y-8">
+              <Quote className="h-20 w-20 text-primary/30" fill="currentColor" />
+            </div>
+            
             {/* Testimonial Card */}
             <div 
-              className="glass-panel p-8 md:p-10 transition-all duration-500 animate-fade-in"
+              className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-lg transition-all duration-500 animate-fade-in relative z-10"
               key={testimonials[activeIndex].id}
             >
-              <div className="flex flex-col sm:flex-row items-center sm:items-start mb-6">
-                <div className="flex-shrink-0 mb-4 sm:mb-0 sm:mr-6">
+              <div className="max-w-3xl mx-auto text-center">
+                <p className="text-xl md:text-2xl italic text-gray-100 mb-8">
+                  "{testimonials[activeIndex].content}"
+                </p>
+                
+                <div className="flex flex-col items-center">
                   <img 
                     src={testimonials[activeIndex].image} 
                     alt={testimonials[activeIndex].name}
-                    className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md"
+                    className="h-16 w-16 rounded-full object-cover border-2 border-primary"
                   />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold">{testimonials[activeIndex].name}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">{testimonials[activeIndex].role}</p>
-                  <div className="flex items-center mt-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={cn(
-                          "h-4 w-4", 
-                          i < testimonials[activeIndex].rating 
-                            ? "text-yellow-400 fill-yellow-400" 
-                            : "text-gray-300"
-                        )} 
-                      />
-                    ))}
+                  
+                  <div className="mt-4">
+                    <h3 className="text-xl font-bold">{testimonials[activeIndex].name}</h3>
+                    <p className="text-gray-300 text-sm">{testimonials[activeIndex].role}</p>
+                    <div className="flex items-center justify-center mt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={cn(
+                            "h-4 w-4", 
+                            i < testimonials[activeIndex].rating 
+                              ? "text-yellow-400 fill-yellow-400" 
+                              : "text-gray-500"
+                          )} 
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <p className="text-lg italic text-gray-700 dark:text-gray-200">
-                "{testimonials[activeIndex].content}"
-              </p>
             </div>
             
             {/* Navigation Buttons */}
             <button 
               onClick={goToPrevious}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full p-3 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all hover:bg-[#ca3c66] hover:text-white"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <button 
               onClick={goToNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 rounded-full p-3 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all hover:bg-[#ca3c66] hover:text-white"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
               aria-label="Next testimonial"
             >
               <ChevronRight className="h-6 w-6" />
@@ -108,14 +115,14 @@ const Testimonials = () => {
           </div>
           
           {/* Indicators */}
-          <div className="flex justify-center mt-8 space-x-2">
+          <div className="flex justify-center mt-10 space-x-2">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
                 className={cn(
                   "h-2.5 rounded-full transition-all duration-300",
-                  index === activeIndex ? "w-8 bg-[#ca3c66]" : "w-2.5 bg-gray-300 dark:bg-gray-600"
+                  index === activeIndex ? "w-8 bg-primary" : "w-2.5 bg-white/30"
                 )}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
