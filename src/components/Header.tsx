@@ -18,8 +18,8 @@ const Header = () => {
   return (
     <header 
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4',
-        isScrolled ? 'header-glass' : 'bg-transparent',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-2',
+        isScrolled ? 'header-glass border-b border-gray-200 dark:border-gray-800' : 'bg-transparent',
         searchOpen && 'h-32'
       )}
     >

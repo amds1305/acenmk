@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const testimonials = [
   {
@@ -42,11 +43,11 @@ const Testimonials = () => {
   };
   
   return (
-    <section className="elite-section elite-gradient text-white">
+    <section className="elite-section elite-gradient text-white py-32">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center">
-          <span className="inline-block text-sm font-medium text-white/80 uppercase tracking-wider mb-4">Témoignages</span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ce que nos clients disent</h2>
+        <div className="text-center animate-fade-in">
+          <span className="inline-block text-sm font-medium bg-white/10 text-white/90 px-4 py-1.5 rounded-full mb-4">Témoignages</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">Ce que nos clients disent</h2>
           <div className="w-20 h-1 bg-primary mx-auto"></div>
           <p className="text-xl text-gray-200 mt-8 max-w-3xl mx-auto">
             La satisfaction de nos clients est notre priorité absolue
@@ -61,11 +62,11 @@ const Testimonials = () => {
             
             {/* Testimonial Card */}
             <div 
-              className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-lg transition-all duration-500 animate-fade-in relative z-10"
+              className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-2xl transition-all duration-500 animate-fade-in relative z-10 shadow-xl"
               key={testimonials[activeIndex].id}
             >
               <div className="max-w-3xl mx-auto text-center">
-                <p className="text-xl md:text-2xl italic text-gray-100 mb-8">
+                <p className="text-xl md:text-2xl italic text-gray-100 mb-8 leading-relaxed">
                   "{testimonials[activeIndex].content}"
                 </p>
                 
@@ -73,7 +74,7 @@ const Testimonials = () => {
                   <img 
                     src={testimonials[activeIndex].image} 
                     alt={testimonials[activeIndex].name}
-                    className="h-16 w-16 rounded-full object-cover border-2 border-primary"
+                    className="h-20 w-20 rounded-full object-cover border-2 border-primary shadow-lg hover-scale"
                   />
                   
                   <div className="mt-4">
@@ -98,20 +99,24 @@ const Testimonials = () => {
             </div>
             
             {/* Navigation Buttons */}
-            <button 
+            <Button 
               onClick={goToPrevious}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+              variant="outline"
+              size="icon"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all hover-scale"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="h-6 w-6" />
-            </button>
-            <button 
+            </Button>
+            <Button 
               onClick={goToNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+              variant="outline"
+              size="icon"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 rounded-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all hover-scale"
               aria-label="Next testimonial"
             >
               <ChevronRight className="h-6 w-6" />
-            </button>
+            </Button>
           </div>
           
           {/* Indicators */}
@@ -121,8 +126,8 @@ const Testimonials = () => {
                 key={index}
                 onClick={() => setActiveIndex(index)}
                 className={cn(
-                  "h-2.5 rounded-full transition-all duration-300",
-                  index === activeIndex ? "w-8 bg-primary" : "w-2.5 bg-white/30"
+                  "h-3 rounded-full transition-all duration-300",
+                  index === activeIndex ? "w-10 bg-primary" : "w-3 bg-white/30 hover:bg-white/50"
                 )}
                 aria-label={`Go to testimonial ${index + 1}`}
               />

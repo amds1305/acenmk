@@ -32,17 +32,23 @@ const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: Desk
   return (
     <div className="hidden md:flex items-center space-x-8">
       {/* Navigation Links */}
-      <nav className="flex items-center space-x-2">
+      <nav className="flex items-center space-x-3">
         {navLinks.map((link) => (
           <a
             key={link.href}
             href={link.href}
             className={cn(
-              "menu-item",
-              isActive(link.href) && "menu-item-active"
+              "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative",
+              isActive(link.href) 
+                ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
+                : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5"
             )}
           >
             {link.name}
+            <span className={cn(
+              "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transform transition-all duration-300",
+              isActive(link.href) ? "w-8" : "w-0 group-hover:w-8"
+            )} />
           </a>
         ))}
       </nav>
@@ -57,7 +63,7 @@ const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: Desk
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-icon"
+              className="social-icon hover-scale"
               aria-label={link.ariaLabel}
             >
               <link.icon size={18} />
@@ -73,7 +79,7 @@ const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: Desk
           variant="ghost" 
           size="icon"
           onClick={toggleSearch}
-          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9"
+          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
         >
           <Search size={18} />
           <span className="sr-only">Rechercher</span>

@@ -24,7 +24,7 @@ const MobileNav: React.FC<MobileNavProps> = ({
         onClick={toggleTheme}
         variant="ghost"
         size="icon"
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9"
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
         aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -34,7 +34,7 @@ const MobileNav: React.FC<MobileNavProps> = ({
         onClick={toggleSearch}
         variant="ghost"
         size="icon"
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9"
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
         aria-label="Search"
       >
         <Search size={18} />
@@ -44,12 +44,12 @@ const MobileNav: React.FC<MobileNavProps> = ({
         variant="ghost"
         size="icon"
         onClick={toggleMobileMenu}
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors"
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors hover-scale"
         aria-label="Toggle Menu"
       >
         {mobileMenuOpen ? 
-          <X size={24} /> : 
-          <Menu size={24} />
+          <X size={24} className="animate-fade-in" /> : 
+          <Menu size={24} className="animate-fade-in" />
         }
       </Button>
     </div>

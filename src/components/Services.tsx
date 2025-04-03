@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Code, Database, Layout, Smartphone, Globe, BarChart, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const services = [
   {
@@ -44,13 +45,13 @@ const services = [
 
 const Services = () => {
   return (
-    <section id="services" className="elite-section tech-gradient">
+    <section id="services" className="elite-section tech-gradient py-24">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="inline-block text-sm font-medium text-primary uppercase tracking-wider mb-4">Nos Expertises</span>
+        <div className="text-center mb-16 animate-fade-in">
+          <span className="inline-block text-sm font-medium bg-primary/10 text-primary px-4 py-1.5 rounded-full mb-4">Nos Expertises</span>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Solutions Digitales Expertes</h2>
           <div className="w-20 h-1 bg-primary mx-auto"></div>
-          <p className="text-lg text-gray-600 mt-8 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 mt-8 max-w-3xl mx-auto">
             Des solutions technologiques complètes pour répondre à tous vos besoins numériques
           </p>
         </div>
@@ -59,33 +60,39 @@ const Services = () => {
           {services.map((service, index) => (
             <div 
               key={index}
-              className="elite-card group"
+              className={cn(
+                "elite-card group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl opacity-0 animate-fade-in",
+                `animation-delay-${service.delay}`
+              )}
             >
               <div className="flex flex-col h-full">
-                <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex">
+                <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex group-hover:bg-primary/20 transition-colors">
                   {service.icon}
                 </div>
                 
                 <h3 className="text-xl font-bold mb-3 text-secondary group-hover:text-primary transition-colors">{service.title}</h3>
-                <p className="text-gray-600 mb-6 flex-grow">{service.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">{service.description}</p>
                 
-                <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
+                <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto underline-animation">
                   En savoir plus
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
               </div>
             </div>
           ))}
         </div>
         
-        <div className="mt-16 text-center">
-          <a 
-            href="#contact" 
-            className="elite-button group"
+        <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <Button 
+            asChild
+            size="lg"
+            className="button-animation bg-primary hover:bg-primary/90 text-white group"
           >
-            Discuter de votre projet
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </a>
+            <a href="#contact">
+              Discuter de votre projet
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+          </Button>
         </div>
       </div>
     </section>
