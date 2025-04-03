@@ -18,12 +18,12 @@ const Header = () => {
   return (
     <header 
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-8 px-6 md:px-10', // Double la taille du header avec py-8 au lieu de py-4
-        isScrolled ? 'bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 shadow-md' : 'bg-transparent',
-        searchOpen && 'h-40' // Ajusté pour la plus grande taille du header
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4',
+        isScrolled ? 'header-glass' : 'bg-transparent',
+        searchOpen && 'h-32'
       )}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="header-container h-16">
         <Logo />
         
         {/* Desktop Navigation and Social Links */}
@@ -51,7 +51,7 @@ const Header = () => {
       
       {/* Search */}
       {searchOpen && (
-        <div className="max-w-3xl mx-auto mt-6 animate-fade-in"> {/* Ajusté le margin top */}
+        <div className="max-w-3xl mx-auto mt-4 px-4 animate-fade-in">
           <Search />
         </div>
       )}

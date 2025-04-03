@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
+import { ArrowRight } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -17,18 +18,36 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   socialLinks,
   onNavLinkClick
 }) => {
+  const location = useLocation();
+  
   if (!isOpen) return null;
+
+  // Fonction pour vérifier si un lien est actif
+  const isActive = (href: string): boolean => {
+    if (href === '/') {
+      return location.pathname === '/';
+    }
+    
+    if (href.startsWith('/#')) {
+      return location.pathname === '/' && location.hash === href.substring(1);
+    }
+    
+    return location.pathname.startsWith(href);
+  };
 
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in">
-      <div className="flex flex-col items-center justify-center h-full space-y-8 p-8">
+      <div className="flex flex-col items-center justify-center h-full space-y-6 p-8">
         {navLinks.map((link, index) => (
           <a 
             key={link.name}
             href={link.href} 
             onClick={onNavLinkClick}
             className={cn(
-              "text-xl font-medium text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] animate-fade-in-up",
+              "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center",
+              isActive(link.href) 
+                ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
+                : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5",
               `animation-delay-${index * 100}`
             )}
           >
@@ -43,7 +62,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               key={index}
               href={link.href}
               aria-label={link.ariaLabel}
-              className="text-theme-navy dark:text-white hover:text-[#ca3c66] dark:hover:text-[#ca3c66] transition-colors border border-current rounded-full p-2 flex items-center justify-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full p-2 flex items-center justify-center"
             >
               <link.icon size={20} />
             </a>
@@ -51,20 +70,21 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
         </div>
         
         {/* Auth Links in Mobile Menu */}
-        <div className="flex space-x-4 mt-2">
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 w-full sm:w-auto">
           <Link 
             to="/login" 
             onClick={onNavLinkClick}
-            className="px-6 py-2 border border-theme-blue rounded-full text-theme-navy dark:text-white hover:bg-[#ca3c66] hover:text-white hover:border-[#ca3c66] transition-colors"
+            className="w-full sm:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white hover:border-primary transition-colors text-center"
           >
             Connexion
           </Link>
           <Link 
             to="/signup" 
             onClick={onNavLinkClick}
-            className="px-6 py-2 bg-theme-navy dark:bg-[#ca3c66] rounded-full text-white hover:bg-[#ca3c66] transition-colors"
+            className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
           >
             Inscription
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>
