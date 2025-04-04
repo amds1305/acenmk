@@ -1,4 +1,3 @@
-
 // Types pour la gestion des sections de la page d'accueil
 import { HeroData } from '@/components/Hero';
 

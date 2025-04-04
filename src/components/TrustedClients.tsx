@@ -7,8 +7,20 @@ import { TrustedClientsSectionData } from '@/types/sections';
 const fetchTrustedClientsData = async (): Promise<TrustedClientsSectionData> => {
   const config = getHomepageConfig();
   
+  // D'abord, vérifier si on a des données spécifiques pour la section trusted-clients
   if (config.sectionData && config.sectionData['trusted-clients']) {
     return config.sectionData['trusted-clients'] as TrustedClientsSectionData;
+  }
+  
+  // Sinon, récupérer les données du hero pour la rétrocompatibilité
+  if (config.sectionData && config.sectionData.hero) {
+    const heroData = config.sectionData.hero;
+    if (heroData.trustedClients) {
+      return {
+        title: heroData.trustedClientsTitle || 'Ils nous font confiance',
+        clients: heroData.trustedClients || []
+      };
+    }
   }
   
   return {
