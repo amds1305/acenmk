@@ -19,7 +19,7 @@ const Header = () => {
     <header 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-2',
-        isScrolled ? 'header-glass border-b border-gray-200 dark:border-gray-800' : 'bg-transparent',
+        isScrolled ? 'header-glass border-b border-gray-200 dark:border-gray-800 backdrop-blur-md' : 'bg-transparent',
         searchOpen && 'h-32'
       )}
     >

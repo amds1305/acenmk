@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Check, X, ArrowRight, PlusCircle, MinusCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const faqItems = [
   {
@@ -34,26 +36,99 @@ const faqItems = [
   }
 ];
 
+// Catégories de FAQ
+const categories = [
+  { id: "all", name: "Toutes les questions" },
+  { id: "services", name: "Services" },
+  { id: "pricing", name: "Tarification" },
+  { id: "process", name: "Processus" },
+  { id: "support", name: "Support" }
+];
+
+// Mapping des questions par catégorie
+const categoryMapping = {
+  "services": [0, 5],
+  "pricing": [1],
+  "process": [2, 4],
+  "support": [3]
+};
+
 const FaqSection = () => {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Filtrer les questions selon la catégorie
+  const filteredFaqItems = activeCategory === "all" 
+    ? faqItems 
+    : faqItems.filter((_, index) => categoryMapping[activeCategory as keyof typeof categoryMapping]?.includes(index));
+
+  const toggleItem = (value: string) => {
+    setExpandedItems(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    );
+  };
+
   return (
     <section className="py-20 bg-white dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="section-title">Questions fréquentes</h2>
-          <p className="section-subtitle mx-auto mt-4">
+          <span className="inline-block text-sm font-medium bg-primary/10 text-primary dark:bg-primary/20 px-4 py-1.5 rounded-full mb-4">FAQ</span>
+          <h2 className="section-title text-3xl md:text-4xl font-bold mb-6">Questions fréquentes</h2>
+          <p className="section-subtitle mx-auto mt-4 text-gray-600 dark:text-gray-300">
             Tout ce que vous devez savoir sur nos services et notre façon de travailler
           </p>
         </div>
         
-        <div className="mt-12">
-          <Accordion type="single" collapsible className="w-full">
-            {faqItems.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 dark:border-gray-700">
-                <AccordionTrigger className="text-left font-semibold py-4 hover:text-[#ca3c66] dark:text-white dark:hover:text-[#ca3c66] transition-colors">
-                  {item.question}
+        {/* Catégories */}
+        <div className="flex flex-wrap justify-center mt-10 mb-8 gap-2">
+          {categories.map(category => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              className={cn(
+                "px-4 py-2 rounded-full text-sm font-medium transition-all",
+                activeCategory === category.id 
+                  ? "bg-primary text-white shadow-md" 
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              )}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+        
+        <div className="mt-12 bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 shadow-sm">
+          <Accordion 
+            type="multiple" 
+            value={expandedItems}
+            className="w-full space-y-4"
+          >
+            {filteredFaqItems.map((item, index) => (
+              <AccordionItem 
+                key={`item-${index}`} 
+                value={`item-${index}`}
+                className={cn(
+                  "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all",
+                  expandedItems.includes(`item-${index}`) 
+                    ? "bg-white dark:bg-gray-800 shadow-md" 
+                    : "bg-gray-50 dark:bg-gray-800/50"
+                )}
+              >
+                <AccordionTrigger 
+                  onClick={() => toggleItem(`item-${index}`)}
+                  className="text-left font-semibold py-4 px-6 hover:text-primary dark:text-white dark:hover:text-primary transition-colors flex items-center justify-between"
+                >
+                  <span>{item.question}</span>
+                  {expandedItems.includes(`item-${index}`) ? (
+                    <MinusCircle className="h-5 w-5 text-primary shrink-0" />
+                  ) : (
+                    <PlusCircle className="h-5 w-5 text-gray-400 shrink-0" />
+                  )}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600 dark:text-gray-300 pt-2 pb-4">
-                  {item.answer}
+                <AccordionContent className="text-gray-600 dark:text-gray-300 px-6 pt-0 pb-4">
+                  <div className="pt-2 pb-1">{item.answer}</div>
                 </AccordionContent>
               </AccordionItem>
             ))}
@@ -66,9 +141,10 @@ const FaqSection = () => {
           </p>
           <a 
             href="#contact" 
-            className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-[#ca3c66] text-white font-medium transition-colors hover:bg-[#ca3c66]/90"
+            className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-[#ca3c66] text-white font-medium transition-colors hover:bg-[#ca3c66]/90 group"
           >
             Contactez-nous directement
+            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </a>
         </div>
       </div>

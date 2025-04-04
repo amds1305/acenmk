@@ -70,7 +70,7 @@ const Hero = () => {
               <Button 
                 asChild 
                 size="lg"
-                className="button-animation bg-primary hover:bg-primary/90 text-white font-medium rounded-md group"
+                className="button-animation bg-[#ca3c66] hover:bg-[#ca3c66]/90 text-white font-medium rounded-md group"
               >
                 <a href="#services">
                   {heroData?.ctaText || 'Découvrir nos services'}
@@ -93,10 +93,10 @@ const Hero = () => {
           
           <div className="lg:col-span-5 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <div className="relative">
-              <div className="absolute -top-6 -left-6 w-full h-full bg-primary/20 rounded-xl animate-pulse" style={{ animationDuration: '6s' }}></div>
+              <div className="absolute -top-6 -left-6 w-full h-full bg-[#ca3c66]/20 rounded-xl animate-pulse" style={{ animationDuration: '6s' }}></div>
               <div className="glass-panel bg-white/5 backdrop-blur-sm border border-white/20 overflow-hidden rounded-xl relative hover-scale">
                 <img 
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3" 
                   alt="Digital Solutions" 
                   className="w-full h-auto transition-transform duration-700 hover:scale-105"
                 />
@@ -108,17 +108,17 @@ const Hero = () => {
         <div className="mt-24 pt-10 border-t border-white/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <p className="text-sm font-medium text-gray-300 mb-4">Ils nous font confiance</p>
           <div className="flex flex-wrap gap-8 items-center">
-            <div className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert hover-scale" />
+            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 1" className="h-full w-auto brightness-0 invert hover-scale" />
             </div>
-            <div className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert hover-scale" />
+            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://images.unsplash.com/photo-1614680376408-16afefa3332b?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 2" className="h-full w-auto brightness-0 invert hover-scale" />
             </div>
-            <div className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert hover-scale" />
+            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 3" className="h-full w-auto brightness-0 invert hover-scale" />
             </div>
-            <div className="h-10 w-auto opacity-70 hover:opacity-100 transition-opacity hidden md:block">
-              <img src="https://via.placeholder.com/120x40?text=Logo" alt="Client" className="h-full w-auto brightness-0 invert hover-scale" />
+            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity hidden md:block">
+              <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 4" className="h-full w-auto brightness-0 invert hover-scale" />
             </div>
           </div>
         </div>
