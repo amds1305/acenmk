@@ -9,6 +9,7 @@ import Testimonials from '@/components/Testimonials';
 import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import TrustedClients from '@/components/TrustedClients';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sectionsService';
 import { toast } from '@/hooks/use-toast';
@@ -22,6 +23,7 @@ export interface SectionVisibility {
   testimonials: boolean;
   faq: boolean;
   contact: boolean;
+  'trusted-clients': boolean;
 }
 
 // Component map for rendering sections
@@ -33,6 +35,7 @@ const sectionComponents: Record<string, React.FC> = {
   testimonials: Testimonials,
   faq: FaqSection,
   contact: Contact,
+  'trusted-clients': TrustedClients,
 };
 
 const Index = () => {

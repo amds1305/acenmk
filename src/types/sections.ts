@@ -10,7 +10,8 @@ export type SectionType =
   | 'testimonials' 
   | 'faq' 
   | 'contact'
-  | 'custom';
+  | 'custom'
+  | 'trusted-clients'; // Ajout du nouveau type pour la section "Ils nous font confiance"
 
 export interface Section {
   id: string;
@@ -33,7 +34,19 @@ export interface ServicesSectionData {
 export interface AboutSectionData {
   // Define properties specific to about section
 }
-// Add more specialized section data types as needed
+
+// Nouvelle interface pour les données de la section clients de confiance
+export interface TrustedClientsSectionData {
+  title: string;
+  clients: ClientLogo[];
+}
+
+export interface ClientLogo {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl?: string;
+}
 
 export interface HomepageConfig {
   sections: Section[];

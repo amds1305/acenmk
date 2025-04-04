@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sectionsService';
 import { Button } from '@/components/ui/button';
+import { ClientLogo } from '@/types/sections';
 
 export interface HeroData {
   title: string;
@@ -12,6 +13,9 @@ export interface HeroData {
   ctaText: string;
   ctaSecondaryText: string;
   backgroundImage: string;
+  showTrustedClients?: boolean;
+  trustedClientsTitle?: string;
+  trustedClients?: ClientLogo[];
 }
 
 // Fonction pour récupérer les données du Hero
@@ -23,13 +27,37 @@ const fetchHeroData = async (): Promise<HeroData> => {
     return config.sectionData.hero as HeroData;
   }
   
-  // Valeurs par défaut si aucune donnée n'est stockée
+  // Valeurs par défaut si aucune données n'est stockée
   return {
     title: 'Solutions numériques innovantes pour votre entreprise',
     subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
     ctaText: 'Découvrir nos services',
     ctaSecondaryText: 'Nous contacter',
     backgroundImage: '',
+    showTrustedClients: true,
+    trustedClientsTitle: 'Ils nous font confiance',
+    trustedClients: [
+      {
+        id: '1',
+        name: 'Client 1',
+        logoUrl: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
+      },
+      {
+        id: '2',
+        name: 'Client 2',
+        logoUrl: 'https://images.unsplash.com/photo-1614680376408-16afefa3332b?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
+      },
+      {
+        id: '3',
+        name: 'Client 3',
+        logoUrl: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
+      },
+      {
+        id: '4',
+        name: 'Client 4',
+        logoUrl: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
+      }
+    ]
   };
 };
 
@@ -105,23 +133,37 @@ const Hero = () => {
           </div>
         </div>
         
-        <div className="mt-24 pt-10 border-t border-white/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-          <p className="text-sm font-medium text-gray-300 mb-4">Ils nous font confiance</p>
-          <div className="flex flex-wrap gap-8 items-center">
-            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 1" className="h-full w-auto brightness-0 invert hover-scale" />
-            </div>
-            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://images.unsplash.com/photo-1614680376408-16afefa3332b?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 2" className="h-full w-auto brightness-0 invert hover-scale" />
-            </div>
-            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 3" className="h-full w-auto brightness-0 invert hover-scale" />
-            </div>
-            <div className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity hidden md:block">
-              <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Client 4" className="h-full w-auto brightness-0 invert hover-scale" />
+        {/* Section "Ils nous font confiance" */}
+        {heroData?.showTrustedClients && heroData?.trustedClients?.length > 0 && (
+          <div className="mt-24 pt-10 border-t border-white/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <p className="text-sm font-medium text-gray-300 mb-4">
+              {heroData.trustedClientsTitle || 'Ils nous font confiance'}
+            </p>
+            <div className="flex flex-wrap gap-8 items-center">
+              {heroData.trustedClients.map((client) => (
+                <div key={client.id} className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
+                  {client.websiteUrl ? (
+                    <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+                      <img 
+                        src={client.logoUrl} 
+                        alt={client.name} 
+                        className="h-full w-auto brightness-0 invert hover-scale" 
+                        title={client.name}
+                      />
+                    </a>
+                  ) : (
+                    <img 
+                      src={client.logoUrl} 
+                      alt={client.name} 
+                      className="h-full w-auto brightness-0 invert hover-scale" 
+                      title={client.name}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
       
       {/* Scroll indicator */}

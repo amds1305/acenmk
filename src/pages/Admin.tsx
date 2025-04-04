@@ -15,6 +15,7 @@ import AdminFaq from '@/components/admin/AdminFaq';
 import AdminCareers from '@/components/admin/AdminCareers';
 import AdminApplications from '@/components/admin/AdminApplications';
 import AdminAppointments from '@/components/admin/AdminAppointments';
+import AdminTrustedClients from '@/components/admin/AdminTrustedClients';
 
 const Admin = () => {
   return (
@@ -33,6 +34,7 @@ const Admin = () => {
           <Route path="/careers" element={<AdminCareers />} />
           <Route path="/applications" element={<AdminApplications />} />
           <Route path="/appointments" element={<AdminAppointments />} />
+          <Route path="/trusted-clients" element={<AdminTrustedClients />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>
