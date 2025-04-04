@@ -11,7 +11,7 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sectionsService';
+import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
 
 // Interface for section visibility

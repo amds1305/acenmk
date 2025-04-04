@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sectionsService';
+import { getHomepageConfig } from '@/services/sections';
 import { TrustedClientsSectionData } from '@/types/sections';
 
 const fetchTrustedClientsData = async (): Promise<TrustedClientsSectionData> => {

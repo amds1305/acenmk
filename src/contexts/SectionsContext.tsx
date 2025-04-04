@@ -1,12 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   HomepageConfig, 
   Section, 
   SectionData, 
-  SectionType 
-} from '@/types/sections';
-import { 
+  SectionType,
   getHomepageConfig, 
   saveHomepageConfig, 
   addSection, 
@@ -14,7 +11,7 @@ import {
   reorderSections,
   updateSectionData,
   updateSection
-} from '@/services/sectionsService';
+} from '@/services/sections';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -38,7 +35,6 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Charger la configuration initiale
   useEffect(() => {
     try {
       const initialConfig = getHomepageConfig();
@@ -50,42 +46,34 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // Ajouter une nouvelle section
   const addNewSection = (type: SectionType, title: string) => {
     setConfig(current => addSection(current, type, title));
   };
 
-  // Supprimer une section existante
   const removeExistingSection = (id: string) => {
     setConfig(current => removeSection(current, id));
   };
 
-  // Réorganiser les sections
   const reorderExistingSections = (orderedIds: string[]) => {
     setConfig(current => reorderSections(current, orderedIds));
   };
 
-  // Mettre à jour la visibilité d'une section
   const updateSectionVisibility = (id: string, visible: boolean) => {
     setConfig(current => updateSection(current, id, { visible }));
   };
 
-  // Mettre à jour les données d'une section
   const updateExistingSectionData = (sectionId: string, data: SectionData) => {
     setConfig(current => updateSectionData(current, sectionId, data));
   };
 
-  // Mettre à jour une section
   const updateExistingSection = (sectionId: string, updates: Partial<Section>) => {
     setConfig(current => updateSection(current, sectionId, updates));
   };
 
-  // Sauvegarder les changements
   const saveChanges = () => {
     try {
       saveHomepageConfig(config);
       
-      // Invalider les requêtes pour forcer le rechargement des données
       queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
       queryClient.invalidateQueries({ queryKey: ['heroData'] });
       

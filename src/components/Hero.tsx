@@ -3,7 +3,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sectionsService';
+import { getHomepageConfig } from '@/services/sections';
 import { Button } from '@/components/ui/button';
 import { ClientLogo } from '@/types/sections';
 
