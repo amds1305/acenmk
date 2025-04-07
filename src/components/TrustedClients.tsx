@@ -41,22 +41,22 @@ const TrustedClients: React.FC = () => {
   }
 
   return (
-    <section id="trusted-clients" className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section id="trusted-clients" className="py-20 bg-white dark:bg-gray-950">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{data.title}</h2>
-          <div className="w-24 h-1 bg-primary mx-auto mt-4"></div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 dark:from-white dark:via-gray-100 dark:to-gray-200 bg-clip-text text-transparent">{data.title}</h2>
+          <div className="w-20 h-1 bg-primary mx-auto mt-4"></div>
         </div>
         
-        <div className="flex flex-wrap justify-center items-center gap-12">
+        <div className="flex flex-wrap justify-center items-center gap-16">
           {data.clients.map((client) => (
-            <div key={client.id} className="h-16 w-auto opacity-60 hover:opacity-100 transition-opacity">
+            <div key={client.id} className="h-16 w-auto transition-all duration-300 hover:scale-105">
               {client.websiteUrl ? (
                 <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
                   <img 
                     src={client.logoUrl} 
                     alt={client.name} 
-                    className="h-full w-auto filter dark:invert hover-scale" 
+                    className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
                     title={client.name}
                   />
                 </a>
@@ -64,7 +64,7 @@ const TrustedClients: React.FC = () => {
                 <img 
                   src={client.logoUrl} 
                   alt={client.name} 
-                  className="h-full w-auto filter dark:invert hover-scale" 
+                  className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
                   title={client.name}
                 />
               )}

@@ -45,11 +45,13 @@ const services = [
 
 const Services = () => {
   return (
-    <section id="services" className="elite-section tech-gradient py-24">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 animate-fade-in">
+    <section id="services" className="py-24 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
           <span className="inline-block text-sm font-medium bg-primary/10 text-primary px-4 py-1.5 rounded-full mb-4">Nos Expertises</span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Solutions Digitales Expertes</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 dark:from-white dark:via-gray-100 dark:to-gray-200 bg-clip-text text-transparent">
+            Solutions Digitales Expertes
+          </h2>
           <div className="w-20 h-1 bg-primary mx-auto"></div>
           <p className="text-lg text-gray-600 dark:text-gray-300 mt-8 max-w-3xl mx-auto">
             Des solutions technologiques complètes pour répondre à tous vos besoins numériques
@@ -60,33 +62,33 @@ const Services = () => {
           {services.map((service, index) => (
             <div 
               key={index}
-              className={cn(
-                "elite-card group h-full transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl opacity-0 animate-fade-in",
-                `animation-delay-${service.delay}`
-              )}
+              className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="flex flex-col h-full">
-                <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex group-hover:bg-primary/20 transition-colors">
-                  {service.icon}
-                </div>
-                
-                <h3 className="text-xl font-bold mb-3 text-secondary group-hover:text-primary transition-colors">{service.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">{service.description}</p>
-                
-                <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto underline-animation">
-                  En savoir plus
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
+              <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex">
+                {service.icon}
               </div>
+              
+              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                {service.title}
+              </h3>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                {service.description}
+              </p>
+              
+              <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto underline-animation">
+                En savoir plus
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
             </div>
           ))}
         </div>
         
-        <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+        <div className="mt-16 text-center">
           <Button 
             asChild
             size="lg"
-            className="button-animation bg-primary hover:bg-primary/90 text-white group"
+            className="bg-primary hover:bg-primary/90 text-white group"
           >
             <a href="#contact">
               Discuter de votre projet
