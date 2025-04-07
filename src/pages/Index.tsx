@@ -10,9 +10,11 @@ import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
+import TekoHomeTemplate from '@/components/TekoHomeTemplate';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
+import { HomeTemplateType } from '@/types/sections';
 
 // Interface for section visibility
 export interface SectionVisibility {
@@ -38,6 +40,12 @@ const sectionComponents: Record<string, React.FC> = {
   'trusted-clients': TrustedClients,
 };
 
+// Templates disponibles
+const templates: Record<HomeTemplateType, React.FC> = {
+  default: () => null, // Le template par défaut utilise les sections individuelles
+  teko: TekoHomeTemplate,
+};
+
 const Index = () => {
   // Use React Query to fetch and cache the homepage configuration
   const { data: homeConfig, isLoading, error } = useQuery({
@@ -59,7 +67,11 @@ const Index = () => {
     }
   }, [error]);
   
-  // Obtenir les sections à afficher
+  // Template actif
+  const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
+  const TemplateComponent = templates[activeTemplate];
+
+  // Obtenir les sections à afficher (pour le template par défaut uniquement)
   const sectionsToDisplay = homeConfig?.sections
     .filter(section => section.visible)
     .sort((a, b) => a.order - b.order) || [];
@@ -102,6 +114,19 @@ const Index = () => {
     );
   }
 
+  // Si un template spécial est sélectionné, l'afficher
+  if (activeTemplate !== 'default' && TemplateComponent) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <TemplateComponent />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Si aucune section n'est configurée ou visible, afficher toutes les sections dans l'ordre par défaut
   const displaySections = sectionsToDisplay.length > 0 ? sectionsToDisplay : [
     { id: 'hero-default', type: 'hero', order: 1 },
@@ -113,6 +138,7 @@ const Index = () => {
     { id: 'contact-default', type: 'contact', order: 7 },
   ];
 
+  // Afficher le template par défaut avec les sections individuelles
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

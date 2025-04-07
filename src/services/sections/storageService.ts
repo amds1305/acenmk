@@ -1,6 +1,6 @@
 
 import { HomepageConfig } from './types';
-import { DEFAULT_SECTIONS, DEFAULT_SECTION_DATA } from './defaultData';
+import { DEFAULT_HOMEPAGE_CONFIG, DEFAULT_SECTIONS, DEFAULT_SECTION_DATA, DEFAULT_TEMPLATE_CONFIG } from './defaultData';
 
 // Récupérer la configuration de la page d'accueil depuis le localStorage
 export const loadFromStorage = (): HomepageConfig => {
@@ -12,6 +12,10 @@ export const loadFromStorage = (): HomepageConfig => {
     // Récupérer les données des sections
     const storedSectionData = localStorage.getItem('homepageSectionData');
     const sectionData = storedSectionData ? JSON.parse(storedSectionData) : DEFAULT_SECTION_DATA;
+    
+    // Récupérer la configuration du template
+    const storedTemplateConfig = localStorage.getItem('homepageTemplateConfig');
+    const templateConfig = storedTemplateConfig ? JSON.parse(storedTemplateConfig) : DEFAULT_TEMPLATE_CONFIG;
     
     // Récupérer les anciennes données du hero pour la rétrocompatibilité
     const storedHeroData = localStorage.getItem('heroData');
@@ -30,10 +34,10 @@ export const loadFromStorage = (): HomepageConfig => {
       });
     }
     
-    return { sections, sectionData };
+    return { sections, sectionData, templateConfig };
   } catch (error) {
     console.error('Erreur lors de la récupération de la configuration:', error);
-    return { sections: DEFAULT_SECTIONS, sectionData: DEFAULT_SECTION_DATA };
+    return DEFAULT_HOMEPAGE_CONFIG;
   }
 };
 
@@ -42,6 +46,11 @@ export const saveToStorage = (config: HomepageConfig): void => {
   try {
     localStorage.setItem('homepageSections', JSON.stringify(config.sections));
     localStorage.setItem('homepageSectionData', JSON.stringify(config.sectionData));
+    
+    // Sauvegarder la configuration du template
+    if (config.templateConfig) {
+      localStorage.setItem('homepageTemplateConfig', JSON.stringify(config.templateConfig));
+    }
     
     // Maintenir la rétrocompatibilité avec l'ancien système
     if (config.sectionData.hero) {

@@ -6,6 +6,7 @@ import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import SectionsManager from './home/SectionsManager';
+import TemplateSelector from './home/TemplateSelector';
 import { useSections } from '@/contexts/SectionsContext';
 import { HeroData } from '@/components/Hero';
 
@@ -33,6 +34,8 @@ const AdminHome = () => {
   return (
     <div className="space-y-6">
       <HomeHeader onSave={handleSave} />
+      
+      <TemplateSelector />
       
       <SectionsManager />
 

@@ -1,3 +1,4 @@
+
 // Types pour la gestion des sections de la page d'accueil
 import { HeroData } from '@/components/Hero';
 
@@ -25,6 +26,9 @@ export interface SectionData {
   [key: string]: any; // Données spécifiques à chaque type de section
 }
 
+// Templates disponibles pour la page d'accueil
+export type HomeTemplateType = 'default' | 'teko';
+
 // Specialized section data types
 export interface HeroSectionData extends HeroData {}
 export interface ServicesSectionData {
@@ -32,6 +36,11 @@ export interface ServicesSectionData {
 }
 export interface AboutSectionData {
   // Define properties specific to about section
+}
+
+// Configuration du template de la page d'accueil
+export interface HomeTemplateConfig {
+  activeTemplate: HomeTemplateType;
 }
 
 // Nouvelle interface pour les données de la section clients de confiance
@@ -50,4 +59,5 @@ export interface ClientLogo {
 export interface HomepageConfig {
   sections: Section[];
   sectionData: Record<string, SectionData>;
+  templateConfig?: HomeTemplateConfig;
 }

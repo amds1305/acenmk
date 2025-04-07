@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -231,6 +231,20 @@
   .animate-on-scroll.appeared {
     opacity: 1;
     transform: translateY(0);
+  }
+  
+  /* Teko Template Styles */
+  .teko-template {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  
+  .teko-template h1,
+  .teko-template h2,
+  .teko-template h3,
+  .teko-template h4,
+  .teko-template h5,
+  .teko-template h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 }
 
