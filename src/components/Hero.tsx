@@ -83,15 +83,19 @@ const Hero = () => {
   }, []);
 
   return (
-    <section id="hero" className="relative py-32 md:py-44 overflow-hidden bg-black text-white">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black opacity-70"></div>
+    <section id="hero" className="relative py-32 md:py-44 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+      {/* Formes géométriques en arrière-plan */}
+      <div className="absolute inset-0 overflow-hidden opacity-70 dark:opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-100 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-100 dark:bg-purple-900/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/3 w-[300px] h-[300px] bg-pink-100 dark:bg-pink-900/20 rounded-full blur-3xl"></div>
+      </div>
       
       {/* Grid pattern */}
       <div 
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
         style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M0 0h1v1H0zM39 0h1v1h-1z\'/%3E%3C/g%3E%3C/svg%3E")',
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M0 0h1v1H0zM39 0h1v1h-1z\'/%3E%3C/g%3E%3C/svg%3E")',
           backgroundSize: '30px 30px'
         }}
       ></div>
@@ -100,17 +104,17 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-20">
           {/* Contenu principal */}
           <div className="max-w-3xl animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out">
-            <div className="mb-8">
-              <span className="inline-block text-sm font-medium bg-white/10 text-white/90 px-4 py-1.5 rounded-full animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out">
+            <div className="mb-6">
+              <span className="inline-block text-sm font-medium bg-primary/10 text-primary px-4 py-1.5 rounded-full animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out">
                 Innovation Numérique
               </span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-white animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 dark:from-white dark:via-gray-100 dark:to-gray-200 bg-clip-text text-transparent animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out">
               {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
             </h1>
             
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out delay-100">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out delay-100">
               {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
             </p>
             
@@ -118,7 +122,7 @@ const Hero = () => {
               <Button 
                 asChild 
                 size="lg"
-                className="bg-white hover:bg-white/90 text-black font-medium rounded-full group"
+                className="bg-primary hover:bg-primary/90 text-white font-medium rounded-md group"
               >
                 <a href="#services">
                   {heroData?.ctaText || 'Découvrir nos services'}
@@ -130,7 +134,7 @@ const Hero = () => {
                 asChild 
                 variant="outline" 
                 size="lg"
-                className="border-white/30 hover:bg-white/10 text-white rounded-full"
+                className="border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
               >
                 <a href="#contact">
                   {heroData?.ctaSecondaryText || 'Nous contacter'}
@@ -139,22 +143,55 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Image stylisée */}
+          {/* Image ou illustration */}
           <div className="w-full lg:w-2/5 relative animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out delay-300">
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/30 z-10"></div>
+            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-1 border border-gray-200 dark:border-gray-700">
               <img 
                 src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" 
                 alt="Digital Transformation" 
-                className="w-full h-auto object-cover mix-blend-lighten opacity-80"
+                className="w-full h-auto rounded-xl object-cover"
               />
             </div>
             
             {/* Éléments de design */}
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-500 rounded-full opacity-20 blur-lg"></div>
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-400 rounded-full opacity-20 blur-xl"></div>
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary rounded-full opacity-20 blur-lg"></div>
+            <div className="absolute -top-6 -left-6 w-32 h-32 bg-purple-400 rounded-full opacity-20 blur-xl"></div>
           </div>
         </div>
+        
+        {/* Section "Ils nous font confiance" */}
+        {heroData?.showTrustedClients && heroData?.trustedClients?.length > 0 && (
+          <div className="mt-24 pt-10 border-t border-gray-200 dark:border-gray-800 animate-on-scroll opacity-0 translate-y-4 transition duration-1000 ease-out delay-500">
+            <div className="flex flex-col items-center">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8">
+                {heroData.trustedClientsTitle || 'Ils nous font confiance'}
+              </p>
+              <div className="flex flex-wrap gap-10 items-center justify-center">
+                {heroData.trustedClients.map((client) => (
+                  <div key={client.id} className="h-8 md:h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+                    {client.websiteUrl ? (
+                      <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+                        <img 
+                          src={client.logoUrl} 
+                          alt={client.name} 
+                          className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
+                          title={client.name}
+                        />
+                      </a>
+                    ) : (
+                      <img 
+                        src={client.logoUrl} 
+                        alt={client.name} 
+                        className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
+                        title={client.name}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

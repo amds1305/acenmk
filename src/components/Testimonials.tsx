@@ -51,13 +51,13 @@ const Testimonials = () => {
   };
   
   return (
-    <section className="py-32 bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="elite-section elite-gradient text-white py-32">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center animate-fade-in">
           <span className="inline-block text-sm font-medium bg-white/10 text-white/90 px-4 py-1.5 rounded-full mb-4">Témoignages</span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Ce que nos clients disent</h2>
-          <div className="w-20 h-1 bg-white mx-auto"></div>
-          <p className="text-xl text-gray-300 mt-8 max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient">Ce que nos clients disent</h2>
+          <div className="w-20 h-1 bg-primary mx-auto"></div>
+          <p className="text-xl text-gray-200 mt-8 max-w-3xl mx-auto">
             La satisfaction de nos clients est notre priorité absolue
           </p>
         </div>
@@ -65,12 +65,12 @@ const Testimonials = () => {
         <div className="mt-16 relative">
           <div className="relative max-w-4xl mx-auto">
             <div className="absolute top-0 left-0 -translate-x-8 -translate-y-8">
-              <Quote className="h-20 w-20 text-white/30" fill="currentColor" />
+              <Quote className="h-20 w-20 text-primary/30" fill="currentColor" />
             </div>
             
             {/* Testimonial Card */}
             <div 
-              className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-2xl transition-all duration-500 animate-fade-in relative z-10"
+              className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-2xl transition-all duration-500 animate-fade-in relative z-10 shadow-xl"
               key={testimonials[activeIndex].id}
             >
               <div className="max-w-3xl mx-auto text-center">
@@ -82,7 +82,7 @@ const Testimonials = () => {
                   <img 
                     src={testimonials[activeIndex].image} 
                     alt={testimonials[activeIndex].name}
-                    className="h-20 w-20 rounded-full object-cover border-2 border-white shadow-lg hover-scale"
+                    className="h-20 w-20 rounded-full object-cover border-2 border-primary shadow-lg hover-scale"
                   />
                   
                   <div className="mt-4">
@@ -135,7 +135,7 @@ const Testimonials = () => {
                 onClick={() => setActiveIndex(index)}
                 className={cn(
                   "h-3 rounded-full transition-all duration-300",
-                  index === activeIndex ? "w-10 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
+                  index === activeIndex ? "w-10 bg-primary" : "w-3 bg-white/30 hover:bg-white/50"
                 )}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
