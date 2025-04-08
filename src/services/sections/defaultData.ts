@@ -1,5 +1,4 @@
-
-import { Section, SectionData, HomepageConfig, HomeTemplateType } from '../sections/types';
+import { Section, SectionData, HomepageConfig, HomeTemplateType } from '@/types/sections';
 
 // Sections par défaut pour la page d'accueil
 export const DEFAULT_SECTIONS: Section[] = [
