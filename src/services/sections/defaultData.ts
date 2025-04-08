@@ -67,9 +67,12 @@ export const DEFAULT_SECTIONS: Section[] = [
   },
 ];
 
+// Données par défaut pour les sections
+export const DEFAULT_SECTION_DATA = {};
+
 // Configuration par défaut de la page d'accueil
-export const DEFAULT_CONFIG: HomepageConfig = {
+export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
   sections: DEFAULT_SECTIONS,
-  sectionData: {},
+  sectionData: DEFAULT_SECTION_DATA,
   templateConfig: DEFAULT_TEMPLATE_CONFIG
 };

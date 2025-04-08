@@ -1,7 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { HomepageConfig, Section, SectionData, SectionType } from './types';
-import { DEFAULT_SECTIONS } from './defaultData';
+import { DEFAULT_SECTIONS, DEFAULT_TEMPLATE_CONFIG } from './defaultData';
 
 // Ajouter une nouvelle section
 export const addSection = (config: HomepageConfig, type: SectionType, title: string): HomepageConfig => {
@@ -19,7 +19,8 @@ export const addSection = (config: HomepageConfig, type: SectionType, title: str
   
   return {
     sections: [...config.sections, newSection],
-    sectionData: { ...config.sectionData }
+    sectionData: { ...config.sectionData },
+    templateConfig: config.templateConfig || DEFAULT_TEMPLATE_CONFIG
   };
 };
 
@@ -41,7 +42,8 @@ export const removeSection = (config: HomepageConfig, id: string): HomepageConfi
   
   return {
     sections: updatedSections,
-    sectionData: remainingSectionData
+    sectionData: remainingSectionData,
+    templateConfig: config.templateConfig
   };
 };
 

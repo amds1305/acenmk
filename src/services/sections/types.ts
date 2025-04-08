@@ -1,11 +1,17 @@
-import { HomepageConfig, Section, SectionData, SectionType } from '@/types/sections';
+
+// Import types from the global types
+import { 
+  Section as GlobalSection, 
+  SectionData as GlobalSectionData, 
+  SectionType as GlobalSectionType,
+  HomepageConfig as GlobalHomepageConfig
+} from '@/types/sections';
 
 // Re-export types to make imports cleaner
 export type { 
-  HomepageConfig, 
-  Section, 
-  SectionData, 
-  SectionType 
+  GlobalSection as Section, 
+  GlobalSectionData as SectionData, 
+  GlobalSectionType as SectionType
 };
 
 // Type pour les templates de page d'accueil
@@ -16,9 +22,5 @@ export interface TemplateConfig {
   activeTemplate: HomeTemplateType;
 }
 
-// Interface pour la configuration complète de la page d'accueil
-export interface HomepageConfig {
-  sections: Section[];
-  sectionData: Record<string, any>;
-  templateConfig: TemplateConfig;
-}
+// Re-export the HomepageConfig from global types
+export type HomepageConfig = GlobalHomepageConfig;
