@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -49,7 +50,7 @@ const Index = () => {
   // Use React Query to fetch and cache the homepage configuration
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig'],
-    queryFn: () => getHomepageConfig(),
+    queryFn: getHomepageConfig,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,
   });
