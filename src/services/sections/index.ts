@@ -1,31 +1,15 @@
 
-// Re-export all the section service functionality
-import { loadFromStorage, saveToStorage } from './storageService';
-import { addSection, removeSection, reorderSections, updateSectionData, updateSection } from './sectionOperations';
-import { DEFAULT_SECTIONS, DEFAULT_SECTION_DATA, DEFAULT_TEMPLATE_CONFIG } from './defaultData';
-import { HomepageConfig, Section, SectionData, SectionType, HomeTemplateType } from '@/types/sections';
+// Export des types
+export * from './types';
 
-// Main function to get homepage configuration
-export const getHomepageConfig = (): HomepageConfig => {
-  return loadFromStorage();
-};
+// Export des opérations de sections
+export * from './sectionOperations';
 
-// Main function to save homepage configuration
-export const saveHomepageConfig = (config: HomepageConfig): void => {
-  saveToStorage(config);
-};
+// Export du service de stockage
+export * from './storageService';
 
-// Re-export all other functions and constants
-export {
-  addSection,
-  removeSection,
-  reorderSections,
-  updateSectionData,
-  updateSection,
-  DEFAULT_SECTIONS,
-  DEFAULT_SECTION_DATA,
-  DEFAULT_TEMPLATE_CONFIG
-};
+// Export des données par défaut
+export * from './defaultData';
 
-// Re-export types
-export type { HomepageConfig, Section, SectionData, SectionType, HomeTemplateType };
+// Re-export explicite du DEFAULT_TEMPLATE_CONFIG depuis defaultData
+export { DEFAULT_TEMPLATE_CONFIG } from './defaultData';

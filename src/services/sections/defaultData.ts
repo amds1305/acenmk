@@ -1,39 +1,75 @@
-import { Section, SectionData, HomepageConfig, HomeTemplateType } from '@/types/sections';
 
-// Sections par défaut pour la page d'accueil
+import { HomepageConfig, HomeTemplateType, Section } from './types';
+
+// Configuration par défaut du template
+export const DEFAULT_TEMPLATE_CONFIG = {
+  activeTemplate: 'default' as HomeTemplateType,
+  // Ajoutez ici d'autres configurations de template si nécessaire
+};
+
+// Sections par défaut
 export const DEFAULT_SECTIONS: Section[] = [
-  { id: 'hero', type: 'hero', title: 'Hero', visible: true, order: 0 },
-  { id: 'services', type: 'services', title: 'Services', visible: true, order: 1 },
-  { id: 'about', type: 'about', title: 'À propos', visible: true, order: 2 },
-  { id: 'team', type: 'team', title: 'Équipe', visible: true, order: 3 },
-  { id: 'testimonials', type: 'testimonials', title: 'Témoignages', visible: true, order: 4 },
-  { id: 'faq', type: 'faq', title: 'FAQ', visible: true, order: 5 },
-  { id: 'contact', type: 'contact', title: 'Contact', visible: true, order: 6 },
-  { id: 'trusted-clients', type: 'trusted-clients', title: 'Clients de confiance', visible: true, order: 7 },
+  {
+    id: 'hero-default',
+    type: 'hero',
+    order: 1,
+    visible: true,
+    title: 'Hero Section',
+  },
+  {
+    id: 'services-default',
+    type: 'services',
+    order: 2,
+    visible: true,
+    title: 'Services Section',
+  },
+  {
+    id: 'about-default',
+    type: 'about',
+    order: 3,
+    visible: true,
+    title: 'About Section',
+  },
+  {
+    id: 'team-default',
+    type: 'team',
+    order: 4,
+    visible: true,
+    title: 'Team Section',
+  },
+  {
+    id: 'testimonials-default',
+    type: 'testimonials',
+    order: 5,
+    visible: true,
+    title: 'Testimonials Section',
+  },
+  {
+    id: 'trusted-clients-default',
+    type: 'trusted-clients',
+    order: 6,
+    visible: true,
+    title: 'Trusted Clients Section',
+  },
+  {
+    id: 'faq-default',
+    type: 'faq',
+    order: 7,
+    visible: true,
+    title: 'FAQ Section',
+  },
+  {
+    id: 'contact-default',
+    type: 'contact',
+    order: 8,
+    visible: true,
+    title: 'Contact Section',
+  },
 ];
 
-// Données par défaut pour les sections
-export const DEFAULT_SECTION_DATA: Record<string, SectionData> = {
-  hero: {
-    title: 'Solutions numériques innovantes pour votre entreprise',
-    subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
-    ctaText: 'Découvrir nos services',
-    ctaSecondaryText: 'Nous contacter',
-    backgroundImage: '',
-    showTrustedClients: true,
-    trustedClientsTitle: 'Ils nous font confiance',
-    trustedClients: []
-  }
-};
-
-// Template par défaut
-export const DEFAULT_TEMPLATE_CONFIG = {
-  activeTemplate: 'default' as HomeTemplateType
-};
-
-// Configuration complète par défaut
-export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
+// Configuration par défaut de la page d'accueil
+export const DEFAULT_CONFIG: HomepageConfig = {
   sections: DEFAULT_SECTIONS,
-  sectionData: DEFAULT_SECTION_DATA,
+  sectionData: {},
   templateConfig: DEFAULT_TEMPLATE_CONFIG
 };
