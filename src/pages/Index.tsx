@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -10,7 +9,7 @@ import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
-import TekoHomeTemplate from '@/components/TekoHomeTemplate';
+import { TekoHomeTemplate } from '@/components/teko';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
