@@ -70,16 +70,6 @@ const ClientLogoEditor = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="category">Catégorie du client</Label>
-            <Input 
-              id="category" 
-              value={currentLogo?.category || ''} 
-              onChange={(e) => handleChange('category', e.target.value)}
-              placeholder="Ex: eCommerce, Government, etc."
-            />
-          </div>
-          
-          <div className="space-y-2">
             <Label htmlFor="website-url">URL du site web (optionnel)</Label>
             <Input 
               id="website-url" 
