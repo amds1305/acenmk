@@ -7,7 +7,7 @@ const TekoServices: React.FC = () => {
   return (
     <section id="services" className="py-24 bg-[#f8fafc]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl text-left mb-16">
+        <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#0a0c10]">
             Services sur mesure pour votre transformation digitale
           </h2>
@@ -95,7 +95,7 @@ const TekoServices: React.FC = () => {
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
             <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-amber-500 group-hover:text-white">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0018 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
               </svg>
             </div>
             
@@ -129,7 +129,7 @@ const TekoServices: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-16 text-left">
+        <div className="mt-16 text-center">
           <Button 
             asChild
             className="bg-[#0a0c10] text-white hover:bg-[#0a0c10]/90 rounded-full py-6 px-8 text-base font-medium"
