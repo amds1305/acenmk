@@ -46,6 +46,7 @@ export interface HomeTemplateConfig {
 // Nouvelle interface pour les données de la section clients de confiance
 export interface TrustedClientsSectionData {
   title: string;
+  featuredLabel?: string;
   clients: ClientLogo[];
 }
 
@@ -54,6 +55,7 @@ export interface ClientLogo {
   name: string;
   logoUrl: string;
   websiteUrl?: string;
+  category?: string; // New field for client category
 }
 
 export interface HomepageConfig {

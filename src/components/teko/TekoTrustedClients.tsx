@@ -2,6 +2,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
+import { ChevronRight } from 'lucide-react';
 
 const TekoTrustedClients: React.FC = () => {
   const { data } = useQuery({
@@ -15,13 +16,16 @@ const TekoTrustedClients: React.FC = () => {
       
       return {
         title: 'Ils nous font confiance',
+        featuredLabel: 'Featured Clients',
+        showTrustedClients: true,
         clients: []
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  if (!data || data.clients.length === 0) {
+  // Ne pas afficher la section si elle est explicitement désactivée ou s'il n'y a pas de clients
+  if (!data || data.showTrustedClients === false || data.clients.length === 0) {
     return null;
   }
 
@@ -31,12 +35,13 @@ const TekoTrustedClients: React.FC = () => {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
             <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
-            Featured Clients
+            {data.featuredLabel || 'Featured Clients'}
+            <ChevronRight className="h-3 w-3 opacity-60" />
           </div>
         </div>
         
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-          Brands we've worked with
+          {data.title || 'Brands we\'ve worked with'}
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
@@ -61,9 +66,13 @@ const TekoTrustedClients: React.FC = () => {
                   />
                 )}
               </div>
-              <p className="text-center text-gray-500">
-                {client.name}
-              </p>
+              <div className="text-center">
+                {client.category && (
+                  <p className="text-center text-gray-500">
+                    {client.category}
+                  </p>
+                )}
+              </div>
             </div>
           ))}
         </div>
