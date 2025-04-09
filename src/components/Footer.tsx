@@ -1,9 +1,31 @@
 
 import React from 'react';
-import { Facebook, Instagram, Linkedin, Twitter, Briefcase } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  
+  // Contact information that was moved from the contact form
+  const contactInfo = [
+    {
+      icon: <Mail className="h-5 w-5" />,
+      title: 'Email',
+      value: 'contact@visiontech.fr',
+      href: 'mailto:contact@visiontech.fr',
+    },
+    {
+      icon: <Phone className="h-5 w-5" />,
+      title: 'Téléphone',
+      value: '+33 1 23 45 67 89',
+      href: 'tel:+33123456789',
+    },
+    {
+      icon: <MapPin className="h-5 w-5" />,
+      title: 'Adresse',
+      value: '123 Avenue de l\'Innovation, 75001 Paris',
+      href: 'https://maps.google.com',
+    },
+  ];
   
   return (
     <footer className="bg-gray-900 text-white">
@@ -46,18 +68,23 @@ const Footer = () => {
             </ul>
           </div>
           
-          {/* Company */}
+          {/* Contact Info - Added from Contact component */}
           <div>
-            <h4 className="text-lg font-semibold mb-6">Entreprise</h4>
+            <h4 className="text-lg font-semibold mb-6">Contact</h4>
             <ul className="space-y-4">
-              <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">À propos</a></li>
-              <li><a href="#team" className="text-gray-400 hover:text-white transition-colors">Notre équipe</a></li>
-              <li><a href="/careers" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                <Briefcase className="mr-1 h-4 w-4" />
-                Carrières
-              </a></li>
-              <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Presse</a></li>
+              {contactInfo.map((info, index) => (
+                <li key={index}>
+                  <a 
+                    href={info.href}
+                    className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="bg-white/10 p-1.5 rounded-full">{info.icon}</span>
+                    <span>{info.value}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           

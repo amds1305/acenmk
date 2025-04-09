@@ -28,7 +28,7 @@ const TekoHero: React.FC = () => {
   });
 
   return (
-    <section className="relative bg-[#0a0c10] text-white overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-[#0a0c10] text-white overflow-hidden min-h-screen flex items-center w-full">
       {/* Background grid pattern */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiMxMjE1MjAiIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNMzAgMzBoMzB2MzBIMzB6IiBmaWxsLW9wYWNpdHk9Ii4wNCIgZmlsbD0iI2ZmZiIvPjwvZz48L3N2Zz4K')]"></div>
@@ -36,7 +36,7 @@ const TekoHero: React.FC = () => {
       </div>
       
       {/* Content container */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 w-full max-w-full">
         <div className="max-w-4xl">
           {/* Eyebrow text */}
           <div className="inline-flex items-center gap-2 mb-6 text-xs md:text-sm font-medium bg-white/10 text-white/80 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
@@ -79,7 +79,7 @@ const TekoHero: React.FC = () => {
           </div>
           
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/10 pt-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/10 pt-10 mb-16">
             <div className="flex flex-col">
               <span className="text-3xl md:text-4xl font-bold text-white mb-1">95%</span>
               <span className="text-sm text-white/60">Satisfaction client</span>
@@ -93,6 +93,9 @@ const TekoHero: React.FC = () => {
               <span className="text-sm text-white/60">Années d'expérience</span>
             </div>
           </div>
+          
+          {/* Separator line - Keeping this as requested */}
+          <div className="border-t border-white/10 pt-10 mb-10"></div>
         </div>
       </div>
     </section>
