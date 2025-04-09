@@ -1,7 +1,7 @@
 
 import React from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { AdminAbout as AdminAboutComponent } from '@/components/admin/AdminAbout';
+import AdminAboutComponent from '@/components/admin/AdminAbout';
 
 const AdminAbout = () => {
   return (

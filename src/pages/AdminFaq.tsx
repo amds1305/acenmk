@@ -1,7 +1,7 @@
 
 import React from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { AdminFaq as AdminFaqComponent } from '@/components/admin/AdminFaq';
+import AdminFaqComponent from '@/components/admin/AdminFaq';
 
 const AdminFaq = () => {
   return (
