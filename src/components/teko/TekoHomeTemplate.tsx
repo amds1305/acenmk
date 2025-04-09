@@ -14,7 +14,7 @@ import {
 // Component principal du template Teko
 const TekoHomeTemplate: React.FC = () => {
   return (
-    <div className="teko-template flex flex-col min-h-screen w-full">
+    <div className="teko-template flex flex-col min-h-screen">
       <TekoHero />
       <TekoServices />
       <TekoAbout />

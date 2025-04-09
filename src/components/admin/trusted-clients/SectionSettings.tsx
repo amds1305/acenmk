@@ -10,17 +10,13 @@ interface SectionSettingsProps {
   setShowTrustedClients: (value: boolean) => void;
   trustedClientsTitle: string;
   setTrustedClientsTitle: (value: string) => void;
-  featuredLabel?: string;
-  setFeaturedLabel?: (value: string) => void;
 }
 
 const SectionSettings = ({
   showTrustedClients,
   setShowTrustedClients,
   trustedClientsTitle,
-  setTrustedClientsTitle,
-  featuredLabel = "Featured Clients",
-  setFeaturedLabel
+  setTrustedClientsTitle
 }: SectionSettingsProps) => {
   return (
     <Card>
@@ -47,21 +43,8 @@ const SectionSettings = ({
             id="trusted-clients-title" 
             value={trustedClientsTitle} 
             onChange={(e) => setTrustedClientsTitle(e.target.value)}
-            placeholder="Brands we've worked with"
           />
         </div>
-        
-        {setFeaturedLabel && (
-          <div className="space-y-2 pt-2">
-            <Label htmlFor="featured-label">Libellé "Featured Clients"</Label>
-            <Input 
-              id="featured-label" 
-              value={featuredLabel} 
-              onChange={(e) => setFeaturedLabel(e.target.value)}
-              placeholder="Featured Clients"
-            />
-          </div>
-        )}
       </CardContent>
     </Card>
   );
