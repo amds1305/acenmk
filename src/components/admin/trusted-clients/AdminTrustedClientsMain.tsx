@@ -18,23 +18,27 @@ const AdminTrustedClients = () => {
   const { toast } = useToast();
   const { config, updateExistingSectionData, saveChanges } = useSections();
 
-  // Récupérer la section "Ils nous font confiance" dans Hero
-  const heroData = config.sectionData.hero || {};
+  // Get the trusted-clients section data if it exists
+  const trustedClientsData = config.sectionData['trusted-clients'] || {};
+  
   const [showTrustedClients, setShowTrustedClients] = useState<boolean>(
-    heroData.showTrustedClients !== undefined ? heroData.showTrustedClients : true
+    trustedClientsData.showTrustedClients !== undefined ? trustedClientsData.showTrustedClients : true
   );
   const [trustedClientsTitle, setTrustedClientsTitle] = useState<string>(
-    heroData.trustedClientsTitle || 'Ils nous font confiance'
+    trustedClientsData.title || 'Brands we\'ve worked with'
+  );
+  const [featuredLabel, setFeaturedLabel] = useState<string>(
+    trustedClientsData.featuredLabel || 'Featured Clients'
   );
   const [trustedClients, setTrustedClients] = useState<ClientLogo[]>(
-    heroData.trustedClients || []
+    trustedClientsData.clients || []
   );
 
-  // États pour gérer l'édition d'un logo
+  // States for managing logo editing
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [currentLogo, setCurrentLogo] = useState<ClientLogo | null>(null);
 
-  // Fonction pour ouvrir le dialogue d'ajout/édition de logo
+  // Function to open the logo add/edit dialog
   const handleEditLogo = (logo?: ClientLogo) => {
     if (logo) {
       setCurrentLogo(logo);
@@ -43,13 +47,14 @@ const AdminTrustedClients = () => {
         id: uuidv4(),
         name: '',
         logoUrl: '',
-        websiteUrl: ''
+        websiteUrl: '',
+        category: ''
       });
     }
     setIsEditing(true);
   };
 
-  // Fonction pour sauvegarder un logo
+  // Function to save a logo
   const handleSaveLogo = () => {
     if (!currentLogo) return;
 
@@ -72,7 +77,7 @@ const AdminTrustedClients = () => {
     });
   };
 
-  // Fonction pour supprimer un logo
+  // Function to delete a logo
   const handleDeleteLogo = (id: string) => {
     const updatedLogos = trustedClients.filter(logo => logo.id !== id);
     setTrustedClients(updatedLogos);
@@ -83,21 +88,21 @@ const AdminTrustedClients = () => {
     });
   };
 
-  // Fonction pour sauvegarder les changements
+  // Function to save changes
   const handleSaveChanges = () => {
-    const updatedHeroData = {
-      ...heroData,
+    const updatedData = {
       showTrustedClients,
-      trustedClientsTitle,
-      trustedClients
+      title: trustedClientsTitle,
+      featuredLabel,
+      clients: trustedClients
     };
 
-    updateExistingSectionData('hero', updatedHeroData);
+    updateExistingSectionData('trusted-clients', updatedData);
     saveChanges();
 
     toast({
       title: "Modifications enregistrées",
-      description: "Les paramètres de la section 'Ils nous font confiance' ont été mis à jour."
+      description: "Les paramètres de la section 'Clients de confiance' ont été mis à jour."
     });
   };
 
@@ -114,6 +119,8 @@ const AdminTrustedClients = () => {
         setShowTrustedClients={setShowTrustedClients}
         trustedClientsTitle={trustedClientsTitle}
         setTrustedClientsTitle={setTrustedClientsTitle}
+        featuredLabel={featuredLabel}
+        setFeaturedLabel={setFeaturedLabel}
       />
 
       <div className="flex items-center justify-between">

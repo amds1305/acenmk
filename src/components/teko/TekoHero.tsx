@@ -6,6 +6,7 @@ import { getHomepageConfig } from '@/services/sections';
 import { HeroData } from '@/components/Hero';
 import { Button } from '@/components/ui/button';
 import { ClientLogo } from '@/types/sections';
+import { Separator } from '@/components/ui/separator';
 
 const TekoHero: React.FC = () => {
   const { data: heroData } = useQuery({
@@ -40,27 +41,56 @@ const TekoHero: React.FC = () => {
       
       // Default data if none exists
       return {
-        title: 'Ils nous font confiance',
+        title: 'Brands we\'ve worked with',
+        featuredLabel: 'Featured Clients',
         clients: [
           {
             id: '1',
-            name: 'Client 1',
+            name: 'Monash University',
             logoUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'University'
           },
           {
             id: '2',
-            name: 'Client 2',
+            name: 'Transport NSW',
             logoUrl: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'Government'
           },
           {
             id: '3',
-            name: 'Client 3',
+            name: 'Modern Dental Pacific',
             logoUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'Public Company'
           },
           {
             id: '4',
-            name: 'Client 4',
+            name: 'OZ Hair & Beauty',
             logoUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'eCommerce'
+          },
+          {
+            id: '5',
+            name: 'Dragonfly',
+            logoUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'Acquired'
+          },
+          {
+            id: '6',
+            name: 'Renascent',
+            logoUrl: 'https://images.unsplash.com/photo-1555421689-3f034debb7a6?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: '$2b+ Projects Delivered'
+          },
+          {
+            id: '7',
+            name: 'Connec',
+            logoUrl: 'https://images.unsplash.com/photo-1603969072881-b0fc7f3d77d7?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'Acquired'
+          },
+          {
+            id: '8',
+            name: 'No Names',
+            logoUrl: 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
+            category: 'Hospitality Company'
           }
         ]
       };
@@ -137,20 +167,29 @@ const TekoHero: React.FC = () => {
           
           {/* Featured Clients Section */}
           {trustedClientsData?.clients && trustedClientsData.clients.length > 0 && (
-            <div className="featured-clients">
-              <div className="mb-8">
-                <h3 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-6">
-                  {trustedClientsData.title || 'Ils nous font confiance'}
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-                  {trustedClientsData.clients.map((client: ClientLogo) => (
-                    <div key={client.id} className="flex items-center justify-center">
+            <div className="featured-clients border-t border-white/10 pt-16">
+              <div className="text-center mb-10">
+                {/* Featured Clients label - styled like the Innovation Numérique button */}
+                <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
+                  <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
+                  {trustedClientsData.featuredLabel || 'Featured Clients'}
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold mt-6">
+                  {trustedClientsData.title || 'Brands we\'ve worked with'}
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 gap-y-16">
+                {trustedClientsData.clients.map((client: ClientLogo & { category?: string }) => (
+                  <div key={client.id} className="flex flex-col items-center">
+                    <div className="h-16 flex items-center justify-center mb-4">
                       {client.websiteUrl ? (
                         <a 
                           href={client.websiteUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100"
+                          className="transition-all duration-300"
                         >
                           <img 
                             src={client.logoUrl} 
@@ -162,12 +201,18 @@ const TekoHero: React.FC = () => {
                         <img 
                           src={client.logoUrl} 
                           alt={client.name} 
-                          className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100"
+                          className="max-h-12 max-w-full object-contain"
                         />
                       )}
                     </div>
-                  ))}
-                </div>
+                    {/* Category text below each logo */}
+                    {client.category && (
+                      <span className="text-sm text-white/60 text-center">
+                        {client.category}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
