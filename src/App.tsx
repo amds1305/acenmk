@@ -25,6 +25,15 @@ import Admin from './pages/Admin';
 import AdminLogin from './pages/AdminLogin';
 import AdminTrustedClients from './pages/AdminTrustedClients';
 
+// Additional admin pages
+import AdminTeam from './pages/AdminTeam';
+import AdminServices from './pages/AdminServices';
+import AdminTestimonials from './pages/AdminTestimonials';
+import AdminFaq from './pages/AdminFaq';
+import AdminCareers from './pages/AdminCareers';
+import AdminBlog from './pages/AdminBlog';
+import AdminAbout from './pages/AdminAbout';
+
 // Styles
 import './App.css';
 
@@ -51,9 +60,19 @@ function App() {
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/portfolio/:id" element={<PortfolioDetail />} />
                 <Route path="/profile" element={<Profile />} />
+                
+                {/* Admin Routes */}
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin/trusted-clients" element={<AdminTrustedClients />} />
+                <Route path="/admin/team" element={<AdminTeam />} />
+                <Route path="/admin/services" element={<AdminServices />} />
+                <Route path="/admin/testimonials" element={<AdminTestimonials />} />
+                <Route path="/admin/faq" element={<AdminFaq />} />
+                <Route path="/admin/careers" element={<AdminCareers />} />
+                <Route path="/admin/blog" element={<AdminBlog />} />
+                <Route path="/admin/about" element={<AdminAbout />} />
                 <Route path="/admin-login" element={<AdminLogin />} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />
