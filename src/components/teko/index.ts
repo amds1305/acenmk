@@ -1,4 +1,5 @@
 
+// Export all Teko template components
 export { default as TekoHomeTemplate } from './TekoHomeTemplate';
 export { default as TekoHero } from './TekoHero';
 export { default as TekoServices } from './TekoServices';
