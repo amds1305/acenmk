@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,17 @@ type NewSectionForm = {
   type: SectionType;
   title: string;
 };
+
+const sectionTypes = [
+  { id: 'hero', name: 'Hero', icon: <LayoutDashboard className="h-4 w-4 mr-2" />, path: '/admin/hero' },
+  { id: 'services', name: 'Services', icon: <Cog className="h-4 w-4 mr-2" />, path: '/admin/services' },
+  { id: 'about', name: 'À propos', icon: <Info className="h-4 w-4 mr-2" />, path: '/admin/about' },
+  { id: 'team', name: 'Équipe', icon: <Users className="h-4 w-4 mr-2" />, path: '/admin/team' },
+  { id: 'trusted-clients', name: 'Clients de confiance', icon: <Award className="h-4 w-4 mr-2" />, path: '/admin/trusted-clients' },
+  { id: 'testimonials', name: 'Témoignages', icon: <MessageSquare className="h-4 w-4 mr-2" />, path: '/admin/testimonials' },
+  { id: 'faq', name: 'FAQ', icon: <HelpCircle className="h-4 w-4 mr-2" />, path: '/admin/faq' },
+  { id: 'contact', name: 'Contact', icon: <Phone className="h-4 w-4 mr-2" />, path: '/admin/contact' },
+];
 
 const SectionsManager: React.FC = () => {
   const { 

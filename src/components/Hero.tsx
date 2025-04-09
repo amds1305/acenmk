@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +16,55 @@ export interface HeroData {
   showTrustedClients?: boolean;
   trustedClientsTitle?: string;
   trustedClients?: ClientLogo[];
+}
+
+// Type pour les blocs personnalisés
+export interface HeroBlock {
+  id: string;
+  type: 'text' | 'image' | 'button' | 'stat';
+  content: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  size: {
+    width: string;
+    height: string;
+  };
+  style: {
+    color?: string;
+    fontSize?: string;
+    fontWeight?: string;
+    textAlign?: 'left' | 'center' | 'right';
+    backgroundColor?: string;
+    borderRadius?: string;
+    padding?: string;
+  };
+}
+
+// Type pour les versions du Hero
+export interface HeroVersion extends HeroData {
+  id: string;
+  name: string;
+  textColor: string;
+  titleFontSize: string;
+  subtitleFontSize: string;
+  backgroundColor: string;
+  backgroundType: 'color' | 'image' | 'gradient';
+  backgroundGradient?: string;
+  marginTop: string;
+  marginBottom: string;
+  padding: string;
+  blocks: HeroBlock[];
+}
+
+// Type pour les paramètres du carousel
+export interface HeroCarouselSettings {
+  enabled: boolean;
+  transitionTime: number; // seconds
+  transitionType: 'fade' | 'slide' | 'zoom';
+  autoplay: boolean;
+  autoplaySpeed: number; // seconds
 }
 
 // Fonction pour récupérer les données du Hero
@@ -68,6 +117,19 @@ const Hero = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // État pour suivre la version active dans le cas d'un carousel
+  const [activeVersionIndex, setActiveVersionIndex] = useState(0);
+  const [heroSettings, setHeroSettings] = useState<any>(null);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+
+  // Récupérer les paramètres avancés du Hero
+  useEffect(() => {
+    const config = getHomepageConfig();
+    if (config.sectionData && config.sectionData.heroSettings) {
+      setHeroSettings(config.sectionData.heroSettings);
+    }
+  }, []);
+
   // Effet pour animer les éléments au chargement
   useEffect(() => {
     const animateElements = () => {
@@ -82,6 +144,209 @@ const Hero = () => {
     animateElements();
   }, []);
 
+  // Effet pour gérer le défilement automatique du carousel
+  useEffect(() => {
+    if (
+      heroSettings && 
+      heroSettings.versions && 
+      heroSettings.versions.length > 1 && 
+      heroSettings.carousel && 
+      heroSettings.carousel.enabled && 
+      heroSettings.carousel.autoplay && 
+      !isCarouselPaused
+    ) {
+      const interval = setInterval(() => {
+        setActiveVersionIndex(prev => 
+          prev === heroSettings.versions.length - 1 ? 0 : prev + 1
+        );
+      }, heroSettings.carousel.autoplaySpeed * 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [heroSettings, activeVersionIndex, isCarouselPaused]);
+
+  // Si les paramètres avancés du Hero sont disponibles
+  if (heroSettings && heroSettings.versions && heroSettings.versions.length > 0) {
+    // Obtenir la version active
+    const activeVersion = heroSettings.versions[activeVersionIndex];
+    
+    // Générer le style pour l'arrière-plan en fonction du type
+    const getBackgroundStyle = () => {
+      if (activeVersion.backgroundType === 'image' && activeVersion.backgroundImage) {
+        return {
+          backgroundImage: `url(${activeVersion.backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        };
+      } else if (activeVersion.backgroundType === 'gradient' && activeVersion.backgroundGradient) {
+        return {
+          background: activeVersion.backgroundGradient,
+        };
+      } else {
+        return {
+          backgroundColor: activeVersion.backgroundColor || '#1a1f2c',
+        };
+      }
+    };
+
+    // Générer le style pour un bloc
+    const getBlockStyle = (block: HeroBlock) => {
+      return {
+        position: 'absolute' as const,
+        left: `${block.position.x}px`,
+        top: `${block.position.y}px`,
+        width: block.size.width,
+        height: block.size.height,
+        color: block.style.color,
+        fontSize: block.style.fontSize,
+        fontWeight: block.style.fontWeight,
+        textAlign: block.style.textAlign as 'left' | 'center' | 'right',
+        backgroundColor: block.style.backgroundColor,
+        borderRadius: block.style.borderRadius,
+        padding: block.style.padding,
+      };
+    };
+
+    // Rendu d'un bloc en fonction de son type
+    const renderBlock = (block: HeroBlock) => {
+      switch (block.type) {
+        case 'text':
+          return <div style={getBlockStyle(block)}>{block.content}</div>;
+        case 'image':
+          return (
+            <img 
+              src={block.content} 
+              alt="Block content" 
+              style={getBlockStyle(block)} 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://via.placeholder.com/400x200?text=Image+Error';
+              }}
+            />
+          );
+        case 'button':
+          return <button className="hover:opacity-90 transition-opacity" style={getBlockStyle(block)}>{block.content}</button>;
+        case 'stat':
+          return (
+            <div style={getBlockStyle(block)} className="flex flex-col items-center">
+              <div className="text-3xl font-bold">{block.content}</div>
+              <div className="text-sm opacity-80">Statistique</div>
+            </div>
+          );
+        default:
+          return null;
+      }
+    };
+
+    // Version avancée du Hero avec toutes les fonctionnalités
+    return (
+      <section 
+        id="hero" 
+        className="relative overflow-hidden transition-all duration-300"
+        style={{
+          ...getBackgroundStyle(),
+          color: activeVersion.textColor || '#ffffff',
+          marginTop: activeVersion.marginTop || '0',
+          marginBottom: activeVersion.marginBottom || '0',
+          padding: activeVersion.padding || '2rem',
+        }}
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 md:py-20">
+          <div className="max-w-4xl">
+            <h1 className={`font-bold leading-tight tracking-tight mb-6 text-${activeVersion.titleFontSize || '4xl'} md:text-${activeVersion.titleFontSize || '6xl'}`}>
+              {activeVersion.title}
+            </h1>
+            
+            <p className={`mb-8 max-w-2xl text-${activeVersion.subtitleFontSize || 'lg'} md:text-${activeVersion.subtitleFontSize || 'xl'}`}>
+              {activeVersion.subtitle}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-16">
+              <Button 
+                asChild 
+                className="rounded-md py-6 px-8 text-base font-medium"
+              >
+                <a href="#services">
+                  {activeVersion.ctaText}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+              
+              <Button 
+                asChild 
+                variant="outline" 
+                className="rounded-md py-6 px-8 text-base font-medium"
+              >
+                <a href="#contact">
+                  {activeVersion.ctaSecondaryText}
+                </a>
+              </Button>
+            </div>
+          </div>
+          
+          {/* Blocs personnalisés */}
+          {activeVersion.blocks && activeVersion.blocks.map((block) => (
+            <div key={block.id} className="absolute">
+              {renderBlock(block)}
+            </div>
+          ))}
+          
+          {/* Section "Ils nous font confiance" */}
+          {activeVersion.showTrustedClients && activeVersion.trustedClients?.length > 0 && (
+            <div className="mt-12 pt-10 border-t border-white/10">
+              <div className="flex flex-col items-center">
+                <p className="text-sm font-medium mb-8">
+                  {activeVersion.trustedClientsTitle || 'Ils nous font confiance'}
+                </p>
+                <div className="flex flex-wrap gap-10 items-center justify-center">
+                  {activeVersion.trustedClients.map((client) => (
+                    <div key={client.id} className="h-8 md:h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+                      {client.websiteUrl ? (
+                        <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+                          <img 
+                            src={client.logoUrl} 
+                            alt={client.name} 
+                            className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
+                            title={client.name}
+                          />
+                        </a>
+                      ) : (
+                        <img 
+                          src={client.logoUrl} 
+                          alt={client.name} 
+                          className="h-full w-auto grayscale hover:grayscale-0 transition-all duration-300" 
+                          title={client.name}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Indicateurs du carousel */}
+          {heroSettings.carousel && 
+           heroSettings.carousel.enabled && 
+           heroSettings.versions.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+              {heroSettings.versions.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === activeVersionIndex ? 'bg-white scale-100' : 'bg-white/30 scale-75'
+                  }`}
+                  onClick={() => setActiveVersionIndex(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Version standard du Hero (pour la rétrocompatibilité)
   return (
     <section id="hero" className="relative py-32 md:py-44 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Formes géométriques en arrière-plan */}
