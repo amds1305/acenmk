@@ -20,6 +20,7 @@ import AdminHero from '@/pages/AdminHero';
 
 const Admin = () => {
   return (
+    <AdminLayout>
       <Routes>
         <Route path="/" element={<AdminDashboard />} />
         <Route path="/blog" element={<AdminBlogPosts />} />
@@ -37,6 +38,7 @@ const Admin = () => {
         <Route path="/hero" element={<AdminHero />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
+    </AdminLayout>
   );
 };
 
