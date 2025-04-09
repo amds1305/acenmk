@@ -1,7 +1,24 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, GripVertical, Edit, Eye, EyeOff, Trash2, Save } from 'lucide-react';
+import { 
+  PlusCircle, 
+  GripVertical, 
+  Edit, 
+  Eye, 
+  EyeOff, 
+  Trash2, 
+  Save,
+  LayoutDashboard,
+  Cog,
+  Info,
+  Users,
+  Award,
+  MessageSquare,
+  HelpCircle,
+  Phone
+} from 'lucide-react';
 import { useSections } from '@/contexts/SectionsContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';

@@ -36,7 +36,7 @@ import {
   ChartBar, 
   Trash2, 
   Copy,
-  Button as ButtonIcon
+  Square as ButtonIcon
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { HeroVersion, HeroBlock } from './types';

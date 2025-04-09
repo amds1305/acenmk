@@ -68,7 +68,11 @@ const AdminHeroEditor = () => {
       const initialVersion: HeroVersion = {
         id: uuidv4(),
         name: 'Version principale',
-        ...existingHero,
+        title: existingHero.title || 'Solutions numériques innovantes pour votre entreprise',
+        subtitle: existingHero.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+        ctaText: existingHero.ctaText || 'Découvrir nos services',
+        ctaSecondaryText: existingHero.ctaSecondaryText || 'Nous contacter',
+        backgroundImage: existingHero.backgroundImage || '',
         textColor: heroData.textColor || '#ffffff',
         titleFontSize: heroData.titleFontSize || '4xl',
         subtitleFontSize: heroData.subtitleFontSize || 'xl',
@@ -188,7 +192,7 @@ const AdminHeroEditor = () => {
       };
 
       // Préparer les paramètres complets du Hero
-      const heroSettings = {
+      const heroSettingsData = {
         versions: heroSettings.versions,
         activeVersion: heroSettings.activeVersion,
         carousel: heroSettings.carousel,
@@ -206,7 +210,7 @@ const AdminHeroEditor = () => {
       };
 
       // Récupérer la configuration actuelle
-      const currentConfig = getHomepageConfig();
+      const currentConfig = await getHomepageConfig();
       
       // Mettre à jour les données
       const updatedConfig = {
@@ -214,12 +218,12 @@ const AdminHeroEditor = () => {
         sectionData: {
           ...currentConfig.sectionData,
           hero: heroData,
-          heroSettings: heroSettings,
+          heroSettings: heroSettingsData,
         },
       };
 
       // Sauvegarder la configuration mise à jour
-      saveHomepageConfig(updatedConfig);
+      await saveHomepageConfig(updatedConfig);
 
       toast({
         title: "Modifications sauvegardées",
