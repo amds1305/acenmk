@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
@@ -15,29 +16,27 @@ import AdminCareers from '@/components/admin/AdminCareers';
 import AdminApplications from '@/components/admin/AdminApplications';
 import AdminAppointments from '@/components/admin/AdminAppointments';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
+import AdminHero from '@/pages/AdminHero';
 
 const Admin = () => {
   return (
-    <ProtectedRoute>
-      <AdminLayout>
-        <Routes>
-          <Route path="/" element={<AdminDashboard />} />
-          <Route path="/blog" element={<AdminBlogPosts />} />
-          <Route path="/blog/:id" element={<AdminBlogPost />} />
-          <Route path="/home" element={<AdminHome />} />
-          <Route path="/services" element={<AdminServices />} />
-          <Route path="/about" element={<AdminAbout />} />
-          <Route path="/team" element={<AdminTeam />} />
-          <Route path="/testimonials" element={<AdminTestimonials />} />
-          <Route path="/faq" element={<AdminFaq />} />
-          <Route path="/careers" element={<AdminCareers />} />
-          <Route path="/applications" element={<AdminApplications />} />
-          <Route path="/appointments" element={<AdminAppointments />} />
-          <Route path="/trusted-clients" element={<AdminTrustedClients />} />
-          <Route path="*" element={<Navigate to="/admin" replace />} />
-        </Routes>
-      </AdminLayout>
-    </ProtectedRoute>
+      <Routes>
+        <Route path="/" element={<AdminDashboard />} />
+        <Route path="/blog" element={<AdminBlogPosts />} />
+        <Route path="/blog/:id" element={<AdminBlogPost />} />
+        <Route path="/home" element={<AdminHome />} />
+        <Route path="/services" element={<AdminServices />} />
+        <Route path="/about" element={<AdminAbout />} />
+        <Route path="/team" element={<AdminTeam />} />
+        <Route path="/testimonials" element={<AdminTestimonials />} />
+        <Route path="/faq" element={<AdminFaq />} />
+        <Route path="/careers" element={<AdminCareers />} />
+        <Route path="/applications" element={<AdminApplications />} />
+        <Route path="/appointments" element={<AdminAppointments />} />
+        <Route path="/trusted-clients" element={<AdminTrustedClients />} />
+        <Route path="/hero" element={<AdminHero />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
   );
 };
 
