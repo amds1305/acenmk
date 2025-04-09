@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -12,51 +11,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { HexColorPicker } from 'react-colorful';
 import { HeroVersion } from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface StyleEditorProps {
   version: HeroVersion;
   onUpdateVersion: (version: HeroVersion) => void;
 }
 
-// Fonction utilitaire pour convertir px en nombre et inversement
-const pxToNumber = (pxValue: string): number => {
-  return parseInt(pxValue, 10) || 0;
-};
-
-const numberToPx = (value: number): string => {
-  return `${value}px`;
-};
-
-// Options de taille de police
-const fontSizeOptions = [
-  { value: 'xs', label: 'Très petit' },
-  { value: 'sm', label: 'Petit' },
-  { value: 'base', label: 'Normal' },
-  { value: 'lg', label: 'Grand' },
-  { value: 'xl', label: 'Très grand' },
-  { value: '2xl', label: 'XX-Large' },
-  { value: '3xl', label: 'XXX-Large' },
-  { value: '4xl', label: '4X-Large' },
-  { value: '5xl', label: '5X-Large' },
-  { value: '6xl', label: '6X-Large' },
-  { value: '7xl', label: '7X-Large' },
-];
-
-// Gradients prédéfinis
-const predefinedGradients = [
-  { value: 'linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)', label: 'Soft Peach' },
-  { value: 'linear-gradient(180deg, rgb(254,100,121) 0%, rgb(251,221,186) 100%)', label: 'Warm Sunset' },
-  { value: 'linear-gradient(90deg, hsla(221, 45%, 73%, 1) 0%, hsla(220, 78%, 29%, 1) 100%)', label: 'Deep Blue' },
-  { value: 'linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)', label: 'Orange Glow' },
-  { value: 'linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)', label: 'Royal Purple' },
-  { value: 'linear-gradient(to right, #243949 0%, #517fa4 100%)', label: 'Ocean Blue' },
-  { value: 'linear-gradient(225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)', label: 'Candy' },
-];
-
 const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
-  // Mettre à jour la couleur du texte
+  // Update text color
   const updateTextColor = (color: string) => {
     onUpdateVersion({
       ...version,
@@ -64,30 +37,7 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
     });
   };
 
-  // Mettre à jour les tailles de police
-  const updateTitleFontSize = (size: string) => {
-    onUpdateVersion({
-      ...version,
-      titleFontSize: size,
-    });
-  };
-
-  const updateSubtitleFontSize = (size: string) => {
-    onUpdateVersion({
-      ...version,
-      subtitleFontSize: size,
-    });
-  };
-
-  // Mettre à jour le type d'arrière-plan
-  const updateBackgroundType = (type: 'color' | 'image' | 'gradient') => {
-    onUpdateVersion({
-      ...version,
-      backgroundType: type,
-    });
-  };
-
-  // Mettre à jour la couleur d'arrière-plan
+  // Update background color
   const updateBackgroundColor = (color: string) => {
     onUpdateVersion({
       ...version,
@@ -95,7 +45,23 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
     });
   };
 
-  // Mettre à jour le dégradé d'arrière-plan
+  // Update background type
+  const updateBackgroundType = (type: 'color' | 'image' | 'gradient') => {
+    onUpdateVersion({
+      ...version,
+      backgroundType: type,
+    });
+  };
+
+  // Update background image URL
+  const updateBackgroundImage = (url: string) => {
+    onUpdateVersion({
+      ...version,
+      backgroundImage: url,
+    });
+  };
+
+  // Update background gradient
   const updateBackgroundGradient = (gradient: string) => {
     onUpdateVersion({
       ...version,
@@ -103,141 +69,150 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
     });
   };
 
-  // Mettre à jour l'image d'arrière-plan
-  const updateBackgroundImage = (imageUrl: string) => {
+  // Update title font size
+  const updateTitleFontSize = (size: string) => {
     onUpdateVersion({
       ...version,
-      backgroundImage: imageUrl,
+      titleFontSize: size,
     });
   };
 
-  // Mettre à jour les marges
-  const updateMarginTop = (value: number) => {
+  // Update subtitle font size
+  const updateSubtitleFontSize = (size: string) => {
     onUpdateVersion({
       ...version,
-      marginTop: numberToPx(value),
+      subtitleFontSize: size,
     });
   };
 
-  const updateMarginBottom = (value: number) => {
+  // Update spacing
+  const updateSpacing = (property: 'marginTop' | 'marginBottom' | 'padding', value: string) => {
     onUpdateVersion({
       ...version,
-      marginBottom: numberToPx(value),
-    });
-  };
-
-  // Mettre à jour le padding
-  const updatePadding = (value: number) => {
-    onUpdateVersion({
-      ...version,
-      padding: numberToPx(value),
+      [property]: value,
     });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Styles visuels</CardTitle>
+        <CardTitle>Style du Hero</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Typographie */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Typographie</h3>
+        <Tabs defaultValue="text">
+          <TabsList className="grid grid-cols-3 w-full">
+            <TabsTrigger value="text">Texte</TabsTrigger>
+            <TabsTrigger value="background">Arrière-plan</TabsTrigger>
+            <TabsTrigger value="spacing">Espacement</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-2">
-            <Label htmlFor="text-color">Couleur du texte</Label>
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-8 h-8 rounded-full border" 
-                style={{ backgroundColor: version.textColor }}
-              />
-              <Input 
-                id="text-color"
-                type="color" 
-                value={version.textColor} 
-                onChange={(e) => updateTextColor(e.target.value)}
-                className="w-12 p-0 h-8"
-              />
-              <Input 
-                value={version.textColor} 
-                onChange={(e) => updateTextColor(e.target.value)}
-                className="flex-1"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TabsContent value="text" className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="title-font-size">Taille du titre</Label>
+              <Label htmlFor="textColor">Couleur du texte</Label>
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-8 h-8 rounded-full border" 
+                  style={{ backgroundColor: version.textColor }}
+                />
+                <Input 
+                  id="textColor"
+                  type="color" 
+                  value={version.textColor} 
+                  onChange={(e) => updateTextColor(e.target.value)}
+                  className="w-12 p-0 h-8"
+                />
+                <Input 
+                  value={version.textColor} 
+                  onChange={(e) => updateTextColor(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="titleFontSize">Taille du titre</Label>
               <Select 
                 value={version.titleFontSize} 
                 onValueChange={updateTitleFontSize}
               >
-                <SelectTrigger id="title-font-size">
-                  <SelectValue placeholder="Sélectionnez une taille" />
+                <SelectTrigger id="titleFontSize">
+                  <SelectValue placeholder="Sélectionner une taille" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {fontSizeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="lg">Petit</SelectItem>
+                    <SelectItem value="xl">Normal</SelectItem>
+                    <SelectItem value="2xl">Grand</SelectItem>
+                    <SelectItem value="3xl">Très grand</SelectItem>
+                    <SelectItem value="4xl">Énorme</SelectItem>
+                    <SelectItem value="5xl">Gigantesque</SelectItem>
+                    <SelectItem value="6xl">Maximal</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <div className="text-sm mt-1">
-                <span className={`text-${version.titleFontSize}`}>Aperçu du titre</span>
-              </div>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="subtitle-font-size">Taille du sous-titre</Label>
+              <Label htmlFor="subtitleFontSize">Taille du sous-titre</Label>
               <Select 
                 value={version.subtitleFontSize} 
                 onValueChange={updateSubtitleFontSize}
               >
-                <SelectTrigger id="subtitle-font-size">
-                  <SelectValue placeholder="Sélectionnez une taille" />
+                <SelectTrigger id="subtitleFontSize">
+                  <SelectValue placeholder="Sélectionner une taille" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {fontSizeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="base">Petit</SelectItem>
+                    <SelectItem value="lg">Normal</SelectItem>
+                    <SelectItem value="xl">Grand</SelectItem>
+                    <SelectItem value="2xl">Très grand</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <div className="text-sm mt-1">
-                <span className={`text-${version.subtitleFontSize}`}>Aperçu du sous-titre</span>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="background" className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label>Type d'arrière-plan</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <div 
+                  className={`border rounded-md p-3 flex flex-col items-center gap-2 cursor-pointer ${version.backgroundType === 'color' ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                  onClick={() => updateBackgroundType('color')}
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500" />
+                  <span className="text-sm">Couleur</span>
+                </div>
+                <div 
+                  className={`border rounded-md p-3 flex flex-col items-center gap-2 cursor-pointer ${version.backgroundType === 'image' ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                  onClick={() => updateBackgroundType('image')}
+                >
+                  <div className="w-8 h-8 rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  </div>
+                  <span className="text-sm">Image</span>
+                </div>
+                <div 
+                  className={`border rounded-md p-3 flex flex-col items-center gap-2 cursor-pointer ${version.backgroundType === 'gradient' ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                  onClick={() => updateBackgroundType('gradient')}
+                >
+                  <div className="w-8 h-8 rounded bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+                  <span className="text-sm">Dégradé</span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Arrière-plan */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Arrière-plan</h3>
-          
-          <Tabs defaultValue={version.backgroundType} onValueChange={(v) => updateBackgroundType(v as 'color' | 'image' | 'gradient')}>
-            <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="color">Couleur</TabsTrigger>
-              <TabsTrigger value="gradient">Dégradé</TabsTrigger>
-              <TabsTrigger value="image">Image</TabsTrigger>
-            </TabsList>
             
-            <TabsContent value="color" className="py-4 space-y-4">
+            {version.backgroundType === 'color' && (
               <div className="space-y-2">
-                <Label htmlFor="bg-color">Couleur d'arrière-plan</Label>
+                <Label htmlFor="backgroundColor">Couleur d'arrière-plan</Label>
                 <div className="flex items-center gap-2">
                   <div 
                     className="w-8 h-8 rounded-full border" 
                     style={{ backgroundColor: version.backgroundColor }}
                   />
                   <Input 
-                    id="bg-color"
+                    id="backgroundColor"
                     type="color" 
                     value={version.backgroundColor} 
                     onChange={(e) => updateBackgroundColor(e.target.value)}
@@ -250,131 +225,114 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
                   />
                 </div>
               </div>
-            </TabsContent>
+            )}
             
-            <TabsContent value="gradient" className="py-4 space-y-4">
+            {version.backgroundType === 'image' && (
               <div className="space-y-2">
-                <Label htmlFor="bg-gradient">Dégradé prédéfini</Label>
-                <Select 
-                  value={version.backgroundGradient || ''} 
-                  onValueChange={updateBackgroundGradient}
-                >
-                  <SelectTrigger id="bg-gradient">
-                    <SelectValue placeholder="Sélectionnez un dégradé" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {predefinedGradients.map((gradient) => (
-                        <SelectItem key={gradient.value} value={gradient.value}>
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-4 h-4 rounded-full" 
-                              style={{ background: gradient.value }}
-                            />
-                            {gradient.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                
-                <div 
-                  className="h-14 rounded-md mt-2"
-                  style={{ background: version.backgroundGradient || 'none' }}
-                ></div>
-                
-                <div className="mt-2">
-                  <Label htmlFor="custom-gradient">Dégradé personnalisé</Label>
-                  <Input 
-                    id="custom-gradient"
-                    value={version.backgroundGradient || ''} 
-                    onChange={(e) => updateBackgroundGradient(e.target.value)}
-                    placeholder="linear-gradient(to right, #color1, #color2)"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="image" className="py-4 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="bg-image">URL de l'image</Label>
+                <Label htmlFor="backgroundImage">URL de l'image d'arrière-plan</Label>
                 <Input 
-                  id="bg-image"
+                  id="backgroundImage"
                   value={version.backgroundImage} 
                   onChange={(e) => updateBackgroundImage(e.target.value)}
                   placeholder="https://example.com/image.jpg"
                 />
-                
                 {version.backgroundImage && (
-                  <div className="mt-2 border rounded-md overflow-hidden h-40 bg-gray-50">
+                  <div className="mt-2 rounded-md overflow-hidden border">
                     <img 
                       src={version.backgroundImage} 
                       alt="Aperçu de l'arrière-plan" 
-                      className="w-full h-full object-cover"
+                      className="w-full h-32 object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x200?text=Image+Invalide';
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://via.placeholder.com/400x200?text=Image+Error';
                       }}
                     />
                   </div>
                 )}
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        {/* Espacement */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Espacement</h3>
+            )}
+            
+            {version.backgroundType === 'gradient' && (
+              <div className="space-y-2">
+                <Label htmlFor="backgroundGradient">Dégradé</Label>
+                <Input 
+                  id="backgroundGradient"
+                  value={version.backgroundGradient || 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'}
+                  onChange={(e) => updateBackgroundGradient(e.target.value)}
+                  placeholder="linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)"
+                />
+                <div 
+                  className="mt-2 h-16 rounded-md" 
+                  style={{ background: version.backgroundGradient || 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' }}
+                />
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <button 
+                    className="px-3 py-1 text-xs rounded border hover:bg-muted/50"
+                    onClick={() => updateBackgroundGradient('linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)')}
+                  >
+                    Bleu-Violet
+                  </button>
+                  <button 
+                    className="px-3 py-1 text-xs rounded border hover:bg-muted/50"
+                    onClick={() => updateBackgroundGradient('linear-gradient(135deg, #10b981 0%, #3b82f6 100%)')}
+                  >
+                    Vert-Bleu
+                  </button>
+                  <button 
+                    className="px-3 py-1 text-xs rounded border hover:bg-muted/50"
+                    onClick={() => updateBackgroundGradient('linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)')}
+                  >
+                    Jaune-Rouge
+                  </button>
+                  <button 
+                    className="px-3 py-1 text-xs rounded border hover:bg-muted/50"
+                    onClick={() => updateBackgroundGradient('linear-gradient(135deg, #111827 0%, #374151 100%)')}
+                  >
+                    Noir-Gris
+                  </button>
+                </div>
+              </div>
+            )}
+          </TabsContent>
           
-          <div className="space-y-4">
+          <TabsContent value="spacing" className="space-y-4 pt-4">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="margin-top">Marge supérieure</Label>
-                <span className="text-sm text-muted-foreground">{version.marginTop}</span>
-              </div>
-              <Slider
-                id="margin-top"
-                min={0}
-                max={200}
-                step={1}
-                value={[pxToNumber(version.marginTop)]}
-                onValueChange={(value) => updateMarginTop(value[0])}
+              <Label htmlFor="marginTop">Marge supérieure</Label>
+              <Input 
+                id="marginTop"
+                value={version.marginTop} 
+                onChange={(e) => updateSpacing('marginTop', e.target.value)}
+                placeholder="0px"
+              />
+              <p className="text-xs text-muted-foreground">
+                Exemple: 0px, 1rem, 20px, etc.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="marginBottom">Marge inférieure</Label>
+              <Input 
+                id="marginBottom"
+                value={version.marginBottom} 
+                onChange={(e) => updateSpacing('marginBottom', e.target.value)}
+                placeholder="0px"
               />
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="margin-bottom">Marge inférieure</Label>
-                <span className="text-sm text-muted-foreground">{version.marginBottom}</span>
-              </div>
-              <Slider
-                id="margin-bottom"
-                min={0}
-                max={200}
-                step={1}
-                value={[pxToNumber(version.marginBottom)]}
-                onValueChange={(value) => updateMarginBottom(value[0])}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="padding">Padding interne</Label>
-                <span className="text-sm text-muted-foreground">{version.padding}</span>
-              </div>
-              <Slider
+              <Label htmlFor="padding">Padding (interne)</Label>
+              <Input 
                 id="padding"
-                min={0}
-                max={100}
-                step={1}
-                value={[pxToNumber(version.padding)]}
-                onValueChange={(value) => updatePadding(value[0])}
+                value={version.padding} 
+                onChange={(e) => updateSpacing('padding', e.target.value)}
+                placeholder="2rem"
               />
+              <p className="text-xs text-muted-foreground">
+                Exemple: 1rem, 2rem, 20px 40px (haut/bas gauche/droite), etc.
+              </p>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
