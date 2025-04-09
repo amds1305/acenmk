@@ -1,102 +1,89 @@
 
 import React from 'react';
-import { ChevronRight, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
-import { HeroData } from '@/components/Hero';
-import { Button } from '@/components/ui/button';
 
-const TekoHero: React.FC = () => {
-  const { data: heroData } = useQuery({
-    queryKey: ['heroData'],
-    queryFn: async () => {
-      const config = getHomepageConfig();
-      
-      if (config.sectionData && config.sectionData.hero) {
-        return config.sectionData.hero as HeroData;
-      }
-      
-      return {
-        title: 'Solutions numériques innovantes pour votre entreprise',
-        subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
-        ctaText: 'Découvrir nos services',
-        ctaSecondaryText: 'Nous contacter',
-        backgroundImage: ''
-      };
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+const TekoHero = () => {
+  const { data: config } = useQuery({
+    queryKey: ['homeConfig'],
+    queryFn: getHomepageConfig,
   });
+  
+  // Récupérer les données du Hero
+  const heroData = config?.sectionData?.hero || {
+    title: 'Solutions numériques innovantes pour votre entreprise',
+    subtitle: 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.',
+    ctaText: 'Découvrir nos services',
+    ctaSecondaryText: 'Nous contacter'
+  };
 
+  // Récupérer les paramètres avancés du Hero
+  const heroSettings = config?.sectionData?.heroSettings;
+  const activeVersion = heroSettings?.versions?.find(v => v.id === heroSettings.activeVersion) || heroSettings?.versions?.[0];
+  
   return (
-    <section className="relative bg-[#0a0c10] text-white overflow-hidden min-h-screen flex items-center w-full">
-      {/* Background grid pattern */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiMxMjE1MjAiIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNMzAgMzBoMzB2MzBIMzB6IiBmaWxsLW9wYWNpdHk9Ii4wNCIgZmlsbD0iI2ZmZiIvPjwvZz48L3N2Zz4K')]"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0c10]/20 via-[#0a0c10]/40 to-[#0a0c10]"></div>
-      </div>
+    <section className="relative bg-gray-900 text-white">
+      {/* Fond sombre avec overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-gray-800"></div>
       
-      {/* Content container */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 w-full max-w-full">
-        {/* Align with the "discuss your project" button in TekoServices */}
-        <div className="max-w-4xl">
-          {/* Eyebrow text */}
-          <div className="inline-flex items-center gap-2 mb-6 text-xs md:text-sm font-medium bg-white/10 text-white/80 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
-            <span className="bg-teal-500 w-2 h-2 rounded-full"></span>
-            Innovation Numérique
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </div>
-          
-          {/* Main heading */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight mb-6">
-            {heroData?.title || 'Solutions numériques innovantes pour votre entreprise'}
-          </h1>
-          
-          {/* Description */}
-          <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl">
-            {heroData?.subtitle || 'Nous accompagnons les entreprises dans leur transformation numérique avec des solutions sur mesure et des experts passionnés.'}
-          </p>
-          
-          {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-16">
-            <Button 
-              asChild 
-              className="bg-white text-[#0a0c10] hover:bg-white/90 rounded-full py-6 px-8 text-base font-medium"
-            >
-              <a href="#services">
-                {heroData?.ctaText || 'Découvrir nos services'}
+      {/* Contenu du hero */}
+      <div className="container relative z-10 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+              {heroData.title}
+            </h1>
+            <p className="text-lg md:text-xl text-gray-300 max-w-lg">
+              {heroData.subtitle}
+            </p>
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Button 
+                size="lg" 
+                className="rounded-md bg-primary hover:bg-primary/90 text-white"
+                style={activeVersion?.buttonStyle?.primary ? {
+                  backgroundColor: activeVersion.buttonStyle.primary.backgroundColor,
+                  color: activeVersion.buttonStyle.primary.textColor,
+                  borderRadius: activeVersion.buttonStyle.primary.borderRadius,
+                  borderColor: activeVersion.buttonStyle.primary.borderColor,
+                  borderWidth: activeVersion.buttonStyle.primary.borderWidth,
+                  borderStyle: 'solid'
+                } : {}}
+              >
+                {heroData.ctaText}
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
-            
-            <Button 
-              asChild 
-              variant="outline" 
-              className="border-white/20 text-white hover:bg-white/10 rounded-full py-6 px-8 text-base font-medium"
-            >
-              <a href="#contact">
-                {heroData?.ctaSecondaryText || 'Nous contacter'}
-              </a>
-            </Button>
-          </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/10 pt-10 mb-16">
-            <div className="flex flex-col">
-              <span className="text-3xl md:text-4xl font-bold text-white mb-1">95%</span>
-              <span className="text-sm text-white/60">Satisfaction client</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-3xl md:text-4xl font-bold text-white mb-1">200+</span>
-              <span className="text-sm text-white/60">Projets réalisés</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-3xl md:text-4xl font-bold text-white mb-1">15+</span>
-              <span className="text-sm text-white/60">Années d'expérience</span>
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="rounded-md border-gray-500 text-white hover:bg-gray-800"
+                style={activeVersion?.buttonStyle?.secondary ? {
+                  backgroundColor: activeVersion.buttonStyle.secondary.backgroundColor,
+                  color: activeVersion.buttonStyle.secondary.textColor,
+                  borderRadius: activeVersion.buttonStyle.secondary.borderRadius,
+                  borderColor: activeVersion.buttonStyle.secondary.borderColor,
+                  borderWidth: activeVersion.buttonStyle.secondary.borderWidth,
+                  borderStyle: 'solid'
+                } : {}}
+              >
+                {heroData.ctaSecondaryText}
+              </Button>
             </div>
           </div>
           
-          {/* Separator line - Keeping this as requested */}
-          <div className="border-t border-white/10 pt-10 mb-10"></div>
+          <div className="relative">
+            <div className="relative z-10 rounded-lg overflow-hidden shadow-2xl">
+              <img 
+                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                alt="Digital Solutions" 
+                className="w-full h-auto object-cover rounded-lg"
+              />
+            </div>
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-blue-500/30 rounded-full blur-xl"></div>
+            <div className="absolute -top-4 -right-4 w-32 h-32 bg-purple-500/30 rounded-full blur-xl"></div>
+          </div>
         </div>
       </div>
     </section>

@@ -17,6 +17,7 @@ import AdminApplications from '@/components/admin/AdminApplications';
 import AdminAppointments from '@/components/admin/AdminAppointments';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminHero from '@/pages/AdminHero';
+import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 
 const Admin = () => {
   return (
@@ -37,6 +38,7 @@ const Admin = () => {
           <Route path="/appointments" element={<AdminAppointments />} />
           <Route path="/trusted-clients" element={<AdminTrustedClients />} />
           <Route path="/hero" element={<AdminHero />} />
+          <Route path="/template" element={<AdminTemplateChooser />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>

@@ -42,6 +42,16 @@ export interface HeroBlock {
   };
 }
 
+// Type pour le style des boutons
+export interface ButtonStyle {
+  backgroundColor: string;
+  textColor: string;
+  borderRadius: string;
+  borderColor: string;
+  borderWidth: string;
+  hoverBackgroundColor?: string;
+}
+
 // Type pour les versions du Hero
 export interface HeroVersion extends HeroData {
   id: string;
@@ -56,6 +66,10 @@ export interface HeroVersion extends HeroData {
   marginBottom: string;
   padding: string;
   blocks: HeroBlock[];
+  buttonStyle?: {
+    primary: ButtonStyle;
+    secondary: ButtonStyle;
+  };
 }
 
 // Type pour les paramètres du carousel
@@ -207,6 +221,35 @@ const Hero = () => {
       };
     };
 
+    // Style pour les boutons en fonction des paramètres
+    const getPrimaryButtonStyle = () => {
+      if (activeVersion.buttonStyle?.primary) {
+        return {
+          backgroundColor: activeVersion.buttonStyle.primary.backgroundColor,
+          color: activeVersion.buttonStyle.primary.textColor,
+          borderRadius: activeVersion.buttonStyle.primary.borderRadius,
+          borderColor: activeVersion.buttonStyle.primary.borderColor,
+          borderWidth: activeVersion.buttonStyle.primary.borderWidth,
+          borderStyle: 'solid',
+        };
+      }
+      return {};
+    };
+
+    const getSecondaryButtonStyle = () => {
+      if (activeVersion.buttonStyle?.secondary) {
+        return {
+          backgroundColor: activeVersion.buttonStyle.secondary.backgroundColor,
+          color: activeVersion.buttonStyle.secondary.textColor,
+          borderRadius: activeVersion.buttonStyle.secondary.borderRadius,
+          borderColor: activeVersion.buttonStyle.secondary.borderColor,
+          borderWidth: activeVersion.buttonStyle.secondary.borderWidth,
+          borderStyle: 'solid',
+        };
+      }
+      return {};
+    };
+
     // Rendu d'un bloc en fonction de son type
     const renderBlock = (block: HeroBlock) => {
       switch (block.type) {
@@ -265,6 +308,7 @@ const Hero = () => {
               <Button 
                 asChild 
                 className="rounded-md py-6 px-8 text-base font-medium"
+                style={getPrimaryButtonStyle()}
               >
                 <a href="#services">
                   {activeVersion.ctaText}
@@ -276,6 +320,7 @@ const Hero = () => {
                 asChild 
                 variant="outline" 
                 className="rounded-md py-6 px-8 text-base font-medium"
+                style={getSecondaryButtonStyle()}
               >
                 <a href="#contact">
                   {activeVersion.ctaSecondaryText}

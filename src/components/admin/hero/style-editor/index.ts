@@ -1,4 +1,12 @@
 
-export { default as TextStyleEditor } from './TextStyleEditor';
-export { default as BackgroundStyleEditor } from './BackgroundStyleEditor';
-export { default as SpacingStyleEditor } from './SpacingStyleEditor';
+import TextStyleEditor from './TextStyleEditor';
+import BackgroundStyleEditor from './BackgroundStyleEditor';
+import SpacingStyleEditor from './SpacingStyleEditor';
+import ButtonStyleEditor from './ButtonStyleEditor';
+
+export {
+  TextStyleEditor,
+  BackgroundStyleEditor,
+  SpacingStyleEditor,
+  ButtonStyleEditor
+};

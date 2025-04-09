@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,8 @@ import {
   ChartBar, 
   Trash2, 
   Copy,
-  Square as ButtonIcon
+  Square as ButtonIcon,
+  Move
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { HeroVersion, HeroBlock } from './types';
@@ -51,6 +52,16 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
   const [newBlockType, setNewBlockType] = useState<'text' | 'image' | 'button' | 'stat'>('text');
   const [selectedBlock, setSelectedBlock] = useState<HeroBlock | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const [resizingBlockId, setResizingBlockId] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [startWidth, setStartWidth] = useState(0);
+  const [startHeight, setStartHeight] = useState(0);
+  
+  const previewRef = useRef<HTMLDivElement>(null);
 
   // Ajouter un nouveau bloc
   const addBlock = (type: 'text' | 'image' | 'button' | 'stat') => {
@@ -164,17 +175,85 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
   };
 
   // Mettre à jour la taille d'un bloc
-  const updateBlockSize = (id: string, property: 'width' | 'height', value: string) => {
+  const updateBlockSize = (id: string, size: { width: string; height: string }) => {
     const block = version.blocks.find(b => b.id === id);
     if (block) {
       updateBlock({
         ...block,
-        size: {
-          ...block.size,
-          [property]: value,
-        },
+        size,
       });
     }
+  };
+
+  // Démarrer le glisser-déposer
+  const handleDragStart = (e: React.MouseEvent, blockId: string) => {
+    e.preventDefault();
+    setDraggedBlockId(blockId);
+    setIsDragging(true);
+    setStartX(e.clientX);
+    setStartY(e.clientY);
+  };
+
+  // Démarrer le redimensionnement
+  const handleResizeStart = (e: React.MouseEvent, blockId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const block = version.blocks.find(b => b.id === blockId);
+    if (block) {
+      setResizingBlockId(blockId);
+      setIsResizing(true);
+      setStartX(e.clientX);
+      setStartY(e.clientY);
+      setStartWidth(parseInt(block.size.width) || 0);
+      setStartHeight(parseInt(block.size.height) || 0);
+    }
+  };
+
+  // Gérer le mouvement de la souris
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && draggedBlockId) {
+      const block = version.blocks.find(b => b.id === draggedBlockId);
+      if (block) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        updateBlockPosition(draggedBlockId, {
+          x: block.position.x + deltaX,
+          y: block.position.y + deltaY
+        });
+        
+        setStartX(e.clientX);
+        setStartY(e.clientY);
+      }
+    } else if (isResizing && resizingBlockId) {
+      const block = version.blocks.find(b => b.id === resizingBlockId);
+      if (block) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        const newWidth = Math.max(50, startWidth + deltaX);
+        const newHeight = Math.max(20, startHeight + deltaY);
+        
+        updateBlockSize(resizingBlockId, {
+          width: `${newWidth}px`,
+          height: block.size.height === 'auto' ? 'auto' : `${newHeight}px`
+        });
+        
+        setStartX(e.clientX);
+        setStartY(e.clientY);
+        setStartWidth(newWidth);
+        setStartHeight(newHeight);
+      }
+    }
+  };
+
+  // Terminer le glisser-déposer ou le redimensionnement
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDraggedBlockId(null);
+    setIsResizing(false);
+    setResizingBlockId(null);
   };
 
   // Obtenir l'icône correspondant au type de bloc
@@ -191,6 +270,84 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
       default:
         return <Recycle className="h-4 w-4" />;
     }
+  };
+
+  // Zone de prévisualisation pour le positionnement visuel des blocs
+  const renderPreviewArea = () => {
+    return (
+      <div 
+        ref={previewRef}
+        className="relative border border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 rounded-lg h-[400px] mb-6 overflow-hidden"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        {version.blocks.map((block) => (
+          <div
+            key={block.id}
+            className={`absolute cursor-move flex flex-col ${
+              (draggedBlockId === block.id || resizingBlockId === block.id) ? 'z-10' : 'z-0'
+            }`}
+            style={{
+              left: `${block.position.x}px`,
+              top: `${block.position.y}px`,
+              width: block.size.width,
+              height: block.size.height
+            }}
+          >
+            <div
+              className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 rounded-md flex-1 flex items-center justify-center relative group"
+              onMouseDown={(e) => handleDragStart(e, block.id)}
+            >
+              <div className="text-center truncate">
+                {block.type === 'text' && <p style={block.style}>{block.content}</p>}
+                {block.type === 'image' && <div className="bg-gray-200 dark:bg-gray-600 w-full h-full flex items-center justify-center text-xs">Image</div>}
+                {block.type === 'button' && <button className="px-2 py-1 rounded" style={block.style}>{block.content}</button>}
+                {block.type === 'stat' && <div className="font-bold text-lg">{block.content}</div>}
+              </div>
+              
+              <div className="absolute opacity-0 group-hover:opacity-100 top-0 right-0 bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-600 rounded-bl-md flex">
+                <button 
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-tl-md"
+                  onClick={() => handleEditBlock(block)}
+                  title="Éditer"
+                >
+                  <Grab className="h-3 w-3" />
+                </button>
+                <button 
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => deleteBlock(block.id)}
+                  title="Supprimer"
+                >
+                  <Trash2 className="h-3 w-3 text-red-500" />
+                </button>
+              </div>
+              
+              {block.size.height !== 'auto' && (
+                <div 
+                  className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-nwse-resize"
+                  onMouseDown={(e) => handleResizeStart(e, block.id)}
+                ></div>
+              )}
+            </div>
+            <div className="text-xs mt-1 text-center text-gray-500 dark:text-gray-400 truncate px-1">
+              {block.type === 'text' ? 'Texte' : 
+               block.type === 'image' ? 'Image' : 
+               block.type === 'button' ? 'Bouton' : 'Stat'}
+            </div>
+          </div>
+        ))}
+        
+        {version.blocks.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <PlusCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>Ajoutez des blocs et positionnez-les dans cette zone</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -220,8 +377,63 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {version.blocks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center border rounded-lg bg-muted/20">
+          {/* Zone de prévisualisation pour le positionnement des blocs */}
+          {renderPreviewArea()}
+
+          {/* Liste des blocs */}
+          <div className="space-y-2">
+            {version.blocks.map((block) => (
+              <div 
+                key={block.id}
+                className="p-3 border rounded-md bg-card flex items-center justify-between hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-md bg-primary/10 text-primary">
+                    {getBlockIcon(block.type)}
+                  </div>
+                  <div>
+                    <div className="font-medium">
+                      {block.type === 'text' ? 'Bloc texte' : 
+                       block.type === 'image' ? 'Bloc image' : 
+                       block.type === 'button' ? 'Bouton' : 'Statistique'}
+                    </div>
+                    <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      {block.content || (block.type === 'image' ? 'URL de l\'image' : '(Contenu vide)')}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8" 
+                    onClick={() => handleEditBlock(block)}
+                  >
+                    <Grab className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8" 
+                    onClick={() => duplicateBlock(block)}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                    onClick={() => deleteBlock(block.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {version.blocks.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 text-center border rounded-lg bg-muted/20 mt-4">
               <PlusCircle className="h-10 w-10 text-muted-foreground mb-2" />
               <h3 className="font-medium text-lg mb-1">Aucun bloc ajouté</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-md">
@@ -233,57 +445,6 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
                   Ajouter un texte
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {version.blocks.map((block) => (
-                <div 
-                  key={block.id}
-                  className="p-3 border rounded-md bg-card flex items-center justify-between hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-md bg-primary/10 text-primary">
-                      {getBlockIcon(block.type)}
-                    </div>
-                    <div>
-                      <div className="font-medium">
-                        {block.type === 'text' ? 'Bloc texte' : 
-                         block.type === 'image' ? 'Bloc image' : 
-                         block.type === 'button' ? 'Bouton' : 'Statistique'}
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-                        {block.content || (block.type === 'image' ? 'URL de l\'image' : '(Contenu vide)')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8" 
-                      onClick={() => handleEditBlock(block)}
-                    >
-                      <Grab className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8" 
-                      onClick={() => duplicateBlock(block)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                      onClick={() => deleteBlock(block.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
         </CardContent>
@@ -503,7 +664,10 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
                         <Input 
                           id="width"
                           value={selectedBlock.size.width} 
-                          onChange={(e) => updateBlockSize(selectedBlock.id, 'width', e.target.value)}
+                          onChange={(e) => updateBlockSize(selectedBlock.id, {
+                            ...selectedBlock.size,
+                            width: e.target.value
+                          })}
                           placeholder="200px ou 100%"
                         />
                       </div>
@@ -513,7 +677,10 @@ const BlockEditor = ({ version, onUpdateVersion }: BlockEditorProps) => {
                         <Input 
                           id="height"
                           value={selectedBlock.size.height} 
-                          onChange={(e) => updateBlockSize(selectedBlock.id, 'height', e.target.value)}
+                          onChange={(e) => updateBlockSize(selectedBlock.id, {
+                            ...selectedBlock.size,
+                            height: e.target.value
+                          })}
                           placeholder="auto ou 200px"
                         />
                       </div>

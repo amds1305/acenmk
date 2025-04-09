@@ -5,6 +5,7 @@ import VersionManager from './VersionManager';
 import StyleEditor from './StyleEditor';
 import BlockEditor from './BlockEditor';
 import CarouselSettings from './CarouselSettings';
+import { ButtonStyleEditor } from './style-editor';
 import { HeroVersion, HeroCarouselSettings } from './types';
 
 interface HeroEditorTabsProps {
@@ -36,9 +37,10 @@ const HeroEditorTabs = ({
 }: HeroEditorTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-4 w-full">
+      <TabsList className="grid grid-cols-5 w-full">
         <TabsTrigger value="versions">Versions</TabsTrigger>
         <TabsTrigger value="style">Style</TabsTrigger>
+        <TabsTrigger value="buttons">Boutons</TabsTrigger>
         <TabsTrigger value="blocks">Blocs</TabsTrigger>
         <TabsTrigger value="carousel">Carousel</TabsTrigger>
       </TabsList>
@@ -56,6 +58,13 @@ const HeroEditorTabs = ({
 
       <TabsContent value="style" className="py-4">
         <StyleEditor 
+          version={activeVersion}
+          onUpdateVersion={onUpdateVersion}
+        />
+      </TabsContent>
+
+      <TabsContent value="buttons" className="py-4">
+        <ButtonStyleEditor 
           version={activeVersion}
           onUpdateVersion={onUpdateVersion}
         />

@@ -1,4 +1,3 @@
-
 import { HeroData } from '@/components/Hero';
 
 export interface HeroVersion extends HeroData {
@@ -14,6 +13,10 @@ export interface HeroVersion extends HeroData {
   marginBottom: string;
   padding: string;
   blocks: HeroBlock[];
+  buttonStyle?: {
+    primary: ButtonStyle;
+    secondary: ButtonStyle;
+  };
 }
 
 export interface HeroBlock {
@@ -51,4 +54,14 @@ export interface HeroSettings {
   versions: HeroVersion[];
   activeVersion: string;
   carousel: HeroCarouselSettings;
+}
+
+// Type pour le style des boutons
+export interface ButtonStyle {
+  backgroundColor: string;
+  textColor: string;
+  borderRadius: string;
+  borderColor: string;
+  borderWidth: string;
+  hoverBackgroundColor?: string;
 }
