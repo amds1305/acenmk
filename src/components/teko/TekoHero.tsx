@@ -37,7 +37,7 @@ const TekoHero: React.FC = () => {
       
       {/* Content container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 w-full max-w-full">
-        <div className="max-w-4xl">
+        <div className="max-w-4xl text-left">
           {/* Eyebrow text */}
           <div className="inline-flex items-center gap-2 mb-6 text-xs md:text-sm font-medium bg-white/10 text-white/80 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
             <span className="bg-teal-500 w-2 h-2 rounded-full"></span>

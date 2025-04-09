@@ -26,7 +26,7 @@ const TekoFaq: React.FC = () => {
   return (
     <section id="faq" className="py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center mb-16">
+        <div className="max-w-3xl text-left mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#0a0c10]">
             Questions fréquentes
           </h2>
@@ -35,7 +35,7 @@ const TekoFaq: React.FC = () => {
           </p>
         </div>
         
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl space-y-6">
           {faqs.map((faq, index) => (
             <div key={index} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
               <h3 className="text-xl font-bold mb-3 text-[#0a0c10]">{faq.question}</h3>
@@ -44,7 +44,7 @@ const TekoFaq: React.FC = () => {
           ))}
         </div>
         
-        <div className="max-w-2xl mx-auto mt-12 text-center">
+        <div className="max-w-2xl mt-12 text-left">
           <p className="text-gray-600 mb-6">
             Vous avez d'autres questions? N'hésitez pas à nous contacter.
           </p>

@@ -2,7 +2,6 @@
 import React from 'react';
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
 import { contactFormSchema, ContactFormValues } from './contact/contactFormSchema';
 import ContactInformation from './contact/ContactInformation';
 import ProjectDetails from './contact/ProjectDetails';
@@ -36,9 +35,9 @@ const TekoContact: React.FC = () => {
     <section id="contact" className="py-24 bg-[#0a0c10] text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-left mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Contact Information</h2>
-            <div className="w-24 h-1 bg-teal-500 mx-auto mb-6"></div>
+            <div className="w-24 h-1 bg-teal-500 mb-6"></div>
           </div>
 
           <FormProvider {...form}>

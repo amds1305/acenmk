@@ -8,7 +8,7 @@ const TekoAbout: React.FC = () => {
     <section id="about" className="py-24 bg-[#0a0c10] text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 text-left">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Notre vision</h2>
             <div className="w-16 h-0.5 bg-teal-500 mb-8"></div>
             
