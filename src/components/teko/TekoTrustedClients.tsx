@@ -2,6 +2,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
+import { ChevronRight } from 'lucide-react';
 
 const TekoTrustedClients: React.FC = () => {
   const { data } = useQuery({
@@ -33,6 +34,7 @@ const TekoTrustedClients: React.FC = () => {
           <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
             <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
             {data.featuredLabel || 'Featured Clients'}
+            <ChevronRight className="h-3 w-3 opacity-60" />
           </div>
         </div>
         

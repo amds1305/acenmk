@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { HeroData } from '@/components/Hero';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 
 const TekoHero: React.FC = () => {
   const { data: heroData } = useQuery({
