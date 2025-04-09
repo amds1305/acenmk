@@ -42,18 +42,16 @@ const TekoContact: React.FC = () => {
           </div>
 
           <FormProvider {...form}>
-            <Form>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* Contact Information Section */}
-                <ContactInformation />
-                
-                {/* Project Details Section */}
-                <ProjectDetails />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Contact Information Section */}
+              <ContactInformation />
+              
+              {/* Project Details Section */}
+              <ProjectDetails />
 
-                {/* Terms and Submit Button */}
-                <TermsAndSubmit />
-              </form>
-            </Form>
+              {/* Terms and Submit Button */}
+              <TermsAndSubmit />
+            </form>
           </FormProvider>
         </div>
       </div>
