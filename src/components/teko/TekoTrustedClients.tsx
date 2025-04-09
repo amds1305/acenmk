@@ -17,13 +17,15 @@ const TekoTrustedClients: React.FC = () => {
       return {
         title: 'Ils nous font confiance',
         featuredLabel: 'Featured Clients',
+        showTrustedClients: true,
         clients: []
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  if (!data || data.clients.length === 0) {
+  // Ne pas afficher la section si elle est explicitement désactivée ou s'il n'y a pas de clients
+  if (!data || data.showTrustedClients === false || data.clients.length === 0) {
     return null;
   }
 
