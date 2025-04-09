@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { HeroData } from '@/components/Hero';
 import { Button } from '@/components/ui/button';
-import { ClientLogo } from '@/types/sections';
 
 const TekoHero: React.FC = () => {
   const { data: heroData } = useQuery({
@@ -23,46 +22,6 @@ const TekoHero: React.FC = () => {
         ctaText: 'Découvrir nos services',
         ctaSecondaryText: 'Nous contacter',
         backgroundImage: ''
-      };
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-
-  // Fetch trusted clients data
-  const { data: trustedClientsData } = useQuery({
-    queryKey: ['trustedClientsData'],
-    queryFn: async () => {
-      const config = getHomepageConfig();
-      
-      if (config.sectionData && config.sectionData['trusted-clients']) {
-        return config.sectionData['trusted-clients'] as any;
-      }
-      
-      // Default data if none exists
-      return {
-        title: 'Ils nous font confiance',
-        clients: [
-          {
-            id: '1',
-            name: 'Client 1',
-            logoUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
-          },
-          {
-            id: '2',
-            name: 'Client 2',
-            logoUrl: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
-          },
-          {
-            id: '3',
-            name: 'Client 3',
-            logoUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
-          },
-          {
-            id: '4',
-            name: 'Client 4',
-            logoUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3',
-          }
-        ]
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -120,7 +79,7 @@ const TekoHero: React.FC = () => {
           </div>
           
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/10 pt-10 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 border-t border-white/10 pt-10">
             <div className="flex flex-col">
               <span className="text-3xl md:text-4xl font-bold text-white mb-1">95%</span>
               <span className="text-sm text-white/60">Satisfaction client</span>
@@ -134,43 +93,6 @@ const TekoHero: React.FC = () => {
               <span className="text-sm text-white/60">Années d'expérience</span>
             </div>
           </div>
-          
-          {/* Featured Clients Section */}
-          {trustedClientsData?.clients && trustedClientsData.clients.length > 0 && (
-            <div className="featured-clients">
-              <div className="mb-8">
-                <h3 className="text-sm font-medium text-white/50 uppercase tracking-wider mb-6">
-                  {trustedClientsData.title || 'Ils nous font confiance'}
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-                  {trustedClientsData.clients.map((client: ClientLogo) => (
-                    <div key={client.id} className="flex items-center justify-center">
-                      {client.websiteUrl ? (
-                        <a 
-                          href={client.websiteUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100"
-                        >
-                          <img 
-                            src={client.logoUrl} 
-                            alt={client.name} 
-                            className="max-h-12 max-w-full object-contain"
-                          />
-                        </a>
-                      ) : (
-                        <img 
-                          src={client.logoUrl} 
-                          alt={client.name} 
-                          className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100"
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </section>
