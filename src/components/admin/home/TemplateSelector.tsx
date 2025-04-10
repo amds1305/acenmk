@@ -33,6 +33,13 @@ const templates = [
     description: 'Design futuriste inspiré par Elite Robots avec une interface sombre et une touche high-tech.',
     image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
     badge: 'Nouveau'
+  },
+  {
+    id: 'nmk_kink',
+    name: 'Template Kink',
+    description: 'Design élégant et minimaliste inspiré par NetDreams avec un style épuré et professionnel.',
+    image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1655&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
+    badge: 'Nouveau'
   }
 ];
 

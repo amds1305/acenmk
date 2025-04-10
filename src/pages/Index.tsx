@@ -12,6 +12,7 @@ import TrustedClients from '@/components/TrustedClients';
 import { TekoHomeTemplate } from '@/components/teko';
 import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
+import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
@@ -47,6 +48,7 @@ const templates: Record<HomeTemplateType, React.FC> = {
   teko: TekoHomeTemplate,
   nmk_fire: NmkFireHomeTemplate,
   nmk_robot: NmkRobotHomeTemplate,
+  nmk_kink: NmkKinkHomeTemplate,
 };
 
 const Index = () => {
