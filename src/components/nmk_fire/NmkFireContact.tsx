@@ -3,185 +3,127 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock,
-  Send
-} from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react';
 
 const NmkFireContact = () => {
   return (
-    <section id="contact" className="py-24 bg-white dark:bg-gray-900 relative">
-      {/* Éléments décoratifs */}
-      <div className="absolute top-0 left-0 right-0 h-1/3 bg-purple-50 dark:bg-purple-900/5"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <span className="inline-block text-sm font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-4 py-1.5 rounded-full mb-4">
-            Contact
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-indigo-300">
-            Discutons de votre projet
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mt-4">
-            Nous sommes là pour vous accompagner dans votre transformation numérique
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Informations de contact */}
-          <div className="lg:col-span-2 bg-purple-50 dark:bg-purple-900/10 rounded-2xl p-8 md:p-10">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-8">
-              Informations de contact
-            </h3>
+    <section id="contact" className="py-24 bg-white">
+      <div className="container mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div>
+            <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#888] mb-6">
+              Contact Us
+            </span>
             
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm">
-                  <MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Adresse</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    123 Avenue des Champs-Élysées<br/>
-                    75008 Paris, France
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm">
-                  <Phone className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Téléphone</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    +33 (0)1 23 45 67 89
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm">
-                  <Mail className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Email</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    contact@entreprise.com
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-4">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm">
-                  <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Horaires d'ouverture</h4>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    Lundi - Vendredi: 9h00 - 18h00<br/>
-                    Weekend: Fermé
-                  </p>
-                </div>
-              </div>
-            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 font-mono text-[#0d0d0d]">
+              Ready to discuss your project?
+            </h2>
             
-            {/* Suivez-nous */}
-            <div className="mt-10">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-4">
-                Suivez-nous
-              </h4>
-              <div className="flex space-x-3">
-                {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
-                  <a
-                    key={social}
-                    href={`#${social}`}
-                    className="bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-sm hover:bg-purple-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <svg className="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
-                    </svg>
-                  </a>
-                ))}
+            <p className="text-[#555] mb-12">
+              Get in touch with our team to explore how we can help you bring your digital product to the Australian market.
+            </p>
+            
+            <div className="space-y-8">
+              <div className="flex items-start">
+                <div className="mr-6">
+                  <MapPin className="h-6 w-6 text-[#0d0d0d]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-[#0d0d0d]">Office</h3>
+                  <p className="text-[#555]">Level 5, 111 Elizabeth Street<br />Sydney, NSW 2000</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="mr-6">
+                  <Mail className="h-6 w-6 text-[#0d0d0d]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-[#0d0d0d]">Email</h3>
+                  <p className="text-[#555]">info@example.com</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="mr-6">
+                  <Phone className="h-6 w-6 text-[#0d0d0d]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-2 font-mono text-[#0d0d0d]">Phone</h3>
+                  <p className="text-[#555]">+61 2 1234 5678</p>
+                </div>
               </div>
             </div>
           </div>
           
-          {/* Formulaire de contact */}
-          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl p-8 md:p-10 shadow-lg border border-gray-100 dark:border-gray-700">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-8">
-              Envoyez-nous un message
-            </h3>
-            
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nom complet
-                  </label>
-                  <Input 
-                    id="name" 
-                    placeholder="John Doe" 
-                    className="w-full border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400"
-                  />
+          <div className="relative">
+            <div className="border-8 border-[#f5f5f5] p-8">
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-[#555] font-mono">First name</Label>
+                    <Input 
+                      id="firstName" 
+                      className="border-[#0d0d0d] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-[#555] font-mono">Last name</Label>
+                    <Input 
+                      id="lastName" 
+                      className="border-[#0d0d0d] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Email
-                  </label>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-[#555] font-mono">Email</Label>
                   <Input 
                     id="email" 
                     type="email" 
-                    placeholder="john@example.com" 
-                    className="w-full border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400"
+                    className="border-[#0d0d0d] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" 
                   />
                 </div>
-              </div>
-              
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Sujet
-                </label>
-                <Input 
-                  id="subject" 
-                  placeholder="Comment pouvons-nous vous aider ?" 
-                  className="w-full border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Message
-                </label>
-                <Textarea 
-                  id="message" 
-                  placeholder="Décrivez votre projet ou votre demande..." 
-                  rows={5}
-                  className="w-full border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400"
-                />
-              </div>
-              
-              <div className="flex items-center">
-                <input 
-                  id="privacy" 
-                  type="checkbox" 
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                />
-                <label htmlFor="privacy" className="ml-2 block text-sm text-gray-600 dark:text-gray-400">
-                  J'accepte la <a href="#" className="text-purple-600 dark:text-purple-400 hover:underline">politique de confidentialité</a>
-                </label>
-              </div>
-              
-              <div>
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
-                  <Send className="h-4 w-4 mr-2" />
-                  Envoyer le message
+                
+                <div className="space-y-2">
+                  <Label htmlFor="company" className="text-[#555] font-mono">Company</Label>
+                  <Input 
+                    id="company" 
+                    className="border-[#0d0d0d] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-[#555] font-mono">Message</Label>
+                  <Textarea 
+                    id="message" 
+                    rows={5} 
+                    className="border-[#0d0d0d] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" 
+                  />
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="terms" className="rounded-none mt-1" />
+                  <Label 
+                    htmlFor="terms" 
+                    className="text-sm text-[#555] leading-tight"
+                  >
+                    I agree to the processing of my data as outlined in the Privacy Policy
+                  </Label>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="bg-[#0d0d0d] text-white hover:bg-[#333] rounded-none px-8 py-6 h-auto font-mono w-full sm:w-auto"
+                >
+                  Submit
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
-            </form>
+              </form>
+            </div>
+            <div className="absolute -bottom-4 -right-4 w-full h-full border-4 border-[#0d0d0d] -z-10"></div>
           </div>
         </div>
       </div>

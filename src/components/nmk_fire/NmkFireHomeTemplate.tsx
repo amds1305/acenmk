@@ -1,20 +1,17 @@
 
 import React from 'react';
-import {
-  NmkFireHero,
-  NmkFireServices,
-  NmkFireAbout,
-  NmkFireTeam,
-  NmkFireTrustedClients,
-  NmkFireTestimonials,
-  NmkFireFaq,
-  NmkFireContact
-} from './index';
+import NmkFireHero from './NmkFireHero';
+import NmkFireServices from './NmkFireServices';
+import NmkFireAbout from './NmkFireAbout';
+import NmkFireTeam from './NmkFireTeam';
+import NmkFireTrustedClients from './NmkFireTrustedClients';
+import NmkFireTestimonials from './NmkFireTestimonials';
+import NmkFireFaq from './NmkFireFaq';
+import NmkFireContact from './NmkFireContact';
 
-// Composant principal du template NmkFire (inspiré de Teko.com.au)
 const NmkFireHomeTemplate: React.FC = () => {
   return (
-    <div className="nmk-fire-template flex flex-col min-h-screen w-full bg-[#1A1F2C] text-white">
+    <div className="flex flex-col min-h-screen w-full bg-white text-[#0d0d0d]">
       <NmkFireHero />
       <NmkFireServices />
       <NmkFireAbout />
