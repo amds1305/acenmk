@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Check } from 'lucide-react';
 import { useSections } from '@/contexts/SectionsContext';
-import { HomeTemplateType } from '@/types/sections';
+import { HomeTemplateType } from '@/services/sections/types';
 
 const templates = [
   {

@@ -35,7 +35,10 @@ const AdminHome = () => {
     <div className="space-y-6">
       <HomeHeader onSave={handleSave} />
       
-      <TemplateSelector />
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Sélection du Template</h2>
+        <TemplateSelector />
+      </div>
       
       <SectionsManager />
 
