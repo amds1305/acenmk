@@ -20,6 +20,12 @@ const templates = [
     name: 'Template Teko',
     description: 'Un design moderne inspiré par Teko.com.au avec mise en page élégante.',
     image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
+  },
+  {
+    id: 'nmk_fire',
+    name: 'Template NMK Fire',
+    description: 'Design inspiré de Teko.com.au avec effet de flamme violette et interfaces modernes.',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
   }
 ];
 
@@ -48,7 +54,7 @@ const TemplateSelector: React.FC = () => {
         <RadioGroup 
           value={activeTemplate} 
           onValueChange={handleTemplateChange}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {templates.map((template) => (
             <div key={template.id} className="relative">

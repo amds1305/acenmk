@@ -11,6 +11,7 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
 import { TekoHomeTemplate } from '@/components/teko';
+import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
@@ -44,6 +45,7 @@ const sectionComponents: Record<string, React.FC> = {
 const templates: Record<HomeTemplateType, React.FC> = {
   default: () => null, // Le template par défaut utilise les sections individuelles
   teko: TekoHomeTemplate,
+  nmk_fire: NmkFireHomeTemplate,
 };
 
 const Index = () => {
