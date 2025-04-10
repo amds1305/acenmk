@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
+import { cn } from '@/lib/utils';
 
 const NmkFireHero = () => {
   const { data: config } = useQuery({
@@ -24,45 +25,52 @@ const NmkFireHero = () => {
   const activeVersion = heroSettings?.versions?.find(v => v.id === heroSettings.activeVersion) || heroSettings?.versions?.[0];
   
   return (
-    <section className="w-full relative">
-      {/* Fond avec gradient et overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 opacity-95"></div>
+    <section className="w-full h-screen relative overflow-hidden">
+      {/* Fond avec gradient et texture pixellisée */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1A1F2C] to-[#2C3241]">
+        {/* Texture pixellisée en overlay */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+      </div>
       
-      {/* Pattern en arrière-plan */}
+      {/* Grille pixellisée décalée */}
       <div 
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-5"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657l1.415 1.414L13.858 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zm20.97 0l9.315 9.314-1.414 1.414L34.828 0h2.83zM22.344 0L13.03 9.314l1.414 1.414L25.172 0h-2.83zM32 0l12.142 12.142-1.414 1.414L30 .828 17.272 13.556l-1.414-1.414L28 0h4zM.284 0l28 28-1.414 1.414L0 2.544v-2.26zm0 5.373l25.456 25.455-1.414 1.415L0 8.2v-2.83zm0 5.656l22.627 22.627-1.414 1.414L0 13.86v-2.83zm0 5.656l19.8 19.8-1.415 1.413L0 19.514v-2.83zm0 5.657l16.97 16.97-1.414 1.415L0 25.172v-2.83zM0 28l14.142 14.142-1.414 1.414L0 30.828v-2.83zm0 5.657L11.314 44.97l-1.414 1.415L0 36.485v-2.83zm0 5.657L8.485 47.8l-1.414 1.414L0 42.142v-2.83zm0 5.657l5.657 5.657-1.414 1.415L0 47.8v-2.83zm0 5.657l2.828 2.83-1.414 1.413L0 53.456v-2.83zM54.627 60L30 35.373 5.373 60H8.2L30 38.2 51.8 60h2.827zm-5.656 0L30 41.03 11.03 60h2.828L30 43.858 46.142 60h2.83zm-5.656 0L30 46.686 16.686 60h2.83L30 49.515 40.485 60h2.83zm-5.657 0L30 52.343 22.344 60h2.83L30 55.172 34.828 60h2.83zM32 60l-2-2-2 2h4zM59.716 0l-28 28 1.414 1.414L60 2.544V0h-.284zM60 5.373L34.544 30.828l1.414 1.415L60 8.2V5.374zm0 5.656L37.373 33.656l1.414 1.414L60 13.86v-2.83zm0 5.656l-19.8 19.8 1.415 1.413L60 19.514v-2.83zm0 5.657l-16.97 16.97 1.414 1.415L60 25.172v-2.83zM60 28L45.858 42.142l1.414 1.414L60 30.828V28zm0 5.657L48.686 44.97l1.414 1.415L60 36.485v-2.83zm0 5.657L51.515 47.8l1.414 1.414L60 42.142v-2.83zm0 5.657l-5.657 5.657 1.414 1.415L60 47.8v-2.83zm0 5.657l-2.828 2.83 1.414 1.413L60 53.456v-2.83zM39.9 16.385l1.414-1.414L30 3.658 18.686 14.97l1.415 1.415 9.9-9.9 9.9 9.9zm-2.83 2.828l1.415-1.414L30 9.313 21.515 17.8l1.414 1.413L30 11.8l7.07 7.07z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px'
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 0h20L0 20z'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: '20px 20px'
         }}
-      ></div>
+      />
       
       {/* Contenu principal */}
-      <div className="container mx-auto py-28 px-4 relative z-10">
+      <div className="container mx-auto h-full flex flex-col justify-center px-4 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div>
-              <span className="inline-block text-sm font-semibold bg-purple-600/30 text-white px-4 py-1.5 rounded-full mb-4">
-                Innovation Digitale
+              <span className="inline-block text-sm font-light tracking-widest bg-[#9b87f5]/10 text-[#9b87f5] px-4 py-2 border border-[#9b87f5]/30 mb-6">
+                INNOVATION DIGITALE
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-none">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-none tracking-tight font-sans">
               {heroData.title}
             </h1>
-            <p className="text-lg text-purple-100 max-w-lg">
+            <p className="text-lg text-[#8E9196] max-w-lg font-light">
               {heroData.subtitle}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-6">
               <Button 
                 size="lg" 
-                className="rounded-md bg-white text-purple-900 hover:bg-purple-100"
+                className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white rounded-none border-none transition-colors duration-300 py-6 px-8"
                 style={activeVersion?.buttonStyle?.primary ? {
-                  backgroundColor: activeVersion.buttonStyle.primary.backgroundColor,
-                  color: activeVersion.buttonStyle.primary.textColor,
-                  borderRadius: activeVersion.buttonStyle.primary.borderRadius,
-                  borderColor: activeVersion.buttonStyle.primary.borderColor,
-                  borderWidth: activeVersion.buttonStyle.primary.borderWidth,
-                  borderStyle: 'solid'
+                  backgroundColor: activeVersion.buttonStyle.primary.backgroundColor || '#9b87f5',
+                  color: activeVersion.buttonStyle.primary.textColor || 'white',
+                  borderRadius: '0px',
+                  borderWidth: '0px'
                 } : {}}
               >
                 {heroData.ctaText}
@@ -71,13 +79,13 @@ const NmkFireHero = () => {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="rounded-md border-white text-white hover:bg-white/10"
+                className="border border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5]/10 rounded-none transition-colors duration-300 py-6 px-8"
                 style={activeVersion?.buttonStyle?.secondary ? {
-                  backgroundColor: activeVersion.buttonStyle.secondary.backgroundColor,
-                  color: activeVersion.buttonStyle.secondary.textColor,
-                  borderRadius: activeVersion.buttonStyle.secondary.borderRadius,
-                  borderColor: activeVersion.buttonStyle.secondary.borderColor,
-                  borderWidth: activeVersion.buttonStyle.secondary.borderWidth,
+                  backgroundColor: 'transparent',
+                  color: activeVersion.buttonStyle.secondary.textColor || '#9b87f5',
+                  borderRadius: '0px',
+                  borderColor: activeVersion.buttonStyle.secondary.borderColor || '#9b87f5',
+                  borderWidth: activeVersion.buttonStyle.secondary.borderWidth || '1px',
                   borderStyle: 'solid'
                 } : {}}
               >
@@ -86,58 +94,93 @@ const NmkFireHero = () => {
             </div>
           </div>
           
-          <div className="relative">
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-purple-300/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 to-purple-900/30 mix-blend-overlay z-10"></div>
+          <div className="relative h-full max-h-[70vh] flex items-center justify-center">
+            {/* Cadre avec effet glitch */}
+            <div className="relative z-20 border-8 border-[#9b87f5]/30 shadow-2xl">
+              {/* Effet glitch */}
+              <div className="absolute inset-0 bg-[#9b87f5]/10 mix-blend-overlay z-10"></div>
+              <div className="absolute -inset-1 bg-[#9b87f5]/5 z-0 glitch-effect"></div>
+              
               <img 
                 src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3" 
                 alt="Digital Solutions" 
-                className="w-full h-auto object-cover rounded-2xl"
+                className="w-full h-auto object-cover max-h-[60vh] relative z-0"
               />
+              
+              {/* Scanlines effect */}
+              <div className="absolute inset-0 bg-scanlines opacity-10 z-20"></div>
             </div>
             
             {/* Éléments décoratifs */}
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-400/30 rounded-full blur-3xl"></div>
-            <div className="absolute -top-10 -right-10 w-60 h-60 bg-purple-700/20 rounded-full blur-3xl"></div>
-            <div className="absolute -top-4 -right-4 w-20 h-20 border-4 border-purple-300/30 rounded-lg"></div>
-            <div className="absolute -bottom-4 -left-4 w-16 h-16 border-4 border-purple-300/20 rounded-full"></div>
+            <div className="absolute w-96 h-96 bg-[#9b87f5]/10 rounded-full blur-3xl -bottom-48 -right-48"></div>
+            <div className="absolute w-64 h-64 bg-[#7E69AB]/10 rounded-full blur-3xl -top-32 -right-32"></div>
+            
+            {/* Éléments géométriques pixellisés */}
+            <div className="absolute -bottom-10 left-10 w-20 h-20 border-4 border-[#9b87f5]/30 transform rotate-45"></div>
+            <div className="absolute top-10 -right-10 w-32 h-4 bg-[#9b87f5]/20"></div>
+            <div className="absolute -top-10 left-20 w-4 h-32 bg-[#9b87f5]/20"></div>
           </div>
         </div>
         
         {/* Section "Ils nous font confiance" - Conditionnelle */}
         {heroData.showTrustedClients && heroData.trustedClients?.length > 0 && (
-          <div className="mt-20 pt-10 border-t border-purple-500/20">
-            <div className="flex flex-col items-center">
-              <p className="text-sm font-medium text-purple-200 mb-8">
-                {heroData.trustedClientsTitle || 'Ils nous font confiance'}
-              </p>
-              <div className="flex flex-wrap gap-10 items-center justify-center">
-                {heroData.trustedClients.map((client) => (
-                  <div key={client.id} className="h-10 md:h-12 w-auto opacity-70 hover:opacity-100 transition-opacity">
-                    {client.websiteUrl ? (
-                      <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+          <div className="absolute bottom-12 left-0 right-0 border-t border-white/10 pt-8">
+            <div className="container mx-auto">
+              <div className="flex flex-col items-center">
+                <p className="text-sm font-light tracking-widest text-[#8E9196] uppercase mb-6">
+                  {heroData.trustedClientsTitle || 'Ils nous font confiance'}
+                </p>
+                <div className="flex flex-wrap gap-10 items-center justify-center">
+                  {heroData.trustedClients.map((client) => (
+                    <div key={client.id} className="h-8 md:h-10 w-auto opacity-60 hover:opacity-100 transition-opacity">
+                      {client.websiteUrl ? (
+                        <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
+                          <img 
+                            src={client.logoUrl} 
+                            alt={client.name} 
+                            className="h-full w-auto brightness-0 invert transition-all duration-300" 
+                            title={client.name}
+                          />
+                        </a>
+                      ) : (
                         <img 
                           src={client.logoUrl} 
                           alt={client.name} 
                           className="h-full w-auto brightness-0 invert transition-all duration-300" 
                           title={client.name}
                         />
-                      </a>
-                    ) : (
-                      <img 
-                        src={client.logoUrl} 
-                        alt={client.name} 
-                        className="h-full w-auto brightness-0 invert transition-all duration-300" 
-                        title={client.name}
-                      />
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
+      
+      {/* Styles spécifiques pour les effets */}
+      <style jsx>{`
+        @keyframes glitch {
+          0% { transform: translate(0); }
+          20% { transform: translate(-2px, 2px); }
+          40% { transform: translate(-2px, -2px); }
+          60% { transform: translate(2px, 2px); }
+          80% { transform: translate(2px, -2px); }
+          100% { transform: translate(0); }
+        }
+        .glitch-effect {
+          animation: glitch 10s infinite;
+        }
+        .bg-scanlines {
+          background: linear-gradient(
+            to bottom,
+            transparent 50%,
+            rgba(0, 0, 0, 0.1) 50%
+          );
+          background-size: 100% 4px;
+        }
+      `}</style>
     </section>
   );
 };

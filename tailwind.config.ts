@@ -71,6 +71,14 @@ export default {
           green: {
             light: '#7CD992',
             dark: '#2C9D4E'
+          },
+          // Couleurs Teko
+          teko: {
+            purple: '#9b87f5',
+            darkpurple: '#7E69AB',
+            darkblue: '#1A1F2C',
+            gray: '#8E9196',
+            charcoal: '#403E43'
           }
         }
       },
@@ -107,6 +115,14 @@ export default {
         'float': {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        'glitch': {
+          '0%': { transform: 'translate(0)' },
+          '20%': { transform: 'translate(-2px, 2px)' },
+          '40%': { transform: 'translate(-2px, -2px)' },
+          '60%': { transform: 'translate(2px, 2px)' },
+          '80%': { transform: 'translate(2px, -2px)' },
+          '100%': { transform: 'translate(0)' },
         }
       },
       animation: {
@@ -116,16 +132,23 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
         'blur-in': 'blur-in 0.7s ease-out forwards',
-        'float': 'float 6s ease-in-out infinite'
+        'float': 'float 6s ease-in-out infinite',
+        'glitch': 'glitch 10s infinite'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         display: ['Inter', 'sans-serif'],
+        mono: ['Space Mono', 'monospace'],
       },
       boxShadow: {
         'soft': '0 2px 10px -3px rgba(0, 0, 0, 0.05)',
         'elegant': '0 15px 20px -5px rgba(0, 0, 0, 0.03)',
         'feature': '0 0 15px rgba(0, 0, 0, 0.03)',
+        'teko': '0 15px 30px rgba(0, 0, 0, 0.25)'
+      },
+      backgroundImage: {
+        'pixel-pattern': "url(\"data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E\")",
+        'scanlines': "linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%)"
       }
     }
   },

@@ -11,10 +11,10 @@ import {
   NmkFireContact
 } from './index';
 
-// Composant principal du template NmkFire
+// Composant principal du template NmkFire (inspiré de Teko.com.au)
 const NmkFireHomeTemplate: React.FC = () => {
   return (
-    <div className="nmk-fire-template flex flex-col min-h-screen w-full">
+    <div className="nmk-fire-template flex flex-col min-h-screen w-full bg-[#1A1F2C] text-white">
       <NmkFireHero />
       <NmkFireServices />
       <NmkFireAbout />

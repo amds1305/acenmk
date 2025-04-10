@@ -23,9 +23,10 @@ const templates = [
   },
   {
     id: 'nmk_fire',
-    name: 'Template NMK Fire',
-    description: 'Design inspiré de Teko.com.au avec effet de flamme violette et interfaces modernes.',
+    name: 'Template Teko Fire',
+    description: 'Design fidèle à Teko.com.au avec effet pixellisé et interface moderne dark.',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
+    badge: 'Recommandé'
   }
 ];
 
@@ -54,7 +55,7 @@ const TemplateSelector: React.FC = () => {
         <RadioGroup 
           value={activeTemplate} 
           onValueChange={handleTemplateChange}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {templates.map((template) => (
             <div key={template.id} className="relative">
@@ -67,19 +68,24 @@ const TemplateSelector: React.FC = () => {
                 htmlFor={`template-${template.id}`}
                 className="flex flex-col border border-gray-200 rounded-md p-4 cursor-pointer hover:border-primary transition-colors peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary"
               >
-                <div className="aspect-video w-full mb-3 overflow-hidden rounded-md">
+                <div className="aspect-video w-full mb-3 overflow-hidden rounded-md relative">
                   <img 
                     src={template.image} 
                     alt={template.name} 
                     className="w-full h-full object-cover transition-transform hover:scale-105" 
                   />
+                  {template.badge && (
+                    <div className="absolute top-2 right-2 bg-primary/80 text-white rounded-full py-1 px-3 text-xs font-medium">
+                      {template.badge}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="font-semibold">{template.name}</div>
                   <p className="text-sm text-gray-500">{template.description}</p>
                 </div>
                 {activeTemplate === template.id && (
-                  <div className="absolute top-2 right-2 bg-primary text-white rounded-full p-1">
+                  <div className="absolute top-2 left-2 bg-primary text-white rounded-full p-1">
                     <Check className="h-4 w-4" />
                   </div>
                 )}
@@ -89,7 +95,9 @@ const TemplateSelector: React.FC = () => {
         </RadioGroup>
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSave}>Enregistrer le template</Button>
+        <Button onClick={handleSave} className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white">
+          Enregistrer le template
+        </Button>
       </CardFooter>
     </Card>
   );
