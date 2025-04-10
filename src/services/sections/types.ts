@@ -4,23 +4,17 @@ import {
   Section as GlobalSection, 
   SectionData as GlobalSectionData, 
   SectionType as GlobalSectionType,
-  HomepageConfig as GlobalHomepageConfig
+  HomepageConfig as GlobalHomepageConfig,
+  HomeTemplateType as GlobalHomeTemplateType
 } from '@/types/sections';
 
 // Re-export types to make imports cleaner
 export type { 
   GlobalSection as Section, 
   GlobalSectionData as SectionData, 
-  GlobalSectionType as SectionType
+  GlobalSectionType as SectionType,
+  GlobalHomeTemplateType as HomeTemplateType
 };
-
-// Type pour les templates de page d'accueil
-export type HomeTemplateType = 'default' | 'teko';
-
-// Interface pour la configuration du template
-export interface TemplateConfig {
-  activeTemplate: HomeTemplateType;
-}
 
 // Re-export the HomepageConfig from global types
 export type HomepageConfig = GlobalHomepageConfig;
