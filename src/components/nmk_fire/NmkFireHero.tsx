@@ -159,30 +159,33 @@ const NmkFireHero = () => {
         )}
       </div>
       
-      {/* Styles spécifiques pour les effets */}
-      <style jsx>{`
-        @keyframes glitch {
-          0% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-          100% { transform: translate(0); }
-        }
-        .glitch-effect {
-          animation: glitch 10s infinite;
-        }
-        .bg-scanlines {
-          background: linear-gradient(
-            to bottom,
-            transparent 50%,
-            rgba(0, 0, 0, 0.1) 50%
-          );
-          background-size: 100% 4px;
-        }
-      `}</style>
+      {/* Fix: Replace inline style jsx tag with regular CSS classes */}
+      <style>
+        {`
+          @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+          }
+          .glitch-effect {
+            animation: glitch 10s infinite;
+          }
+          .bg-scanlines {
+            background: linear-gradient(
+              to bottom,
+              transparent 50%,
+              rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+          }
+        `}
+      </style>
     </section>
   );
 };
 
 export default NmkFireHero;
+
