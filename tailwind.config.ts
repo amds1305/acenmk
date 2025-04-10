@@ -81,6 +81,21 @@ export default {
               medium: '#888888',
               dark: '#333333'
             }
+          },
+          // Couleurs Robot
+          robot: {
+            primary: '#9b87f5',     // Violet primaire
+            secondary: '#8B5CF6',   // Violet secondaire
+            dark: {
+              primary: '#111827',   // Fond principal sombre
+              secondary: '#1A1F2C'  // Fond secondaire sombre
+            },
+            accent: '#6E59A5',      // Accent violet foncé
+            neutral: {
+              light: '#f5f5f5',
+              medium: '#888888',
+              dark: '#333333'
+            }
           }
         }
       },
@@ -146,11 +161,13 @@ export default {
         'soft': '0 2px 10px -3px rgba(0, 0, 0, 0.05)',
         'elegant': '0 15px 20px -5px rgba(0, 0, 0, 0.03)',
         'feature': '0 0 15px rgba(0, 0, 0, 0.03)',
-        'teko': '0 15px 30px rgba(0, 0, 0, 0.25)'
+        'teko': '0 15px 30px rgba(0, 0, 0, 0.25)',
+        'robot': '0 10px 30px rgba(155, 135, 245, 0.15)'
       },
       backgroundImage: {
         'dot-pattern': "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3Ccircle cx='13' cy='13' r='1'/%3E%3C/g%3E%3C/svg%3E\")",
-        'scanlines': "linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%)"
+        'scanlines': "linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%)",
+        'grid-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath fill='%23222' d='M0 0h60v60H0z'/%3E%3Cpath d='M60 0H0v60h60V0zM4 4h52v52H4V4z' fill='%23333' fill-rule='nonzero'/%3E%3C/g%3E%3C/svg%3E\")"
       }
     }
   },

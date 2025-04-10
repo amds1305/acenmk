@@ -26,7 +26,13 @@ const templates = [
     name: 'Template Teko Fire',
     description: 'Design fidèle à Teko.com.au avec effet pixellisé et interface moderne dark.',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
-    badge: 'Recommandé'
+  },
+  {
+    id: 'nmk_robot',
+    name: 'Template Robot',
+    description: 'Design futuriste inspiré par Elite Robots avec une interface sombre et une touche high-tech.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3&fit=crop&w=400&h=250',
+    badge: 'Nouveau'
   }
 ];
 

@@ -27,7 +27,7 @@ export interface SectionData {
 }
 
 // Templates disponibles pour la page d'accueil
-export type HomeTemplateType = 'default' | 'teko' | 'nmk_fire';
+export type HomeTemplateType = 'default' | 'teko' | 'nmk_fire' | 'nmk_robot';
 
 // Specialized section data types
 export interface HeroSectionData extends HeroData {}

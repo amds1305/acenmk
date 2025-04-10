@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -12,6 +11,7 @@ import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
 import { TekoHomeTemplate } from '@/components/teko';
 import { NmkFireHomeTemplate } from '@/components/nmk_fire';
+import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
@@ -46,6 +46,7 @@ const templates: Record<HomeTemplateType, React.FC> = {
   default: () => null, // Le template par défaut utilise les sections individuelles
   teko: TekoHomeTemplate,
   nmk_fire: NmkFireHomeTemplate,
+  nmk_robot: NmkRobotHomeTemplate,
 };
 
 const Index = () => {
