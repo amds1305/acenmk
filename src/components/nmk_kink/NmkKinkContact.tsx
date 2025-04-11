@@ -7,6 +7,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight } from 'lucide-react';
 
 const NmkKinkContact: React.FC = () => {
@@ -54,6 +55,7 @@ const NmkKinkContact: React.FC = () => {
             
             <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Informations de contact */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -156,6 +158,77 @@ const NmkKinkContact: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="website"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="mb-1 block text-sm font-medium text-gray-700">
+                        Site web
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Détails du projet */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="service"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="mb-1 block text-sm font-medium text-gray-700">
+                          Service requis <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900">
+                              <SelectValue placeholder="Sélectionnez un service" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="web-development">Développement Web</SelectItem>
+                            <SelectItem value="mobile-app">Application Mobile</SelectItem>
+                            <SelectItem value="ui-ux">Design UI/UX</SelectItem>
+                            <SelectItem value="cloud-infrastructure">Infrastructure Cloud</SelectItem>
+                            <SelectItem value="consulting">Consulting</SelectItem>
+                            <SelectItem value="other">Autre</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="referralSource"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="mb-1 block text-sm font-medium text-gray-700">
+                          Comment avez-vous entendu parler de nous? <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Veuillez indiquer comment vous nous avez trouvés"
+                            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
