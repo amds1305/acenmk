@@ -1,5 +1,12 @@
 
 import React from 'react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const NmkKinkTestimonials: React.FC = () => {
   // Utiliser les testimonials du composant existant
@@ -36,29 +43,42 @@ const NmkKinkTestimonials: React.FC = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto max-w-7xl">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-10 shadow-sm">
-              {/* Témoignage */}
-              <div className="relative z-10">
-                <blockquote className="text-lg leading-relaxed text-gray-800 mb-6">
-                  "{testimonial.text}"
-                </blockquote>
-                
-                <div className="mt-6 flex items-center">
-                  <img 
-                    src={testimonial.avatar} 
-                    alt={testimonial.author} 
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                  <div className="ml-4">
-                    <p className="font-bold text-gray-900">{testimonial.author}</p>
-                    <p className="text-gray-600">{testimonial.position}</p>
+        <div className="mx-auto max-w-7xl">
+          <Carousel
+            className="w-full"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="-ml-6 md:-ml-4">
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="pl-6 md:pl-4 md:basis-1/3">
+                  <div className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-10 shadow-sm h-full">
+                    <div className="relative z-10">
+                      <blockquote className="text-lg leading-relaxed text-gray-800 mb-6">
+                        "{testimonial.text}"
+                      </blockquote>
+                      
+                      <div className="mt-6 flex items-center">
+                        <img 
+                          src={testimonial.avatar} 
+                          alt={testimonial.author} 
+                          className="h-12 w-12 rounded-full object-cover"
+                        />
+                        <div className="ml-4">
+                          <p className="font-bold text-gray-900">{testimonial.author}</p>
+                          <p className="text-gray-600">{testimonial.position}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute -left-12 top-1/2 hidden md:flex" />
+            <CarouselNext className="absolute -right-12 top-1/2 hidden md:flex" />
+          </Carousel>
         </div>
       </div>
     </section>
