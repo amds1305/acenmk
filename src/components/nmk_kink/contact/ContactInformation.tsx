@@ -3,7 +3,7 @@ import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
-import { ContactFormValues } from './contactFormSchema';
+import { ContactFormValues } from "./contactFormSchema";
 
 const ContactInformation: React.FC = () => {
   const form = useFormContext<ContactFormValues>();

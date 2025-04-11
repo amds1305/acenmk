@@ -1,7 +1,7 @@
 
 import * as z from "zod";
 
-// Form Schema for validation - reusing the same schema as Teko
+// Form Schema for validation
 export const contactFormSchema = z.object({
   firstName: z.string().min(1, { message: "Le prénom est requis" }),
   lastName: z.string().min(1, { message: "Le nom est requis" }),
