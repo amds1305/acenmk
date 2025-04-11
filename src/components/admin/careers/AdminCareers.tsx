@@ -113,8 +113,8 @@ export const AdminCareers = () => {
 
       <JobTable 
         jobs={jobs} 
-        onEdit={handleEditJob} 
-        onDelete={handleDeleteJob}
+        onEditJob={handleEditJob} 
+        onDeleteJob={handleDeleteJob}
       />
 
       <JobDialog
