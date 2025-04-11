@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, GitHub } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Github } from 'lucide-react';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,7 +26,7 @@ export const useHeader = () => {
     { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter' },
     { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram' },
     { icon: Linkedin, href: 'https://linkedin.com', ariaLabel: 'LinkedIn' },
-    { icon: GitHub, href: 'https://github.com', ariaLabel: 'GitHub' }
+    { icon: Github, href: 'https://github.com', ariaLabel: 'GitHub' }
   ];
   
   useEffect(() => {
