@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Home, Users, MessageSquare, FileQuestion, BriefcaseBusiness, Layout, LogOut, LucideIcon, User, Landmark, LayoutDashboard, Settings } from 'lucide-react';
+import { BookOpen, Home, Users, MessageSquare, FileQuestion, BriefcaseBusiness, Layout, LogOut, LucideIcon, User, Landmark, LayoutDashboard, Settings, Calendar, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -98,6 +98,18 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 href="/admin/careers"
                 label="Carrières"
                 active={location.pathname === "/admin/careers"}
+              />
+              <NavItem
+                icon={FileText}
+                href="/admin/applications"
+                label="Candidatures"
+                active={location.pathname === "/admin/applications"}
+              />
+              <NavItem
+                icon={Calendar}
+                href="/admin/appointments"
+                label="Rendez-vous"
+                active={location.pathname === "/admin/appointments"}
               />
               <NavItem
                 icon={BookOpen}
