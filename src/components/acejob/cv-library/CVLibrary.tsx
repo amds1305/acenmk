@@ -3,16 +3,14 @@ import React, { useState } from 'react';
 import { FileText, Upload } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import CVCard from './CVCard';
-import CVListItem from './CVListItem';
+import CVContent from './components/CVContent';
 import CVSearch from './CVSearch';
 import CVFilters from './CVFilters';
 import CVUpload from './CVUpload';
 import CVStats from './CVStats';
 import CVAIAssistant from './CVAIAssistant';
-import { CV } from './types';
+import { mockCVs } from './data/mockData';
 import { 
   Breadcrumb,
   BreadcrumbList,
@@ -21,52 +19,6 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
-
-// Données factices pour la démonstration
-const mockCVs: CV[] = [
-  {
-    id: '1',
-    candidateName: 'Jean Dupont',
-    email: 'jean.dupont@example.com',
-    phone: '+33 6 12 34 56 78',
-    title: 'Développeur Frontend Senior',
-    uploadDate: '2025-04-02',
-    skills: ['React', 'TypeScript', 'Tailwind CSS'],
-    experience: 5,
-    education: 'Master en Informatique',
-    tags: ['Frontend', 'Disponible'],
-    rating: 4,
-    lastInteraction: '2025-04-05'
-  },
-  {
-    id: '2',
-    candidateName: 'Marie Martin',
-    email: 'marie.martin@example.com',
-    phone: '+33 6 98 76 54 32',
-    title: 'Designer UX/UI',
-    uploadDate: '2025-03-28',
-    skills: ['Figma', 'Adobe XD', 'Prototypage'],
-    experience: 3,
-    education: 'Licence en Design',
-    tags: ['Design', 'Entretien planifié'],
-    rating: 5,
-    lastInteraction: '2025-04-10'
-  },
-  {
-    id: '3',
-    candidateName: 'Pierre Lefebvre',
-    email: 'pierre.lefebvre@example.com',
-    phone: '+33 6 45 67 89 01',
-    title: 'Développeur Backend Java',
-    uploadDate: '2025-04-01',
-    skills: ['Java', 'Spring Boot', 'MySQL'],
-    experience: 7,
-    education: 'Doctorat en Informatique',
-    tags: ['Backend', 'En processus'],
-    rating: 3,
-    lastInteraction: '2025-04-08'
-  }
-];
 
 const CVLibraryRefactored = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -150,49 +102,11 @@ const CVLibraryRefactored = () => {
           />
 
           {/* Contenu principal */}
-          <div>
-            {filteredCVs.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 mx-auto text-gray-400" />
-                <h3 className="mt-4 text-lg font-medium">Aucun CV trouvé</h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  Essayez de modifier vos critères de recherche ou importez de nouveaux CV.
-                </p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setShowUpload(true)}
-                >
-                  Importer des CV
-                </Button>
-              </div>
-            ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredCVs.map((cv) => (
-                  <CVCard key={cv.id} cv={cv} />
-                ))}
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Poste</TableHead>
-                    <TableHead>Compétences</TableHead>
-                    <TableHead>Expérience</TableHead>
-                    <TableHead>Note</TableHead>
-                    <TableHead>Dernière interaction</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCVs.map((cv) => (
-                    <CVListItem key={cv.id} cv={cv} />
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
+          <CVContent 
+            cvs={filteredCVs} 
+            viewMode={viewMode}
+            onShowUpload={() => setShowUpload(true)} 
+          />
         </CardContent>
       </Card>
       
