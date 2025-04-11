@@ -37,7 +37,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
-      <div className="flex flex-col items-center justify-center h-full space-y-4 p-8">
+      <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
         {navLinks.map((link, index) => (
           <a 
             key={link.name}
@@ -48,7 +48,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               isActive(link.href) 
                 ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
                 : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5",
-              `animation-delay-${index * 100}`
+              `animation-delay-${index * 50}`
             )}
           >
             {link.name}

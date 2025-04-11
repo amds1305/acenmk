@@ -1,21 +1,24 @@
 
 import { useState, useEffect } from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, GitHub, Search, NavLink, SocialLink } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, GitHub } from 'lucide-react';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   
-  // Sample navigation links - in a real app, these would come from a CMS or API
+  // Liste complète des liens de navigation
   const navLinks = [
     { name: 'Accueil', href: '/' },
     { name: 'Services', href: '/#services' },
     { name: 'Portfolio', href: '/portfolio' },
     { name: 'Estimation', href: '/estimation' },
+    { name: 'Blog', href: '/blog' },
     { name: 'Carrières', href: '/careers' },
     { name: 'FAQ', href: '/faq' },
     { name: 'ACE JOB', href: '/ace-job' },
+    { name: 'À propos', href: '/#about' },
+    { name: 'Contact', href: '/#contact' }
   ];
   
   // Sample social links - in a real app, these would come from a CMS or API
@@ -24,6 +27,7 @@ export const useHeader = () => {
     { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter' },
     { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram' },
     { icon: Linkedin, href: 'https://linkedin.com', ariaLabel: 'LinkedIn' },
+    { icon: GitHub, href: 'https://github.com', ariaLabel: 'GitHub' }
   ];
   
   useEffect(() => {

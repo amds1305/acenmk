@@ -32,13 +32,13 @@ const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: Desk
   return (
     <div className="hidden md:flex items-center space-x-8">
       {/* Navigation Links */}
-      <nav className="flex items-center space-x-3">
+      <nav className="flex items-center space-x-3 overflow-x-auto max-w-[40vw] no-scrollbar">
         {navLinks.map((link) => (
           <a
             key={link.href}
             href={link.href}
             className={cn(
-              "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative",
+              "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative whitespace-nowrap",
               isActive(link.href) 
                 ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
                 : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5"
