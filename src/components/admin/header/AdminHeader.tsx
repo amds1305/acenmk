@@ -6,8 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { SocialIcon, Pen, Plus, Trash2 } from 'lucide-react';
-import { NavLink, SocialLink } from '@/components/header/types';
+import { Pen, Plus, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon } from 'lucide-react';
+
+// Update the type to use LucideIcon directly
+interface SocialLink {
+  icon: LucideIcon;
+  href: string;
+  ariaLabel: string;
+}
+
+interface NavLink {
+  name: string;
+  href: string;
+}
 
 const AdminHeader = () => {
   const { toast } = useToast();
@@ -27,12 +38,22 @@ const AdminHeader = () => {
     { name: 'Contact', href: '/#contact' },
   ]);
 
-  // Social links - in production these would come from a real data source
+  // Social links - use actual Lucide icon components
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
-    { icon: "Twitter", href: 'https://twitter.com', ariaLabel: 'Twitter' },
-    { icon: "Github", href: 'https://github.com', ariaLabel: 'Github' },
-    { icon: "Instagram", href: 'https://instagram.com', ariaLabel: 'Instagram' },
+    { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter' },
+    { icon: Github, href: 'https://github.com', ariaLabel: 'Github' },
+    { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram' },
   ]);
+
+  // Define available social icons
+  const availableSocialIcons: Record<string, LucideIcon> = {
+    Twitter,
+    Github,
+    Instagram,
+    Facebook,
+    Linkedin,
+    Youtube
+  };
 
   // For editing nav links
   const [editingNavLink, setEditingNavLink] = useState<NavLink | null>(null);
@@ -41,7 +62,7 @@ const AdminHeader = () => {
 
   // For editing social links
   const [editingSocialLink, setEditingSocialLink] = useState<SocialLink | null>(null);
-  const [newSocialIcon, setNewSocialIcon] = useState('');
+  const [newSocialIcon, setNewSocialIcon] = useState('Twitter');
   const [newSocialHref, setNewSocialHref] = useState('');
   const [newSocialAriaLabel, setNewSocialAriaLabel] = useState('');
 
@@ -109,11 +130,22 @@ const AdminHeader = () => {
       return;
     }
 
+    const iconComponent = availableSocialIcons[newSocialIcon];
+    
+    if (!iconComponent) {
+      toast({
+        title: "Erreur",
+        description: "Icône sociale non valide",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (editingSocialLink) {
       // Update existing link
       setSocialLinks(socialLinks.map(link => 
         link === editingSocialLink 
-          ? { icon: newSocialIcon, href: newSocialHref, ariaLabel: newSocialAriaLabel } 
+          ? { icon: iconComponent, href: newSocialHref, ariaLabel: newSocialAriaLabel } 
           : link
       ));
       toast({
@@ -122,7 +154,11 @@ const AdminHeader = () => {
       });
     } else {
       // Add new link
-      setSocialLinks([...socialLinks, { icon: newSocialIcon, href: newSocialHref, ariaLabel: newSocialAriaLabel }]);
+      setSocialLinks([...socialLinks, { 
+        icon: iconComponent, 
+        href: newSocialHref, 
+        ariaLabel: newSocialAriaLabel 
+      }]);
       toast({
         title: "Succès",
         description: "Lien social ajouté"
@@ -131,7 +167,7 @@ const AdminHeader = () => {
 
     // Reset form
     setEditingSocialLink(null);
-    setNewSocialIcon('');
+    setNewSocialIcon('Twitter');
     setNewSocialHref('');
     setNewSocialAriaLabel('');
   };
@@ -148,9 +184,20 @@ const AdminHeader = () => {
   // Edit social link (prepare form for editing)
   const handleEditSocialLink = (link: SocialLink) => {
     setEditingSocialLink(link);
-    setNewSocialIcon(link.icon);
+    // Find the icon name by comparing the component reference
+    const iconName = Object.entries(availableSocialIcons).find(
+      ([_, component]) => component === link.icon
+    )?.[0] || 'Twitter';
+    
+    setNewSocialIcon(iconName);
     setNewSocialHref(link.href);
     setNewSocialAriaLabel(link.ariaLabel);
+  };
+
+  // Function to render the correct icon component
+  const renderSocialIcon = (icon: LucideIcon) => {
+    const IconComponent = icon;
+    return <IconComponent className="h-5 w-5" />;
   };
 
   return (
@@ -244,9 +291,9 @@ const AdminHeader = () => {
                   {socialLinks.map((link, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
                       <div className="flex items-center gap-2">
-                        <SocialIcon className="h-5 w-5" />
+                        {renderSocialIcon(link.icon)}
                         <div>
-                          <p className="font-medium">{link.icon}</p>
+                          <p className="font-medium">{link.ariaLabel}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">{link.href}</p>
                         </div>
                       </div>
@@ -267,11 +314,19 @@ const AdminHeader = () => {
                     {editingSocialLink ? 'Modifier le lien social' : 'Ajouter un nouveau lien social'}
                   </h4>
                   <div className="grid gap-3">
-                    <Input
-                      placeholder="Icône (ex: Twitter, Facebook, Instagram)"
-                      value={newSocialIcon}
-                      onChange={(e) => setNewSocialIcon(e.target.value)}
-                    />
+                    <div className="grid gap-2">
+                      <label htmlFor="socialIcon">Icône</label>
+                      <select
+                        id="socialIcon"
+                        value={newSocialIcon}
+                        onChange={(e) => setNewSocialIcon(e.target.value)}
+                        className="px-3 py-2 border rounded-md"
+                      >
+                        {Object.keys(availableSocialIcons).map((icon) => (
+                          <option key={icon} value={icon}>{icon}</option>
+                        ))}
+                      </select>
+                    </div>
                     <Input
                       placeholder="URL"
                       value={newSocialHref}
@@ -289,7 +344,7 @@ const AdminHeader = () => {
                       {editingSocialLink && (
                         <Button variant="outline" onClick={() => {
                           setEditingSocialLink(null);
-                          setNewSocialIcon('');
+                          setNewSocialIcon('Twitter');
                           setNewSocialHref('');
                           setNewSocialAriaLabel('');
                         }}>
