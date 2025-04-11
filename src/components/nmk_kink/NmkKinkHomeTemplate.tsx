@@ -11,7 +11,7 @@ import NmkKinkContact from './NmkKinkContact';
 
 const NmkKinkHomeTemplate: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen w-full bg-white text-gray-800">
+    <div className="flex flex-col min-h-screen w-full">
       <NmkKinkHero />
       <NmkKinkServices />
       <NmkKinkAbout />

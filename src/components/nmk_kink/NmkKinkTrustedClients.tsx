@@ -1,15 +1,32 @@
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/sections';
+import { TrustedClientsSectionData } from '@/types/sections';
 
 const NmkKinkTrustedClients: React.FC = () => {
-  const clients = [
-    { name: 'Company One', logo: 'https://via.placeholder.com/150x80?text=Logo+1' },
-    { name: 'Company Two', logo: 'https://via.placeholder.com/150x80?text=Logo+2' },
-    { name: 'Company Three', logo: 'https://via.placeholder.com/150x80?text=Logo+3' },
-    { name: 'Company Four', logo: 'https://via.placeholder.com/150x80?text=Logo+4' },
-    { name: 'Company Five', logo: 'https://via.placeholder.com/150x80?text=Logo+5' },
-    { name: 'Company Six', logo: 'https://via.placeholder.com/150x80?text=Logo+6' },
-  ];
+  // Récupérer les données des clients depuis la configuration
+  const { data } = useQuery({
+    queryKey: ['trustedClientsData'],
+    queryFn: async () => {
+      const config = getHomepageConfig();
+      
+      if (config.sectionData && config.sectionData['trusted-clients']) {
+        return config.sectionData['trusted-clients'] as TrustedClientsSectionData;
+      }
+      
+      return {
+        title: 'Ils nous font confiance',
+        clients: []
+      };
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Si aucune donnée n'est disponible, ne rien afficher
+  if (!data || data.clients.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-16 bg-gray-50">
@@ -19,21 +36,31 @@ const NmkKinkTrustedClients: React.FC = () => {
             Nos clients
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight">
-            Ils nous font confiance
+            {data.title || 'Ils nous font confiance'}
           </h2>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
-          {clients.map((client, index) => (
+          {data.clients.map((client) => (
             <div 
-              key={index} 
+              key={client.id} 
               className="flex items-center justify-center p-4 filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
             >
-              <img 
-                src={client.logo} 
-                alt={client.name} 
-                className="max-h-16 max-w-full"
-              />
+              {client.websiteUrl ? (
+                <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer">
+                  <img 
+                    src={client.logoUrl} 
+                    alt={client.name} 
+                    className="max-h-16 max-w-full"
+                  />
+                </a>
+              ) : (
+                <img 
+                  src={client.logoUrl} 
+                  alt={client.name} 
+                  className="max-h-16 max-w-full"
+                />
+              )}
             </div>
           ))}
         </div>
