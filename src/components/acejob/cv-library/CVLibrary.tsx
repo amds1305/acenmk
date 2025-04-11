@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
-import { FileText, Upload } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import CVContent from './components/CVContent';
-import CVSearch from './CVSearch';
-import CVFilters from './CVFilters';
-import CVUpload from './CVUpload';
-import CVStats from './CVStats';
-import CVAIAssistant from './CVAIAssistant';
+import CVSearch from './components/CVSearch';
+import CVFilters from './components/CVFilters';
+import CVUpload from './components/CVUpload';
+import CVStats from './components/CVStats';
+import CVAIAssistant from './components/CVAIAssistant';
 import { mockCVs } from './data/mockData';
 import { 
   Breadcrumb,
@@ -80,7 +80,7 @@ const CVLibraryRefactored = () => {
               onClick={() => setShowUpload(true)}
               className="flex items-center gap-2"
             >
-              <Upload className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Importer des CV
             </Button>
           </div>
