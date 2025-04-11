@@ -20,4 +20,4 @@ export const useAuth = () => {
 };
 
 // Re-export types from the types file for convenience
-export type { User, Project, Estimate, Message } from '../types/auth';
+export type { User, Project, Estimate, Message, UserRole, UserPreferences, Address, SocialLink, LoginHistory } from '../types/auth';
