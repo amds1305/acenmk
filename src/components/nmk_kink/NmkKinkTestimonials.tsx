@@ -1,6 +1,5 @@
 
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
 
 const NmkKinkTestimonials: React.FC = () => {
   // Utiliser les testimonials du composant existant
@@ -24,16 +23,6 @@ const NmkKinkTestimonials: React.FC = () => {
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=764"
     }
   ];
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  
-  const goToPrevious = () => {
-    setActiveIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-  };
-  
-  const goToNext = () => {
-    setActiveIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
-  };
   
   return (
     <section className="py-24 bg-white">
@@ -47,60 +36,29 @@ const NmkKinkTestimonials: React.FC = () => {
           </h2>
         </div>
 
-        <div className="mx-auto max-w-4xl">
-          <div className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-12">
-            {/* Témoignage actif */}
-            <div className="relative z-10">
-              <blockquote className="text-xl md:text-2xl leading-relaxed text-gray-800">
-                "{testimonials[activeIndex].text}"
-              </blockquote>
-              
-              <div className="mt-8 flex items-center">
-                <img 
-                  src={testimonials[activeIndex].avatar} 
-                  alt={testimonials[activeIndex].author} 
-                  className="h-14 w-14 rounded-full object-cover"
-                />
-                <div className="ml-4">
-                  <p className="font-bold text-gray-900">{testimonials[activeIndex].author}</p>
-                  <p className="text-gray-600">{testimonials[activeIndex].position}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto max-w-7xl">
+          {testimonials.map((testimonial, index) => (
+            <div key={index} className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-10 shadow-sm">
+              {/* Témoignage */}
+              <div className="relative z-10">
+                <blockquote className="text-lg leading-relaxed text-gray-800 mb-6">
+                  "{testimonial.text}"
+                </blockquote>
+                
+                <div className="mt-6 flex items-center">
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.author} 
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                  <div className="ml-4">
+                    <p className="font-bold text-gray-900">{testimonial.author}</p>
+                    <p className="text-gray-600">{testimonial.position}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          {/* Indicateurs et boutons de navigation */}
-          <div className="mt-8 flex justify-between items-center">
-            <div className="flex space-x-2">
-              {testimonials.map((_, idx) => (
-                <button
-                  key={idx}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    idx === activeIndex ? 'bg-gray-800 w-6' : 'bg-gray-300'
-                  }`}
-                  onClick={() => setActiveIndex(idx)}
-                  aria-label={`Témoignage ${idx + 1}`}
-                />
-              ))}
-            </div>
-            
-            <div className="flex space-x-4">
-              <button 
-                onClick={goToPrevious}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
-                aria-label="Témoignage précédent"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button 
-                onClick={goToNext}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
-                aria-label="Témoignage suivant"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
