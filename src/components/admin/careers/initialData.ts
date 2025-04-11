@@ -1,9 +1,11 @@
 
-export const initialJobs = [
+import { Job } from './types';
+
+export const initialJobs: Job[] = [
   {
     id: '1',
     title: 'Développeur Frontend React',
-    type: 'full-time',
+    type: 'full-time',  // Ensuring this matches one of the allowed types
     location: 'Paris, France',
     department: 'Développement',
     description: 'Nous recherchons un développeur Frontend React expérimenté pour rejoindre notre équipe...',
@@ -22,7 +24,7 @@ export const initialJobs = [
   {
     id: '2',
     title: 'Designer UX/UI Senior',
-    type: 'hybrid',
+    type: 'hybrid', // Ensuring this matches one of the allowed types
     location: 'Lyon, France',
     department: 'Design',
     description: 'Rejoignez notre équipe design pour créer des expériences utilisateur exceptionnelles...',
