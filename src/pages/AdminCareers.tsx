@@ -1,14 +1,9 @@
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
-import AdminCareersComponent from '@/components/admin/AdminCareers';
+import AdminCareers from '@/components/admin/AdminCareers';
 
-const AdminCareers = () => {
-  return (
-    <AdminLayout>
-      <AdminCareersComponent />
-    </AdminLayout>
-  );
+const AdminCareersPage = () => {
+  return <AdminCareers />;
 };
 
-export default AdminCareers;
+export default AdminCareersPage;
