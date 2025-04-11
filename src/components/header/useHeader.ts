@@ -12,6 +12,9 @@ export const useHeader = () => {
   const navLinks: NavLink[] = [
     { name: 'Accueil', href: '/' },
     { name: 'Services', href: '/#services' },
+    { name: 'Portfolio', href: '/portfolio' },
+    { name: 'Estimation', href: '/estimation' },
+    { name: 'Rendez-vous', href: '/appointments' },
     { name: 'Équipe', href: '/#team' },
     { name: 'Témoignages', href: '/#testimonials' },
     { name: 'FAQ', href: '/faq' },
