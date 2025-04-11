@@ -13,7 +13,6 @@ import AdminTeam from '@/components/admin/AdminTeam';
 import AdminTestimonials from '@/components/admin/AdminTestimonials';
 import AdminFaq from '@/components/admin/AdminFaq';
 import AdminCareers from '@/components/admin/AdminCareers';
-import AdminApplications from '@/components/admin/AdminApplications';
 import AdminAppointments from '@/components/admin/AdminAppointments';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminHero from '@/pages/AdminHero';
@@ -36,7 +35,6 @@ const Admin = () => {
           <Route path="/testimonials" element={<AdminTestimonials />} />
           <Route path="/faq" element={<AdminFaq />} />
           <Route path="/careers" element={<AdminCareers />} />
-          <Route path="/applications" element={<AdminApplications />} />
           <Route path="/appointments" element={<AdminAppointments />} />
           <Route path="/trusted-clients" element={<AdminTrustedClients />} />
           <Route path="/hero" element={<AdminHero />} />

@@ -27,6 +27,7 @@ const NavLinkManager = () => {
     { id: '5', name: 'Services Design', href: '/services/design', order: 2, isVisible: true, parentId: '2' },
     { id: '6', name: 'Estimation', href: '/estimation', order: 4, isVisible: true, parentId: null },
     { id: '7', name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null },
+    { id: '8', name: 'ACE JOB', href: '/ace-job', order: 6, isVisible: true, parentId: null },
   ]);
 
   // État pour le lien en cours d'édition

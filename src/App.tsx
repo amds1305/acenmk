@@ -23,6 +23,7 @@ import Appointments from '@/pages/Appointments';
 import Careers from '@/pages/Careers';
 import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
+import AceJob from '@/pages/AceJob';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/estimation" element={<ProjectEstimation />} />
                 <Route path="/appointments" element={<Appointments />} />
                 <Route path="/careers" element={<Careers />} />
+                <Route path="/ace-job" element={<AceJob />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/*" element={<Admin />} />
               </Routes>

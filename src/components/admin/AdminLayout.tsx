@@ -112,12 +112,6 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 active={location.pathname === "/admin/careers"}
               />
               <NavItem
-                icon={FileText}
-                href="/admin/applications"
-                label="Candidatures"
-                active={location.pathname === "/admin/applications"}
-              />
-              <NavItem
                 icon={Calendar}
                 href="/admin/appointments"
                 label="Rendez-vous"
