@@ -129,6 +129,12 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 label="À propos"
                 active={location.pathname === "/admin/about"}
               />
+              <NavItem
+                icon={Users}
+                href="/admin/users"
+                label="Utilisateurs"
+                active={location.pathname === "/admin/users"}
+              />
             </nav>
           </div>
           <div className="mt-auto p-4">
