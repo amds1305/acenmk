@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const NmkKinkTestimonials: React.FC = () => {
+  // Utiliser les testimonials du composant existant
   const testimonials = [
     {
       text: "L'équipe a parfaitement compris notre vision et l'a transformée en une expérience numérique exceptionnelle qui a dépassé toutes nos attentes.",
@@ -24,16 +25,16 @@ const NmkKinkTestimonials: React.FC = () => {
     }
   ];
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const nextTestimonial = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  const [activeIndex, setActiveIndex] = useState(0);
+  
+  const goToPrevious = () => {
+    setActiveIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
   };
-
-  const prevTestimonial = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
+  
+  const goToNext = () => {
+    setActiveIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
   };
-
+  
   return (
     <section className="py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -48,42 +49,57 @@ const NmkKinkTestimonials: React.FC = () => {
 
         <div className="mx-auto max-w-4xl">
           <div className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-12">
-            <Quote className="absolute right-8 top-8 h-16 w-16 text-gray-200" />
-            
+            {/* Témoignage actif */}
             <div className="relative z-10">
               <blockquote className="text-xl md:text-2xl leading-relaxed text-gray-800">
-                "{testimonials[currentIndex].text}"
+                "{testimonials[activeIndex].text}"
               </blockquote>
               
               <div className="mt-8 flex items-center">
                 <img 
-                  src={testimonials[currentIndex].avatar} 
-                  alt={testimonials[currentIndex].author} 
+                  src={testimonials[activeIndex].avatar} 
+                  alt={testimonials[activeIndex].author} 
                   className="h-14 w-14 rounded-full object-cover"
                 />
                 <div className="ml-4">
-                  <p className="font-bold text-gray-900">{testimonials[currentIndex].author}</p>
-                  <p className="text-gray-600">{testimonials[currentIndex].position}</p>
+                  <p className="font-bold text-gray-900">{testimonials[activeIndex].author}</p>
+                  <p className="text-gray-600">{testimonials[activeIndex].position}</p>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="mt-8 flex justify-center space-x-4">
-            <button 
-              onClick={prevTestimonial}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
-              aria-label="Témoignage précédent"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={nextTestimonial}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
-              aria-label="Témoignage suivant"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
+          {/* Indicateurs et boutons de navigation */}
+          <div className="mt-8 flex justify-between items-center">
+            <div className="flex space-x-2">
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    idx === activeIndex ? 'bg-gray-800 w-6' : 'bg-gray-300'
+                  }`}
+                  onClick={() => setActiveIndex(idx)}
+                  aria-label={`Témoignage ${idx + 1}`}
+                />
+              ))}
+            </div>
+            
+            <div className="flex space-x-4">
+              <button 
+                onClick={goToPrevious}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
+                aria-label="Témoignage précédent"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button 
+                onClick={goToNext}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white transition-colors hover:bg-gray-100"
+                aria-label="Témoignage suivant"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
