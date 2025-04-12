@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, InfoIcon } from 'lucide-react';
 import { migrateLocalStorageToSupabase } from '@/services/mysql/sectionsService';
 import { useToast } from '@/hooks/use-toast';
 import { useSections } from '@/contexts/SectionsContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MySQLConfigInfo from './MySQLConfigInfo';
+import ApiPackageDownload from './ApiPackageDownload';
 
 const MigrationTool: React.FC = () => {
   const [isMigrating, setIsMigrating] = useState(false);
@@ -60,6 +61,7 @@ const MigrationTool: React.FC = () => {
       </TabsList>
       
       <TabsContent value="mysql" className="space-y-4 mt-4">
+        <ApiPackageDownload />
         <MySQLConfigInfo />
         
         <Card className="w-full">
