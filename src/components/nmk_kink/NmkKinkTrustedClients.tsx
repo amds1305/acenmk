@@ -44,22 +44,34 @@ const NmkKinkTrustedClients: React.FC = () => {
           {data.clients.map((client) => (
             <div 
               key={client.id} 
-              className="flex items-center justify-center p-4 filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              className="flex flex-col items-center justify-center p-4 filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
             >
               {client.websiteUrl ? (
-                <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer">
+                <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center">
                   <img 
                     src={client.logoUrl} 
                     alt={client.name} 
-                    className="max-h-16 max-w-full"
+                    className="max-h-16 max-w-full mb-3"
                   />
+                  {client.category && (
+                    <span className="text-xs text-center text-gray-600 font-medium mt-1">
+                      {client.category}
+                    </span>
+                  )}
                 </a>
               ) : (
-                <img 
-                  src={client.logoUrl} 
-                  alt={client.name} 
-                  className="max-h-16 max-w-full"
-                />
+                <>
+                  <img 
+                    src={client.logoUrl} 
+                    alt={client.name} 
+                    className="max-h-16 max-w-full mb-3"
+                  />
+                  {client.category && (
+                    <span className="text-xs text-center text-gray-600 font-medium mt-1">
+                      {client.category}
+                    </span>
+                  )}
+                </>
               )}
             </div>
           ))}
