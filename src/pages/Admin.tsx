@@ -20,6 +20,7 @@ import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 import { AdminHeader } from '@/components/admin/header';
 import { AdminFooter } from '@/components/admin/footer';
 import AdminUsers from '@/components/admin/AdminUsers';
+import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
 
 const Admin = () => {
   return (
@@ -43,6 +44,7 @@ const Admin = () => {
           <Route path="/header" element={<AdminHeader />} />
           <Route path="/footer" element={<AdminFooter />} />
           <Route path="/users" element={<AdminUsers />} />
+          <Route path="/supabase-migration" element={<AdminSupabaseMigration />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>
