@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -89,8 +89,17 @@ const ApiPackageDownload: React.FC = () => {
           disabled={isLoading} 
           className="w-full"
         >
-          <Download className="mr-2 h-4 w-4" />
-          {isLoading ? "Préparation du package..." : "Télécharger le package d'installation"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Préparation du package...
+            </>
+          ) : (
+            <>
+              <Download className="mr-2 h-4 w-4" />
+              Télécharger le package d'installation
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>
