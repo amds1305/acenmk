@@ -8,4 +8,3 @@ export { default as TekoTrustedClients } from './TekoTrustedClients';
 export { default as TekoTestimonials } from './TekoTestimonials';
 export { default as TekoFaq } from './TekoFaq';
 export { default as TekoContact } from './TekoContact';
-

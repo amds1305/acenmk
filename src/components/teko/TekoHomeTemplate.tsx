@@ -2,16 +2,14 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
-import {
-  TekoHero,
-  TekoServices,
-  TekoAbout,
-  TekoTeam,
-  TekoTrustedClients,
-  TekoTestimonials,
-  TekoFaq,
-  TekoContact
-} from './index';
+import TekoHero from './TekoHero';
+import TekoServices from './TekoServices';
+import TekoAbout from './TekoAbout';
+import TekoTeam from './TekoTeam';
+import TekoTrustedClients from './TekoTrustedClients';
+import TekoTestimonials from './TekoTestimonials';
+import TekoFaq from './TekoFaq';
+import TekoContact from './TekoContact';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for Teko template
