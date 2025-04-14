@@ -1,11 +1,10 @@
-
 import { HomepageConfig, Section, SectionData, SectionType } from '@/types/sections';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOMEPAGE_CONFIG } from '../sections/defaultData';
 import { supabase } from '@/lib/supabase';
 
-// URL de base de l'API MySQL (à configurer)
-const API_BASE_URL = import.meta.env.VITE_MYSQL_API_URL || '';
+// 🔍 URL de base de l'API MySQL (à configurer)
+const API_BASE_URL = 'https://votre-domaine.com/api';
 
 // Fonction pour récupérer la configuration de la page d'accueil depuis MySQL
 export const getHomepageConfig = async (): Promise<HomepageConfig> => {
