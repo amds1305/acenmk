@@ -15,21 +15,21 @@ if (preg_match('/\.css$/', $_SERVER['REQUEST_URI'])) {
     return false;
 }
 
-// Pour les fichiers TypeScript et TSX
-if (preg_match('/\.ts$/', $_SERVER['REQUEST_URI'])) {
-    header('Content-Type: text/x-typescript; charset=UTF-8');
+// Pour les fichiers TypeScript et TSX - important: servir comme JavaScript pour le navigateur
+if (preg_match('/\.tsx$/', $_SERVER['REQUEST_URI'])) {
+    header('Content-Type: text/javascript; charset=UTF-8');
     return false;
 }
 
-if (preg_match('/\.tsx$/', $_SERVER['REQUEST_URI'])) {
-    header('Content-Type: text/x-typescript; charset=UTF-8');
+if (preg_match('/\.ts$/', $_SERVER['REQUEST_URI'])) {
+    header('Content-Type: text/javascript; charset=UTF-8');
     return false;
 }
 
 // Pour les images 
 if (preg_match('/\.(jpg|jpeg|png|gif|svg|webp)$/', $_SERVER['REQUEST_URI'])) {
     $ext = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_EXTENSION);
-    header("Content-Type: image/$ext; charset=UTF-8");
+    header("Content-Type: image/$ext");
     return false;
 }
 

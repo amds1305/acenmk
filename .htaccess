@@ -46,12 +46,12 @@
   </FilesMatch>
 </IfModule>
 
-# Fix pour les types MIME
+# Fix pour les types MIME - IMPORTANT: servir TS/TSX comme JavaScript
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
-  AddType text/x-typescript .ts
-  AddType text/x-typescript .tsx
+  AddType text/javascript .ts
+  AddType text/javascript .tsx
   AddType text/css .css
 </IfModule>
 
@@ -65,5 +65,4 @@
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType text/javascript "access plus 1 month"
-  ExpiresByType text/x-typescript "access plus 1 month"
 </IfModule>
