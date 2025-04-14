@@ -6,7 +6,7 @@ import {
   saveHomepageConfig,
   addSection,
   removeSection
-} from '@/services/mysql/sectionsService';
+} from '@/services/mysql';
 
 // Export des types
 export * from './types';
