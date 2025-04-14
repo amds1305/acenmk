@@ -12,7 +12,7 @@ import {
   saveHomepageConfig, 
   addSection, 
   removeSection 
-} from '@/services/supabase/sectionsService';
+} from '@/services/mysql'; // Updated import path
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { DEFAULT_TEMPLATE_CONFIG } from '@/services/sections/defaultData';
