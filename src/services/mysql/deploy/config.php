@@ -65,3 +65,17 @@ if (isset($_GET['test'])) {
     exit;
 }
 
+// Fonction pour vérifier si des tables existent déjà
+function tablesExist($conn) {
+    $tables = ['sections', 'section_data', 'trusted_clients', 'template_config'];
+    $existingTables = [];
+    
+    foreach ($tables as $table) {
+        $result = $conn->query("SHOW TABLES LIKE '$table'");
+        if ($result->num_rows > 0) {
+            $existingTables[] = $table;
+        }
+    }
+    
+    return $existingTables;
+}
