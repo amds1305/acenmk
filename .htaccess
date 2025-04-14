@@ -3,12 +3,16 @@
   RewriteEngine On
   RewriteBase /
   
-  # Ne pas appliquer la règle si le fichier existe
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
+  # Servir directement les ressources existantes
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
   
-  # Rediriger toutes les requêtes vers index.html pour le routage React
-  RewriteRule ^(.*)$ index.html [QSA,L]
+  # Gérer les assets spécifiques de Vite/React
+  RewriteRule ^(assets)/(.*) /assets/$2 [L]
+  
+  # Rediriger toutes les autres requêtes vers index.html pour le routage React
+  RewriteRule ^ index.html [QSA,L]
 </IfModule>
 
 # Activer la compression GZIP

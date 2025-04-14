@@ -21,6 +21,17 @@ if (preg_match('/\.(ts|tsx)$/', $_SERVER['REQUEST_URI'])) {
     return false;
 }
 
+// Pour les images 
+if (preg_match('/\.(jpg|jpeg|png|gif|svg|webp)$/', $_SERVER['REQUEST_URI'])) {
+    $ext = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_EXTENSION);
+    header("Content-Type: image/$ext");
+    return false;
+}
+
+// Activer la journalisation des erreurs pour le débogage
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Pour les autres ressources, rediriger vers index.html
 include_once('./index.html');
 ?>
