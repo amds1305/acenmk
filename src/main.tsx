@@ -5,20 +5,31 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lib/animations.css";
 
-// Find the root element where React will mount the app
+// Journaliser au démarrage pour aider au débogage
+console.log("Application en cours de démarrage...");
+
+// Trouver l'élément racine où React va monter l'application
 const rootElement = document.getElementById("root");
 
-// Only render if the root element exists
+// Journaliser l'état de l'élément racine
+console.log("Élément racine trouvé:", rootElement ? "Oui" : "Non");
+
+// Seulement rendre si l'élément racine existe
 if (rootElement) {
-  // Create a React root
-  const root = ReactDOM.createRoot(rootElement);
-  
-  // Render the app
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+  try {
+    // Créer une racine React
+    const root = ReactDOM.createRoot(rootElement);
+    
+    // Rendre l'application
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+    console.log("Application rendue avec succès");
+  } catch (error) {
+    console.error("Erreur lors du rendu de l'application:", error);
+  }
 } else {
-  console.error("Root element not found!");
+  console.error("Élément racine non trouvé!");
 }
