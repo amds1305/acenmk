@@ -23,19 +23,35 @@
   AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
 </IfModule>
 
-# Headers pour permettre les CORS
+# Headers pour permettre les CORS et améliorer la sécurité
 <IfModule mod_headers.c>
+  # Headers CORS
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Allow-Methods "GET,POST,PUT,DELETE,OPTIONS"
   Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  
+  # Headers de sécurité recommandés
+  Header set X-Content-Type-Options "nosniff"
+  Header set Content-Security-Policy "frame-ancestors 'self';"
+  
+  # Headers de cache
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(js|jsx|ts|tsx|css|json)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|gif|ico|svg|webp)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
 </IfModule>
 
 # Fix pour les types MIME
 <IfModule mod_mime.c>
-  AddType application/javascript .js
-  AddType application/javascript .mjs
-  AddType application/javascript .tsx
-  AddType application/javascript .ts
+  AddType text/javascript .js
+  AddType text/javascript .mjs
+  AddType text/x-typescript .ts
+  AddType text/x-typescript .tsx
   AddType text/css .css
 </IfModule>
 
@@ -48,5 +64,6 @@
   ExpiresByType image/png "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType text/x-typescript "access plus 1 month"
 </IfModule>
