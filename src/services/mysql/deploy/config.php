@@ -36,10 +36,10 @@ function connectDB() {
 
 /**
  * FONCTION DE DÉBOGAGE
- * Décommentez cette fonction pour tester la connexion à la base de données
- * et afficher les informations de configuration
+ * Cette fonction permet de tester la connexion à la base de données
+ * et d'afficher les informations de configuration
  */
-/*
+
 if (isset($_GET['test'])) {
     header('Content-Type: text/html; charset=UTF-8');
     echo '<h1>Test de connexion MySQL</h1>';
@@ -64,4 +64,4 @@ if (isset($_GET['test'])) {
     
     exit;
 }
-*/
+
