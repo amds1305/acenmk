@@ -1,9 +1,10 @@
+
 import { HomepageConfig, Section, SectionData, SectionType } from '@/types/sections';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_HOMEPAGE_CONFIG } from '../sections/defaultData';
 import { supabase } from '@/lib/supabase';
 
-// 🔍 URL de base de l'API MySQL (à configurer)
+// URL de base de l'API MySQL (configuré)
 const API_BASE_URL = 'https://votre-domaine.com/api';
 
 // Fonction pour récupérer la configuration de la page d'accueil depuis MySQL
@@ -16,19 +17,25 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
       return fallbackToLocalStorage();
     }
 
+    console.log('Tentative de récupération des données depuis:', `${API_BASE_URL}/sections.php`);
+    
     // Récupérer les sections
-    const sectionsResponse = await fetch(`${API_BASE_URL}/sections`);
+    const sectionsResponse = await fetch(`${API_BASE_URL}/sections.php`);
     if (!sectionsResponse.ok) {
+      console.error('Erreur HTTP:', sectionsResponse.status, sectionsResponse.statusText);
       throw new Error('Erreur lors de la récupération des sections');
     }
     const sections = await sectionsResponse.json();
+    console.log('Sections récupérées:', sections);
 
     // Récupérer les données des sections
-    const sectionDataResponse = await fetch(`${API_BASE_URL}/section-data`);
+    const sectionDataResponse = await fetch(`${API_BASE_URL}/section-data.php`);
     if (!sectionDataResponse.ok) {
+      console.error('Erreur HTTP:', sectionDataResponse.status, sectionDataResponse.statusText);
       throw new Error('Erreur lors de la récupération des données des sections');
     }
     const sectionDataArray = await sectionDataResponse.json();
+    console.log('Données des sections récupérées:', sectionDataArray);
 
     // Formater les données des sections dans le format attendu
     const sectionData: Record<string, SectionData> = {};
@@ -37,10 +44,11 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     });
 
     // Récupérer la configuration du template
-    const templateConfigResponse = await fetch(`${API_BASE_URL}/template-config`);
+    const templateConfigResponse = await fetch(`${API_BASE_URL}/template-config.php`);
     const templateConfig = templateConfigResponse.ok 
       ? await templateConfigResponse.json() 
       : { activeTemplate: 'default' };
+    console.log('Configuration du template récupérée:', templateConfig);
 
     return {
       sections,
@@ -65,13 +73,16 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
       return true;
     }
 
+    console.log('Tentative de sauvegarde des sections vers:', `${API_BASE_URL}/sections.php`);
+    
     // Sauvegarder les sections
-    const sectionsResponse = await fetch(`${API_BASE_URL}/sections`, {
+    const sectionsResponse = await fetch(`${API_BASE_URL}/sections.php`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config.sections)
     });
     if (!sectionsResponse.ok) {
+      console.error('Erreur HTTP sections:', sectionsResponse.status, sectionsResponse.statusText);
       throw new Error('Erreur lors de la sauvegarde des sections');
     }
 
@@ -81,28 +92,34 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
       data
     }));
 
+    console.log('Tentative de sauvegarde des données des sections vers:', `${API_BASE_URL}/section-data.php`);
+    
     // Sauvegarder les données des sections
-    const sectionDataResponse = await fetch(`${API_BASE_URL}/section-data`, {
+    const sectionDataResponse = await fetch(`${API_BASE_URL}/section-data.php`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sectionDataArray)
     });
     if (!sectionDataResponse.ok) {
+      console.error('Erreur HTTP section-data:', sectionDataResponse.status, sectionDataResponse.statusText);
       throw new Error('Erreur lors de la sauvegarde des données des sections');
     }
 
     // Sauvegarder la configuration du template
     if (config.templateConfig) {
-      const templateConfigResponse = await fetch(`${API_BASE_URL}/template-config`, {
+      console.log('Tentative de sauvegarde de la configuration du template vers:', `${API_BASE_URL}/template-config.php`);
+      const templateConfigResponse = await fetch(`${API_BASE_URL}/template-config.php`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config.templateConfig)
       });
       if (!templateConfigResponse.ok) {
+        console.error('Erreur HTTP template-config:', templateConfigResponse.status, templateConfigResponse.statusText);
         throw new Error('Erreur lors de la sauvegarde de la configuration du template');
       }
     }
 
+    console.log('Sauvegarde des données réussie dans MySQL');
     // Sauvegarde également dans le localStorage pour la redondance
     saveToLocalStorage(config);
     return true;
