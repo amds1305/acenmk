@@ -6,10 +6,10 @@
  */
 
 // Informations de connexion MySQL - À MODIFIER
-define('DB_HOST', 'votre-serveur-mysql.mysql.db');  // Exemple: cl1-012.mysql.db
-define('DB_USER', 'votre_utilisateur');
-define('DB_PASS', 'votre_mot_de_passe');
-define('DB_NAME', 'votre_base_de_donnees');
+define('DB_HOST', 'mysql-votre-nom.alwaysdata.net');  // Remplacez par votre serveur MySQL réel
+define('DB_USER', 'votre_utilisateur_reel');          // Remplacez par votre nom d'utilisateur réel
+define('DB_PASS', 'votre_mot_de_passe_reel');         // Remplacez par votre mot de passe réel 
+define('DB_NAME', 'votre_base_de_donnees_reelle');    // Remplacez par le nom de votre base de données réelle
 
 // Configuration CORS pour permettre l'accès depuis n'importe quelle origine
 header('Access-Control-Allow-Origin: *');
