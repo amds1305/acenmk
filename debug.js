@@ -1,52 +1,34 @@
 
-// Script de débogage pour afficher les erreurs React
-window.onerror = function(message, source, lineno, colno, error) {
-  // Créer un élément visible pour afficher l'erreur
-  const errorDiv = document.createElement('div');
-  errorDiv.style.position = 'fixed';
-  errorDiv.style.top = '0';
-  errorDiv.style.left = '0';
-  errorDiv.style.right = '0';
-  errorDiv.style.backgroundColor = '#ffcccc';
-  errorDiv.style.color = '#990000';
-  errorDiv.style.padding = '20px';
-  errorDiv.style.zIndex = '9999';
-  errorDiv.style.fontFamily = 'monospace';
-  errorDiv.style.fontSize = '14px';
-  errorDiv.style.border = '2px solid #990000';
-  
-  // Ajouter les détails de l'erreur
-  errorDiv.innerHTML = `
-    <h3>Erreur JavaScript</h3>
-    <p><strong>Message:</strong> ${message}</p>
-    <p><strong>Source:</strong> ${source}</p>
-    <p><strong>Ligne:</strong> ${lineno}, <strong>Colonne:</strong> ${colno}</p>
-    <p><strong>Stack trace:</strong> ${error ? error.stack : 'Non disponible'}</p>
-  `;
-  
-  // Ajouter l'élément à la page
-  document.body.appendChild(errorDiv);
-  
-  // Ne pas empêcher le comportement par défaut de l'erreur
-  return false;
-};
+// Script de débogage pour afficher les erreurs React et vérifier le chargement
+console.log('🔍 Debug script is loading...');
 
-// S'assurer que le document est bien chargé
-document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ Debug script loaded successfully!');
+  
+  // Vérification de l'élément root
   const rootElement = document.getElementById('root');
   if (!rootElement) {
-    console.error("L'élément #root n'a pas été trouvé dans le document");
-    alert("Erreur critique: L'élément #root n'a pas été trouvé");
+    console.error("❌ L'élément #root n'a pas été trouvé dans le document");
+    const errorDiv = document.createElement('div');
+    errorDiv.style.position = 'fixed';
+    errorDiv.style.top = '0';
+    errorDiv.style.left = '0';
+    errorDiv.style.right = '0';
+    errorDiv.style.backgroundColor = '#ffcccc';
+    errorDiv.style.color = '#990000';
+    errorDiv.style.padding = '20px';
+    errorDiv.style.zIndex = '9999';
+    errorDiv.innerHTML = "Erreur critique : L'élément #root est manquant";
+    document.body.appendChild(errorDiv);
   } else {
-    console.log("L'élément #root a été trouvé avec succès");
+    console.log('✅ Élément #root trouvé');
   }
 });
 
-// Vérifier si les scripts sont bien chargés
-const scripts = document.querySelectorAll('script');
-console.log('Scripts chargés:', scripts.length);
-scripts.forEach((script, index) => {
-  console.log(`Script ${index}:`, script.src || 'Inline script');
-});
+// Gestionnaire global des erreurs
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('🚨 Erreur globale détectée:', { message, source, lineno, colno, error });
+  return false;
+};
 
-console.log('Debug script loaded successfully');
+console.log('🏁 Debug script fully initialized');
