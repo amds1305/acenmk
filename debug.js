@@ -23,6 +23,24 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     console.log('✅ Élément #root trouvé');
   }
+  
+  // Vérification du localStorage
+  try {
+    const testKey = 'debug-test';
+    localStorage.setItem(testKey, 'test');
+    const testValue = localStorage.getItem(testKey);
+    localStorage.removeItem(testKey);
+    console.log('✅ localStorage fonctionne correctement');
+  } catch (error) {
+    console.error('❌ Erreur avec localStorage:', error);
+  }
+  
+  // Vérification des scripts chargés
+  const scripts = document.querySelectorAll('script');
+  console.log(`✅ ${scripts.length} scripts sont chargés`);
+  scripts.forEach(script => {
+    console.log(`Script: ${script.src || 'inline script'}`);
+  });
 });
 
 // Gestionnaire global des erreurs
@@ -30,5 +48,10 @@ window.onerror = function(message, source, lineno, colno, error) {
   console.error('🚨 Erreur globale détectée:', { message, source, lineno, colno, error });
   return false;
 };
+
+// Surveiller les erreurs de récupération
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('🚨 Promise rejetée non gérée:', event.reason);
+});
 
 console.log('🏁 Debug script fully initialized');
