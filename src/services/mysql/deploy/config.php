@@ -11,7 +11,7 @@ define('DB_USER', 'votre_utilisateur');
 define('DB_PASS', 'votre_mot_de_passe');
 define('DB_NAME', 'votre_base_de_donnees');
 
-// Configuration CORS pour permettre l'accès depuis votre application
+// Configuration CORS pour permettre l'accès depuis n'importe quelle origine
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -33,3 +33,35 @@ function connectDB() {
     $conn->set_charset('utf8mb4');
     return $conn;
 }
+
+/**
+ * FONCTION DE DÉBOGAGE
+ * Décommentez cette fonction pour tester la connexion à la base de données
+ * et afficher les informations de configuration
+ */
+/*
+if (isset($_GET['test'])) {
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<h1>Test de connexion MySQL</h1>';
+    
+    try {
+        $conn = connectDB();
+        echo '<p style="color:green;font-weight:bold;">✅ Connexion réussie à la base de données!</p>';
+        echo '<p>Serveur MySQL: ' . htmlspecialchars(DB_HOST) . '</p>';
+        echo '<p>Utilisateur: ' . htmlspecialchars(DB_USER) . '</p>';
+        echo '<p>Base de données: ' . htmlspecialchars(DB_NAME) . '</p>';
+        $conn->close();
+    } catch (Exception $e) {
+        echo '<p style="color:red;font-weight:bold;">❌ Erreur de connexion: ' . htmlspecialchars($e->getMessage()) . '</p>';
+    }
+    
+    echo '<h2>Informations PHP</h2>';
+    echo '<p>Version PHP: ' . phpversion() . '</p>';
+    echo '<p>Extensions:</p><ul>';
+    echo '<li>MySQLi: ' . (extension_loaded('mysqli') ? '✓' : '✗') . '</li>';
+    echo '<li>JSON: ' . (extension_loaded('json') ? '✓' : '✗') . '</li>';
+    echo '</ul>';
+    
+    exit;
+}
+*/
