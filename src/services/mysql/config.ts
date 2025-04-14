@@ -2,10 +2,10 @@
 import { HomepageConfig } from '@/types/sections';
 import { DEFAULT_HOMEPAGE_CONFIG } from '../sections/defaultData';
 
-// Get the MySQL API URL from environment variables
+// Récupérer l'URL de l'API MySQL à partir des variables d'environnement
 export const API_BASE_URL = import.meta.env.VITE_MYSQL_API_URL || 'https://votre-domaine.com/api';
 
-// Helper function to log API status
+// Fonction pour journaliser le statut de l'API
 export const logApiStatus = (): void => {
   if (!API_BASE_URL) {
     console.warn('URL de l\'API MySQL non définie, utilisation du localStorage par défaut');
@@ -14,18 +14,18 @@ export const logApiStatus = (): void => {
   }
 };
 
-// Auxiliary function to get data from localStorage
+// Fonction auxiliaire pour obtenir les données du localStorage
 export const getFromLocalStorage = (): HomepageConfig => {
   try {
-    // Retrieve sections
+    // Récupérer les sections
     const storedSections = localStorage.getItem('homepageSections');
     const sections = storedSections ? JSON.parse(storedSections) : DEFAULT_HOMEPAGE_CONFIG.sections;
     
-    // Retrieve section data
+    // Récupérer les données des sections
     const storedSectionData = localStorage.getItem('homepageSectionData');
     const sectionData = storedSectionData ? JSON.parse(storedSectionData) : {};
     
-    // Retrieve template configuration
+    // Récupérer la configuration du template
     const storedTemplateConfig = localStorage.getItem('homepageTemplateConfig');
     const templateConfig = storedTemplateConfig 
       ? JSON.parse(storedTemplateConfig) 
@@ -38,7 +38,7 @@ export const getFromLocalStorage = (): HomepageConfig => {
   }
 };
 
-// Auxiliary function to save data to localStorage
+// Fonction auxiliaire pour sauvegarder des données dans le localStorage
 export const saveToLocalStorage = (config: HomepageConfig): void => {
   try {
     localStorage.setItem('homepageSections', JSON.stringify(config.sections));
