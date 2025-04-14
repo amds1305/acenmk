@@ -32,6 +32,13 @@ if (preg_match('/\.(jpg|jpeg|png|gif|svg|webp)$/', $_SERVER['REQUEST_URI'])) {
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Vérifier si le fichier debug.js est demandé
+if ($_SERVER['REQUEST_URI'] == '/debug.js') {
+    header('Content-Type: application/javascript');
+    readfile('debug.js');
+    exit;
+}
+
 // Pour les autres ressources, rediriger vers index.html
 include_once('./index.html');
 ?>

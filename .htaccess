@@ -11,8 +11,11 @@
   # Gérer les assets spécifiques de Vite/React
   RewriteRule ^(assets)/(.*) /assets/$2 [L]
   
-  # Rediriger toutes les autres requêtes vers index.html pour le routage React
-  RewriteRule ^ index.html [QSA,L]
+  # Gérer le fichier de débogage
+  RewriteRule ^debug\.js$ /debug.js [L]
+  
+  # Rediriger toutes les autres requêtes vers index.php pour le routage React
+  RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
 # Activer la compression GZIP
