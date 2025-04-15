@@ -4,51 +4,54 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Initialiser l'application React proprement
-document.addEventListener("DOMContentLoaded", function() {
+console.log("Initialisation de React en cours...");
+
+// Fonction pour rendre l'application
+function renderApp() {
+  const rootElement = document.getElementById('root');
+  
+  if (!rootElement) {
+    console.error("Élément racine #root non trouvé!");
+    return;
+  }
+  
   try {
-    console.log("DOM chargé, initialisation de l'application React...");
-    
-    const rootElement = document.getElementById("root");
-    if (!rootElement) {
-      console.error("Élément racine #root non trouvé!");
-      const errorDiv = document.createElement("div");
-      errorDiv.style.position = "fixed";
-      errorDiv.style.top = "0";
-      errorDiv.style.left = "0";
-      errorDiv.style.right = "0";
-      errorDiv.style.backgroundColor = "#ffcccc";
-      errorDiv.style.color = "#990000";
-      errorDiv.style.padding = "20px";
-      errorDiv.style.zIndex = "9999";
-      errorDiv.innerHTML = "Erreur: L'élément #root est manquant dans le document HTML";
-      document.body.appendChild(errorDiv);
-      return;
-    }
-    
-    // Créer la racine React et rendre l'application
     const root = ReactDOM.createRoot(rootElement);
     root.render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
-
     console.log("Application React rendue avec succès!");
+    
+    // Supprimer le message de chargement s'il existe
+    const loadingMessage = document.getElementById('loading-message');
+    if (loadingMessage) {
+      loadingMessage.remove();
+    }
   } catch (error) {
-    console.error("Erreur lors de l'initialisation de React:", error);
-    // Afficher l'erreur à l'utilisateur
-    const errorDiv = document.createElement("div");
-    errorDiv.style.position = "fixed";
-    errorDiv.style.top = "0";
-    errorDiv.style.left = "0";
-    errorDiv.style.right = "0";
-    errorDiv.style.backgroundColor = "#ffcccc";
-    errorDiv.style.color = "#990000";
-    errorDiv.style.padding = "20px";
-    errorDiv.style.zIndex = "9999";
-    errorDiv.innerHTML = "Erreur lors du rendu de l'application: " + 
-      (error instanceof Error ? error.message : String(error));
-    document.body.appendChild(errorDiv);
+    console.error("Erreur lors du rendu de React:", error);
+    
+    // Afficher un message d'erreur visible
+    const errorElement = document.createElement('div');
+    errorElement.style.padding = '20px';
+    errorElement.style.backgroundColor = '#ffdddd';
+    errorElement.style.color = '#990000';
+    errorElement.style.margin = '20px';
+    errorElement.style.borderRadius = '5px';
+    errorElement.innerHTML = `
+      <h2>Erreur de rendu React</h2>
+      <p>${error instanceof Error ? error.message : String(error)}</p>
+    `;
+    
+    rootElement.appendChild(errorElement);
   }
-});
+}
+
+// S'assurer que le DOM est complètement chargé
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderApp);
+} else {
+  // Le DOM est déjà chargé, on peut rendre l'application
+  setTimeout(renderApp, 0);
+}

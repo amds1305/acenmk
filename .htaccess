@@ -28,13 +28,12 @@
   AddType text/css .css
   AddType application/json .json
   AddType image/svg+xml .svg
+  
+  # Forcer le type MIME pour les fichiers TypeScript
+  <FilesMatch "\.tsx?$">
+    ForceType application/javascript
+  </FilesMatch>
 </IfModule>
-
-# Force explicitement les types MIME pour JavaScript/TypeScript
-<FilesMatch "\.(js|mjs|jsx|ts|tsx)$">
-  ForceType application/javascript
-  Header set Content-Type "application/javascript; charset=UTF-8"
-</FilesMatch>
 
 # Cache temporairement désactivé pour le développement
 <IfModule mod_headers.c>
@@ -45,6 +44,11 @@
   Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
   Header set Access-Control-Allow-Headers "Content-Type, Authorization"
   Header set X-Content-Type-Options "nosniff"
+  
+  # Force le type MIME pour les fichiers .tsx
+  <FilesMatch "\.tsx$">
+    Header set Content-Type "application/javascript; charset=UTF-8"
+  </FilesMatch>
 </IfModule>
 
 # Empêcher l'affichage des répertoires
