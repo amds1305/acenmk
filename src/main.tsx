@@ -6,12 +6,15 @@ import './index.css';
 
 console.log("Démarrage de l'application React...");
 
-// Fonction simplifiée pour le rendu
-const rootElement = document.getElementById('root');
-
-if (!rootElement) {
-  console.error("Élément racine #root non trouvé!");
-} else {
+// Fonction pour le rendu de l'application
+const renderApp = () => {
+  const rootElement = document.getElementById('root');
+  
+  if (!rootElement) {
+    console.error("Élément racine #root non trouvé!");
+    return;
+  }
+  
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
@@ -19,7 +22,7 @@ if (!rootElement) {
         <App />
       </React.StrictMode>
     );
-    console.log("Rendu React réussi!");
+    console.log("Application React rendue avec succès!");
     
     // Supprimer le message de chargement s'il existe
     const loadingMessage = document.getElementById('loading-message');
@@ -27,9 +30,9 @@ if (!rootElement) {
       loadingMessage.remove();
     }
   } catch (error) {
-    console.error("Erreur de rendu React:", error);
+    console.error("Erreur lors du rendu de React:", error);
     
-    // Afficher l'erreur de façon visible
+    // Afficher un message d'erreur visible
     const errorElement = document.createElement('div');
     errorElement.style.padding = '20px';
     errorElement.style.backgroundColor = '#ffdddd';
@@ -41,6 +44,11 @@ if (!rootElement) {
       <p>${error instanceof Error ? error.message : String(error)}</p>
     `;
     
-    rootElement.appendChild(errorElement);
+    if (rootElement) {
+      rootElement.appendChild(errorElement);
+    }
   }
-}
+};
+
+// Exécuter le rendu immédiatement
+renderApp();

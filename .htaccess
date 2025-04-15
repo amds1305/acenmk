@@ -15,42 +15,41 @@
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
-# Types MIME pour les fichiers statiques - configuration TRÈS explicite
-<IfModule mod_mime.c>
-  # JavaScript et TypeScript (forcer application/javascript)
-  AddType application/javascript .js
-  AddType application/javascript .mjs
-  AddType application/javascript .jsx
-  AddType application/javascript .ts
-  AddType application/javascript .tsx
+# Configuration du cache pour les assets statiques
+<IfModule mod_expires.c>
+  ExpiresActive On
   
-  # Autres types MIME communs
-  AddType text/css .css
-  AddType application/json .json
-  AddType image/svg+xml .svg
+  # Cache pour les fichiers JS/CSS (1 semaine)
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType text/css "access plus 1 week"
   
-  # Forcer le type MIME pour les fichiers TypeScript
-  <FilesMatch "\.tsx?$">
-    ForceType application/javascript
-  </FilesMatch>
+  # Cache pour les images (2 semaines)
+  ExpiresByType image/jpeg "access plus 2 weeks"
+  ExpiresByType image/png "access plus 2 weeks"
+  ExpiresByType image/svg+xml "access plus 2 weeks"
+  
+  # Pour les fichiers HTML, pas de cache
+  ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
 
-# Configuration du cache
+# Sécurité et en-têtes
 <IfModule mod_headers.c>
-  # Désactiver le cache pour le développement
-  Header set Cache-Control "no-cache, no-store, must-revalidate"
-  Header set Pragma "no-cache"
-  Header set Expires "0"
-  
   # Sécurité et CORS
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
   Header set Access-Control-Allow-Headers "Content-Type, Authorization"
   Header set X-Content-Type-Options "nosniff"
+
+  # Désactiver le cache pour index.html
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
   
-  # Force le type MIME pour les fichiers .tsx
-  <FilesMatch "\.tsx$">
-    Header set Content-Type "application/javascript; charset=UTF-8"
+  # Cache pour les assets avec hachage dans le nom (1 an)
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg)$">
+    Header set Cache-Control "public, max-age=31536000"
   </FilesMatch>
 </IfModule>
 
