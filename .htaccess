@@ -11,30 +11,29 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Servir directement les fichiers JavaScript et TypeScript avec le bon MIME type
-  <FilesMatch "\.(js|mjs|ts|tsx)$">
-    SetHandler application/javascript
-  </FilesMatch>
-  
-  # Servir directement les ressources statiques
-  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp|mjs|ts|tsx)$ - [L]
-  
   # Rediriger toutes les autres requêtes vers index.html pour le SPA
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
 # Types MIME pour les fichiers statiques
 <IfModule mod_mime.c>
-  AddType application/javascript .js .mjs .ts .tsx
+  # Configuration très explicite pour JavaScript et TypeScript
+  AddType application/javascript .js
+  AddType application/javascript .mjs
+  AddType application/javascript .ts
+  AddType application/javascript .tsx
+  
+  # Autres types MIME communs
   AddType text/css .css
   AddType application/json .json
   AddType image/svg+xml .svg
 </IfModule>
 
-# Activer le module FastCGI si disponible
-<IfModule mod_fastcgi.c>
-  AddHandler fastcgi-script .fcgi
-</IfModule>
+# Pour s'assurer que les fichiers JavaScript/TypeScript sont traités correctement
+<FilesMatch "\.(js|mjs|ts|tsx)$">
+  ForceType application/javascript
+  Header set Content-Type application/javascript
+</FilesMatch>
 
 # Désactiver le cache pendant le développement
 <IfModule mod_headers.c>

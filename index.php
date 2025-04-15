@@ -9,8 +9,53 @@ function logError($message) {
   error_log("[ACENUMERIK ERROR] " . $message);
 }
 
+// Force les types MIME corrects pour les extensions clés
+function setCorrectMimeType($extension) {
+  switch($extension) {
+    case 'js':
+    case 'mjs':
+    case 'ts':
+    case 'tsx':
+      header('Content-Type: application/javascript; charset=UTF-8');
+      break;
+    case 'css':
+      header('Content-Type: text/css; charset=UTF-8');
+      break;
+    case 'json':
+      header('Content-Type: application/json; charset=UTF-8');
+      break;
+    case 'html':
+      header('Content-Type: text/html; charset=UTF-8');
+      break;
+    case 'svg':
+      header('Content-Type: image/svg+xml; charset=UTF-8');
+      break;
+    case 'png':
+      header('Content-Type: image/png');
+      break;
+    case 'jpg':
+    case 'jpeg':
+      header('Content-Type: image/jpeg');
+      break;
+    case 'gif':
+      header('Content-Type: image/gif');
+      break;
+    case 'webp':
+      header('Content-Type: image/webp');
+      break;
+    case 'ico':
+      header('Content-Type: image/x-icon');
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
 // Désactiver le cache pour le débogage
-header("Cache-Control: no-cache, max-age=0");
+header("Cache-Control: no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -32,47 +77,17 @@ $static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'sv
 
 if (in_array($extension, $static_extensions)) {
     $file_path = '.' . $request_uri;
-    logError("Trying to serve static file: " . $file_path);
+    logError("Trying to serve static file: " . $file_path . " of type " . $extension);
     
     if (file_exists($file_path)) {
-        // Définir le type MIME approprié de manière explicite
-        switch ($extension) {
-            case 'css':
-                header('Content-Type: text/css');
-                break;
-            case 'js':
-            case 'mjs':
-            case 'ts':
-            case 'tsx':
-                header('Content-Type: application/javascript');
-                break;
-            case 'json':
-                header('Content-Type: application/json');
-                break;
-            case 'jpg':
-            case 'jpeg':
-                header('Content-Type: image/jpeg');
-                break;
-            case 'png':
-                header('Content-Type: image/png');
-                break;
-            case 'gif':
-                header('Content-Type: image/gif');
-                break;
-            case 'svg':
-                header('Content-Type: image/svg+xml');
-                break;
-            case 'webp':
-                header('Content-Type: image/webp');
-                break;
-            case 'ico':
-                header('Content-Type: image/x-icon');
-                break;
+        // Définir le type MIME de manière explicite
+        if (setCorrectMimeType($extension)) {
+            // Lire et envoyer le contenu du fichier
+            readfile($file_path);
+            exit;
+        } else {
+            logError("Unknown file extension: " . $extension);
         }
-        
-        // Lire et envoyer le contenu du fichier
-        readfile($file_path);
-        exit;
     } else {
         logError("File not found: " . $file_path);
         header("HTTP/1.0 404 Not Found");
@@ -80,14 +95,27 @@ if (in_array($extension, $static_extensions)) {
     }
 }
 
-// Pour le fichier debug.js spécifique
-if ($request_uri == '/debug.js' || $request_uri == '/src/debug.js') {
-    if (file_exists('./debug.js')) {
-        header('Content-Type: application/javascript');
-        readfile('./debug.js');
+// Traitement spécial pour debug.js
+if (strpos($request_uri, 'debug.js') !== false) {
+    $debug_file = './debug.js';
+    if (file_exists($debug_file)) {
+        header('Content-Type: application/javascript; charset=UTF-8');
+        readfile($debug_file);
         exit;
     } else {
-        logError("Debug script not found: ./debug.js");
+        logError("Debug script not found");
+    }
+}
+
+// Traitement spécial pour main.tsx
+if (strpos($request_uri, 'main.tsx') !== false) {
+    $tsx_file = './src/main.tsx';
+    if (file_exists($tsx_file)) {
+        header('Content-Type: application/javascript; charset=UTF-8');
+        readfile($tsx_file);
+        exit;
+    } else {
+        logError("TypeScript file not found: " . $tsx_file);
     }
 }
 
@@ -96,7 +124,7 @@ $html_file = './index.html';
 if (file_exists($html_file)) {
     logError("Serving SPA index.html");
     header('Content-Type: text/html; charset=UTF-8');
-    include_once($html_file);
+    readfile($html_file); // Utiliser readfile plutôt que include pour éviter l'exécution de code PHP
 } else {
     logError("Main index file not found: " . $html_file);
     header("HTTP/1.0 404 Not Found");
