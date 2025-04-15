@@ -26,9 +26,9 @@
 # Types MIME pour les fichiers statiques
 <IfModule mod_mime.c>
   AddType text/javascript .js
-  AddType text/javascript .mjs
-  AddType text/javascript .ts
-  AddType text/javascript .tsx
+  AddType application/javascript .mjs
+  AddType application/javascript .ts
+  AddType application/javascript .tsx
   AddType application/json .json
   AddType text/css .css
 </IfModule>

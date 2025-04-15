@@ -3,7 +3,7 @@
 console.log('🔎 Debug script is loading...');
 
 // Fonction pour afficher un message d'erreur visible sur la page
-function showVisibleError(message) {
+function showVisibleError(message, isJson = false) {
   const errorDiv = document.createElement('div');
   errorDiv.style.position = 'fixed';
   errorDiv.style.top = '0';
@@ -13,7 +13,20 @@ function showVisibleError(message) {
   errorDiv.style.color = '#990000';
   errorDiv.style.padding = '20px';
   errorDiv.style.zIndex = '9999';
-  errorDiv.innerHTML = message;
+  errorDiv.style.maxHeight = '90vh';
+  errorDiv.style.overflow = 'auto';
+  
+  if (isJson) {
+    try {
+      const formatted = JSON.stringify(JSON.parse(message), null, 2);
+      errorDiv.innerHTML = `<pre style="white-space: pre-wrap;">${formatted}</pre>`;
+    } catch {
+      errorDiv.innerHTML = message;
+    }
+  } else {
+    errorDiv.innerHTML = message;
+  }
+  
   document.body.appendChild(errorDiv);
   console.error(message);
 }
@@ -36,6 +49,7 @@ window.addEventListener('DOMContentLoaded', () => {
         showVisibleError(`
           <h2>Application non rendue</h2>
           <p>L'application ne s'est pas chargée correctement. Vérifiez la console du navigateur pour plus de détails.</p>
+          <p>Vérification des erreurs en cours...</p>
           <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
             Recharger la page
           </button>
@@ -43,6 +57,24 @@ window.addEventListener('DOMContentLoaded', () => {
             Page de secours
           </button>
         `);
+
+        // Tenter d'afficher le statut du chargement des modules
+        try {
+          fetch('/src/main.tsx')
+            .then(response => response.text())
+            .then(text => {
+              console.log("✓ Contenu de main.tsx récupéré, analyse en cours...");
+              if (text.includes("SyntaxError") || text.includes("Error")) {
+                showVisibleError("Possible erreur de syntaxe dans main.tsx: " + text);
+              }
+            })
+            .catch(err => {
+              console.error("❌ Impossible de charger main.tsx:", err);
+              showVisibleError("Impossible de charger main.tsx: " + err.message);
+            });
+        } catch (err) {
+          console.error("❌ Erreur lors de la vérification des modules:", err);
+        }
       }
     }, 2000);
   }
@@ -61,10 +93,19 @@ window.addEventListener('DOMContentLoaded', () => {
   // Vérification des scripts chargés
   const scripts = document.querySelectorAll('script');
   console.log(`✅ ${scripts.length} scripts sont chargés`);
+  
+  // On affiche les détails des scripts
+  const loadedScripts = [];
   scripts.forEach((script, index) => {
     const src = script.src || 'inline script';
     const type = script.type || 'no type';
     console.log(`Script: ${src} (type: ${type})`);
+    loadedScripts.push(src);
+    
+    // Vérifier la présence du script GPT Engineer
+    if (src.includes('gptengineer.js')) {
+      console.log('✅ Script Lovable (GPT Engineer) trouvé');
+    }
     
     // Vérifier les scripts critiques
     if (src.includes('main.tsx') || src.includes('main.js')) {
@@ -77,6 +118,17 @@ window.addEventListener('DOMContentLoaded', () => {
       document.head.appendChild(testScript);
     }
   });
+
+  // Vérifier si le script Lovable est manquant
+  if (!loadedScripts.some(src => src.includes('gptengineer.js'))) {
+    console.error('❌ Script Lovable (GPT Engineer) manquant!');
+    showVisibleError(`
+      <h3>Script Lovable manquant</h3>
+      <p>Le script GPT Engineer n'a pas été chargé. Les fonctionnalités Lovable ne seront pas disponibles.</p>
+      <p>Assurez-vous que la balise suivante est présente dans votre index.html :</p>
+      <pre>&lt;script src="https://cdn.gpteng.co/gptengineer.js" type="module"&gt;&lt;/script&gt;</pre>
+    `);
+  }
 });
 
 // Gestionnaire global des erreurs
@@ -105,6 +157,11 @@ window.onerror = function(message, source, lineno, colno, error) {
     </button>
   `);
   
+  // Journaliser l'erreur dans la console dans un format facilement lisible
+  try {
+    console.log("Erreur complète:", JSON.stringify({ message, source, lineno, colno, errorObj: error }, null, 2));
+  } catch {}
+  
   return false;
 };
 
@@ -119,5 +176,30 @@ window.addEventListener('unhandledrejection', function(event) {
     </button>
   `);
 });
+
+// Ajouter une fonction d'aide pour vérifier si un module est chargé
+window.checkModuleLoaded = function(moduleName) {
+  try {
+    if (window[moduleName]) {
+      console.log(`✅ Module ${moduleName} est chargé`);
+      return true;
+    } else {
+      console.warn(`⚠️ Module ${moduleName} n'est pas chargé`);
+      return false;
+    }
+  } catch (e) {
+    console.error(`❌ Erreur lors de la vérification du module ${moduleName}:`, e);
+    return false;
+  }
+};
+
+// Vérifier l'environnement React
+setTimeout(() => {
+  if (window.React) {
+    console.log('✅ React est chargé, version:', window.React.version);
+  } else {
+    console.warn('⚠️ React n\'est pas détecté dans window');
+  }
+}, 2000);
 
 console.log('🏁 Debug script fully initialized');

@@ -4,6 +4,11 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Journalisation personnalisée
+function logError($message) {
+  error_log("[LOVABLE ERROR] " . $message);
+}
+
 // Désactiver le cache pour le débogage
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
@@ -19,8 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Pour les fichiers statiques, les servir directement
+// Journaliser l'URL demandée
 $request_uri = $_SERVER['REQUEST_URI'];
+logError("Requested URI: " . $request_uri);
+
+// Pour les fichiers statiques, les servir directement
 $extension = pathinfo($request_uri, PATHINFO_EXTENSION);
 
 // Liste des extensions de fichiers statiques à servir directement
@@ -28,6 +36,8 @@ $static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'sv
 
 if (in_array($extension, $static_extensions)) {
     $file_path = '.' . $request_uri;
+    logError("Trying to serve static file: " . $file_path);
+    
     if (file_exists($file_path)) {
         // Définir le type MIME approprié
         switch ($extension) {
@@ -39,7 +49,7 @@ if (in_array($extension, $static_extensions)) {
                 break;
             case 'ts':
             case 'tsx':
-                header('Content-Type: text/javascript');
+                header('Content-Type: application/javascript');
                 break;
             case 'json':
                 header('Content-Type: application/json');
@@ -68,6 +78,8 @@ if (in_array($extension, $static_extensions)) {
         // Lire et envoyer le contenu du fichier
         readfile($file_path);
         exit;
+    } else {
+        logError("File not found: " . $file_path);
     }
 }
 
@@ -77,9 +89,18 @@ if ($request_uri == '/debug.js' || $request_uri == '/src/debug.js') {
         header('Content-Type: text/javascript');
         readfile('./debug.js');
         exit;
+    } else {
+        logError("Debug script not found: ./debug.js");
     }
 }
 
 // Pour toutes les autres requêtes, servir index.html (Application SPA)
-include_once('./index.html');
+$html_file = './index.html';
+if (file_exists($html_file)) {
+    logError("Serving SPA index.html");
+    include_once($html_file);
+} else {
+    logError("Main index file not found: " . $html_file);
+    echo "<!DOCTYPE html><html><head><title>Error</title></head><body><h1>Error: Main index file not found</h1></body></html>";
+}
 ?>

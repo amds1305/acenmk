@@ -4,16 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site en maintenance</title>
+  <title>AceNumérik - Page de secours</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       line-height: 1.6;
       color: #333;
-      max-width: 650px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 40px 20px;
-      text-align: center;
     }
     h1 {
       font-size: 2.5rem;
@@ -53,14 +52,34 @@
       font-family: monospace;
       white-space: pre-wrap;
     }
+    .status-checker {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f3f4f6;
+      border-radius: 6px;
+    }
+    .status-good {
+      color: #10b981;
+      font-weight: bold;
+    }
+    .status-bad {
+      color: #ef4444;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Site en maintenance</h1>
-    <p>Nous effectuons actuellement des mises à jour pour améliorer votre expérience.</p>
-    <p>Merci de revenir dans quelques instants.</p>
-    <a href="/" class="btn" id="retry-btn">Réessayer</a>
+    <h1>AceNumérik - Page de secours</h1>
+    <p>Le site principal a rencontré un problème technique et nous travaillons à sa résolution.</p>
+    <p>Veuillez nous excuser pour ce désagrément temporaire.</p>
+    <a href="/" class="btn" id="retry-btn">Retourner au site principal</a>
+  </div>
+
+  <div class="status-checker">
+    <h3>Vérification de l'état du site</h3>
+    <div id="status-results">Vérification en cours...</div>
+    <p>Cette page vérifie automatiquement si le site principal est disponible.</p>
   </div>
 
   <div id="error-container" style="display: none;">
@@ -71,25 +90,46 @@
   </div>
 
   <script>
-    // Simple script to attempt reload
-    document.getElementById('retry-btn').addEventListener('click', function(e) {
-      e.preventDefault();
-      window.location.reload(true);
-    });
-
-    // Detect if we came here from an error and show technical details
-    if (window.location.search.includes('error=')) {
-      const errorParam = new URLSearchParams(window.location.search).get('error');
-      if (errorParam) {
-        try {
-          const errorDetails = decodeURIComponent(errorParam);
-          document.getElementById('error-details').textContent = errorDetails;
-          document.getElementById('error-container').style.display = 'block';
-        } catch (e) {
-          console.error('Could not decode error details', e);
+    // Détecter si on vient d'une erreur et montrer les détails techniques
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.location.search.includes('error=')) {
+        const errorParam = new URLSearchParams(window.location.search).get('error');
+        if (errorParam) {
+          try {
+            const errorDetails = decodeURIComponent(errorParam);
+            document.getElementById('error-details').textContent = errorDetails;
+            document.getElementById('error-container').style.display = 'block';
+          } catch (e) {
+            console.error('Could not decode error details', e);
+          }
         }
       }
+      
+      // Vérifier périodiquement si le site principal est disponible
+      checkMainSite();
+      setInterval(checkMainSite, 10000); // Vérifier toutes les 10 secondes
+    });
+    
+    function checkMainSite() {
+      const statusDiv = document.getElementById('status-results');
+      fetch('/', { method: 'HEAD', cache: 'no-store' })
+        .then(response => {
+          if (response.ok) {
+            statusDiv.innerHTML = '<span class="status-good">✓ Le site principal semble fonctionner. </span> <a href="/">Cliquez ici pour y accéder</a>.';
+          } else {
+            statusDiv.innerHTML = '<span class="status-bad">✗ Le site principal rencontre toujours des problèmes.</span> Nous travaillons à sa résolution.';
+          }
+        })
+        .catch(() => {
+          statusDiv.innerHTML = '<span class="status-bad">✗ Le site principal est actuellement indisponible.</span> Réessayez plus tard.';
+        });
     }
+
+    // Simple script pour tenter un rechargement
+    document.getElementById('retry-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = '/?forceReload=' + Date.now();
+    });
   </script>
 </body>
 </html>
