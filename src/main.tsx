@@ -4,17 +4,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-console.log("Initialisation de React en cours...");
+console.log("Démarrage de l'application React...");
 
-// Fonction pour rendre l'application
-function renderApp() {
-  const rootElement = document.getElementById('root');
-  
-  if (!rootElement) {
-    console.error("Élément racine #root non trouvé!");
-    return;
-  }
-  
+// Fonction simplifiée pour le rendu
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  console.error("Élément racine #root non trouvé!");
+} else {
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
@@ -22,7 +19,7 @@ function renderApp() {
         <App />
       </React.StrictMode>
     );
-    console.log("Application React rendue avec succès!");
+    console.log("Rendu React réussi!");
     
     // Supprimer le message de chargement s'il existe
     const loadingMessage = document.getElementById('loading-message');
@@ -30,9 +27,9 @@ function renderApp() {
       loadingMessage.remove();
     }
   } catch (error) {
-    console.error("Erreur lors du rendu de React:", error);
+    console.error("Erreur de rendu React:", error);
     
-    // Afficher un message d'erreur visible
+    // Afficher l'erreur de façon visible
     const errorElement = document.createElement('div');
     errorElement.style.padding = '20px';
     errorElement.style.backgroundColor = '#ffdddd';
@@ -46,12 +43,4 @@ function renderApp() {
     
     rootElement.appendChild(errorElement);
   }
-}
-
-// S'assurer que le DOM est complètement chargé
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderApp);
-} else {
-  // Le DOM est déjà chargé, on peut rendre l'application
-  setTimeout(renderApp, 0);
 }

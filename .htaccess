@@ -35,9 +35,12 @@
   </FilesMatch>
 </IfModule>
 
-# Cache temporairement désactivé pour le développement
+# Configuration du cache
 <IfModule mod_headers.c>
-  Header set Cache-Control "no-cache, max-age=0"
+  # Désactiver le cache pour le développement
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
   
   # Sécurité et CORS
   Header set Access-Control-Allow-Origin "*"
