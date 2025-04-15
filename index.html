@@ -24,5 +24,14 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <!-- Scripts de l'application -->
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Fallback en cas d'erreur -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (document.getElementById('root').childElementCount === 0) {
+          console.error('Application not loaded, redirecting to fallback page');
+          window.location.href = '/fallback.html?error=' + encodeURIComponent(e.message);
+        }
+      }, true);
+    </script>
   </body>
 </html>

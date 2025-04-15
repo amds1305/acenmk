@@ -6,18 +6,14 @@ error_reporting(E_ALL);
 
 // Journalisation personnalisée
 function logError($message) {
-  error_log("[LOVABLE ERROR] " . $message);
+  error_log("[ACENUMERIK ERROR] " . $message);
 }
 
 // Désactiver le cache pour le débogage
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Expires: 0");
-
-// Gérer les erreurs CORS
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header("Cache-Control: no-cache, max-age=0");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Répondre directement aux requêtes OPTIONS (requêtes préliminaires CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -46,8 +42,6 @@ if (in_array($extension, $static_extensions)) {
                 break;
             case 'js':
             case 'mjs':
-                header('Content-Type: application/javascript');
-                break;
             case 'ts':
             case 'tsx':
                 header('Content-Type: application/javascript');
@@ -81,6 +75,8 @@ if (in_array($extension, $static_extensions)) {
         exit;
     } else {
         logError("File not found: " . $file_path);
+        header("HTTP/1.0 404 Not Found");
+        exit("File not found");
     }
 }
 
@@ -99,9 +95,11 @@ if ($request_uri == '/debug.js' || $request_uri == '/src/debug.js') {
 $html_file = './index.html';
 if (file_exists($html_file)) {
     logError("Serving SPA index.html");
+    header('Content-Type: text/html; charset=UTF-8');
     include_once($html_file);
 } else {
     logError("Main index file not found: " . $html_file);
+    header("HTTP/1.0 404 Not Found");
     echo "<!DOCTYPE html><html><head><title>Error</title></head><body><h1>Error: Main index file not found</h1></body></html>";
 }
 ?>

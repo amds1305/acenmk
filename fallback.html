@@ -66,6 +66,16 @@
       color: #ef4444;
       font-weight: bold;
     }
+    .technical-info {
+      margin-top: 2rem;
+    }
+    .mime-types {
+      font-family: monospace;
+      white-space: pre-wrap;
+      background-color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +84,36 @@
     <p>Le site principal a rencontré un problème technique et nous travaillons à sa résolution.</p>
     <p>Veuillez nous excuser pour ce désagrément temporaire.</p>
     <a href="/" class="btn" id="retry-btn">Retourner au site principal</a>
+  </div>
+
+  <div class="technical-info">
+    <h2>Information technique</h2>
+    <p>Le site rencontre probablement un problème avec la configuration des types MIME sur le serveur.</p>
+    
+    <h3>Configuration requise des types MIME</h3>
+    <div class="mime-types">
+.js    application/javascript
+.mjs   application/javascript
+.ts    application/javascript
+.tsx   application/javascript
+.css   text/css
+.html  text/html
+.json  application/json
+    </div>
+    
+    <p>Assurez-vous que votre serveur est configuré pour envoyer les types MIME corrects pour ces fichiers.</p>
+    
+    <h3>Vérifier la configuration</h3>
+    <p>Pour Apache:</p>
+    <ol>
+      <li>Vérifiez que le module mime est activé: <code>a2enmod mime</code></li>
+      <li>Configurez les types MIME dans .htaccess ou dans la configuration du serveur</li>
+    </ol>
+    
+    <p>Pour Nginx:</p>
+    <ol>
+      <li>Ajoutez les types MIME dans la section mime.types de votre configuration</li>
+    </ol>
   </div>
 
   <div class="status-checker">
@@ -108,6 +148,9 @@
       // Vérifier périodiquement si le site principal est disponible
       checkMainSite();
       setInterval(checkMainSite, 10000); // Vérifier toutes les 10 secondes
+      
+      // Vérifier les types MIME
+      checkMimeTypes();
     });
     
     function checkMainSite() {
@@ -123,6 +166,29 @@
         .catch(() => {
           statusDiv.innerHTML = '<span class="status-bad">✗ Le site principal est actuellement indisponible.</span> Réessayez plus tard.';
         });
+    }
+    
+    function checkMimeTypes() {
+      const testFiles = [
+        { path: '/debug.js', expectedType: 'application/javascript' },
+        { path: '/src/main.tsx', expectedType: 'application/javascript' }
+      ];
+      
+      testFiles.forEach(file => {
+        fetch(file.path, { method: 'HEAD', cache: 'no-store' })
+          .then(response => {
+            const contentType = response.headers.get('content-type');
+            console.log(`${file.path} Content-Type: ${contentType}`);
+            if (!contentType?.includes(file.expectedType)) {
+              const errorDetails = document.getElementById('error-details');
+              errorDetails.textContent += `\nProblème de type MIME: ${file.path} est servi comme ${contentType} au lieu de ${file.expectedType}`;
+              document.getElementById('error-container').style.display = 'block';
+            }
+          })
+          .catch(err => {
+            console.error(`Erreur lors de la vérification du type MIME pour ${file.path}:`, err);
+          });
+      });
     }
 
     // Simple script pour tenter un rechargement

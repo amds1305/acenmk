@@ -11,34 +11,34 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Définir les types MIME corrects avant la régle de réécriture
-  <FilesMatch "\.(js|mjs)$">
-    ForceType application/javascript
-  </FilesMatch>
-  <FilesMatch "\.(ts|tsx)$">
-    ForceType application/javascript
+  # Servir directement les fichiers JavaScript et TypeScript avec le bon MIME type
+  <FilesMatch "\.(js|mjs|ts|tsx)$">
+    SetHandler application/javascript
   </FilesMatch>
   
   # Servir directement les ressources statiques
-  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp)$ - [L]
+  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp|mjs|ts|tsx)$ - [L]
   
   # Rediriger toutes les autres requêtes vers index.html pour le SPA
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
-# Types MIME pour les fichiers statiques - configuration explicite
+# Types MIME pour les fichiers statiques
 <IfModule mod_mime.c>
-  AddType application/javascript .js .mjs
-  AddType application/javascript .ts .tsx
-  AddType application/json .json
+  AddType application/javascript .js .mjs .ts .tsx
   AddType text/css .css
+  AddType application/json .json
+  AddType image/svg+xml .svg
+</IfModule>
+
+# Activer le module FastCGI si disponible
+<IfModule mod_fastcgi.c>
+  AddHandler fastcgi-script .fcgi
 </IfModule>
 
 # Désactiver le cache pendant le développement
 <IfModule mod_headers.c>
-  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-  Header set Pragma "no-cache"
-  Header set Expires "0"
+  Header set Cache-Control "no-cache, max-age=0"
   
   # Sécurité et CORS
   Header set Access-Control-Allow-Origin "*"
