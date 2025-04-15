@@ -60,16 +60,24 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // Vérifier les problèmes de cache
-  console.log('🔎 Vérification des en-têtes de cache...');
-  fetch(window.location.href, { method: 'HEAD' })
-    .then(response => {
-      const cacheControl = response.headers.get('Cache-Control');
-      console.log(`📑 En-tête Cache-Control: ${cacheControl || 'non défini'}`);
-    })
-    .catch(err => {
-      console.error('❌ Erreur lors de la vérification des en-têtes:', err);
-    });
+  // Créer une page de secours basique si l'application ne se charge pas
+  setTimeout(() => {
+    if (rootElement && rootElement.children.length === 0) {
+      showVisibleError(`
+        <h2>Problème de chargement de l'application</h2>
+        <p>L'application n'a pas pu se charger correctement. Voici quelques informations utiles:</p>
+        <ul>
+          <li>Navigateur: ${navigator.userAgent}</li>
+          <li>URL: ${window.location.href}</li>
+          <li>Date/heure: ${new Date().toLocaleString()}</li>
+        </ul>
+        <p>Essayez de vider le cache de votre navigateur et de recharger la page.</p>
+        <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Recharger la page
+        </button>
+      `);
+    }
+  }, 5000);
 });
 
 // Gestionnaire global des erreurs

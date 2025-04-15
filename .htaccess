@@ -1,57 +1,52 @@
 
+# Activer le moteur de réécriture
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
   
-  # Servir directement les ressources existantes
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
-  RewriteRule ^ - [L]
+  # Éviter les boucles de redirection
+  RewriteCond %{REQUEST_URI} !^/index\.php
   
-  # Gérer les assets spécifiques de Vite/React
-  RewriteRule ^(assets)/(.*) /assets/$2 [L]
+  # Ne pas rediriger les demandes de fichiers ou répertoires réels
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Gérer le fichier de débogage
-  RewriteRule ^debug\.js$ /debug.js [L]
+  # Gérer les requêtes API (à adapter selon vos chemins d'API)
+  RewriteRule ^api/(.*)$ api/$1 [QSA,L]
   
-  # Rediriger toutes les autres requêtes vers index.php pour le routage React
-  RewriteRule ^ index.php [QSA,L]
+  # Servir directement les ressources statiques
+  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp)$ - [L]
+  
+  # Rediriger toutes les autres requêtes vers index.html pour le SPA
+  RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
-# Désactiver le cache pour le développement
-<IfModule mod_headers.c>
-  # Headers CORS
-  Header set Access-Control-Allow-Origin "*"
-  Header set Access-Control-Allow-Methods "GET,POST,PUT,DELETE,OPTIONS"
-  Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-  
-  # Headers de sécurité recommandés
-  Header set X-Content-Type-Options "nosniff"
-  
-  # Désactiver complètement le cache pour le dépannage
-  <FilesMatch ".(html|htm|js|jsx|ts|tsx|css|json)$">
-    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-  </FilesMatch>
-  
-  # Types MIME spécifiques pour TypeScript
-  <FilesMatch "\.ts$">
-    ForceType text/javascript
-    Header set Content-Type "text/javascript; charset=UTF-8"
-  </FilesMatch>
-  
-  <FilesMatch "\.tsx$">
-    ForceType text/javascript
-    Header set Content-Type "text/javascript; charset=UTF-8"
-  </FilesMatch>
-</IfModule>
-
-# Fix pour les types MIME - IMPORTANT: servir TS/TSX comme JavaScript
+# Types MIME pour les fichiers statiques
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
-  AddType text/javascript .ts
-  AddType text/javascript .tsx
+  AddType application/json .json
   AddType text/css .css
 </IfModule>
+
+# Désactiver le cache pendant le développement
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
+  
+  # Sécurité et CORS
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+  Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Empêcher l'affichage des répertoires
+Options -Indexes
+
+# Protection des fichiers sensibles
+<FilesMatch "(\.env|\.gitignore|composer\.json|package\.json)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
