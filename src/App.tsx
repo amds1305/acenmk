@@ -26,6 +26,8 @@ const Careers = lazy(() => import('@/pages/Careers'));
 const AdminLogin = lazy(() => import('@/pages/AdminLogin'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const AceJob = lazy(() => import('@/pages/AceJob'));
+// Nouvelle page de migration MySQL/Supabase
+const AdminSupabaseMigration = lazy(() => import('@/pages/AdminSupabaseMigration'));
 
 // Composant de chargement pour Suspense
 const LoadingFallback = () => (
@@ -58,6 +60,7 @@ function App() {
                   <Route path="/careers" element={<Careers />} />
                   <Route path="/ace-job" element={<AceJob />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/admin/mysql-migration" element={<AdminSupabaseMigration />} />
                   <Route path="/admin/*" element={<Admin />} />
                 </Routes>
               </Suspense>
