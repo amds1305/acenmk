@@ -32,20 +32,21 @@ logError("Requested URI: " . $request_uri);
 $extension = pathinfo($request_uri, PATHINFO_EXTENSION);
 
 // Liste des extensions de fichiers statiques à servir directement
-$static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json'];
+$static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json', 'mjs'];
 
 if (in_array($extension, $static_extensions)) {
     $file_path = '.' . $request_uri;
     logError("Trying to serve static file: " . $file_path);
     
     if (file_exists($file_path)) {
-        // Définir le type MIME approprié
+        // Définir le type MIME approprié de manière explicite
         switch ($extension) {
             case 'css':
                 header('Content-Type: text/css');
                 break;
             case 'js':
-                header('Content-Type: text/javascript');
+            case 'mjs':
+                header('Content-Type: application/javascript');
                 break;
             case 'ts':
             case 'tsx':
@@ -86,7 +87,7 @@ if (in_array($extension, $static_extensions)) {
 // Pour le fichier debug.js spécifique
 if ($request_uri == '/debug.js' || $request_uri == '/src/debug.js') {
     if (file_exists('./debug.js')) {
-        header('Content-Type: text/javascript');
+        header('Content-Type: application/javascript');
         readfile('./debug.js');
         exit;
     } else {

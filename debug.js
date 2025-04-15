@@ -50,30 +50,52 @@ window.addEventListener('DOMContentLoaded', () => {
           <h2>Application non rendue</h2>
           <p>L'application ne s'est pas chargée correctement. Vérifiez la console du navigateur pour plus de détails.</p>
           <p>Vérification des erreurs en cours...</p>
+          <hr/>
+          <h3>Problèmes courants:</h3>
+          <ul>
+            <li>Types MIME incorrects (votre serveur envoie les fichiers .js/.ts comme "text/html")</li>
+            <li>Script principal non chargé correctement</li>
+            <li>Erreur de syntaxe JavaScript</li>
+          </ul>
+          <p>Essayez de rafraîchir votre cache ou d'accéder à la page de secours.</p>
           <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Recharger la page
+            Recharger la page (forcer)
           </button>
           <button onclick="window.location.href='/fallback.html'" style="margin-left: 10px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
             Page de secours
           </button>
         `);
 
-        // Tenter d'afficher le statut du chargement des modules
+        // Tenter de diagnostiquer les problèmes MIME
         try {
+          // Test manuel de chargement de script
+          const scriptTest = document.createElement('script');
+          scriptTest.type = 'text/javascript';
+          scriptTest.text = 'console.log("✅ Test de script JavaScript direct réussi");';
+          document.head.appendChild(scriptTest);
+          
+          // Test de chargement de module
           fetch('/src/main.tsx')
-            .then(response => response.text())
+            .then(response => {
+              console.log("Headers de réponse pour main.tsx:", response.headers);
+              console.log("Type MIME reçu:", response.headers.get('content-type'));
+              return response.text();
+            })
             .then(text => {
-              console.log("✓ Contenu de main.tsx récupéré, analyse en cours...");
-              if (text.includes("SyntaxError") || text.includes("Error")) {
-                showVisibleError("Possible erreur de syntaxe dans main.tsx: " + text);
+              console.log("✓ Contenu récupéré, vérification en cours...");
+              if (text.includes("<!DOCTYPE html>")) {
+                showVisibleError(`
+                  <h3>Problème de MIME Type détecté</h3>
+                  <p>Le serveur renvoie du HTML au lieu de JavaScript pour les fichiers .tsx/.js</p>
+                  <p>Vérifiez la configuration de votre serveur (.htaccess, mime.types)</p>
+                `);
               }
             })
             .catch(err => {
               console.error("❌ Impossible de charger main.tsx:", err);
-              showVisibleError("Impossible de charger main.tsx: " + err.message);
             });
         } catch (err) {
-          console.error("❌ Erreur lors de la vérification des modules:", err);
+          console.error("❌ Erreur pendant les tests:", err);
         }
       }
     }, 2000);
@@ -81,10 +103,9 @@ window.addEventListener('DOMContentLoaded', () => {
   
   // Vérification du localStorage
   try {
-    const testKey = 'debug-test';
-    localStorage.setItem(testKey, 'test');
-    const testValue = localStorage.getItem(testKey);
-    localStorage.removeItem(testKey);
+    localStorage.setItem('debug-test', 'test');
+    localStorage.getItem('debug-test');
+    localStorage.removeItem('debug-test');
     console.log('✅ localStorage fonctionne correctement');
   } catch (error) {
     console.error('❌ Erreur avec localStorage:', error);
@@ -95,41 +116,33 @@ window.addEventListener('DOMContentLoaded', () => {
   console.log(`✅ ${scripts.length} scripts sont chargés`);
   
   // On affiche les détails des scripts
-  const loadedScripts = [];
-  scripts.forEach((script, index) => {
+  scripts.forEach((script) => {
     const src = script.src || 'inline script';
     const type = script.type || 'no type';
     console.log(`Script: ${src} (type: ${type})`);
-    loadedScripts.push(src);
     
     // Vérifier la présence du script GPT Engineer
     if (src.includes('gptengineer.js')) {
       console.log('✅ Script Lovable (GPT Engineer) trouvé');
     }
-    
-    // Vérifier les scripts critiques
-    if (src.includes('main.tsx') || src.includes('main.js')) {
-      console.log(`✓ Script principal trouvé: ${src}`);
-      
-      // Tester le chargement du script
-      const testScript = document.createElement('script');
-      testScript.type = 'text/javascript';
-      testScript.text = 'console.log("✅ Test de script JavaScript réussi");';
-      document.head.appendChild(testScript);
-    }
   });
+});
 
-  // Vérifier si le script Lovable est manquant
-  if (!loadedScripts.some(src => src.includes('gptengineer.js'))) {
-    console.error('❌ Script Lovable (GPT Engineer) manquant!');
+// Gestionnaire d'erreurs pour problèmes de chargement de module
+document.addEventListener('error', function(e) {
+  const target = e.target;
+  if (target.tagName === 'SCRIPT' && target.type === 'module') {
+    console.error('📛 Erreur de chargement de module:', e);
     showVisibleError(`
-      <h3>Script Lovable manquant</h3>
-      <p>Le script GPT Engineer n'a pas été chargé. Les fonctionnalités Lovable ne seront pas disponibles.</p>
-      <p>Assurez-vous que la balise suivante est présente dans votre index.html :</p>
-      <pre>&lt;script src="https://cdn.gpteng.co/gptengineer.js" type="module"&gt;&lt;/script&gt;</pre>
+      <h3>Erreur de chargement de module</h3>
+      <p>Le script module "${target.src}" n'a pas pu être chargé.</p>
+      <p>Cause probable: Type MIME incorrect. Le serveur doit envoyer application/javascript, mais envoie probablement text/html.</p>
+      <button onclick="window.location.href='/fallback.html'" style="padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Page de secours
+      </button>
     `);
   }
-});
+}, true);
 
 // Gestionnaire global des erreurs
 window.onerror = function(message, source, lineno, colno, error) {
@@ -152,15 +165,7 @@ window.onerror = function(message, source, lineno, colno, error) {
     <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
       Recharger la page
     </button>
-    <button onclick="window.location.href='/fallback.html'" style="margin-left: 10px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
-      Page de secours
-    </button>
   `);
-  
-  // Journaliser l'erreur dans la console dans un format facilement lisible
-  try {
-    console.log("Erreur complète:", JSON.stringify({ message, source, lineno, colno, errorObj: error }, null, 2));
-  } catch {}
   
   return false;
 };
@@ -171,35 +176,7 @@ window.addEventListener('unhandledrejection', function(event) {
   showVisibleError(`
     <h3>Erreur asynchrone non gérée</h3>
     <p>${event.reason}</p>
-    <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
-      Recharger la page
-    </button>
   `);
 });
-
-// Ajouter une fonction d'aide pour vérifier si un module est chargé
-window.checkModuleLoaded = function(moduleName) {
-  try {
-    if (window[moduleName]) {
-      console.log(`✅ Module ${moduleName} est chargé`);
-      return true;
-    } else {
-      console.warn(`⚠️ Module ${moduleName} n'est pas chargé`);
-      return false;
-    }
-  } catch (e) {
-    console.error(`❌ Erreur lors de la vérification du module ${moduleName}:`, e);
-    return false;
-  }
-};
-
-// Vérifier l'environnement React
-setTimeout(() => {
-  if (window.React) {
-    console.log('✅ React est chargé, version:', window.React.version);
-  } else {
-    console.warn('⚠️ React n\'est pas détecté dans window');
-  }
-}, 2000);
 
 console.log('🏁 Debug script fully initialized');

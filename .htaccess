@@ -11,24 +11,25 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Servir directement les ressources statiques
-  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp)$ - [L]
-  
-  # Traiter les fichiers .tsx et .ts comme JavaScript
+  # Définir les types MIME corrects avant la régle de réécriture
+  <FilesMatch "\.(js|mjs)$">
+    ForceType application/javascript
+  </FilesMatch>
   <FilesMatch "\.(ts|tsx)$">
     ForceType application/javascript
   </FilesMatch>
+  
+  # Servir directement les ressources statiques
+  RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp)$ - [L]
   
   # Rediriger toutes les autres requêtes vers index.html pour le SPA
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
-# Types MIME pour les fichiers statiques
+# Types MIME pour les fichiers statiques - configuration explicite
 <IfModule mod_mime.c>
-  AddType text/javascript .js
-  AddType application/javascript .mjs
-  AddType application/javascript .ts
-  AddType application/javascript .tsx
+  AddType application/javascript .js .mjs
+  AddType application/javascript .ts .tsx
   AddType application/json .json
   AddType text/css .css
 </IfModule>
