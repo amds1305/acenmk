@@ -52,3 +52,11 @@ const renderApp = () => {
 
 // Exécuter le rendu immédiatement
 renderApp();
+
+// Ajouter un script de débogage pour OVH
+if (window.location.hostname.includes('ovh') || window.location.hostname.includes('localhost')) {
+  const debugScript = document.createElement('script');
+  debugScript.src = '/debug.js';
+  document.head.appendChild(debugScript);
+  console.log("Script de débogage OVH ajouté");
+}
