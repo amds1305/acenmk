@@ -5,7 +5,7 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lib/animations.css";
 
-// Console logs plus simples pour déboguer
+// Console logs pour débugger
 console.log("Application en cours de démarrage...");
 
 // Fonction d'initialisation simplifiée pour éviter les erreurs de syntaxe
