@@ -26,8 +26,8 @@ const renderApp = () => {
     
     // Supprimer le message de chargement s'il existe
     const loadingMessage = document.getElementById('loading-message');
-    if (loadingMessage) {
-      loadingMessage.remove();
+    if (loadingMessage && loadingMessage.parentNode) {
+      loadingMessage.parentNode.removeChild(loadingMessage);
     }
   } catch (error) {
     console.error("Erreur lors du rendu de React:", error);
