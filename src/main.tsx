@@ -5,24 +5,19 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lib/animations.css";
 
-// Journaliser au démarrage pour aider au débogage
+// Console logs plus simples pour déboguer
 console.log("Application en cours de démarrage...");
 
-// Fonction d'initialisation sécurisée
+// Fonction d'initialisation simplifiée pour éviter les erreurs de syntaxe
 function initApp() {
   try {
-    // Trouver l'élément racine où React va monter l'application
+    // Trouver l'élément racine
     const rootElement = document.getElementById("root");
     
-    // Journaliser l'état de l'élément racine
-    console.log("Élément racine trouvé:", rootElement ? "Oui" : "Non");
+    console.log("État de l'élément racine:", rootElement ? "Trouvé" : "Non trouvé");
     
-    // Seulement rendre si l'élément racine existe
     if (rootElement) {
-      // Créer une racine React
       const root = ReactDOM.createRoot(rootElement);
-      
-      // Rendre l'application
       root.render(
         <React.StrictMode>
           <App />
@@ -30,8 +25,8 @@ function initApp() {
       );
       console.log("Application rendue avec succès");
     } else {
-      console.error("Élément racine non trouvé!");
-      // Créer un élément d'erreur visible si l'élément racine n'existe pas
+      console.error("Élément racine #root non trouvé!");
+      // Afficher un message d'erreur visible
       const errorDiv = document.createElement('div');
       errorDiv.style.position = 'fixed';
       errorDiv.style.top = '0';
@@ -41,12 +36,12 @@ function initApp() {
       errorDiv.style.color = '#990000';
       errorDiv.style.padding = '20px';
       errorDiv.style.zIndex = '9999';
-      errorDiv.innerHTML = "Erreur critique : L'élément #root est manquant";
+      errorDiv.innerHTML = "Erreur: L'élément #root est manquant dans le document HTML";
       document.body.appendChild(errorDiv);
     }
   } catch (error) {
-    console.error("Erreur lors du rendu de l'application:", error);
-    // Afficher une erreur visible en cas d'échec
+    console.error("Erreur lors du rendu:", error);
+    // Afficher l'erreur à l'utilisateur
     const errorDiv = document.createElement('div');
     errorDiv.style.position = 'fixed';
     errorDiv.style.top = '0';
@@ -61,7 +56,7 @@ function initApp() {
   }
 }
 
-// Attendre que le DOM soit complètement chargé
+// Vérifier si le DOM est chargé
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
