@@ -14,6 +14,7 @@ function setCorrectMimeType($extension) {
   switch($extension) {
     case 'js':
     case 'mjs':
+    case 'jsx':
     case 'ts':
     case 'tsx':
       header('Content-Type: application/javascript; charset=UTF-8');
@@ -53,9 +54,7 @@ function setCorrectMimeType($extension) {
 }
 
 // Désactiver le cache pour le débogage
-header("Cache-Control: no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
+header("Cache-Control: no-store, max-age=0");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -73,10 +72,10 @@ logError("Requested URI: " . $request_uri);
 $extension = pathinfo($request_uri, PATHINFO_EXTENSION);
 
 // Liste des extensions de fichiers statiques à servir directement
-$static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json', 'mjs'];
+$static_extensions = ['css', 'js', 'jsx', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json', 'mjs'];
 
 if (in_array($extension, $static_extensions)) {
-    $file_path = '.' . $request_uri;
+    $file_path = '.' . parse_url($request_uri, PHP_URL_PATH);
     logError("Trying to serve static file: " . $file_path . " of type " . $extension);
     
     if (file_exists($file_path)) {
@@ -124,7 +123,7 @@ $html_file = './index.html';
 if (file_exists($html_file)) {
     logError("Serving SPA index.html");
     header('Content-Type: text/html; charset=UTF-8');
-    readfile($html_file); // Utiliser readfile plutôt que include pour éviter l'exécution de code PHP
+    readfile($html_file);
 } else {
     logError("Main index file not found: " . $html_file);
     header("HTTP/1.0 404 Not Found");
