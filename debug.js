@@ -30,9 +30,21 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('✅ Élément #root trouvé');
     
     // Vérifier si l'élément est vide
-    if (rootElement.children.length === 0) {
-      console.warn('⚠️ L\'élément #root est vide, l\'application n\'a peut-être pas été rendue');
-    }
+    setTimeout(() => {
+      if (rootElement.children.length === 0) {
+        console.warn('⚠️ L\'élément #root est toujours vide après 2 secondes, l\'application n\'a peut-être pas été rendue');
+        showVisibleError(`
+          <h2>Application non rendue</h2>
+          <p>L'application ne s'est pas chargée correctement. Vérifiez la console du navigateur pour plus de détails.</p>
+          <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Recharger la page
+          </button>
+          <button onclick="window.location.href='/fallback.html'" style="margin-left: 10px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Page de secours
+          </button>
+        `);
+      }
+    }, 2000);
   }
   
   // Vérification du localStorage
@@ -48,47 +60,64 @@ window.addEventListener('DOMContentLoaded', () => {
   
   // Vérification des scripts chargés
   const scripts = document.querySelectorAll('script');
-  console.log(`📜 ${scripts.length} scripts sont chargés`);
+  console.log(`✅ ${scripts.length} scripts sont chargés`);
   scripts.forEach((script, index) => {
     const src = script.src || 'inline script';
     const type = script.type || 'no type';
-    console.log(`Script ${index + 1}: ${src} (type: ${type})`);
+    console.log(`Script: ${src} (type: ${type})`);
     
     // Vérifier les scripts critiques
     if (src.includes('main.tsx') || src.includes('main.js')) {
       console.log(`✓ Script principal trouvé: ${src}`);
+      
+      // Tester le chargement du script
+      const testScript = document.createElement('script');
+      testScript.type = 'text/javascript';
+      testScript.text = 'console.log("✅ Test de script JavaScript réussi");';
+      document.head.appendChild(testScript);
     }
   });
-  
-  // Créer une page de secours basique si l'application ne se charge pas
-  setTimeout(() => {
-    if (rootElement && rootElement.children.length === 0) {
-      showVisibleError(`
-        <h2>Problème de chargement de l'application</h2>
-        <p>L'application n'a pas pu se charger correctement. Voici quelques informations utiles:</p>
-        <ul>
-          <li>Navigateur: ${navigator.userAgent}</li>
-          <li>URL: ${window.location.href}</li>
-          <li>Date/heure: ${new Date().toLocaleString()}</li>
-        </ul>
-        <p>Essayez de vider le cache de votre navigateur et de recharger la page.</p>
-        <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          Recharger la page
-        </button>
-      `);
-    }
-  }, 5000);
 });
 
 // Gestionnaire global des erreurs
 window.onerror = function(message, source, lineno, colno, error) {
-  showVisibleError(`🚨 Erreur JavaScript: ${message}<br>Source: ${source}<br>Ligne: ${lineno}, Colonne: ${colno}`);
+  console.error('🚨 Erreur globale détectée:', { message, source, lineno, colno, error });
+  
+  // Message d'erreur plus détaillé
+  showVisibleError(`
+    <h3>Erreur JavaScript détectée</h3>
+    <p><strong>Message:</strong> ${message}</p>
+    <p><strong>Source:</strong> ${source}</p>
+    <p><strong>Ligne:</strong> ${lineno}, <strong>Colonne:</strong> ${colno}</p>
+    <p><strong>Détails:</strong> ${error ? error.stack || error.message : 'Non disponible'}</p>
+    <hr/>
+    <p>Pour résoudre ce problème:</p>
+    <ul>
+      <li>Vérifiez la syntaxe du code source indiqué</li>
+      <li>Assurez-vous que les types MIME des fichiers sont correctement définis</li>
+      <li>Essayez de vider le cache du navigateur</li>
+    </ul>
+    <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Recharger la page
+    </button>
+    <button onclick="window.location.href='/fallback.html'" style="margin-left: 10px; padding: 8px 16px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Page de secours
+    </button>
+  `);
+  
   return false;
 };
 
 // Surveiller les erreurs de récupération
 window.addEventListener('unhandledrejection', function(event) {
-  showVisibleError(`🚨 Promise rejetée non gérée: ${event.reason}`);
+  console.error('🚨 Promise rejetée non gérée:', event.reason);
+  showVisibleError(`
+    <h3>Erreur asynchrone non gérée</h3>
+    <p>${event.reason}</p>
+    <button onclick="window.location.reload(true)" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Recharger la page
+    </button>
+  `);
 });
 
 console.log('🏁 Debug script fully initialized');

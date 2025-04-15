@@ -11,11 +11,13 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Gérer les requêtes API (à adapter selon vos chemins d'API)
-  RewriteRule ^api/(.*)$ api/$1 [QSA,L]
-  
   # Servir directement les ressources statiques
   RewriteRule \.(css|js|jpg|jpeg|png|gif|ico|svg|webp)$ - [L]
+  
+  # Traiter les fichiers .tsx et .ts comme JavaScript
+  <FilesMatch "\.(ts|tsx)$">
+    ForceType application/javascript
+  </FilesMatch>
   
   # Rediriger toutes les autres requêtes vers index.html pour le SPA
   RewriteRule ^(.*)$ index.html [L]
@@ -25,6 +27,8 @@
 <IfModule mod_mime.c>
   AddType text/javascript .js
   AddType text/javascript .mjs
+  AddType text/javascript .ts
+  AddType text/javascript .tsx
   AddType application/json .json
   AddType text/css .css
 </IfModule>

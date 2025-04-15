@@ -8,7 +8,7 @@ import "./lib/animations.css";
 // Console logs pour débugger
 console.log("Application en cours de démarrage...");
 
-// Fonction d'initialisation simplifiée pour éviter les erreurs de syntaxe
+// Fonction d'initialisation simplifiée
 function initApp() {
   try {
     // Trouver l'élément racine
@@ -51,7 +51,7 @@ function initApp() {
     errorDiv.style.color = "#990000";
     errorDiv.style.padding = "20px";
     errorDiv.style.zIndex = "9999";
-    errorDiv.innerHTML = "Erreur lors du rendu: " + String(error);
+    errorDiv.innerHTML = "Erreur lors du rendu: " + (error instanceof Error ? error.message : String(error));
     document.body.appendChild(errorDiv);
   }
 }

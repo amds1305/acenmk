@@ -24,7 +24,7 @@ $request_uri = $_SERVER['REQUEST_URI'];
 $extension = pathinfo($request_uri, PATHINFO_EXTENSION);
 
 // Liste des extensions de fichiers statiques à servir directement
-$static_extensions = ['css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json'];
+$static_extensions = ['css', 'js', 'ts', 'tsx', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico', 'webp', 'json'];
 
 if (in_array($extension, $static_extensions)) {
     $file_path = '.' . $request_uri;
@@ -35,6 +35,10 @@ if (in_array($extension, $static_extensions)) {
                 header('Content-Type: text/css');
                 break;
             case 'js':
+                header('Content-Type: text/javascript');
+                break;
+            case 'ts':
+            case 'tsx':
                 header('Content-Type: text/javascript');
                 break;
             case 'json':
