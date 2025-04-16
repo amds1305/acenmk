@@ -21,9 +21,6 @@
 # Définir le type MIME pour les fichiers PHP
 AddType application/x-httpd-php .php
 
-# Forcer le traitement PHP pour le répertoire api
-<Directory "api">
-    Options +ExecCGI
-    AddHandler php-script .php
-    DirectoryIndex index.php
-</Directory>
+# Activer l'exécution des scripts PHP dans tous les dossiers
+Options +ExecCGI
+AddHandler php-script .php

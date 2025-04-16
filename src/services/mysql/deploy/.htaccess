@@ -27,8 +27,3 @@
 
 # Assurez-vous que PHP est activé et correctement configuré
 AddType application/x-httpd-php .php
-
-# Forcer l'affichage des erreurs PHP (alternative à php_flag)
-<IfModule mod_env.c>
-    SetEnv DISPLAY_ERRORS 1
-</IfModule>
