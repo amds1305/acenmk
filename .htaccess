@@ -11,8 +11,22 @@
   # Rediriger les requêtes d'API vers le dossier api/
   RewriteRule ^api/(.*)$ api/$1 [L,QSA]
   
-  # Rediriger les autres requêtes vers index.html pour le traitement de l'application principale
+  # Rediriger les autres requêtes vers index.html pour le traitement SPA
   RewriteRule ^(.*)$ index.html [L,QSA]
+</IfModule>
+
+# Définir les types MIME pour améliorer la compatibilité
+<IfModule mod_mime.c>
+  # Types JavaScript
+  AddType application/javascript .js
+  AddType application/javascript .mjs
+  AddType application/javascript .jsx
+  AddType application/javascript .ts
+  AddType application/javascript .tsx
+  
+  # Types CSS et images
+  AddType text/css .css
+  AddType image/svg+xml .svg
 </IfModule>
 
 # Forcer l'interprétation des fichiers PHP
