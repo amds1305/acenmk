@@ -5,7 +5,7 @@
  * Modifiez ces valeurs selon vos informations de connexion MySQL OVH
  */
 
-// Activer l'affichage des erreurs pour le débogage
+// Activer l'affichage des erreurs pour le débogage (dans le script directement)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
