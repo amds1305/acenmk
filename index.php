@@ -7,7 +7,14 @@ error_reporting(E_ALL);
 // Journalisation personnalisée
 function logError($message) {
   error_log("[ACENUMERIK ERROR] " . $message);
+  file_put_contents('debug.log', date('[Y-m-d H:i:s] ') . $message . "\n", FILE_APPEND);
 }
+
+// Vérifier si nous sommes dans un contexte PHP
+logError("PHP est activé et exécuté");
+
+// Force le type MIME pour PHP
+header('Content-Type: text/html; charset=UTF-8');
 
 // Force les types MIME corrects pour les extensions clés
 function setCorrectMimeType($extension) {
