@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -14,7 +15,7 @@ import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/supabase/sectionsService';
 import { toast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 
