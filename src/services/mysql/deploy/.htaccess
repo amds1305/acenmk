@@ -1,12 +1,10 @@
 
-# Configuration pour PHP
-<IfModule mod_php.c>
-    # Ces directives ne fonctionnent qu'en mode PHP module Apache
-    php_flag display_errors on
-    php_value error_reporting E_ALL
-</IfModule>
+# Force l'interprétation des fichiers PHP
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
 
-# Alternative pour PHP en mode FastCGI/PHP-FPM
+# Configuration d'affichage des erreurs via php.ini
 <IfModule mod_headers.c>
     # Forcer l'encodage UTF-8
     AddDefaultCharset UTF-8
@@ -22,12 +20,15 @@
     Header set Expires "0"
 </IfModule>
 
-# Permettre l'exécution des scripts PHP
-<FilesMatch "\.(php)$">
-    SetHandler application/x-httpd-php
-</FilesMatch>
-
 # Activer le module de réécriture
 <IfModule mod_rewrite.c>
     RewriteEngine On
+</IfModule>
+
+# Assurez-vous que PHP est activé et correctement configuré
+AddType application/x-httpd-php .php
+
+# Forcer l'affichage des erreurs PHP (alternative à php_flag)
+<IfModule mod_env.c>
+    SetEnv DISPLAY_ERRORS 1
 </IfModule>
