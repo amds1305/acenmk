@@ -9,7 +9,6 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   
   # Rediriger les requêtes vers index.php pour le traitement
-  # sauf pour les fichiers qui existent déjà
   RewriteRule ^api/(.*)$ api/$1 [L,QSA]
 </IfModule>
 

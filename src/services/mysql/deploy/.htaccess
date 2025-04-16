@@ -1,26 +1,5 @@
 
-# Force l'interprétation des fichiers PHP
-<FilesMatch "\.php$">
-    SetHandler application/x-httpd-php
-</FilesMatch>
-
-# Configuration d'affichage des erreurs via php.ini
-<IfModule mod_headers.c>
-    # Forcer l'encodage UTF-8
-    AddDefaultCharset UTF-8
-    
-    # Autoriser les requêtes CORS
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
-
-    # Désactiver la mise en cache pour le développement
-    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-</IfModule>
-
-# Activer le module de réécriture
+# Activer le moteur de réécriture
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /api/
@@ -33,7 +12,14 @@
     RewriteRule ^(.*)$ index.php [L,QSA]
 </IfModule>
 
-# Assurez-vous que PHP est activé et correctement configuré
+# Forcer l'interprétation des fichiers PHP
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# Définir le type MIME pour les fichiers PHP
 AddType application/x-httpd-php .php
+
+# Activer l'exécution des scripts PHP
 Options +ExecCGI
 AddHandler php-script .php
