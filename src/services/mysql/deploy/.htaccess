@@ -1,0 +1,24 @@
+
+# Activer les affichages d'erreurs PHP
+php_flag display_errors on
+php_value error_reporting E_ALL
+
+# Forcer l'encodage UTF-8
+AddDefaultCharset UTF-8
+
+# Permettre l'exécution des scripts PHP
+<FilesMatch "\.(php)$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# Autoriser les requêtes CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Désactiver la mise en cache pour le développement
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</IfModule>
