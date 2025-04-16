@@ -8,11 +8,11 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Rediriger les requêtes vers index.php pour le traitement de l'application principale
-  RewriteRule ^(.*)$ index.html [L,QSA]
-  
   # Rediriger les requêtes d'API vers le dossier api/
   RewriteRule ^api/(.*)$ api/$1 [L,QSA]
+  
+  # Rediriger les autres requêtes vers index.html pour le traitement de l'application principale
+  RewriteRule ^(.*)$ index.html [L,QSA]
 </IfModule>
 
 # Forcer l'interprétation des fichiers PHP
