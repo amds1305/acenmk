@@ -21,12 +21,37 @@
   AddType application/javascript .js
   AddType application/javascript .mjs
   AddType application/javascript .jsx
-  AddType application/javascript .ts
-  AddType application/javascript .tsx
+  AddType text/javascript .ts
+  AddType text/javascript .tsx
   
   # Types CSS et images
   AddType text/css .css
   AddType image/svg+xml .svg
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+  AddType image/webp .webp
+  AddType image/gif .gif
+  
+  # Types fonts
+  AddType application/font-woff .woff
+  AddType application/font-woff2 .woff2
+  AddType application/vnd.ms-fontobject .eot
+  AddType application/x-font-ttf .ttf
+  AddType font/opentype .otf
+</IfModule>
+
+# Activer la compression gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE application/xhtml+xml
+  AddOutputFilterByType DEFLATE application/rss+xml
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE application/json
 </IfModule>
 
 # Forcer l'interprétation des fichiers PHP
