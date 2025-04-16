@@ -5,6 +5,10 @@
  * Modifiez ces valeurs selon vos informations de connexion MySQL OVH
  */
 
+// Activer l'affichage des erreurs pour le débogage
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Informations de connexion MySQL - À MODIFIER
 define('DB_HOST', 'mysql-votre-nom.alwaysdata.net');  // Remplacez par votre serveur MySQL réel
 define('DB_USER', 'votre_utilisateur_reel');          // Remplacez par votre nom d'utilisateur réel

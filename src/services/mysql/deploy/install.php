@@ -1,5 +1,9 @@
 
 <?php
+// Activer l'affichage des erreurs pour le débogage
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once 'config.php';
 
 // Vérifier si l'installation a déjà été effectuée
@@ -277,12 +281,14 @@ function displayInstallationPage($result) {
     <?php
 }
 
+// Exécuter et afficher l'installation
+$result = runInstallation();
+
 // Si c'est une requête API, retourner du JSON
 if (isset($_GET['format']) && $_GET['format'] === 'json') {
-    $result = runInstallation();
+    header('Content-Type: application/json; charset=UTF-8');
     echo json_encode($result);
 } else {
     // Sinon, afficher la page HTML
-    $result = runInstallation();
     displayInstallationPage($result);
 }
