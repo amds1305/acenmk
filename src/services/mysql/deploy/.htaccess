@@ -1,15 +1,15 @@
 
 # Activer le moteur de réécriture
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /api/
-    
-    # Ne pas rediriger les demandes de fichiers ou répertoires réels
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # Rediriger les requêtes vers index.php pour le traitement
-    RewriteRule ^(.*)$ index.php [L,QSA]
+  RewriteEngine On
+  RewriteBase /api/
+  
+  # Ne pas rediriger les demandes de fichiers ou répertoires réels
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Rediriger les requêtes vers index.php pour le traitement
+  RewriteRule ^(.*)$ index.php [L,QSA]
 </IfModule>
 
 # Forcer l'interprétation des fichiers PHP
