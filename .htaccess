@@ -15,6 +15,21 @@
   RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
+# Configuration des types MIME
+<IfModule mod_mime.c>
+  # Types MIME critiques pour les applications web modernes
+  AddType application/javascript .js .mjs .jsx
+  AddType application/javascript .ts .tsx
+  AddType text/css .css
+  AddType application/json .json
+  AddType image/svg+xml .svg .svgz
+  AddType font/woff .woff
+  AddType font/woff2 .woff2
+  AddType application/x-font-ttf .ttf
+  AddType application/x-font-otf .otf
+  AddType image/x-icon .ico
+</IfModule>
+
 # Configuration du cache pour les assets statiques
 <IfModule mod_expires.c>
   ExpiresActive On
