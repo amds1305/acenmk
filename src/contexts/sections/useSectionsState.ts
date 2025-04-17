@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { HomepageConfig } from '@/types/sections';
-import { supabase } from '@/integrations/supabase/client';
-import { getHomepageConfig } from '@/services/supabase/sectionsService';
+import { getHomepageConfig } from '@/services/mysql';
 import { DEFAULT_TEMPLATE_CONFIG } from '@/services/sections/defaultData';
 
 export function useSectionsState() {

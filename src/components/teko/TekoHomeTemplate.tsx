@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/supabase/sectionsService';
+import { getHomepageConfig } from '@/services/sections';
 import TekoHero from './TekoHero';
 import TekoServices from './TekoServices';
 import TekoAbout from './TekoAbout';

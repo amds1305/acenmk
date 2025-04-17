@@ -1,14 +1,20 @@
 
-// This file re-exports the official Supabase client for backward compatibility
-import { supabase } from '@/integrations/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 
-// Re-export the supabase client
-export { supabase };
+// Ces valeurs doivent être accessibles via import.meta.env dans les applications Vite
+// au lieu de process.env qui n'est pas défini dans le navigateur
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// For compatibility with code that might use import.meta.env
-if (typeof window !== 'undefined') {
-  // @ts-ignore - Define values for debugging
-  window.VITE_SUPABASE_URL = "https://kbigpjrjarlbncdtonuz.supabase.co";
-  // @ts-ignore - Define values for debugging
-  window.VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs";
+// Vérifier que les variables d'environnement sont définies
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Les variables Supabase ne sont pas définies correctement');
+  console.log('VITE_SUPABASE_URL:', supabaseUrl);
+  console.log('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '[DÉFINI]' : '[NON DÉFINI]');
 }
+
+// Création du client Supabase avec vérification des valeurs
+export const supabase = createClient(
+  supabaseUrl || 'https://votre-projet.supabase.co',  // URL par défaut pour éviter l'erreur immédiate
+  supabaseAnonKey || 'votre-clé-anon-supabase'        // Clé par défaut pour éviter l'erreur immédiate
+);

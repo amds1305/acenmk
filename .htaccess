@@ -4,64 +4,60 @@
   RewriteEngine On
   RewriteBase /
   
+  # Éviter les boucles de redirection
+  RewriteCond %{REQUEST_URI} !^/index\.php
+  
   # Ne pas rediriger les demandes de fichiers ou répertoires réels
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   
-  # Rediriger les requêtes d'API vers le dossier api/
-  RewriteRule ^api/(.*)$ api/$1 [L,QSA]
-  
-  # Rediriger les autres requêtes vers index.html pour le traitement SPA
-  RewriteRule ^(.*)$ index.html [L,QSA]
+  # Rediriger toutes les autres requêtes vers index.html pour le SPA
+  RewriteRule ^(.*)$ index.html [L]
 </IfModule>
 
-# Définir les types MIME pour améliorer la compatibilité
-<IfModule mod_mime.c>
-  # Types JavaScript
-  AddType application/javascript .js
-  AddType application/javascript .mjs
-  AddType application/javascript .jsx
-  AddType text/javascript .ts
-  AddType text/javascript .tsx
+# Configuration du cache pour les assets statiques
+<IfModule mod_expires.c>
+  ExpiresActive On
   
-  # Types CSS et images
-  AddType text/css .css
-  AddType image/svg+xml .svg
-  AddType image/png .png
-  AddType image/jpeg .jpg .jpeg
-  AddType image/webp .webp
-  AddType image/gif .gif
+  # Cache pour les fichiers JS/CSS (1 semaine)
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType text/css "access plus 1 week"
   
-  # Types fonts
-  AddType application/font-woff .woff
-  AddType application/font-woff2 .woff2
-  AddType application/vnd.ms-fontobject .eot
-  AddType application/x-font-ttf .ttf
-  AddType font/opentype .otf
+  # Cache pour les images (2 semaines)
+  ExpiresByType image/jpeg "access plus 2 weeks"
+  ExpiresByType image/png "access plus 2 weeks"
+  ExpiresByType image/svg+xml "access plus 2 weeks"
+  
+  # Pour les fichiers HTML, pas de cache
+  ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
 
-# Activer la compression gzip
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/plain
-  AddOutputFilterByType DEFLATE text/html
-  AddOutputFilterByType DEFLATE text/xml
-  AddOutputFilterByType DEFLATE text/css
-  AddOutputFilterByType DEFLATE application/xml
-  AddOutputFilterByType DEFLATE application/xhtml+xml
-  AddOutputFilterByType DEFLATE application/rss+xml
-  AddOutputFilterByType DEFLATE application/javascript
-  AddOutputFilterByType DEFLATE application/x-javascript
-  AddOutputFilterByType DEFLATE application/json
+# Sécurité et en-têtes
+<IfModule mod_headers.c>
+  # Sécurité et CORS
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+  Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  Header set X-Content-Type-Options "nosniff"
+
+  # Désactiver le cache pour index.html
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+  
+  # Cache pour les assets avec hachage dans le nom (1 an)
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg)$">
+    Header set Cache-Control "public, max-age=31536000"
+  </FilesMatch>
 </IfModule>
 
-# Forcer l'interprétation des fichiers PHP
-<FilesMatch "\.php$">
-    SetHandler application/x-httpd-php
+# Empêcher l'affichage des répertoires
+Options -Indexes
+
+# Protection des fichiers sensibles
+<FilesMatch "(\.env|\.gitignore|composer\.json|package\.json)$">
+  Order allow,deny
+  Deny from all
 </FilesMatch>
-
-# Définir le type MIME pour les fichiers PHP
-AddType application/x-httpd-php .php
-
-# Activer l'exécution des scripts PHP
-Options +ExecCGI
-AddHandler php-script .php

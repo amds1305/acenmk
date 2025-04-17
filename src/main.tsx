@@ -26,8 +26,8 @@ const renderApp = () => {
     
     // Supprimer le message de chargement s'il existe
     const loadingMessage = document.getElementById('loading-message');
-    if (loadingMessage && loadingMessage.parentNode) {
-      loadingMessage.parentNode.removeChild(loadingMessage);
+    if (loadingMessage) {
+      loadingMessage.remove();
     }
   } catch (error) {
     console.error("Erreur lors du rendu de React:", error);
@@ -52,11 +52,3 @@ const renderApp = () => {
 
 // Exécuter le rendu immédiatement
 renderApp();
-
-// Ajouter un script de débogage pour OVH
-if (window.location.hostname.includes('ovh') || window.location.hostname.includes('localhost')) {
-  const debugScript = document.createElement('script');
-  debugScript.src = '/debug.js';
-  document.head.appendChild(debugScript);
-  console.log("Script de débogage OVH ajouté");
-}
