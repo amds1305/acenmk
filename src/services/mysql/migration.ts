@@ -19,29 +19,37 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
       return false;
     }
     
+    console.log(`URL de l'API configurée: ${apiUrl}`);
+    
     // Tester la connexion à l'API avec un timeout
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondes timeout
       
+      console.log(`Test de connexion à l'API: ${apiUrl}/config.php?test=json`);
       const testResponse = await fetch(`${apiUrl}/config.php?test=json`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal
+        signal: controller.signal,
+        // Ajouter ce paramètre pour éviter les problèmes de cache
+        cache: 'no-store'
       });
       
       clearTimeout(timeoutId);
       
       if (!testResponse.ok) {
         console.error(`Impossible de se connecter à l'API MySQL (statut: ${testResponse.status})`);
+        console.error('Réponse:', await testResponse.text());
         return false;
       }
       
       // Tester que la réponse est du JSON valide
       try {
-        await testResponse.json();
+        const jsonResponse = await testResponse.json();
+        console.log('Réponse de test reçue:', jsonResponse);
       } catch (e) {
         console.error('La réponse du serveur n\'est pas un JSON valide. Vérifiez que le fichier config.php est correctement configuré.');
+        console.error('Réponse brute:', await testResponse.text());
         return false;
       }
     } catch (error) {

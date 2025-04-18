@@ -5,6 +5,15 @@
  * Modifiez ces valeurs selon vos informations de connexion MySQL OVH
  */
 
+// Activer l'affichage des erreurs pour le débogage
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Journaliser les erreurs
+function custom_error_log($message) {
+    error_log('[ACENUMERIK API] ' . $message);
+}
+
 // Informations de connexion MySQL - À MODIFIER
 define('DB_HOST', 'mysql-votre-nom.alwaysdata.net');  // Remplacez par votre serveur MySQL réel
 define('DB_USER', 'votre_utilisateur_reel');          // Remplacez par votre nom d'utilisateur réel
@@ -24,14 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Établir la connexion à la base de données
 function connectDB() {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
-    if ($conn->connect_error) {
-        die(json_encode(['error' => 'Connection failed: ' . $conn->connect_error]));
+    try {
+        custom_error_log('Tentative de connexion à la base de données...');
+        $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($conn->connect_error) {
+            custom_error_log('Erreur de connexion: ' . $conn->connect_error);
+            die(json_encode(['error' => 'Connection failed: ' . $conn->connect_error]));
+        }
+        
+        custom_error_log('Connexion à la base de données réussie');
+        $conn->set_charset('utf8mb4');
+        return $conn;
+    } catch (Exception $e) {
+        custom_error_log('Exception lors de la connexion: ' . $e->getMessage());
+        die(json_encode(['error' => 'Exception: ' . $e->getMessage()]));
     }
-    
-    $conn->set_charset('utf8mb4');
-    return $conn;
 }
 
 /**
@@ -41,27 +58,47 @@ function connectDB() {
  */
 
 if (isset($_GET['test'])) {
-    header('Content-Type: text/html; charset=UTF-8');
-    echo '<h1>Test de connexion MySQL</h1>';
-    
     try {
-        $conn = connectDB();
-        echo '<p style="color:green;font-weight:bold;">✅ Connexion réussie à la base de données!</p>';
-        echo '<p>Serveur MySQL: ' . htmlspecialchars(DB_HOST) . '</p>';
-        echo '<p>Utilisateur: ' . htmlspecialchars(DB_USER) . '</p>';
-        echo '<p>Base de données: ' . htmlspecialchars(DB_NAME) . '</p>';
-        $conn->close();
+        if ($_GET['test'] === 'json') {
+            // Tester uniquement la réponse en format JSON
+            echo json_encode([
+                'status' => 'ok',
+                'message' => 'API configuration valide',
+                'php_version' => phpversion(),
+                'timestamp' => date('Y-m-d H:i:s')
+            ]);
+            exit;
+        }
+        
+        // Format HTML pour affichage en navigateur
+        header('Content-Type: text/html; charset=UTF-8');
+        echo '<h1>Test de connexion MySQL</h1>';
+        
+        try {
+            $conn = connectDB();
+            echo '<p style="color:green;font-weight:bold;">✅ Connexion réussie à la base de données!</p>';
+            echo '<p>Serveur MySQL: ' . htmlspecialchars(DB_HOST) . '</p>';
+            echo '<p>Utilisateur: ' . htmlspecialchars(DB_USER) . '</p>';
+            echo '<p>Base de données: ' . htmlspecialchars(DB_NAME) . '</p>';
+            $conn->close();
+        } catch (Exception $e) {
+            echo '<p style="color:red;font-weight:bold;">❌ Erreur de connexion: ' . htmlspecialchars($e->getMessage()) . '</p>';
+        }
+        
+        echo '<h2>Informations PHP</h2>';
+        echo '<p>Version PHP: ' . phpversion() . '</p>';
+        echo '<p>Extensions:</p><ul>';
+        echo '<li>MySQLi: ' . (extension_loaded('mysqli') ? '✓' : '✗') . '</li>';
+        echo '<li>JSON: ' . (extension_loaded('json') ? '✓' : '✗') . '</li>';
+        echo '</ul>';
+        
+        echo '<h2>Test d\'un appel API</h2>';
+        echo '<p><a href="?test=json">Tester la réponse JSON</a></p>';
+        
     } catch (Exception $e) {
-        echo '<p style="color:red;font-weight:bold;">❌ Erreur de connexion: ' . htmlspecialchars($e->getMessage()) . '</p>';
+        echo '<h1>Erreur lors du test</h1>';
+        echo '<p style="color:red;font-weight:bold;">' . htmlspecialchars($e->getMessage()) . '</p>';
     }
-    
-    echo '<h2>Informations PHP</h2>';
-    echo '<p>Version PHP: ' . phpversion() . '</p>';
-    echo '<p>Extensions:</p><ul>';
-    echo '<li>MySQLi: ' . (extension_loaded('mysqli') ? '✓' : '✗') . '</li>';
-    echo '<li>JSON: ' . (extension_loaded('json') ? '✓' : '✗') . '</li>';
-    echo '</ul>';
-    
     exit;
 }
 
