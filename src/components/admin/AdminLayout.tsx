@@ -19,7 +19,8 @@ import {
   Globe,
   LayoutTemplate,
   Database,
-  StarIcon
+  StarIcon,
+  Tags
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -47,6 +48,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Page d\'accueil', href: '/admin/home', icon: Home },
     { name: 'Hero', href: '/admin/hero', icon: StarIcon },
     { name: 'Services', href: '/admin/services', icon: PackageOpen },
+    { name: 'Nos offres', href: '/admin/pricing', icon: Tags },
     { name: 'À propos', href: '/admin/about', icon: Info },
     { name: 'Équipe', href: '/admin/team', icon: Users },
     { name: 'Clients', href: '/admin/trusted-clients', icon: BriefcaseBusiness },
