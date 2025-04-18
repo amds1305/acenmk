@@ -20,7 +20,7 @@ import { AdminHeader } from '@/components/admin/header';
 import { AdminFooter } from '@/components/admin/footer';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
-import AdminPricing from '@/components/admin/AdminPricing';
+import AdminPricing from '@/components/admin/pricing/AdminPricing';
 
 const Admin = () => {
   return (
