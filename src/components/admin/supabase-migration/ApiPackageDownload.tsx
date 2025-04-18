@@ -451,483 +451,353 @@ function tablesExist($conn) {
   'sections.php': `<?php
 require_once 'config.php';
 
-// Gestion des sections (GET, PUT)
-$method = $_SERVER['REQUEST_METHOD'];
+$conn = connectDB();
 
-// Fonction pour obtenir toutes les sections
-function getSections($conn) {
-    $stmt = $conn->prepare("SELECT * FROM sections ORDER BY \`order\`");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $sections = array();
-    while ($row = $result->fetch_assoc()) {
-        // Convertir le champ 'visible' en booléen
-        $row['visible'] = (bool)$row['visible'];
-        $row['order'] = (int)$row['order'];
-        $sections[] = $row;
-    }
-    
-    return $sections;
-}
-
-// Fonction pour mettre à jour toutes les sections
-function updateSections($conn, $sections) {
-    // Commencer une transaction
-    $conn->begin_transaction();
-    
-    try {
-        // Supprimer toutes les sections existantes
-        $stmt = $conn->prepare("DELETE FROM sections");
+// Gérer les requêtes HTTP
+switch ($_SERVER['REQUEST_METHOD']) {
+    case 'GET':
+        // Récupérer toutes les sections
+        $stmt = $conn->prepare("SELECT * FROM sections ORDER BY \`order\`");
         $stmt->execute();
+        $result = $stmt->get_result();
         
-        // Préparer la requête d'insertion
-        $stmt = $conn->prepare("INSERT INTO sections (id, type, title, visible, \`order\`, custom_component, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-        
-        // Insérer chaque section
-        foreach ($sections as $section) {
-            $visible = $section['visible'] ? 1 : 0;
-            $customComponent = isset($section['customComponent']) ? $section['customComponent'] : null;
-            
-            $stmt->bind_param("ssssis", 
-                $section['id'],
-                $section['type'],
-                $section['title'],
-                $visible,
-                $section['order'],
-                $customComponent
-            );
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Erreur lors de l'insertion de la section {$section['id']}: " . $stmt->error);
-            }
+        $sections = [];
+        while ($row = $result->fetch_assoc()) {
+            $sections[] = [
+                'id' => $row['id'],
+                'type' => $row['type'],
+                'title' => $row['title'],
+                'visible' => (bool)$row['visible'],
+                'order' => (int)$row['order'],
+                'customComponent' => $row['custom_component']
+            ];
         }
         
-        // Valider la transaction
-        $conn->commit();
-        return true;
-        
-    } catch (Exception $e) {
-        // Annuler la transaction en cas d'erreur
-        $conn->rollback();
-        return array("error" => $e->getMessage());
-    }
-}
-
-// Traitement de la requête en fonction de la méthode HTTP
-switch ($method) {
-    case 'GET':
-        $conn = connectDB();
-        $sections = getSections($conn);
         echo json_encode($sections);
-        $conn->close();
         break;
         
     case 'PUT':
-        // Obtenir les données JSON de la requête
-        $json = file_get_contents('php://input');
-        $sections = json_decode($json, true);
+        // Mettre à jour toutes les sections
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if ($sections === null) {
+        if (!is_array($data)) {
             http_response_code(400);
-            echo json_encode(array("error" => "JSON invalide"));
+            echo json_encode(['error' => 'Invalid data format']);
             break;
         }
         
-        $conn = connectDB();
-        $result = updateSections($conn, $sections);
+        // Commencer une transaction
+        $conn->begin_transaction();
         
-        if ($result === true) {
-            echo json_encode(array("success" => true));
-        } else {
+        try {
+            // Supprimer toutes les sections existantes
+            $conn->query("DELETE FROM sections");
+            
+            // Insérer les nouvelles sections
+            $stmt = $conn->prepare("INSERT INTO sections (id, type, title, visible, \`order\`, custom_component) VALUES (?, ?, ?, ?, ?, ?)");
+            
+            foreach ($data as $section) {
+                $visible = isset($section['visible']) ? (int)$section['visible'] : 1;
+                $customComponent = isset($section['customComponent']) ? $section['customComponent'] : null;
+                
+                $stmt->bind_param("sssiss", 
+                    $section['id'], 
+                    $section['type'], 
+                    $section['title'], 
+                    $visible, 
+                    $section['order'], 
+                    $customComponent
+                );
+                
+                $stmt->execute();
+            }
+            
+            // Valider la transaction
+            $conn->commit();
+            echo json_encode(['success' => true]);
+            
+        } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $conn->rollback();
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     default:
         http_response_code(405);
-        echo json_encode(array("error" => "Méthode non autorisée"));
-        break;
-}`,
+        echo json_encode(['error' => 'Method not allowed']);
+}
+
+$conn->close();`,
   'section-data.php': `<?php
 require_once 'config.php';
 
-// Gestion des données de section (GET, PUT)
-$method = $_SERVER['REQUEST_METHOD'];
+$conn = connectDB();
 
-// Fonction pour obtenir toutes les données des sections
-function getSectionData($conn) {
-    $stmt = $conn->prepare("SELECT * FROM section_data");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $sectionData = array();
-    while ($row = $result->fetch_assoc()) {
-        // Convertir les données JSON en tableau PHP
-        $data = json_decode($row['data'], true);
-        
-        // Créer un objet avec les informations nécessaires
-        $sectionData[] = array(
-            'id' => $row['id'],
-            'section_id' => $row['section_id'],
-            'data' => $data,
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at']
-        );
-    }
-    
-    return $sectionData;
-}
-
-// Fonction pour mettre à jour toutes les données des sections
-function updateSectionData($conn, $sectionData) {
-    // Commencer une transaction
-    $conn->begin_transaction();
-    
-    try {
-        // Supprimer toutes les données de section existantes
-        $stmt = $conn->prepare("DELETE FROM section_data");
+// Gérer les requêtes HTTP
+switch ($_SERVER['REQUEST_METHOD']) {
+    case 'GET':
+        // Récupérer toutes les données des sections
+        $stmt = $conn->prepare("SELECT section_id, data FROM section_data");
         $stmt->execute();
+        $result = $stmt->get_result();
         
-        // Préparer la requête d'insertion
-        $stmt = $conn->prepare("INSERT INTO section_data (id, section_id, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
-        
-        // Insérer chaque donnée de section
-        foreach ($sectionData as $key => $value) {
-            // Générer un ID unique si non fourni
-            $id = isset($value['id']) ? $value['id'] : uniqid();
-            
-            // Le section_id est la clé du tableau
-            $sectionId = $key;
-            
-            // Convertir les données en JSON
-            $jsonData = json_encode($value);
-            
-            $stmt->bind_param("sss", 
-                $id,
-                $sectionId,
-                $jsonData
-            );
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Erreur lors de l'insertion des données pour la section {$sectionId}: " . $stmt->error);
-            }
+        $sectionData = [];
+        while ($row = $result->fetch_assoc()) {
+            $sectionData[] = [
+                'section_id' => $row['section_id'],
+                'data' => json_decode($row['data'], true)
+            ];
         }
         
-        // Valider la transaction
-        $conn->commit();
-        return true;
-        
-    } catch (Exception $e) {
-        // Annuler la transaction en cas d'erreur
-        $conn->rollback();
-        return array("error" => $e->getMessage());
-    }
-}
-
-// Traitement de la requête en fonction de la méthode HTTP
-switch ($method) {
-    case 'GET':
-        $conn = connectDB();
-        $sectionData = getSectionData($conn);
         echo json_encode($sectionData);
-        $conn->close();
         break;
         
     case 'PUT':
-        // Obtenir les données JSON de la requête
-        $json = file_get_contents('php://input');
-        $sectionData = json_decode($json, true);
+        // Mettre à jour toutes les données des sections
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if ($sectionData === null) {
+        if (!is_array($data)) {
             http_response_code(400);
-            echo json_encode(array("error" => "JSON invalide"));
+            echo json_encode(['error' => 'Invalid data format']);
             break;
         }
         
-        $conn = connectDB();
-        $result = updateSectionData($conn, $sectionData);
+        // Commencer une transaction
+        $conn->begin_transaction();
         
-        if ($result === true) {
-            echo json_encode(array("success" => true));
-        } else {
+        try {
+            // Supprimer toutes les données des sections existantes
+            $conn->query("DELETE FROM section_data");
+            
+            // Insérer les nouvelles données des sections
+            $stmt = $conn->prepare("INSERT INTO section_data (id, section_id, data) VALUES (?, ?, ?)");
+            
+            foreach ($data as $item) {
+                $id = uniqid();
+                $jsonData = json_encode($item['data']);
+                
+                $stmt->bind_param("sss", 
+                    $id, 
+                    $item['section_id'], 
+                    $jsonData
+                );
+                
+                $stmt->execute();
+            }
+            
+            // Valider la transaction
+            $conn->commit();
+            echo json_encode(['success' => true]);
+            
+        } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $conn->rollback();
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     default:
         http_response_code(405);
-        echo json_encode(array("error" => "Méthode non autorisée"));
-        break;
-}`,
+        echo json_encode(['error' => 'Method not allowed']);
+}
+
+$conn->close();`,
   'template-config.php': `<?php
 require_once 'config.php';
 
-// Gestion de la configuration du template (GET, PUT)
-$method = $_SERVER['REQUEST_METHOD'];
+$conn = connectDB();
 
-// Fonction pour obtenir la configuration du template
-function getTemplateConfig($conn) {
-    $stmt = $conn->prepare("SELECT * FROM template_config LIMIT 1");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        return array(
-            'id' => $row['id'],
-            'activeTemplate' => $row['active_template'],
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at']
-        );
-    } else {
-        // Si aucune configuration n'existe, retourner la valeur par défaut
-        return array(
-            'activeTemplate' => 'default'
-        );
-    }
-}
-
-// Fonction pour mettre à jour la configuration du template
-function updateTemplateConfig($conn, $config) {
-    // Vérifier si une configuration existe déjà
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM template_config");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    
-    if ($row['count'] > 0) {
-        // Mettre à jour la configuration existante
-        $stmt = $conn->prepare("UPDATE template_config SET active_template = ?, updated_at = NOW()");
-        $stmt->bind_param("s", $config['activeTemplate']);
-    } else {
-        // Insérer une nouvelle configuration
-        $id = uniqid();
-        $stmt = $conn->prepare("INSERT INTO template_config (id, active_template, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
-        $stmt->bind_param("ss", $id, $config['activeTemplate']);
-    }
-    
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        return array("error" => "Erreur lors de la mise à jour de la configuration: " . $stmt->error);
-    }
-}
-
-// Traitement de la requête en fonction de la méthode HTTP
-switch ($method) {
+// Gérer les requêtes HTTP
+switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        $conn = connectDB();
-        $config = getTemplateConfig($conn);
-        echo json_encode($config);
-        $conn->close();
+        // Récupérer la configuration du template
+        $stmt = $conn->prepare("SELECT * FROM template_config LIMIT 1");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($row = $result->fetch_assoc()) {
+            echo json_encode([
+                'activeTemplate' => $row['active_template']
+            ]);
+        } else {
+            echo json_encode([
+                'activeTemplate' => 'default'
+            ]);
+        }
         break;
         
     case 'PUT':
-        // Obtenir les données JSON de la requête
-        $json = file_get_contents('php://input');
-        $config = json_decode($json, true);
+        // Mettre à jour la configuration du template
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if ($config === null) {
+        if (!isset($data['activeTemplate'])) {
             http_response_code(400);
-            echo json_encode(array("error" => "JSON invalide"));
+            echo json_encode(['error' => 'Active template is required']);
             break;
         }
         
-        $conn = connectDB();
-        $result = updateTemplateConfig($conn, $config);
-        
-        if ($result === true) {
-            echo json_encode(array("success" => true));
-        } else {
+        try {
+            // Supprimer la configuration existante
+            $conn->query("DELETE FROM template_config");
+            
+            // Insérer la nouvelle configuration
+            $stmt = $conn->prepare("INSERT INTO template_config (id, active_template) VALUES (?, ?)");
+            $id = uniqid();
+            
+            $stmt->bind_param("ss", 
+                $id, 
+                $data['activeTemplate']
+            );
+            
+            $stmt->execute();
+            echo json_encode(['success' => true]);
+            
+        } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     default:
         http_response_code(405);
-        echo json_encode(array("error" => "Méthode non autorisée"));
-        break;
-}`,
+        echo json_encode(['error' => 'Method not allowed']);
+}
+
+$conn->close();`,
   'trusted-clients.php': `<?php
 require_once 'config.php';
 
-// Gestion des clients de confiance (GET, POST, PUT, DELETE)
-$method = $_SERVER['REQUEST_METHOD'];
+$conn = connectDB();
 
-// Fonction pour obtenir tous les clients de confiance
-function getTrustedClients($conn) {
-    $stmt = $conn->prepare("SELECT * FROM trusted_clients ORDER BY name");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $trustedClients = array();
-    while ($row = $result->fetch_assoc()) {
-        $trustedClients[] = $row;
-    }
-    
-    return $trustedClients;
-}
-
-// Fonction pour ajouter un client de confiance
-function addTrustedClient($conn, $client) {
-    // Générer un ID unique
-    $id = uniqid();
-    
-    // Préparer la requête d'insertion
-    $stmt = $conn->prepare("INSERT INTO trusted_clients (id, name, logo_url, website_url, category, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-    
-    $stmt->bind_param("sssss", 
-        $id,
-        $client['name'],
-        $client['logo_url'],
-        $client['website_url'],
-        $client['category']
-    );
-    
-    if ($stmt->execute()) {
-        return array("id" => $id, "success" => true);
-    } else {
-        return array("error" => "Erreur lors de l'ajout du client: " . $stmt->error);
-    }
-}
-
-// Fonction pour mettre à jour un client de confiance
-function updateTrustedClient($conn, $id, $client) {
-    // Préparer la requête de mise à jour
-    $stmt = $conn->prepare("UPDATE trusted_clients SET name = ?, logo_url = ?, website_url = ?, category = ? WHERE id = ?");
-    
-    $stmt->bind_param("sssss", 
-        $client['name'],
-        $client['logo_url'],
-        $client['website_url'],
-        $client['category'],
-        $id
-    );
-    
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        return array("error" => "Erreur lors de la mise à jour du client: " . $stmt->error);
-    }
-}
-
-// Fonction pour supprimer un client de confiance
-function deleteTrustedClient($conn, $id) {
-    // Préparer la requête de suppression
-    $stmt = $conn->prepare("DELETE FROM trusted_clients WHERE id = ?");
-    $stmt->bind_param("s", $id);
-    
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        return array("error" => "Erreur lors de la suppression du client: " . $stmt->error);
-    }
-}
-
-// Traitement de la requête en fonction de la méthode HTTP
-switch ($method) {
+// Gérer les requêtes HTTP
+switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
-        $conn = connectDB();
-        $trustedClients = getTrustedClients($conn);
-        echo json_encode($trustedClients);
-        $conn->close();
+        // Récupérer tous les clients de confiance
+        $stmt = $conn->prepare("SELECT * FROM trusted_clients");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $clients = [];
+        while ($row = $result->fetch_assoc()) {
+            $clients[] = [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'logoUrl' => $row['logo_url'],
+                'websiteUrl' => $row['website_url'],
+                'category' => $row['category']
+            ];
+        }
+        
+        echo json_encode($clients);
         break;
         
     case 'POST':
-        // Obtenir les données JSON de la requête
-        $json = file_get_contents('php://input');
-        $client = json_decode($json, true);
+        // Ajouter un nouveau client de confiance
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if ($client === null) {
+        if (!isset($data['name']) || !isset($data['logoUrl'])) {
             http_response_code(400);
-            echo json_encode(array("error" => "JSON invalide"));
+            echo json_encode(['error' => 'Name and logoUrl are required']);
             break;
         }
         
-        $conn = connectDB();
-        $result = addTrustedClient($conn, $client);
-        
-        if (isset($result['success'])) {
-            echo json_encode($result);
-        } else {
+        try {
+            $stmt = $conn->prepare("INSERT INTO trusted_clients (id, name, logo_url, website_url, category) VALUES (?, ?, ?, ?, ?)");
+            $id = uniqid();
+            
+            $stmt->bind_param("sssss", 
+                $id, 
+                $data['name'], 
+                $data['logoUrl'],
+                $data['websiteUrl'] ?? null,
+                $data['category'] ?? null
+            );
+            
+            $stmt->execute();
+            echo json_encode([
+                'success' => true,
+                'id' => $id
+            ]);
+            
+        } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     case 'PUT':
-        // Obtenir l'ID du client à mettre à jour
-        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        // Mettre à jour un client de confiance existant
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if ($id === null) {
+        if (!isset($data['id']) || !isset($data['name']) || !isset($data['logoUrl'])) {
             http_response_code(400);
-            echo json_encode(array("error" => "ID non spécifié"));
+            echo json_encode(['error' => 'Id, name and logoUrl are required']);
             break;
         }
         
-        // Obtenir les données JSON de la requête
-        $json = file_get_contents('php://input');
-        $client = json_decode($json, true);
-        
-        if ($client === null) {
-            http_response_code(400);
-            echo json_encode(array("error" => "JSON invalide"));
-            break;
-        }
-        
-        $conn = connectDB();
-        $result = updateTrustedClient($conn, $id, $client);
-        
-        if ($result === true) {
-            echo json_encode(array("success" => true));
-        } else {
+        try {
+            $stmt = $conn->prepare("UPDATE trusted_clients SET name = ?, logo_url = ?, website_url = ?, category = ? WHERE id = ?");
+            
+            $stmt->bind_param("sssss", 
+                $data['name'], 
+                $data['logoUrl'],
+                $data['websiteUrl'] ?? null,
+                $data['category'] ?? null,
+                $data['id']
+            );
+            
+            $stmt->execute();
+            
+            if ($stmt->affected_rows > 0) {
+                echo json_encode(['success' => true]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Client not found']);
+            }
+            
+        } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     case 'DELETE':
-        // Obtenir l'ID du client à supprimer
+        // Supprimer un client de confiance
         $id = isset($_GET['id']) ? $_GET['id'] : null;
         
-        if ($id === null) {
+        if (!$id) {
             http_response_code(400);
-            echo json_encode(array("error" => "ID non spécifié"));
+            echo json_encode(['error' => 'Id is required']);
             break;
         }
         
-        $conn = connectDB();
-        $result = deleteTrustedClient($conn, $id);
-        
-        if ($result === true) {
-            echo json_encode(array("success" => true));
-        } else {
+        try {
+            $stmt = $conn->prepare("DELETE FROM trusted_clients WHERE id = ?");
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            
+            if ($stmt->affected_rows > 0) {
+                echo json_encode(['success' => true]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Client not found']);
+            }
+            
+        } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode($result);
+            echo json_encode(['error' => $e->getMessage()]);
         }
-        
-        $conn->close();
         break;
         
     default:
         http_response_code(405);
-        echo json_encode(array("error" => "Méthode non autorisée"));
-        break;
-}`,
+        echo json_encode(['error' => 'Method not allowed']);
+}
+
+$conn->close();`,
   'README.txt': `# API MySQL pour OVH - Package d'installation automatique
 
 Ce package contient tous les fichiers nécessaires pour déployer facilement une API PHP

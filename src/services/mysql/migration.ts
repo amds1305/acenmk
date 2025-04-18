@@ -63,7 +63,7 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
         console.error('Erreur de parsing JSON:', e);
         return false;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors du test de connexion à l\'API MySQL:', error);
       if (error.name === 'AbortError') {
         console.error('La connexion a expiré. Vérifiez que l\'URL de l\'API est correcte et que le serveur répond.');

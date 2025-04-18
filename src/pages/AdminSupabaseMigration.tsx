@@ -1,6 +1,7 @@
 
 import React from 'react';
 import MigrationTool from '@/components/admin/supabase-migration/MigrationTool';
+import ApiPackageDownload from '@/components/admin/supabase-migration/ApiPackageDownload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { InfoIcon } from 'lucide-react';
 
@@ -23,6 +24,7 @@ const AdminSupabaseMigration = () => {
         </AlertDescription>
       </Alert>
 
+      <ApiPackageDownload />
       <MigrationTool />
     </div>
   );
