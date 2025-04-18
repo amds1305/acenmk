@@ -9,6 +9,7 @@ import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
+import Pricing from '@/components/Pricing';
 import { TekoHomeTemplate } from '@/components/teko';
 import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
@@ -18,7 +19,6 @@ import { getHomepageConfig } from '@/services/sections';
 import { toast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 
-// Interface for section visibility
 export interface SectionVisibility {
   hero: boolean;
   services: boolean;
@@ -30,7 +30,6 @@ export interface SectionVisibility {
   'trusted-clients': boolean;
 }
 
-// Component map for rendering sections
 const sectionComponents: Record<string, React.FC> = {
   hero: Hero,
   services: Services,
@@ -42,9 +41,8 @@ const sectionComponents: Record<string, React.FC> = {
   'trusted-clients': TrustedClients,
 };
 
-// Templates disponibles
 const templates: Record<HomeTemplateType, React.FC> = {
-  default: () => null, // Le template par défaut utilise les sections individuelles
+  default: () => null,
   teko: TekoHomeTemplate,
   nmk_fire: NmkFireHomeTemplate,
   nmk_robot: NmkRobotHomeTemplate,
@@ -52,15 +50,13 @@ const templates: Record<HomeTemplateType, React.FC> = {
 };
 
 const Index = () => {
-  // Use React Query to fetch and cache the homepage configuration
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     retry: 2,
   });
-  
-  // Afficher une notification en cas d'erreur de chargement
+
   useEffect(() => {
     if (error) {
       toast({
@@ -71,18 +67,15 @@ const Index = () => {
       console.error("Erreur lors du chargement de la configuration:", error);
     }
   }, [error]);
-  
-  // Template actif
+
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 
-  // Obtenir les sections à afficher (pour le template par défaut uniquement)
   const sectionsToDisplay = homeConfig?.sections
     .filter(section => section.visible)
     .sort((a, b) => a.order - b.order) || [];
-  
+
   useEffect(() => {
-    // Initialize intersection observer for animations
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -98,7 +91,6 @@ const Index = () => {
       });
     }, observerOptions);
 
-    // Observe all elements with animation classes
     const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-fade-in-up, .animate-slide-in-right, .animate-blur-in');
     animatedElements.forEach((el) => observer.observe(el));
 
@@ -109,7 +101,6 @@ const Index = () => {
     };
   }, [sectionsToDisplay]);
 
-  // Pendant le chargement, montrer un écran de chargement
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -119,7 +110,6 @@ const Index = () => {
     );
   }
 
-  // Si un template spécial est sélectionné, l'afficher
   if (activeTemplate !== 'default' && TemplateComponent) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -132,7 +122,6 @@ const Index = () => {
     );
   }
 
-  // Si aucune section n'est configurée ou visible, afficher toutes les sections dans l'ordre par défaut
   const displaySections = sectionsToDisplay.length > 0 ? sectionsToDisplay : [
     { id: 'hero-default', type: 'hero', order: 1 },
     { id: 'services-default', type: 'services', order: 2 },
@@ -143,7 +132,6 @@ const Index = () => {
     { id: 'contact-default', type: 'contact', order: 7 },
   ];
 
-  // Afficher le template par défaut avec les sections individuelles
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -158,6 +146,7 @@ const Index = () => {
           
           return <SectionComponent key={section.id} />;
         })}
+        <Pricing />
       </main>
       <Footer />
     </div>

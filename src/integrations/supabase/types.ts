@@ -135,6 +135,41 @@ export type Database = {
         }
         Relationships: []
       }
+      package_features: {
+        Row: {
+          created_at: string
+          feature: string
+          id: string
+          is_included: boolean | null
+          order_index: number
+          package_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          id?: string
+          is_included?: boolean | null
+          order_index?: number
+          package_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          id?: string
+          is_included?: boolean | null
+          order_index?: number
+          package_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_features_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
           content: string | null
@@ -174,6 +209,42 @@ export type Database = {
           title?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      pricing_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          is_visible: boolean | null
+          order_index: number
+          starting_price: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_visible?: boolean | null
+          order_index?: number
+          starting_price?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_visible?: boolean | null
+          order_index?: number
+          starting_price?: number | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }

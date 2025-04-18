@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
@@ -21,6 +20,7 @@ import { AdminHeader } from '@/components/admin/header';
 import { AdminFooter } from '@/components/admin/footer';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
+import AdminPricing from '@/components/admin/AdminPricing';
 
 const Admin = () => {
   return (
@@ -45,6 +45,7 @@ const Admin = () => {
           <Route path="/footer" element={<AdminFooter />} />
           <Route path="/users" element={<AdminUsers />} />
           <Route path="/supabase-migration" element={<AdminSupabaseMigration />} />
+          <Route path="/pricing" element={<AdminPricing />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminLayout>
