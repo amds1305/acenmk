@@ -19,19 +19,36 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
       return false;
     }
     
-    // Tester la connexion à l'API
+    // Tester la connexion à l'API avec un timeout
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondes timeout
+      
       const testResponse = await fetch(`${apiUrl}/config.php?test=json`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!testResponse.ok) {
         console.error(`Impossible de se connecter à l'API MySQL (statut: ${testResponse.status})`);
         return false;
       }
+      
+      // Tester que la réponse est du JSON valide
+      try {
+        await testResponse.json();
+      } catch (e) {
+        console.error('La réponse du serveur n\'est pas un JSON valide. Vérifiez que le fichier config.php est correctement configuré.');
+        return false;
+      }
     } catch (error) {
       console.error('Erreur lors du test de connexion à l\'API MySQL:', error);
+      if (error.name === 'AbortError') {
+        console.error('La connexion a expiré. Vérifiez que l\'URL de l\'API est correcte et que le serveur répond.');
+      }
       return false;
     }
     

@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon, Save } from 'lucide-react';
+import { InfoIcon, Save, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { setApiUrl, getApiUrl } from '@/services/mysql/config';
@@ -11,21 +11,85 @@ import { useToast } from '@/hooks/use-toast';
 const MySQLConfigInfo: React.FC = () => {
   const { toast } = useToast();
   const [apiUrl, setApiUrlState] = useState(getApiUrl() || '');
+  const [isUrlValid, setIsUrlValid] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testSuccess, setTestSuccess] = useState(false);
+
+  useEffect(() => {
+    // Vérifier le format de l'URL quand elle change
+    try {
+      if (apiUrl) {
+        new URL(apiUrl);
+        setIsUrlValid(true);
+      } else {
+        setIsUrlValid(false);
+      }
+    } catch (error) {
+      setIsUrlValid(false);
+    }
+  }, [apiUrl]);
+
+  const testConnection = async () => {
+    if (!isUrlValid) return;
+    
+    setIsTesting(true);
+    setTestSuccess(false);
+    
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondes timeout
+      
+      const response = await fetch(`${apiUrl}/config.php?test=json`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        try {
+          await response.json();
+          setTestSuccess(true);
+          toast({
+            title: "Connexion réussie",
+            description: "La connexion à l'API MySQL a été établie avec succès."
+          });
+        } catch (e) {
+          toast({
+            title: "Format de réponse invalide",
+            description: "Le serveur a répondu, mais le format n'est pas valide. Vérifiez votre configuration PHP.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Échec de connexion",
+          description: `Le serveur a répondu avec l'erreur: ${response.status} ${response.statusText}`,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        toast({
+          title: "Délai d'attente dépassé",
+          description: "La connexion à l'API a expiré. Vérifiez que l'URL est correcte et que le serveur répond.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erreur de connexion",
+          description: `Impossible de se connecter à l'API: ${error.message}`,
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   const handleSave = () => {
-    if (!apiUrl) {
-      toast({
-        title: "Erreur",
-        description: "L'URL de l'API ne peut pas être vide",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Vérifier le format de l'URL
-    try {
-      new URL(apiUrl);
-    } catch (error) {
+    if (!isUrlValid) {
       toast({
         title: "URL invalide",
         description: "Veuillez entrer une URL valide (ex: https://www.exemple.com/api)",
@@ -41,6 +105,9 @@ const MySQLConfigInfo: React.FC = () => {
       title: "Configuration sauvegardée",
       description: "L'URL de l'API MySQL a été enregistrée avec succès.",
     });
+    
+    // Tester la connexion automatiquement après sauvegarde
+    testConnection();
   };
 
   return (
@@ -70,9 +137,9 @@ const MySQLConfigInfo: React.FC = () => {
                 value={apiUrl} 
                 onChange={(e) => setApiUrlState(e.target.value)} 
                 placeholder="https://www.votre-site.com/api"
-                className="flex-1"
+                className={`flex-1 ${isUrlValid ? 'border-green-400' : apiUrl ? 'border-red-400' : ''}`}
               />
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave} disabled={!isUrlValid}>
                 <Save className="h-4 w-4 mr-2" />
                 Enregistrer
               </Button>
@@ -81,6 +148,24 @@ const MySQLConfigInfo: React.FC = () => {
               L'URL doit pointer vers le dossier contenant les fichiers PHP de l'API.
               Si vous avez placé les fichiers à la racine de votre site, l'URL sera simplement votre domaine.
             </p>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <Button 
+              variant="outline" 
+              onClick={testConnection} 
+              disabled={!isUrlValid || isTesting}
+              className="mt-2"
+            >
+              {isTesting ? "Test en cours..." : "Tester la connexion"}
+            </Button>
+            
+            {testSuccess && (
+              <div className="flex items-center text-green-600">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                <span className="text-sm">Connexion réussie</span>
+              </div>
+            )}
           </div>
           
           <Alert>

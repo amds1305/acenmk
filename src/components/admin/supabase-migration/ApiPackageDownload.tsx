@@ -31,8 +31,8 @@ const ApiPackageDownload: React.FC = () => {
       // Ajouter chaque fichier au ZIP
       for (const file of files) {
         try {
-          // Utiliser un chemin relatif au site actuel, sans /src
-          const response = await fetch(`/services/mysql/deploy/${file}`);
+          // Utiliser le chemin correct pour les fichiers statiques
+          const response = await fetch(`/src/services/mysql/deploy/${file}`);
           if (!response.ok) {
             throw new Error(`Impossible de charger ${file} (statut: ${response.status})`);
           }
