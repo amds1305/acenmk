@@ -9,8 +9,8 @@ import { useSections } from '@/contexts/SectionsContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MySQLConfigInfo from './MySQLConfigInfo';
 import ApiPackageDownload from './ApiPackageDownload';
-import { migrateLocalStorageToSupabase } from '@/services/supabase/sectionsService'; // For Supabase migrations
-import { migrateLocalStorageToSupabase as migrateLocalStorageToMySQL } from '@/services/mysql/migration'; // For MySQL migrations
+import { migrateLocalStorageToSupabase } from '@/services/supabase/sectionsService'; // Pour la migration Supabase
+import { migrateLocalStorageToMySQL } from '@/services/mysql/migration'; // Pour la migration MySQL
 
 const MigrationTool: React.FC = () => {
   const [isMigrating, setIsMigrating] = useState(false);

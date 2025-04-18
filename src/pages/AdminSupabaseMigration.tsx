@@ -24,7 +24,6 @@ const AdminSupabaseMigration = () => {
         </AlertDescription>
       </Alert>
 
-      <ApiPackageDownload />
       <MigrationTool />
     </div>
   );

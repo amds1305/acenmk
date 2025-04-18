@@ -16,4 +16,4 @@ export * from './migration';
 export { getHomepageConfig } from './getConfig';
 export { saveHomepageConfig } from './saveConfig';
 export { addSection, removeSection } from './sectionManagement';
-export { migrateLocalStorageToSupabase } from './migration';
+export { migrateLocalStorageToMySQL, migrateLocalStorageToSupabase } from './migration';

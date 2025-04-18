@@ -8,7 +8,7 @@ import { getApiUrl } from './config';
  * Migre les données du localStorage vers MySQL via l'API
  * @returns {Promise<boolean>} true en cas de succès, false en cas d'échec
  */
-export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
+export const migrateLocalStorageToMySQL = async (): Promise<boolean> => {
   try {
     console.log('Début de la migration vers MySQL...');
     
@@ -97,3 +97,6 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// Maintenir la compatibilité avec le nom de fonction précédent pour éviter des erreurs
+export const migrateLocalStorageToSupabase = migrateLocalStorageToMySQL;
