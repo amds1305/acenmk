@@ -295,8 +295,7 @@ if (isset($_GET['format']) && $_GET['format'] === 'json') {
     // Sinon, afficher la page HTML
     $result = runInstallation();
     displayInstallationPage($result);
-}
-`,
+}`,
   'config.php': `<?php
 /**
  * Configuration de la connexion à la base de données
@@ -457,7 +456,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // Fonction pour obtenir toutes les sections
 function getSections($conn) {
-    $stmt = $conn->prepare("SELECT * FROM sections ORDER BY `order`");
+    $stmt = $conn->prepare("SELECT * FROM sections ORDER BY \`order\`");
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -483,7 +482,7 @@ function updateSections($conn, $sections) {
         $stmt->execute();
         
         // Préparer la requête d'insertion
-        $stmt = $conn->prepare("INSERT INTO sections (id, type, title, visible, `order`, custom_component, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO sections (id, type, title, visible, \`order\`, custom_component, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
         
         // Insérer chaque section
         foreach ($sections as $section) {
@@ -977,12 +976,7 @@ Pour des instructions plus détaillées, consultez \`install-guide.md\`
 - \`template-config.php\` - API pour la configuration du template
 - \`trusted-clients.php\` - API pour les clients de confiance
 - \`install-guide.md\` - Guide d'installation détaillé
-- \`README.txt\` - Ce fichier
-
-## Important:
-
-Pour des raisons de sécurité, il est recommandé de supprimer \`install.php\`
-après l'installation ou de restreindre son accès.`,
+- \`README.txt\` - Ce fichier`,
   'install-guide.md': `# Guide d'installation de l'API MySQL pour OVH
 
 Ce package contient tous les fichiers nécessaires pour déployer rapidement une API REST permettant à votre application de se connecter à une base de données MySQL sur OVH.
