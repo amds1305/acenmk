@@ -2,9 +2,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Check, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { PricingCard } from './pricing/PricingCard';
 
 interface Feature {
   id: string;
@@ -66,45 +64,15 @@ const Pricing = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {packages?.map((pkg) => (
-            <Card key={pkg.id} className={`flex flex-col ${pkg.is_featured ? 'border-primary shadow-lg scale-105' : ''}`}>
-              <CardHeader>
-                {pkg.is_featured && (
-                  <div className="text-sm font-medium text-primary mb-2">Offre Recommandée</div>
-                )}
-                <h3 className="text-2xl font-bold">{pkg.title}</h3>
-                {pkg.description && (
-                  <p className="text-muted-foreground">{pkg.description}</p>
-                )}
-                {pkg.starting_price && (
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold">
-                      À partir de {pkg.starting_price}€
-                    </span>
-                  </div>
-                )}
-              </CardHeader>
-              
-              <CardContent className="flex-grow">
-                <ul className="space-y-4">
-                  {pkg.features?.map((feature) => (
-                    <li key={feature.id} className="flex items-center gap-2">
-                      {feature.is_included ? (
-                        <Check className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <X className="h-5 w-5 text-red-500" />
-                      )}
-                      <span>{feature.feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-
-              <CardFooter>
-                <Button className="w-full" variant={pkg.is_featured ? "default" : "outline"}>
-                  Nous Contacter
-                </Button>
-              </CardFooter>
-            </Card>
+            <PricingCard
+              key={pkg.id}
+              id={pkg.id}
+              title={pkg.title}
+              description={pkg.description}
+              startingPrice={pkg.starting_price}
+              isFeatured={pkg.is_featured}
+              features={pkg.features}
+            />
           ))}
         </div>
       </div>
