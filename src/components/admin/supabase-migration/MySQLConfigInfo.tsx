@@ -1,108 +1,96 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon, AlertTriangle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { InfoIcon, Save } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { setApiUrl, getApiUrl } from '@/services/mysql/config';
+import { useToast } from '@/hooks/use-toast';
 
 const MySQLConfigInfo: React.FC = () => {
+  const { toast } = useToast();
+  const [apiUrl, setApiUrlState] = useState(getApiUrl() || '');
+
+  const handleSave = () => {
+    if (!apiUrl) {
+      toast({
+        title: "Erreur",
+        description: "L'URL de l'API ne peut pas être vide",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Vérifier le format de l'URL
+    try {
+      new URL(apiUrl);
+    } catch (error) {
+      toast({
+        title: "URL invalide",
+        description: "Veuillez entrer une URL valide (ex: https://www.exemple.com/api)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Sauvegarder l'URL
+    setApiUrl(apiUrl);
+    
+    toast({
+      title: "Configuration sauvegardée",
+      description: "L'URL de l'API MySQL a été enregistrée avec succès.",
+    });
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Configuration pour MySQL</CardTitle>
+        <CardTitle>Configuration de l'API MySQL</CardTitle>
         <CardDescription>
-          Instructions pour configurer l'intégration avec votre base de données MySQL chez OVH
+          Configurez l'URL de l'API MySQL pour la connexion à votre base de données
         </CardDescription>
       </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <Alert>
+      <CardContent>
+        <Alert className="mb-4">
           <InfoIcon className="h-4 w-4" />
           <AlertTitle>Information importante</AlertTitle>
           <AlertDescription>
-            Pour utiliser une base de données MySQL hébergée chez OVH, vous devrez créer une API intermédiaire
-            pour connecter votre application front-end à votre base MySQL.
+            Pour utiliser la migration vers MySQL, vous devez déployer l'API PHP sur votre hébergement OVH.
+            Téléchargez le package d'installation ci-dessus et installez-le sur votre hébergement,
+            puis configurez l'URL ci-dessous.
           </AlertDescription>
         </Alert>
         
-        <div className="space-y-2">
-          <h3 className="font-medium">1. Créez les tables MySQL nécessaires</h3>
-          <div className="bg-muted p-3 rounded-md text-sm overflow-auto">
-            <pre>{`CREATE TABLE sections (
-  id VARCHAR(36) PRIMARY KEY,
-  type VARCHAR(50) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  visible BOOLEAN DEFAULT 1,
-  \`order\` INT NOT NULL,
-  custom_component VARCHAR(255) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE section_data (
-  id VARCHAR(36) PRIMARY KEY,
-  section_id VARCHAR(36) NOT NULL,
-  data JSON NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY (section_id)
-);
-
-CREATE TABLE trusted_clients (
-  id VARCHAR(36) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  logo_url VARCHAR(255) NOT NULL,
-  website_url VARCHAR(255) NULL,
-  category VARCHAR(100) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE template_config (
-  id VARCHAR(36) PRIMARY KEY,
-  active_template VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);`}</pre>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium mb-2">URL de l'API MySQL</p>
+            <div className="flex gap-2">
+              <Input 
+                value={apiUrl} 
+                onChange={(e) => setApiUrlState(e.target.value)} 
+                placeholder="https://www.votre-site.com/api"
+                className="flex-1"
+              />
+              <Button onClick={handleSave}>
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              L'URL doit pointer vers le dossier contenant les fichiers PHP de l'API.
+              Si vous avez placé les fichiers à la racine de votre site, l'URL sera simplement votre domaine.
+            </p>
           </div>
+          
+          <Alert>
+            <InfoIcon className="h-4 w-4" />
+            <AlertTitle>Remarque</AlertTitle>
+            <AlertDescription>
+              Vous pouvez également définir l'URL de l'API en utilisant la variable d'environnement VITE_MYSQL_API_URL dans votre fichier .env.
+            </AlertDescription>
+          </Alert>
         </div>
-        
-        <Separator />
-        
-        <div className="space-y-2">
-          <h3 className="font-medium">2. Créez une API REST pour accéder à votre base MySQL</h3>
-          <p className="text-sm text-muted-foreground">
-            Vous devrez créer une API (en PHP, Node.js ou autre) hébergée sur votre serveur OVH qui exposera
-            des endpoints pour interagir avec votre base MySQL:
-          </p>
-          <ul className="list-disc pl-6 text-sm space-y-1">
-            <li><code>GET /sections</code> - Récupérer toutes les sections</li>
-            <li><code>PUT /sections</code> - Mettre à jour toutes les sections</li>
-            <li><code>GET /section-data</code> - Récupérer toutes les données des sections</li>
-            <li><code>PUT /section-data</code> - Mettre à jour toutes les données des sections</li>
-            <li><code>GET /template-config</code> - Récupérer la configuration du template</li>
-            <li><code>PUT /template-config</code> - Mettre à jour la configuration du template</li>
-          </ul>
-        </div>
-        
-        <Separator />
-        
-        <div className="space-y-2">
-          <h3 className="font-medium">3. Configurez l'URL de votre API</h3>
-          <p className="text-sm text-muted-foreground">
-            Créez un fichier <code>.env.local</code> à la racine de votre projet avec la variable suivante:
-          </p>
-          <div className="bg-muted p-3 rounded-md text-sm">
-            <pre>{`VITE_MYSQL_API_URL=https://votre-api.exemple.com`}</pre>
-          </div>
-        </div>
-        
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Important</AlertTitle>
-          <AlertDescription>
-            Assurez-vous que votre API inclut des mesures de sécurité appropriées (authentification, CORS, etc.) 
-            pour protéger votre base de données MySQL contre les accès non autorisés.
-          </AlertDescription>
-        </Alert>
       </CardContent>
     </Card>
   );

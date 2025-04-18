@@ -2,6 +2,7 @@
 import { HomepageConfig } from '@/types/sections';
 import { saveHomepageConfig } from './saveConfig';
 import { loadFromStorage } from '../sections/storageService';
+import { getApiUrl } from './config';
 
 /**
  * Migre les données du localStorage vers MySQL via l'API
@@ -10,6 +11,29 @@ import { loadFromStorage } from '../sections/storageService';
 export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
   try {
     console.log('Début de la migration vers MySQL...');
+    
+    // Vérifier si l'URL de l'API est configurée
+    const apiUrl = getApiUrl();
+    if (!apiUrl) {
+      console.error('URL de l\'API MySQL non configurée. Veuillez configurer l\'URL de l\'API dans les paramètres.');
+      return false;
+    }
+    
+    // Tester la connexion à l'API
+    try {
+      const testResponse = await fetch(`${apiUrl}/config.php?test=json`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!testResponse.ok) {
+        console.error(`Impossible de se connecter à l'API MySQL (statut: ${testResponse.status})`);
+        return false;
+      }
+    } catch (error) {
+      console.error('Erreur lors du test de connexion à l\'API MySQL:', error);
+      return false;
+    }
     
     // Récupérer les données du localStorage
     const localConfig: HomepageConfig = loadFromStorage();

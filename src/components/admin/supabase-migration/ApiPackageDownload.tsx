@@ -31,9 +31,10 @@ const ApiPackageDownload: React.FC = () => {
       // Ajouter chaque fichier au ZIP
       for (const file of files) {
         try {
-          const response = await fetch(`/src/services/mysql/deploy/${file}`);
+          // Utiliser un chemin relatif au site actuel, sans /src
+          const response = await fetch(`/services/mysql/deploy/${file}`);
           if (!response.ok) {
-            throw new Error(`Impossible de charger ${file}`);
+            throw new Error(`Impossible de charger ${file} (statut: ${response.status})`);
           }
           const content = await response.text();
           zip.file(file, content);
@@ -41,7 +42,7 @@ const ApiPackageDownload: React.FC = () => {
           console.error(`Erreur lors du chargement de ${file}:`, error);
           toast({
             title: "Erreur",
-            description: `Impossible de charger ${file}`,
+            description: `Impossible de charger ${file}. Erreur: ${error instanceof Error ? error.message : 'Inconnue'}`,
             variant: "destructive"
           });
           setIsLoading(false);
