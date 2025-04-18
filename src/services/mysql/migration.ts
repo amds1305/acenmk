@@ -21,16 +21,20 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
     
     console.log(`URL de l'API configurée: ${apiUrl}`);
     
-    // Tester la connexion à l'API avec un timeout
+    // Tester la connexion à l'API avec un timeout plus long
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondes timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout (augmenté)
       
-      console.log(`Test de connexion à l'API: ${apiUrl}/config.php?test=json`);
-      const testResponse = await fetch(`${apiUrl}/config.php?test=json`, {
+      console.log(`Test de connexion à l'API: ${apiUrl}/config.php?test=json&_=${Date.now()}`);
+      const testResponse = await fetch(`${apiUrl}/config.php?test=json&_=${Date.now()}`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         signal: controller.signal,
+        mode: 'cors', // Explicitement demander le mode CORS
         // Ajouter ce paramètre pour éviter les problèmes de cache
         cache: 'no-store'
       });
@@ -39,7 +43,13 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
       
       if (!testResponse.ok) {
         console.error(`Impossible de se connecter à l'API MySQL (statut: ${testResponse.status})`);
-        console.error('Réponse:', await testResponse.text());
+        let responseText = '';
+        try {
+          responseText = await testResponse.text();
+          console.error('Réponse:', responseText);
+        } catch (e) {
+          console.error('Impossible de lire la réponse');
+        }
         return false;
       }
       
@@ -49,6 +59,7 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
         console.log('Réponse de test reçue:', jsonResponse);
       } catch (e) {
         console.error('La réponse du serveur n\'est pas un JSON valide. Vérifiez que le fichier config.php est correctement configuré.');
+        console.error('Erreur de parsing JSON:', e);
         console.error('Réponse brute:', await testResponse.text());
         return false;
       }

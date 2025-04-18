@@ -18,58 +18,92 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         console.log('Tentative de chargement de la configuration depuis MySQL...');
         console.log(`URL de l'API: ${apiUrl}`);
         
+        // Options de fetch communes
+        const fetchOptions = {
+          method: 'GET',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors' as RequestMode,
+          cache: 'no-store' as RequestCache
+        };
+        
         // Récupérer les sections
         console.log('Récupération des sections...');
-        const sectionsResponse = await fetch(`${apiUrl}/sections.php`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store' // Éviter le cache du navigateur
-        });
+        const sectionsResponse = await fetch(
+          `${apiUrl}/sections.php?_=${Date.now()}`, 
+          fetchOptions
+        );
         
         if (!sectionsResponse.ok) {
           console.error(`Erreur HTTP lors de la récupération des sections: ${sectionsResponse.status}`);
-          console.error('Réponse:', await sectionsResponse.text());
+          try {
+            console.error('Réponse:', await sectionsResponse.text());
+          } catch (textError) {
+            console.error('Impossible de lire la réponse');
+          }
           throw new Error(`Erreur lors de la récupération des sections: ${sectionsResponse.status}`);
         }
         
-        const sections = await sectionsResponse.json();
-        console.log(`Sections récupérées: ${sections.length}`);
+        let sections = [];
+        try {
+          sections = await sectionsResponse.json();
+          console.log(`Sections récupérées: ${sections.length}`);
+        } catch (jsonError) {
+          console.error('Erreur parsing JSON des sections:', jsonError);
+          throw new Error('Erreur lors du parsing JSON des sections');
+        }
         
         // Récupérer les données des sections
         console.log('Récupération des données des sections...');
-        const sectionDataResponse = await fetch(`${apiUrl}/section-data.php`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store' // Éviter le cache du navigateur
-        });
+        const sectionDataResponse = await fetch(
+          `${apiUrl}/section-data.php?_=${Date.now()}`, 
+          fetchOptions
+        );
         
         if (!sectionDataResponse.ok) {
           console.error(`Erreur HTTP lors de la récupération des données des sections: ${sectionDataResponse.status}`);
-          console.error('Réponse:', await sectionDataResponse.text());
+          try {
+            console.error('Réponse:', await sectionDataResponse.text());
+          } catch (textError) {
+            console.error('Impossible de lire la réponse');
+          }
           throw new Error(`Erreur lors de la récupération des données des sections: ${sectionDataResponse.status}`);
         }
         
-        const sectionDataArray = await sectionDataResponse.json();
-        console.log(`Données de sections récupérées: ${sectionDataArray.length}`);
+        let sectionDataArray = [];
+        try {
+          sectionDataArray = await sectionDataResponse.json();
+          console.log(`Données de sections récupérées: ${sectionDataArray.length}`);
+        } catch (jsonError) {
+          console.error('Erreur parsing JSON des données de sections:', jsonError);
+          throw new Error('Erreur lors du parsing JSON des données de sections');
+        }
         
         // Transformer le tableau de données en objet
         const sectionData = {};
         sectionDataArray.forEach(item => {
-          sectionData[item.section_id] = item.data;
+          if (item && item.section_id) {
+            sectionData[item.section_id] = item.data;
+          }
         });
         
         // Récupérer la configuration du template
         console.log('Récupération de la configuration du template...');
-        const templateConfigResponse = await fetch(`${apiUrl}/template-config.php`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store' // Éviter le cache du navigateur
-        });
+        const templateConfigResponse = await fetch(
+          `${apiUrl}/template-config.php?_=${Date.now()}`, 
+          fetchOptions
+        );
         
         let templateConfig = { activeTemplate: 'default' };
         if (templateConfigResponse.ok) {
-          templateConfig = await templateConfigResponse.json();
-          console.log('Configuration du template récupérée:', templateConfig);
+          try {
+            templateConfig = await templateConfigResponse.json();
+            console.log('Configuration du template récupérée:', templateConfig);
+          } catch (jsonError) {
+            console.warn('Erreur parsing JSON de la config du template:', jsonError);
+          }
         } else {
           console.warn(`La récupération de la configuration du template a échoué: ${templateConfigResponse.status}`);
         }

@@ -23,11 +23,20 @@ define('DB_NAME', 'votre_base_de_donnees_reelle');    // Remplacez par le nom de
 // Configuration CORS pour permettre l'accès depuis n'importe quelle origine
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json; charset=UTF-8');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
+header('Access-Control-Max-Age: 86400'); // 24 heures de cache pour les requêtes préflight
+header('Vary: Origin'); // Important pour la mise en cache correcte des réponses CORS
+
+// Pour les requêtes JSON
+if (strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false || 
+    isset($_GET['test']) && $_GET['test'] === 'json') {
+    header('Content-Type: application/json; charset=UTF-8');
+}
 
 // Répondre directement aux requêtes OPTIONS (requêtes préliminaires CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Envoyer 200 OK sans contenu pour les requêtes OPTIONS
+    header('HTTP/1.1 200 OK');
     exit(0);
 }
 
@@ -39,14 +48,36 @@ function connectDB() {
         
         if ($conn->connect_error) {
             custom_error_log('Erreur de connexion: ' . $conn->connect_error);
+            if (isset($_GET['test'])) {
+                if ($_GET['test'] === 'json') {
+                    echo json_encode(['error' => 'Connection failed: ' . $conn->connect_error]);
+                } else {
+                    // Format HTML
+                    echo '<p style="color:red;font-weight:bold;">❌ Erreur de connexion: ' . htmlspecialchars($conn->connect_error) . '</p>';
+                }
+                exit;
+            }
             die(json_encode(['error' => 'Connection failed: ' . $conn->connect_error]));
         }
         
         custom_error_log('Connexion à la base de données réussie');
-        $conn->set_charset('utf8mb4');
+        
+        // PHP 5.4 ne supporte pas set_charset avec utf8mb4
+        // Utilisons set_charset avec utf8 à la place
+        $conn->set_charset('utf8');
+        
         return $conn;
     } catch (Exception $e) {
         custom_error_log('Exception lors de la connexion: ' . $e->getMessage());
+        if (isset($_GET['test'])) {
+            if ($_GET['test'] === 'json') {
+                echo json_encode(['error' => 'Exception: ' . $e->getMessage()]);
+            } else {
+                // Format HTML
+                echo '<p style="color:red;font-weight:bold;">❌ Exception: ' . htmlspecialchars($e->getMessage()) . '</p>';
+            }
+            exit;
+        }
         die(json_encode(['error' => 'Exception: ' . $e->getMessage()]));
     }
 }
@@ -61,6 +92,10 @@ if (isset($_GET['test'])) {
     try {
         if ($_GET['test'] === 'json') {
             // Tester uniquement la réponse en format JSON
+            // Vérifier que la connexion fonctionne
+            $conn = connectDB();
+            $conn->close();
+            
             echo json_encode([
                 'status' => 'ok',
                 'message' => 'API configuration valide',
