@@ -8,9 +8,9 @@ const AdminSupabaseMigration = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Migration vers Supabase</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Migration des données</h1>
         <p className="text-muted-foreground mt-2">
-          Transférez vos données depuis le stockage local vers la base de données Supabase.
+          Transférez vos données depuis le stockage local vers la base de données MySQL ou Supabase.
         </p>
       </div>
 

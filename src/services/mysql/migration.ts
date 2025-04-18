@@ -26,8 +26,10 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout (augmenté)
       
-      console.log(`Test de connexion à l'API: ${apiUrl}/config.php?test=json&_=${Date.now()}`);
-      const testResponse = await fetch(`${apiUrl}/config.php?test=json&_=${Date.now()}`, {
+      const testUrl = `${apiUrl}/config.php?test=json&_=${Date.now()}`;
+      console.log(`Test de connexion à l'API: ${testUrl}`);
+      
+      const testResponse = await fetch(testUrl, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -35,8 +37,7 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
         },
         signal: controller.signal,
         mode: 'cors', // Explicitement demander le mode CORS
-        // Ajouter ce paramètre pour éviter les problèmes de cache
-        cache: 'no-store'
+        cache: 'no-store' // Ajouter ce paramètre pour éviter les problèmes de cache
       });
       
       clearTimeout(timeoutId);
@@ -60,7 +61,6 @@ export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
       } catch (e) {
         console.error('La réponse du serveur n\'est pas un JSON valide. Vérifiez que le fichier config.php est correctement configuré.');
         console.error('Erreur de parsing JSON:', e);
-        console.error('Réponse brute:', await testResponse.text());
         return false;
       }
     } catch (error) {
