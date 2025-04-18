@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
@@ -24,6 +24,7 @@ import Careers from '@/pages/Careers';
 import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
 import AceJob from '@/pages/AceJob';
+import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/ace-job" element={<AceJob />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/migration" element={<AdminSupabaseMigration />} />
                 <Route path="/admin/*" element={<Admin />} />
               </Routes>
               <Toaster />

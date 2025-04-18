@@ -1,12 +1,16 @@
 
-// Re-exporter les fonctions du nouveau service MySQL
+// Re-exporter les fonctions du service Supabase
 // Cela permet aux composants existants de continuer à fonctionner sans modifications
 import { 
   getHomepageConfig, 
   saveHomepageConfig,
   addSection,
-  removeSection
-} from '@/services/mysql';
+  removeSection,
+  migrateLocalStorageToSupabase,
+  getTrustedClients,
+  upsertTrustedClient,
+  deleteTrustedClient
+} from '@/services/supabase/sectionsService';
 
 // Export des types
 export * from './types';
@@ -23,5 +27,14 @@ export * from './defaultData';
 // Re-export explicite du DEFAULT_TEMPLATE_CONFIG depuis defaultData
 export { DEFAULT_TEMPLATE_CONFIG, DEFAULT_HOMEPAGE_CONFIG } from './defaultData';
 
-// Re-exporter les fonctions du service MySQL
-export { getHomepageConfig, saveHomepageConfig, addSection, removeSection };
+// Re-exporter les fonctions du service Supabase
+export { 
+  getHomepageConfig, 
+  saveHomepageConfig, 
+  addSection, 
+  removeSection,
+  migrateLocalStorageToSupabase,
+  getTrustedClients,
+  upsertTrustedClient,
+  deleteTrustedClient
+};

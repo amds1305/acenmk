@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2, InfoIcon } from 'lucide-react';
-import { migrateLocalStorageToSupabase } from '@/services/mysql'; // Updated import path
+import { migrateLocalStorageToSupabase } from '@/services/supabase/sectionsService'; // Updated import path
 import { useToast } from '@/hooks/use-toast';
 import { useSections } from '@/contexts/SectionsContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
