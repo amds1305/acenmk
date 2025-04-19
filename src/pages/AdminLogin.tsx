@@ -76,9 +76,6 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Pour cette démo: email: admin@example.com, mot de passe: admin123
-              </p>
             </div>
             <Button 
               type="submit" 

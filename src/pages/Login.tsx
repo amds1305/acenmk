@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -103,15 +104,6 @@ const Login = () => {
                 )}
               </Button>
             </form>
-            <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
-              <p className="text-center">
-                Pour les besoins de la démo:
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                <li><strong>Client:</strong> user@example.com / user123</li>
-                <li><strong>Admin:</strong> admin@example.com / admin123</li>
-              </ul>
-            </div>
           </CardContent>
           <CardFooter>
             <div className="w-full text-center">
