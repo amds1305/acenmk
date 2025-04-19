@@ -1,7 +1,7 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import React, { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/mysql';
 import TekoHero from './TekoHero';
 import TekoServices from './TekoServices';
 import TekoAbout from './TekoAbout';
@@ -27,10 +27,20 @@ const sectionComponents: Record<SectionType, React.FC> = {
 
 // Component principal du template Teko
 const TekoHomeTemplate: React.FC = () => {
+  const queryClient = useQueryClient();
+  
+  // Force un rechargement des données au montage du composant
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+  }, [queryClient]);
+  
   // Get sections configuration from the API
   const { data: config, isLoading } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
   
   if (isLoading) {

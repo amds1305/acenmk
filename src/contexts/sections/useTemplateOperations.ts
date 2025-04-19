@@ -22,6 +22,9 @@ export function useTemplateOperations(
       };
       
       setConfig(updatedConfig);
+      
+      // Invalider immédiatement les requêtes pour propager le changement
+      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
     } catch (error) {
       console.error('Erreur lors de la mise à jour du type de template:', error);
       toast({
@@ -34,17 +37,27 @@ export function useTemplateOperations(
 
   const saveChanges = async () => {
     try {
-      await saveHomepageConfig(config);
+      console.log("Sauvegarde des modifications...", config);
+      const result = await saveHomepageConfig(config);
       
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['heroData'] });
-      queryClient.invalidateQueries({ queryKey: ['templateConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['trustedClientsData'] });
+      if (!result) {
+        throw new Error("Échec de la sauvegarde");
+      }
+      
+      // Invalider toutes les requêtes pour forcer un rechargement complet des données
+      queryClient.invalidateQueries();
       
       toast({
         title: "Modifications enregistrées",
         description: "Les paramètres de la page d'accueil ont été mis à jour avec succès.",
       });
+      
+      // Pause pour laisser le temps aux données de se propager
+      setTimeout(() => {
+        // Invalider à nouveau pour garantir la mise à jour
+        queryClient.invalidateQueries();
+      }, 1000);
+      
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       toast({

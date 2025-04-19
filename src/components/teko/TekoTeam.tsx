@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/mysql';
 
 const TekoTeam: React.FC = () => {
   const { data: config } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 1000 * 10,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   // Utiliser les données de l'équipe depuis la base de données si disponibles
@@ -37,6 +38,7 @@ const TekoTeam: React.FC = () => {
     }
   ];
   
+  console.log("TekoTeam - Données d'équipe reçues:", teamData);
   const team = teamData && teamData.length > 0 ? teamData : defaultTeam;
   
   return (

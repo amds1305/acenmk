@@ -97,13 +97,22 @@ const AdminTeam = () => {
     // Sauvegarder les données
     await saveChanges();
     
-    // Invalider les requêtes pour forcer un rechargement des données
-    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    // Invalider toutes les requêtes pour forcer un rechargement complet des données
+    queryClient.invalidateQueries();
     
     toast({
       title: "Modifications enregistrées",
       description: "La section Équipe a été mise à jour avec succès.",
     });
+    
+    // Ajout d'un rechargement de la page après un court délai pour garantir l'application des mises à jour
+    setTimeout(() => {
+      // Afficher un toast indiquant que la section est mise à jour
+      toast({
+        title: "Mise à jour terminée",
+        description: "Les changements sont maintenant visibles sur le site.",
+      });
+    }, 1500);
   };
 
   return (

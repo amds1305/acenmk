@@ -4,17 +4,22 @@ import { cn } from '@/lib/utils';
 import { Linkedin, Twitter, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/mysql';
 
 const Team = () => {
   const { data: config, isLoading } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 0,
+    refetchOnMount: true,
   });
+  
+  console.log("Team component - Config reçue:", config);
   
   // Utiliser les données de l'équipe depuis la base de données si disponibles
   const teamData = config?.sectionData?.team?.members || [];
+  
+  console.log("Team component - Données d'équipe:", teamData);
   
   // Utiliser des données par défaut si aucune donnée n'est disponible
   const defaultTeamMembers = [

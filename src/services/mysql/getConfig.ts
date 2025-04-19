@@ -18,21 +18,26 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         console.log('Tentative de chargement de la configuration depuis MySQL...');
         console.log(`URL de l'API: ${apiUrl}`);
         
+        // Timestamp pour éviter la mise en cache du navigateur
+        const timestamp = new Date().getTime();
+        
         // Options de fetch communes
         const fetchOptions = {
           method: 'GET',
           headers: { 
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           },
-          mode: 'cors' as RequestMode,
           cache: 'no-store' as RequestCache
         };
         
         // Récupérer les sections
         console.log('Récupération des sections...');
         const sectionsResponse = await fetch(
-          `${apiUrl}/sections.php?_=${Date.now()}`, 
+          `${apiUrl}/sections.php?_=${timestamp}`, 
           fetchOptions
         );
         
@@ -58,7 +63,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         // Récupérer les données des sections
         console.log('Récupération des données des sections...');
         const sectionDataResponse = await fetch(
-          `${apiUrl}/section-data.php?_=${Date.now()}`, 
+          `${apiUrl}/section-data.php?_=${timestamp}`, 
           fetchOptions
         );
         
@@ -92,7 +97,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         // Récupérer la configuration du template
         console.log('Récupération de la configuration du template...');
         const templateConfigResponse = await fetch(
-          `${apiUrl}/template-config.php?_=${Date.now()}`, 
+          `${apiUrl}/template-config.php?_=${timestamp}`, 
           fetchOptions
         );
         
@@ -109,6 +114,9 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         }
         
         console.log('Configuration chargée depuis MySQL avec succès');
+        
+        // Vider le cache local storage pour éviter les conflits
+        localStorage.removeItem('homepageConfig');
         
         return {
           sections,

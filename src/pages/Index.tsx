@@ -15,8 +15,8 @@ import { TekoHomeTemplate } from '@/components/teko';
 import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/mysql';
 import { useToast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 
@@ -52,11 +52,20 @@ const templates: Record<HomeTemplateType, React.FC> = {
 
 const Index = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Force un rechargement des données au montage du composant
+  useEffect(() => {
+    // Invalider le cache pour forcer un rafraîchissement complet
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+  }, [queryClient]);
   
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 1000 * 10, // 10 seconds seulement pour voir les changements rapidement
+    staleTime: 0, // Toujours considérer comme périmé pour forcer le rechargement
+    refetchOnMount: true, // Recharger à chaque montage
+    refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
     retry: 2,
   });
 
