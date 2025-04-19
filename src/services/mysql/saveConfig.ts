@@ -80,6 +80,7 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
     // 3. Sauvegarder la configuration du template
     if (config.templateConfig) {
       try {
+        console.log('Sauvegarde de la configuration du template:', config.templateConfig);
         const templateConfigResponse = await fetch(`${apiUrl}/template-config.php`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

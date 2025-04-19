@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -16,7 +17,7 @@ import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 
 export interface SectionVisibility {
@@ -50,10 +51,12 @@ const templates: Record<HomeTemplateType, React.FC> = {
 };
 
 const Index = () => {
+  const { toast } = useToast();
+  
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 10, // 10 seconds seulement pour voir les changements rapidement
     retry: 2,
   });
 
@@ -66,14 +69,15 @@ const Index = () => {
       });
       console.error("Erreur lors du chargement de la configuration:", error);
     }
-  }, [error]);
+  }, [error, toast]);
 
+  console.log("Template actif:", homeConfig?.templateConfig?.activeTemplate);
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 
   const sectionsToDisplay = homeConfig?.sections
-    .filter(section => section.visible)
-    .sort((a, b) => a.order - b.order) || [];
+    ?.filter(section => section.visible)
+    ?.sort((a, b) => a.order - b.order) || [];
 
   useEffect(() => {
     const observerOptions = {
@@ -111,6 +115,7 @@ const Index = () => {
   }
 
   if (activeTemplate !== 'default' && TemplateComponent) {
+    console.log(`Utilisation du template ${activeTemplate}`);
     return (
       <div className="flex flex-col min-h-screen">
         <Header />

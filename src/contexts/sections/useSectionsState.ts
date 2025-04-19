@@ -13,7 +13,9 @@ export function useSectionsState() {
   const loadConfig = async () => {
     try {
       setIsLoading(true);
+      console.log('Chargement de la configuration initiale...');
       const initialConfig = await getHomepageConfig();
+      console.log('Configuration chargée:', initialConfig);
       setConfig(initialConfig);
     } catch (error) {
       console.error('Erreur lors du chargement de la configuration:', error);

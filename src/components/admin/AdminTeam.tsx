@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Save, EyeIcon } from 'lucide-react';
+import { useSections } from '@/contexts/SectionsContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { 
   TeamList,
   TeamMemberEditor, 
@@ -15,11 +17,29 @@ import {
 
 const AdminTeam = () => {
   const { toast } = useToast();
+  const { config, updateExistingSectionData, saveChanges } = useSections();
+  const queryClient = useQueryClient();
+  
   const [teamMembers, setTeamMembers] = useState(INITIAL_TEAM_MEMBERS);
   const [editingMember, setEditingMember] = useState<null | TeamMember>(null);
   const [memberToDelete, setMemberToDelete] = useState<null | { id: string, name: string }>(null);
-  
   const [sectionSettings, setSectionSettings] = useState<SectionSettings>(INITIAL_SECTION_SETTINGS);
+
+  // Charger les données existantes
+  useEffect(() => {
+    if (config?.sectionData?.team) {
+      const teamData = config.sectionData.team;
+      if (teamData.members && Array.isArray(teamData.members)) {
+        setTeamMembers(teamData.members);
+      }
+      if (teamData.settings) {
+        setSectionSettings({
+          ...INITIAL_SECTION_SETTINGS,
+          ...teamData.settings
+        });
+      }
+    }
+  }, [config]);
 
   const handleEdit = (member: TeamMember) => {
     setEditingMember(member);
@@ -34,11 +54,12 @@ const AdminTeam = () => {
       newTeamMembers.push({
         ...editingMember,
         id: Date.now().toString(),
+        isNew: undefined
       });
     } else {
       const index = newTeamMembers.findIndex(m => m.id === editingMember.id);
       if (index !== -1) {
-        newTeamMembers[index] = editingMember;
+        newTeamMembers[index] = { ...editingMember, isNew: undefined };
       }
     }
     
@@ -63,10 +84,21 @@ const AdminTeam = () => {
     });
   };
 
-  const handleSaveSection = () => {
-    // Ici nous sauvegarderions normalement les données vers une API
-    console.log('Section settings', sectionSettings);
-    console.log('Team members', teamMembers);
+  const handleSaveSection = async () => {
+    // Préparer les données à sauvegarder
+    const teamData = {
+      members: teamMembers,
+      settings: sectionSettings
+    };
+    
+    // Mettre à jour les données de la section dans le contexte
+    updateExistingSectionData('team', teamData);
+    
+    // Sauvegarder les données
+    await saveChanges();
+    
+    // Invalider les requêtes pour forcer un rechargement des données
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
     
     toast({
       title: "Modifications enregistrées",

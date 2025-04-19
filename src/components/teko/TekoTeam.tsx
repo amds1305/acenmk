@@ -1,8 +1,20 @@
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/sections';
 
 const TekoTeam: React.FC = () => {
-  const team = [
+  const { data: config } = useQuery({
+    queryKey: ['homeConfig'],
+    queryFn: getHomepageConfig,
+    staleTime: 1000 * 10,
+  });
+
+  // Utiliser les données de l'équipe depuis la base de données si disponibles
+  const teamData = config?.sectionData?.team?.members;
+  
+  // Données par défaut si aucune donnée n'est trouvée
+  const defaultTeam = [
     {
       name: "Sophie Martin",
       role: "CEO & Fondatrice",
@@ -25,6 +37,8 @@ const TekoTeam: React.FC = () => {
     }
   ];
   
+  const team = teamData && teamData.length > 0 ? teamData : defaultTeam;
+  
   return (
     <section id="team" className="py-24 bg-[#f8fafc]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,10 +53,10 @@ const TekoTeam: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
-            <div key={index} className="group relative">
+            <div key={member.id || index} className="group relative">
               <div className="aspect-square rounded-2xl overflow-hidden mb-4">
                 <img 
-                  src={member.image} 
+                  src={member.image || `https://via.placeholder.com/400x400?text=${member.name.charAt(0)}`} 
                   alt={member.name} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
