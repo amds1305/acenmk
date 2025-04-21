@@ -1,34 +1,85 @@
 
-import { HomepageConfig } from '@/types/sections';
-import { loadFromStorage } from '../sections/storageService';
-
 /**
- * Récupère l'URL de l'API MySQL à partir de la variable d'environnement
- * ou du localStorage si elle a été configurée manuellement
+ * Configuration pour l'API MySQL
  */
-export const getApiUrl = (): string | null => {
-  // Vérifier d'abord la variable d'environnement
-  const envApiUrl = import.meta.env.VITE_MYSQL_API_URL;
-  if (envApiUrl) {
-    return envApiUrl;
+
+// URL de base de l'API MySQL
+// Si une URL est définie dans le localStorage, elle est utilisée en priorité
+export const getApiUrl = (): string => {
+  const localStorageUrl = localStorage.getItem('mysqlApiUrl');
+  
+  // Si l'URL est définie dans le localStorage, l'utiliser
+  if (localStorageUrl) {
+    return localStorageUrl;
   }
   
-  // Sinon, vérifier le localStorage pour une configuration manuelle
-  const storedApiUrl = localStorage.getItem('mysqlApiUrl');
-  return storedApiUrl;
+  // Déterminer l'URL de l'API en fonction de l'environnement
+  const currentUrl = window.location.origin;
+  
+  // Vérifier si nous sommes sur un domaine de production connu
+  if (currentUrl.includes('acenumerik.com') || 
+      currentUrl.includes('votre-domaine.fr') || 
+      currentUrl.includes('alwaysdata.net')) {
+    
+    // Sur un serveur de production, l'API est située dans le sous-répertoire /api
+    return `${currentUrl}/api`;
+  }
+  
+  // En développement local ou dans un environnement de déploiement non reconnu,
+  // utiliser le même hôte que l'application frontend
+  return `${currentUrl}/api`;
 };
 
 /**
- * Définir manuellement l'URL de l'API MySQL dans le localStorage
- * Utile lorsque les variables d'environnement ne sont pas accessibles
+ * Configure l'URL de l'API MySQL
+ * @param url - L'URL de l'API MySQL
  */
 export const setApiUrl = (url: string): void => {
-  localStorage.setItem('mysqlApiUrl', url);
+  if (!url) {
+    localStorage.removeItem('mysqlApiUrl');
+    console.log('URL de l\'API MySQL supprimée');
+    return;
+  }
+  
+  // Normaliser l'URL (supprimer le slash final s'il existe)
+  const normalizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+  localStorage.setItem('mysqlApiUrl', normalizedUrl);
+  console.log('URL de l\'API MySQL configurée:', normalizedUrl);
 };
 
 /**
- * Récupère la configuration depuis le localStorage
+ * Teste la connexion à l'API MySQL
+ * @returns Promise<boolean> - true si la connexion est établie, false sinon
  */
-export const getFromLocalStorage = (): HomepageConfig => {
-  return loadFromStorage();
+export const testApiConnection = async (): Promise<boolean> => {
+  const apiUrl = getApiUrl();
+  
+  if (!apiUrl) {
+    console.error('URL de l\'API MySQL non configurée');
+    return false;
+  }
+  
+  try {
+    const timestamp = new Date().getTime();
+    const response = await fetch(`${apiUrl}/config.php?test=json&_=${timestamp}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store'
+      },
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      console.error(`Erreur HTTP lors du test de connexion: ${response.status}`);
+      return false;
+    }
+    
+    const data = await response.json();
+    return data.status === 'ok';
+  } catch (error) {
+    console.error('Erreur lors du test de connexion à l\'API MySQL:', error);
+    return false;
+  }
 };

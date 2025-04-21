@@ -13,6 +13,8 @@ export function useTemplateOperations(
 
   const updateTemplateType = async (templateType: HomeTemplateType) => {
     try {
+      console.log(`Mise à jour du template: ${templateType}`);
+      
       const updatedConfig = {
         ...config,
         templateConfig: {
@@ -24,7 +26,14 @@ export function useTemplateOperations(
       setConfig(updatedConfig);
       
       // Invalider immédiatement les requêtes pour propager le changement
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+      queryClient.invalidateQueries();
+      
+      // Tenter de sauvegarder immédiatement la modification
+      try {
+        await saveChanges(updatedConfig);
+      } catch (saveError) {
+        console.error('Erreur lors de la sauvegarde immédiate du template:', saveError);
+      }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du type de template:', error);
       toast({
@@ -35,10 +44,10 @@ export function useTemplateOperations(
     }
   };
 
-  const saveChanges = async () => {
+  const saveChanges = async (configToSave = config) => {
     try {
-      console.log("Sauvegarde des modifications...", config);
-      const result = await saveHomepageConfig(config);
+      console.log("Sauvegarde des modifications...", configToSave);
+      const result = await saveHomepageConfig(configToSave);
       
       if (!result) {
         throw new Error("Échec de la sauvegarde");
@@ -52,11 +61,17 @@ export function useTemplateOperations(
         description: "Les paramètres de la page d'accueil ont été mis à jour avec succès.",
       });
       
-      // Pause pour laisser le temps aux données de se propager
+      // Force un rechargement complet après 1 seconde
       setTimeout(() => {
-        // Invalider à nouveau pour garantir la mise à jour
         queryClient.invalidateQueries();
+        
+        // Forcer le rechargement de la page d'accueil si on est en mode admin
+        if (window.location.pathname.includes('/admin')) {
+          console.log("Rafraîchissement forcé des données de l'admin...");
+        }
       }, 1000);
+      
+      return true;
       
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
@@ -65,6 +80,7 @@ export function useTemplateOperations(
         description: "Un problème est survenu lors de la sauvegarde des modifications.",
         variant: "destructive",
       });
+      return false;
     }
   };
 

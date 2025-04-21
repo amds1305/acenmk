@@ -29,18 +29,28 @@ const sectionComponents: Record<SectionType, React.FC> = {
 const TekoHomeTemplate: React.FC = () => {
   const queryClient = useQueryClient();
   
-  // Force un rechargement des données au montage du composant
+  // Force un rechargement des données au montage du composant et toutes les 30 secondes
   useEffect(() => {
+    // Rechargement initial
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    
+    // Rechargement périodique toutes les 30 secondes
+    const intervalId = setInterval(() => {
+      console.log('Rechargement périodique des données...');
+      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    }, 30000);
+    
+    return () => clearInterval(intervalId);
   }, [queryClient]);
   
-  // Get sections configuration from the API
+  // Get sections configuration from the API with aggressive revalidation
   const { data: config, isLoading } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 0, // Considérer les données comme périmées immédiatement
+    refetchOnMount: true, // Recharger à chaque montage
+    refetchOnWindowFocus: true, // Recharger à chaque focus de fenêtre
+    refetchInterval: 30000, // Recharger toutes les 30 secondes
   });
   
   if (isLoading) {
@@ -51,10 +61,15 @@ const TekoHomeTemplate: React.FC = () => {
     );
   }
 
+  // Afficher les informations de débogage en console
+  console.log('TekoHomeTemplate - Configuration chargée:', config);
+  
   // Get visible sections sorted by order
   const sections = config?.sections
     ?.filter(section => section.visible)
     ?.sort((a, b) => a.order - b.order) || [];
+  
+  console.log('TekoHomeTemplate - Sections visibles:', sections);
 
   return (
     <div className="teko-template flex flex-col min-h-screen w-full">
@@ -66,6 +81,7 @@ const TekoHomeTemplate: React.FC = () => {
           return null;
         }
         
+        console.log(`Rendering section: ${section.id} (${section.type})`);
         return <SectionComponent key={section.id} />;
       })}
     </div>

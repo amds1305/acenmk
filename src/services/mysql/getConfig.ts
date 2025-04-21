@@ -115,14 +115,16 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         
         console.log('Configuration chargée depuis MySQL avec succès');
         
-        // Vider le cache local storage pour éviter les conflits
-        localStorage.removeItem('homepageConfig');
-        
-        return {
+        const config = {
           sections,
           sectionData,
           templateConfig
         };
+        
+        // Sauvegarder la configuration dans localStorage pour utilisation hors ligne
+        localStorage.setItem('homepageConfig', JSON.stringify(config));
+        
+        return config;
         
       } catch (error) {
         console.error('Erreur lors du chargement depuis MySQL, repli sur localStorage:', error);
