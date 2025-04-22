@@ -1,12 +1,28 @@
+
 import React, { createContext, useContext } from 'react';
+import { User } from '@/types/auth';
 import { useAuthProvider } from '../hooks/useAuth';
+
+// Define the AuthContextType here since it was previously imported
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: Error | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const auth = useAuthProvider();
   
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={auth}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
@@ -16,6 +32,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-// Re-export types from the types file for convenience
-export type { User, Project, Estimate, Message, UserRole, UserPreferences, Address, SocialLink, LoginHistory } from '../types/auth';
