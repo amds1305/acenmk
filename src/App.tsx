@@ -17,8 +17,8 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <ThemeProvider>
+    <ThemeProvider>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -27,8 +27,8 @@ function App() {
           {/* Autres routes... */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
