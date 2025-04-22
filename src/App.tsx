@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
@@ -6,6 +7,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ensureStorageBucket } from './lib/supabase';
 
 function App() {
@@ -16,14 +18,16 @@ function App() {
 
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile/*" element={<Profile />} />
-        {/* Autres routes... */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <ThemeProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile/*" element={<Profile />} />
+          {/* Autres routes... */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
