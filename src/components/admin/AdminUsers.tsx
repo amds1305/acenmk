@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Card,
@@ -43,8 +42,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { User, UserRole } from '@/types/auth';
 import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
+import UserProfileDialog from './users/UserProfileDialog';
+import SendMessageDialog from './users/SendMessageDialog';
 
-// Sample user data for the admin panel
 const mockUsers = [
   MOCK_ADMIN_USER,
   MOCK_USER,
@@ -82,9 +82,12 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // Filter users based on search term and selected role
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,7 +119,6 @@ const AdminUsers = () => {
   };
 
   const handleDeleteUser = (userId: string) => {
-    // In a real app, this would call an API
     setUsers(users.filter(user => user.id !== userId));
     toast({
       title: "Utilisateur supprimé",
@@ -125,7 +127,6 @@ const AdminUsers = () => {
   };
 
   const handleChangeRole = (userId: string, newRole: UserRole) => {
-    // In a real app, this would call an API
     setUsers(users.map(user => 
       user.id === userId ? { ...user, role: newRole } : user
     ));
@@ -135,7 +136,31 @@ const AdminUsers = () => {
     });
   };
 
-  // For demonstration purposes only - in a real app, these would do actual operations
+  const handleViewProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(false);
+    setIsProfileOpen(true);
+  };
+
+  const handleEditProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(true);
+    setIsProfileOpen(true);
+  };
+
+  const handleSendMessage = (user: User) => {
+    setSelectedUser(user);
+    setIsMessageDialogOpen(true);
+  };
+
+  const handleUpdateProfile = async (updatedUser: Partial<User>) => {
+    setUsers(users.map(user => 
+      user.id === selectedUser?.id 
+        ? { ...user, ...updatedUser }
+        : user
+    ));
+  };
+
   const handleExportUsers = () => {
     toast({
       title: "Export lancé",
@@ -264,15 +289,15 @@ const AdminUsers = () => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewProfile(user)}>
                               <UserIcon className="h-4 w-4 mr-2" />
                               Voir le profil
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditProfile(user)}>
                               <Edit2 className="h-4 w-4 mr-2" />
                               Modifier
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSendMessage(user)}>
                               <Mail className="h-4 w-4 mr-2" />
                               Envoyer un message
                             </DropdownMenuItem>
@@ -341,6 +366,27 @@ const AdminUsers = () => {
           </div>
         </CardContent>
       </Card>
+
+      <UserProfileDialog
+        user={selectedUser}
+        isOpen={isProfileOpen}
+        onClose={() => {
+          setIsProfileOpen(false);
+          setSelectedUser(null);
+          setIsEditingProfile(false);
+        }}
+        onSave={handleUpdateProfile}
+        isEditing={isEditingProfile}
+      />
+
+      <SendMessageDialog
+        user={selectedUser}
+        isOpen={isMessageDialogOpen}
+        onClose={() => {
+          setIsMessageDialogOpen(false);
+          setSelectedUser(null);
+        }}
+      />
     </>
   );
 };
