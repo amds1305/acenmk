@@ -23,21 +23,11 @@ export const useAuthentication = () => {
       }
       
       console.log("Login successful:", data.session);
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur votre espace.",
-      });
-      
-      return Promise.resolve();
+      return { data };
     } catch (error) {
       console.error("Login exception:", error);
       const errorMessage = error instanceof Error ? error.message : 'Identifiants invalides';
-      toast({
-        variant: "destructive",
-        title: "Échec de la connexion",
-        description: errorMessage,
-      });
-      return Promise.reject(new Error(errorMessage));
+      return { error: new Error(errorMessage) };
     } finally {
       setIsLoading(false);
     }
@@ -47,6 +37,7 @@ export const useAuthentication = () => {
     setIsLoading(true);
 
     try {
+      console.log("Register attempt with:", email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -61,20 +52,12 @@ export const useAuthentication = () => {
       
       if (error) throw error;
       
-      toast({
-        title: "Inscription réussie",
-        description: "Votre compte a été créé avec succès."
-      });
-      
-      return Promise.resolve();
+      console.log("Registration successful:", data);
+      return { data };
     } catch (error) {
+      console.error("Registration error:", error);
       const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription';
-      toast({
-        variant: "destructive",
-        title: "Échec de l'inscription",
-        description: errorMessage,
-      });
-      return Promise.reject(new Error(errorMessage));
+      return { error: new Error(errorMessage) };
     } finally {
       setIsLoading(false);
     }
@@ -82,10 +65,12 @@ export const useAuthentication = () => {
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
-      localStorage.removeItem('user');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      return { success: true };
     } catch (error) {
       console.error("Logout error:", error);
+      return { error };
     }
   };
 

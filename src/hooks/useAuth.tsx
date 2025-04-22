@@ -1,6 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { User, AuthContextType } from '@/types/auth';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+import { useAuthentication } from './auth/useAuthentication';
 
 export const useAuthProvider = (): AuthContextType => {
   const [user, setUser] = useState<User | null>(null);
@@ -10,28 +13,75 @@ export const useAuthProvider = (): AuthContextType => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [messages, setMessages] = useState([]);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const { toast } = useToast();
+  const authService = useAuthentication();
 
   useEffect(() => {
-    // Check for existing session on mount
-    const checkSession = async () => {
-      try {
-        // This would typically call an API to check if the user is logged in
-        // For now, we'll just simulate it by checking localStorage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-          setIsAdmin(parsedUser.role === 'admin' || parsedUser.role === 'super_admin');
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Auth state changed:", event, session);
+        if (session?.user) {
+          try {
+            // Récupérer les données utilisateur après authentification
+            const { data: userData, error: userError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+              
+            if (userError) throw userError;
+            
+            // Créer un objet utilisateur combiné avec les données de l'authentification et du profil
+            const combinedUser: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: userData?.name || session.user.email?.split('@')[0] || 'Utilisateur',
+              role: userData?.role || 'user',
+              avatar: userData?.avatar || '/placeholder.svg',
+              createdAt: session.user.created_at || new Date().toISOString(),
+              // Ajouter d'autres champs si nécessaires
+            };
+            
+            setUser(combinedUser);
+            setIsAuthenticated(true);
+            setIsAdmin(combinedUser.role === 'admin' || combinedUser.role === 'super_admin');
+          } catch (err) {
+            console.error("Erreur lors de la récupération du profil:", err);
+            // Même en cas d'erreur, on considère l'utilisateur comme authentifié
+            const basicUser: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              name: session.user.email?.split('@')[0] || 'Utilisateur',
+              role: 'user',
+              avatar: '/placeholder.svg',
+              createdAt: session.user.created_at || new Date().toISOString(),
+            };
+            setUser(basicUser);
+            setIsAuthenticated(true);
+            setIsAdmin(false);
+          }
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
         setLoading(false);
       }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session);
+      if (!session) {
+        setLoading(false);
+      }
+      // Le reste est géré par onAuthStateChange
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    
-    checkSession();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -39,23 +89,25 @@ export const useAuthProvider = (): AuthContextType => {
     setError(null);
     
     try {
-      // This would typically call an API to authenticate the user
-      // For now, we'll just simulate a successful login
-      const mockUser: User = {
-        id: '1',
-        name: 'Test User',
-        email,
-        role: 'user',
-        avatar: '/placeholder.svg',
-        createdAt: new Date().toISOString(),
-      };
+      console.log("Tentative de connexion avec:", email);
+      const { error } = await authService.login(email, password);
       
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      setIsAdmin(mockUser.role === 'admin' || mockUser.role === 'super_admin');
+      if (error) throw error;
+      
+      toast({
+        title: 'Connexion réussie',
+        description: 'Bienvenue sur votre espace client.',
+      });
+      
+      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to login'));
+      const errorMessage = err instanceof Error ? err.message : 'Identifiants invalides';
+      toast({
+        variant: 'destructive',
+        title: 'Échec de la connexion',
+        description: errorMessage,
+      });
+      setError(err instanceof Error ? err : new Error(errorMessage));
       throw err;
     } finally {
       setLoading(false);
@@ -67,25 +119,23 @@ export const useAuthProvider = (): AuthContextType => {
     setError(null);
     
     try {
-      // This would typically call an API to register the user
-      // For now, we'll just simulate a successful registration
-      const mockUser: User = {
-        id: '1',
-        name,
-        email,
-        role: 'user',
-        avatar: '/placeholder.svg',
-        company,
-        phone,
-        createdAt: new Date().toISOString(),
-      };
+      console.log("Tentative d'inscription avec:", email);
+      await authService.register(name, email, password, company, phone);
       
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      setIsAdmin(false);
+      toast({
+        title: 'Inscription réussie',
+        description: 'Votre compte a été créé avec succès.',
+      });
+      
+      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to register'));
+      const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription";
+      toast({
+        variant: 'destructive',
+        title: "Échec de l'inscription",
+        description: errorMessage,
+      });
+      setError(err instanceof Error ? err : new Error(errorMessage));
       throw err;
     } finally {
       setLoading(false);
@@ -93,12 +143,14 @@ export const useAuthProvider = (): AuthContextType => {
   };
 
   const logout = async () => {
-    // This would typically call an API to logout the user
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-    setIsAdmin(false);
-    return Promise.resolve();
+    try {
+      await authService.logout();
+      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      return Promise.reject(error);
+    }
   };
 
   const updateProfile = async (data: Partial<User>) => {

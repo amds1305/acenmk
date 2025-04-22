@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase } from '@/lib/supabase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,49 +22,27 @@ const Login = () => {
 
   const from = location.state?.from?.pathname || '/profile';
 
-  React.useEffect(() => {
+  useEffect(() => {
+    console.log("Auth state in Login:", isAuthenticated);
     if (isAuthenticated) {
-      navigate('/profile');
+      console.log("User is authenticated, redirecting to:", from);
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    
     setIsSubmitting(true);
     
     try {
       console.log("Tentative de connexion avec:", email);
-      
-      // Appel direct à Supabase pour le débogage
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) {
-        console.error("Erreur Supabase lors de la connexion:", error);
-        throw error;
-      }
-      
-      if (data?.session) {
-        console.log("Session Supabase créée avec succès:", data.session);
-        
-        // Utiliser le hook login de notre contexte d'auth
-        await login(email, password);
-        
-        toast({
-          title: 'Connexion réussie',
-          description: 'Bienvenue sur votre espace client.',
-        });
-        navigate(from, { replace: true });
-      }
+      await login(email, password);
+      // La redirection sera gérée par l'effet useEffect quand isAuthenticated changera
     } catch (error) {
       console.error("Erreur complète lors de la connexion:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Échec de la connexion',
-        description: 'Veuillez vérifier vos identifiants',
-      });
+      // La gestion des erreurs est déjà faite dans le hook login
     } finally {
       setIsSubmitting(false);
     }

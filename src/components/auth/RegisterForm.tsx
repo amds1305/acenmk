@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
@@ -13,7 +12,6 @@ import { Link } from 'react-router-dom';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -41,7 +39,6 @@ const RegisterForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,21 +54,19 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (isSubmitting) return;
+    
     setIsSubmitting(true);
     try {
+      console.log("Tentative d'inscription avec les données:", data);
       await register(data.name, data.email, data.password, data.company, data.phone);
-      toast({
-        title: 'Inscription réussie',
-        description: 'Votre compte a été créé avec succès.',
-      });
+      
+      // La redirection sera effectuée automatiquement par useEffect dans le contexte d'authentification
+      // si l'inscription réussit et que l'utilisateur est authentifié
       navigate('/profile');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription';
-      toast({
-        variant: 'destructive',
-        title: 'Échec de l\'inscription',
-        description: errorMessage,
-      });
+      console.error("Erreur lors de l'inscription:", error);
+      // La gestion des erreurs est déjà faite dans le hook register
     } finally {
       setIsSubmitting(false);
     }
