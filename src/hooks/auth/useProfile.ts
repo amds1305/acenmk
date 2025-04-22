@@ -1,113 +1,67 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { User } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
-import { User, UserPreferences } from '@/types/auth';
 
-export const useProfile = (user: User | null) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const useProfile = () => {
   const { toast } = useToast();
-
+  
   const updateProfile = async (data: Partial<User>) => {
-    setIsLoading(true);
-
     try {
-      if (!user) throw new Error("Aucun utilisateur connecté");
-      
       const { error } = await supabase
         .from('profiles')
-        .update({
-          name: data.name,
-          company: data.company,
-          phone: data.phone,
-          biography: data.biography,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+        .update(data)
+        .eq('id', data.id);
         
       if (error) throw error;
       
-      if (data.role && data.role !== user.role) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role: data.role })
-          .eq('user_id', user.id);
-          
-        if (roleError) throw roleError;
-      }
-      
       toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été enregistrées avec succès."
+        title: 'Profil mis à jour',
+        description: 'Vos informations ont été mises à jour avec succès.',
       });
       
       return Promise.resolve();
     } catch (error) {
-      console.error("Profile update error:", error);
+      console.error("Erreur lors de la mise à jour du profil:", error);
       toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "La mise à jour du profil a échoué."
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la mise à jour de votre profil.',
       });
       return Promise.reject(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const uploadAvatar = async (file: File): Promise<string> => {
-    setIsLoading(true);
-    
+  const uploadAvatar = async (file: File) => {
     try {
-      if (!user) throw new Error("Aucun utilisateur connecté");
-      
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${Date.now()}.${fileExt}`;
       
-      const { error: uploadError } = await supabase
-        .storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
         
       if (uploadError) throw uploadError;
       
-      const { data } = supabase
-        .storage
+      const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
         
-      const avatarUrl = data.publicUrl;
-      
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('id', user.id);
-        
-      if (updateError) throw updateError;
-      
-      toast({
-        title: "Avatar mis à jour",
-        description: "Votre photo de profil a été modifiée avec succès."
-      });
-      
-      return Promise.resolve(avatarUrl);
+      return data.publicUrl;
     } catch (error) {
-      console.error("Avatar upload error:", error);
+      console.error("Erreur lors de l'upload de l'avatar:", error);
       toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Le téléchargement de l'avatar a échoué."
+        variant: 'destructive',
+        title: 'Erreur',
+        description: "Une erreur est survenue lors de l'upload de votre avatar.",
       });
-      return Promise.reject("");
-    } finally {
-      setIsLoading(false);
+      return '/placeholder.svg';
     }
   };
 
   return {
     updateProfile,
     uploadAvatar,
-    isLoading
   };
 };

@@ -1,14 +1,20 @@
 
 import { useState } from 'react';
 import { Message } from '@/types/auth';
-import { MOCK_MESSAGES } from '@/data/mockUsers';
 
 export const useMessages = () => {
-  const [messages] = useState<Message[]>(MOCK_MESSAGES);
-  const unreadMessages = messages.filter(message => !message.read && message.sender === 'admin').length;
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  // Cette fonction pourra être implémentée plus tard pour gérer les messages
+  const fetchMessages = async () => {
+    // TODO: Implémenter la récupération des messages depuis Supabase
+    return [];
+  };
 
   return {
     messages,
-    unreadMessages
+    unreadMessages,
+    fetchMessages,
   };
 };
