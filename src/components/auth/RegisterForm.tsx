@@ -40,22 +40,21 @@ const RegisterForm = () => {
     setIsSubmitting(true);
     try {
       console.log("Tentative d'inscription avec les données:", data);
-      await register(data.name, data.email, data.password, data.company, data.phone);
+      const { success, error } = await register(data.name, data.email, data.password, data.company, data.phone);
       
-      // Afficher un message de succès
-      toast({
-        title: "Inscription réussie",
-        description: "Votre compte a été créé avec succès.",
-      });
-      
-      // Rediriger vers la page de profil après un court délai
-      setTimeout(() => {
-        navigate('/profile');
-      }, 500);
+      if (success) {
+        // Rediriger vers la page de connexion après l'inscription
+        // La notification toast est déjà gérée dans la fonction register
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      } else if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);
       
-      // Afficher un message d'erreur
+      // Afficher un message d'erreur spécifique
       toast({
         variant: "destructive",
         title: "Erreur d'inscription",

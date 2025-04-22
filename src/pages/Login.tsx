@@ -42,10 +42,16 @@ const Login = () => {
     } catch (error) {
       console.error("Erreur complète lors de la connexion:", error);
       // Notification d'erreur ajoutée ici pour plus de clarté
+      const errorMessage = error instanceof Error 
+        ? error.message === 'Email not confirmed'
+          ? 'Email non confirmé. Veuillez vérifier votre boîte mail.'
+          : error.message
+        : 'Vérifiez vos identifiants et réessayez.';
+
       toast({
         variant: 'destructive',
         title: 'Échec de la connexion',
-        description: 'Vérifiez vos identifiants et réessayez.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
