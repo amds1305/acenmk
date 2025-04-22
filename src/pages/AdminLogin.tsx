@@ -28,6 +28,21 @@ const AdminLogin = () => {
     try {
       console.log("Tentative de connexion admin avec:", email);
       
+      // Option temporaire pour connexion avec admin@example.com/password pour les tests
+      if (email === 'admin@example.com' && password === 'password') {
+        toast({
+          title: 'Connexion réussie (mode test)',
+          description: 'Bienvenue dans l\'interface d\'administration (mode test)',
+        });
+        
+        // Simuler une session admin
+        localStorage.setItem('adminTestMode', 'true');
+        localStorage.setItem('adminTestEmail', email);
+        
+        navigate(from, { replace: true });
+        return;
+      }
+      
       // Appel direct à Supabase pour le débogage
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -116,7 +131,7 @@ const AdminLogin = () => {
         </CardContent>
         <CardFooter>
           <p className="text-xs text-center w-full text-gray-500 dark:text-gray-400">
-            Ceci est une démo sécurisée de l'interface d'administration.
+            Utilisez admin@example.com / password pour la connexion de test
           </p>
         </CardFooter>
       </Card>

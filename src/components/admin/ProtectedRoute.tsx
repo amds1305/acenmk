@@ -15,6 +15,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const location = useLocation();
+  
+  // Vérifier le mode admin de test
+  const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
 
   if (isLoading) {
     return (
@@ -23,6 +26,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         <span className="ml-2">Chargement...</span>
       </div>
     );
+  }
+
+  // Si nous sommes en mode admin de test, autoriser l'accès
+  if (isTestAdmin) {
+    return <>{children}</>;
   }
 
   if (!isAuthenticated) {
