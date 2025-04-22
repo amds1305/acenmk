@@ -7,8 +7,8 @@ import { useAuthentication } from './auth/useAuthentication';
 
 export const useAuthProvider = (): AuthContextType => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -19,47 +19,57 @@ export const useAuthProvider = (): AuthContextType => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log("Auth state changed:", event, session);
+        setSession(session);
+        
         if (session?.user) {
           try {
-            // Récupérer les données utilisateur après authentification
-            const { data: userData, error: userError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-              
-            if (userError) throw userError;
-            
-            // Créer un objet utilisateur combiné avec les données de l'authentification et du profil
-            const combinedUser: User = {
-              id: session.user.id,
-              email: session.user.email || '',
-              name: userData?.name || session.user.email?.split('@')[0] || 'Utilisateur',
-              role: userData?.role || 'user',
-              avatar: userData?.avatar || '/placeholder.svg',
-              createdAt: session.user.created_at || new Date().toISOString(),
-              // Ajouter d'autres champs si nécessaires
-            };
-            
-            setUser(combinedUser);
-            setIsAuthenticated(true);
-            setIsAdmin(combinedUser.role === 'admin' || combinedUser.role === 'super_admin');
-          } catch (err) {
-            console.error("Erreur lors de la récupération du profil:", err);
-            // Même en cas d'erreur, on considère l'utilisateur comme authentifié
+            // Créer un objet utilisateur de base avec les données de l'authentification
             const basicUser: User = {
               id: session.user.id,
               email: session.user.email || '',
-              name: session.user.email?.split('@')[0] || 'Utilisateur',
-              role: 'user',
-              avatar: '/placeholder.svg',
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Utilisateur',
+              role: session.user.user_metadata?.role || 'user',
+              avatar: session.user.user_metadata?.avatar || '/placeholder.svg',
               createdAt: session.user.created_at || new Date().toISOString(),
             };
+            
             setUser(basicUser);
             setIsAuthenticated(true);
-            setIsAdmin(false);
+            setIsAdmin(basicUser.role === 'admin' || basicUser.role === 'super_admin');
+
+            // Utiliser setTimeout pour éviter les deadlocks potentiels
+            setTimeout(async () => {
+              try {
+                // Récupérer plus de données utilisateur si nécessaire
+                const { data: userData, error: userError } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .single();
+                  
+                if (!userError && userData) {
+                  // Mettre à jour avec les données du profil
+                  const updatedUser: User = {
+                    ...basicUser,
+                    name: userData.name || basicUser.name,
+                    role: userData.role || basicUser.role,
+                    avatar: userData.avatar || basicUser.avatar,
+                    company: userData.company,
+                    phone: userData.phone,
+                  };
+                  
+                  setUser(updatedUser);
+                  setIsAdmin(updatedUser.role === 'admin' || updatedUser.role === 'super_admin');
+                }
+              } catch (err) {
+                console.error("Erreur lors de la récupération du profil:", err);
+                // L'utilisateur reste authentifié même si on ne peut pas récupérer son profil
+              }
+            }, 0);
+          } catch (err) {
+            console.error("Erreur initiale:", err);
           }
         } else {
           setUser(null);
@@ -86,20 +96,19 @@ export const useAuthProvider = (): AuthContextType => {
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    setError(null);
     
     try {
       console.log("Tentative de connexion avec:", email);
-      const { error } = await authService.login(email, password);
+      const { success, error, data } = await authService.login(email, password);
       
-      if (error) throw error;
+      if (!success) throw error;
       
       toast({
         title: 'Connexion réussie',
         description: 'Bienvenue sur votre espace client.',
       });
       
-      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
+      return Promise.resolve();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Identifiants invalides';
       toast({
@@ -107,7 +116,6 @@ export const useAuthProvider = (): AuthContextType => {
         title: 'Échec de la connexion',
         description: errorMessage,
       });
-      setError(err instanceof Error ? err : new Error(errorMessage));
       throw err;
     } finally {
       setLoading(false);
@@ -116,18 +124,19 @@ export const useAuthProvider = (): AuthContextType => {
 
   const register = async (name: string, email: string, password: string, company?: string, phone?: string) => {
     setLoading(true);
-    setError(null);
     
     try {
       console.log("Tentative d'inscription avec:", email);
-      await authService.register(name, email, password, company, phone);
+      const { success, error } = await authService.register(name, email, password, company, phone);
+      
+      if (!success) throw error;
       
       toast({
         title: 'Inscription réussie',
         description: 'Votre compte a été créé avec succès.',
       });
       
-      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
+      return Promise.resolve();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de l'inscription";
       toast({
@@ -135,7 +144,6 @@ export const useAuthProvider = (): AuthContextType => {
         title: "Échec de l'inscription",
         description: errorMessage,
       });
-      setError(err instanceof Error ? err : new Error(errorMessage));
       throw err;
     } finally {
       setLoading(false);
@@ -145,7 +153,6 @@ export const useAuthProvider = (): AuthContextType => {
   const logout = async () => {
     try {
       await authService.logout();
-      // Ne pas définir l'utilisateur ici, il sera défini par onAuthStateChange
       return Promise.resolve();
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
@@ -153,28 +160,24 @@ export const useAuthProvider = (): AuthContextType => {
     }
   };
 
+  // Autres fonctions...
   const updateProfile = async (data: Partial<User>) => {
-    // This would typically call an API to update the user's profile
     return Promise.resolve();
   };
 
   const uploadAvatar = async (file: File) => {
-    // This would typically call an API to upload the avatar
     return Promise.resolve('/placeholder.svg');
   };
 
   const updatePassword = async (currentPassword: string, newPassword: string) => {
-    // This would typically call an API to update the password
     return Promise.resolve();
   };
 
   const toggleTwoFactor = async (enable: boolean) => {
-    // This would typically call an API to toggle two-factor authentication
     return Promise.resolve();
   };
 
   const updatePreferences = async (preferences: any) => {
-    // This would typically call an API to update the user's preferences
     return Promise.resolve();
   };
 

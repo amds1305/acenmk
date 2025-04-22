@@ -23,7 +23,6 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/profile';
 
   useEffect(() => {
-    console.log("Auth state in Login:", isAuthenticated);
     if (isAuthenticated) {
       console.log("User is authenticated, redirecting to:", from);
       navigate(from, { replace: true });
@@ -42,7 +41,12 @@ const Login = () => {
       // La redirection sera gérée par l'effet useEffect quand isAuthenticated changera
     } catch (error) {
       console.error("Erreur complète lors de la connexion:", error);
-      // La gestion des erreurs est déjà faite dans le hook login
+      // Notification d'erreur ajoutée ici pour plus de clarté
+      toast({
+        variant: 'destructive',
+        title: 'Échec de la connexion',
+        description: 'Vérifiez vos identifiants et réessayez.',
+      });
     } finally {
       setIsSubmitting(false);
     }

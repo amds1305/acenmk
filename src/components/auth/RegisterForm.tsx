@@ -13,11 +13,13 @@ import { PasswordFields } from './register/PasswordFields';
 import { OptionalFields } from './register/OptionalFields';
 import { TermsField } from './register/TermsField';
 import { formSchema, FormData } from './register/formSchema';
+import { useToast } from '@/hooks/use-toast';
 
 const RegisterForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -39,9 +41,26 @@ const RegisterForm = () => {
     try {
       console.log("Tentative d'inscription avec les données:", data);
       await register(data.name, data.email, data.password, data.company, data.phone);
-      navigate('/profile');
+      
+      // Afficher un message de succès
+      toast({
+        title: "Inscription réussie",
+        description: "Votre compte a été créé avec succès.",
+      });
+      
+      // Rediriger vers la page de profil après un court délai
+      setTimeout(() => {
+        navigate('/profile');
+      }, 500);
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);
+      
+      // Afficher un message d'erreur
+      toast({
+        variant: "destructive",
+        title: "Erreur d'inscription",
+        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'inscription.",
+      });
     } finally {
       setIsSubmitting(false);
     }

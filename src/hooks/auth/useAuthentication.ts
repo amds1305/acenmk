@@ -22,12 +22,12 @@ export const useAuthentication = () => {
         throw error;
       }
       
-      console.log("Login successful:", data.session);
-      return { data };
+      console.log("Login successful:", data);
+      return { success: true, data };
     } catch (error) {
       console.error("Login exception:", error);
       const errorMessage = error instanceof Error ? error.message : 'Identifiants invalides';
-      return { error: new Error(errorMessage) };
+      return { success: false, error: new Error(errorMessage) };
     } finally {
       setIsLoading(false);
     }
@@ -53,11 +53,11 @@ export const useAuthentication = () => {
       if (error) throw error;
       
       console.log("Registration successful:", data);
-      return { data };
+      return { success: true, data };
     } catch (error) {
       console.error("Registration error:", error);
       const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription';
-      return { error: new Error(errorMessage) };
+      return { success: false, error: new Error(errorMessage) };
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ export const useAuthentication = () => {
       return { success: true };
     } catch (error) {
       console.error("Logout error:", error);
-      return { error };
+      return { success: false, error };
     }
   };
 
