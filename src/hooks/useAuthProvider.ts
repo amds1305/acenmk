@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { User, Message, UserPreferences, LoginHistory } from '../types/auth';
-import { MOCK_ADMIN_USER, MOCK_USER, MOCK_MESSAGES, MOCK_PASSWORD, USER_PASSWORD } from '../data/mockUsers';
+import { MOCK_MESSAGES } from '../data/mockUsers';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export const useAuthProvider = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -10,263 +11,353 @@ export const useAuthProvider = () => {
   const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
   const { toast } = useToast();
 
+  // Vérifier et charger la session Supabase au démarrage
   useEffect(() => {
-    // Check if user is already logged in (via localStorage)
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const checkSession = async () => {
+      setIsLoading(true);
+      
+      // Récupérer la session et les données utilisateur de Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        await fetchAndSetUserData(session.user.id);
+      }
+      
+      setIsLoading(false);
+    };
+    
+    checkSession();
+    
+    // Écouter les changements d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session) {
+          await fetchAndSetUserData(session.user.id);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+    
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Récupérer les données utilisateur complètes depuis la base de données
+  const fetchAndSetUserData = async (userId: string) => {
+    try {
+      // Récupérer le profil utilisateur
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (profileError) throw profileError;
+      
+      // Récupérer le rôle utilisateur
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+      
+      if (roleError) throw roleError;
+
+      // Construire l'objet utilisateur complet
+      const userData: User = {
+        id: userId,
+        email: profileData.email,
+        name: profileData.name,
+        role: roleData.role,
+        company: profileData.company || undefined,
+        phone: profileData.phone || undefined,
+        avatar: profileData.avatar_url || undefined,
+        biography: profileData.biography || undefined,
+        createdAt: new Date().toISOString(), // À mettre à jour si disponible
+        lastLoginDate: new Date().toISOString(),
+        projects: [],
+        estimates: []
+      };
+      
+      setUser(userData);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données utilisateur:", error);
+      setUser(null);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
-    // Simulate authentication verification
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        if (email === MOCK_ADMIN_USER.email && password === MOCK_PASSWORD) {
-          // Add login history
-          const loginEntry: LoginHistory = {
-            id: Math.random().toString(36).substring(2, 9),
-            date: new Date().toISOString(),
-            ip: '192.168.1.' + Math.floor(Math.random() * 255),
-            deviceInfo: 'Web Browser / Chrome',
-            location: 'Paris, France',
-            success: true
-          };
-          
-          const updatedUser = {
-            ...MOCK_ADMIN_USER,
-            lastLoginDate: new Date().toISOString(),
-            loginHistory: [...(MOCK_ADMIN_USER.loginHistory || []), loginEntry]
-          };
-          
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          setIsLoading(false);
-          resolve();
-        } else if (email === MOCK_USER.email && password === USER_PASSWORD) {
-          // Add login history
-          const loginEntry: LoginHistory = {
-            id: Math.random().toString(36).substring(2, 9),
-            date: new Date().toISOString(),
-            ip: '192.168.1.' + Math.floor(Math.random() * 255),
-            deviceInfo: 'Web Browser / Chrome',
-            location: 'Lyon, France',
-            success: true
-          };
-          
-          const updatedUser = {
-            ...MOCK_USER,
-            lastLoginDate: new Date().toISOString(),
-            loginHistory: [...(MOCK_USER.loginHistory || []), loginEntry]
-          };
-          
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          setIsLoading(false);
-          resolve();
-        } else {
-          // Record failed login attempt
-          setIsLoading(false);
-          reject(new Error('Identifiants invalides'));
-        }
-      }, 1000); // Simulate network delay
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      // fetchAndSetUserData sera appelé via onAuthStateChange
+      toast({
+        title: "Connexion réussie",
+        description: "Vous êtes maintenant connecté."
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Identifiants invalides';
+      setIsLoading(false);
+      return Promise.reject(new Error(errorMessage));
+    }
   };
 
   const register = async (name: string, email: string, password: string, company?: string, phone?: string) => {
     setIsLoading(true);
 
-    // Simulate registering a new user
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        // Check if email is already in use
-        if (email === MOCK_ADMIN_USER.email || email === MOCK_USER.email) {
-          setIsLoading(false);
-          reject(new Error('Cet email est déjà utilisé'));
-          return;
+    try {
+      // Inscription via Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            company,
+            phone
+          }
         }
-
-        // Default preferences
-        const defaultPreferences: UserPreferences = {
-          notifications: {
-            email: true,
-            sms: false,
-            projectUpdates: true,
-            marketing: false
-          },
-          privacy: {
-            profileVisibility: 'public',
-            showEmail: false,
-            showPhone: false
-          },
-          theme: 'system'
-        };
-
-        // Initial login history
-        const loginEntry: LoginHistory = {
-          id: Math.random().toString(36).substring(2, 9),
-          date: new Date().toISOString(),
-          ip: '192.168.1.' + Math.floor(Math.random() * 255),
-          deviceInfo: 'Web Browser / Chrome',
-          location: 'Paris, France',
-          success: true
-        };
-
-        const newUser: User = {
-          id: Math.random().toString(36).substring(2, 9),
-          email,
+      });
+      
+      if (error) throw error;
+      
+      // Si nécessaire, ajouter des données supplémentaires au profil
+      // Cela peut ne pas être nécessaire si un déclencheur gère la création du profil
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user?.id,
           name,
-          role: 'user',
+          email,
           company,
-          phone,
-          createdAt: new Date().toISOString(),
-          projects: [],
-          estimates: [],
-          preferences: defaultPreferences,
-          loginHistory: [loginEntry],
-          twoFactorEnabled: false,
-          lastLoginDate: new Date().toISOString()
-        };
-
-        setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser));
-        setIsLoading(false);
-        resolve();
-      }, 1500);
-    });
+          phone
+        });
+        
+      if (profileError) throw profileError;
+      
+      toast({
+        title: "Inscription réussie",
+        description: "Votre compte a été créé avec succès."
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'inscription';
+      setIsLoading(false);
+      return Promise.reject(new Error(errorMessage));
+    }
   };
 
   const updateProfile = async (data: Partial<User>) => {
     setIsLoading(true);
 
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        if (user) {
-          const updatedUser = { ...user, ...data };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
+    try {
+      if (!user) throw new Error("Aucun utilisateur connecté");
+      
+      // Mise à jour des informations de profil dans Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: data.name,
+          company: data.company,
+          phone: data.phone,
+          biography: data.biography,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Si le rôle est modifié, mettre à jour dans la table user_roles
+      if (data.role && data.role !== user.role) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .update({ role: data.role })
+          .eq('user_id', user.id);
           
-          toast({
-            title: "Profil mis à jour",
-            description: "Vos informations ont été enregistrées avec succès."
-          });
-        }
-        setIsLoading(false);
-        resolve();
-      }, 800);
-    });
+        if (roleError) throw roleError;
+      }
+      
+      // Mettre à jour l'état local
+      setUser({ ...user, ...data });
+      
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations ont été enregistrées avec succès."
+      });
+      
+      setIsLoading(false);
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du profil:", error);
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "La mise à jour du profil a échoué."
+      });
+      return Promise.reject(error);
+    }
   };
 
   const uploadAvatar = async (file: File): Promise<string> => {
     setIsLoading(true);
     
-    // Simulate file upload
-    return new Promise<string>((resolve) => {
-      setTimeout(() => {
-        // Create a fake URL for the avatar (in a real app, this would be a server URL)
-        const avatarUrl = URL.createObjectURL(file);
+    try {
+      if (!user) throw new Error("Aucun utilisateur connecté");
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+      
+      // Télécharger le fichier dans le bucket storage
+      const { error: uploadError } = await supabase
+        .storage
+        .from('avatars')
+        .upload(filePath, file);
         
-        if (user) {
-          const updatedUser = { ...user, avatar: avatarUrl };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          
-          toast({
-            title: "Avatar mis à jour",
-            description: "Votre photo de profil a été modifiée avec succès."
-          });
-        }
+      if (uploadError) throw uploadError;
+      
+      // Obtenir l'URL publique
+      const { data } = supabase
+        .storage
+        .from('avatars')
+        .getPublicUrl(filePath);
         
-        setIsLoading(false);
-        resolve(avatarUrl);
-      }, 1500);
-    });
+      const avatarUrl = data.publicUrl;
+      
+      // Mettre à jour le profil avec la nouvelle URL d'avatar
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('id', user.id);
+        
+      if (updateError) throw updateError;
+      
+      // Mettre à jour l'état local
+      setUser({ ...user, avatar: avatarUrl });
+      
+      toast({
+        title: "Avatar mis à jour",
+        description: "Votre photo de profil a été modifiée avec succès."
+      });
+      
+      setIsLoading(false);
+      return Promise.resolve(avatarUrl);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement de l'avatar:", error);
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Le téléchargement de l'avatar a échoué."
+      });
+      return Promise.reject("");
+    }
   };
 
   const updatePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
     setIsLoading(true);
     
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        // Check current password
-        const isAdmin = user?.email === MOCK_ADMIN_USER.email;
-        const expectedPassword = isAdmin ? MOCK_PASSWORD : USER_PASSWORD;
-        
-        if (currentPassword !== expectedPassword) {
-          setIsLoading(false);
-          toast({
-            variant: "destructive",
-            title: "Erreur",
-            description: "Le mot de passe actuel est incorrect."
-          });
-          reject(new Error("Le mot de passe actuel est incorrect"));
-          return;
-        }
-        
-        // In a real app, we would update the password in the backend
+    try {
+      // Vérifier le mot de passe actuel en tentant de se connecter
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: currentPassword
+      });
+      
+      if (signInError) {
         toast({
-          title: "Mot de passe mis à jour",
-          description: "Votre mot de passe a été modifié avec succès."
+          variant: "destructive",
+          title: "Erreur",
+          description: "Le mot de passe actuel est incorrect."
         });
-        
-        setIsLoading(false);
-        resolve();
-      }, 1000);
-    });
+        throw signInError;
+      }
+      
+      // Mettre à jour le mot de passe
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Mot de passe mis à jour",
+        description: "Votre mot de passe a été modifié avec succès."
+      });
+      
+      setIsLoading(false);
+      return Promise.resolve();
+    } catch (error) {
+      setIsLoading(false);
+      return Promise.reject(error);
+    }
   };
 
   const toggleTwoFactor = async (enable: boolean): Promise<void> => {
     setIsLoading(true);
     
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        if (user) {
-          const updatedUser = { ...user, twoFactorEnabled: enable };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          
-          toast({
-            title: enable ? "Authentification à deux facteurs activée" : "Authentification à deux facteurs désactivée",
-            description: enable 
-              ? "Votre compte est maintenant plus sécurisé." 
-              : "L'authentification à deux facteurs a été désactivée."
-          });
-        }
-        
-        setIsLoading(false);
-        resolve();
-      }, 800);
-    });
+    try {
+      if (!user) throw new Error("Aucun utilisateur connecté");
+      
+      // Mettre à jour l'état utilisateur
+      setUser({ ...user, twoFactorEnabled: enable });
+      
+      toast({
+        title: enable ? "Authentification à deux facteurs activée" : "Authentification à deux facteurs désactivée",
+        description: enable 
+          ? "Votre compte est maintenant plus sécurisé." 
+          : "L'authentification à deux facteurs a été désactivée."
+      });
+      
+      setIsLoading(false);
+      return Promise.resolve();
+    } catch (error) {
+      setIsLoading(false);
+      return Promise.reject(error);
+    }
   };
 
   const updatePreferences = async (preferences: UserPreferences): Promise<void> => {
     setIsLoading(true);
     
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        if (user) {
-          const updatedUser = { ...user, preferences };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          
-          toast({
-            title: "Préférences mises à jour",
-            description: "Vos préférences ont été enregistrées avec succès."
-          });
-        }
-        
-        setIsLoading(false);
-        resolve();
-      }, 800);
-    });
+    try {
+      if (!user) throw new Error("Aucun utilisateur connecté");
+      
+      // Dans un scénario réel, vous enregistreriez ces préférences dans la base de données
+      setUser({ ...user, preferences });
+      
+      toast({
+        title: "Préférences mises à jour",
+        description: "Vos préférences ont été enregistrées avec succès."
+      });
+      
+      setIsLoading(false);
+      return Promise.resolve();
+    } catch (error) {
+      setIsLoading(false);
+      return Promise.reject(error);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   const unreadMessages = messages.filter(message => !message.read && message.sender === 'admin').length;
