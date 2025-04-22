@@ -16,14 +16,24 @@ export const useAuthProvider = () => {
     const checkSession = async () => {
       setIsLoading(true);
       
-      // Récupérer la session et les données utilisateur de Supabase
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        await fetchAndSetUserData(session.user.id);
+      try {
+        console.log("Vérification de la session...");
+        
+        // Récupérer la session et les données utilisateur de Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          console.log("Session trouvée:", session.user.id);
+          await fetchAndSetUserData(session.user.id);
+        } else {
+          console.log("Aucune session trouvée");
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification de session:", error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
     
     checkSession();
@@ -31,8 +41,14 @@ export const useAuthProvider = () => {
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Événement d'authentification:", event, session?.user?.id);
+        
         if (session) {
-          await fetchAndSetUserData(session.user.id);
+          try {
+            await fetchAndSetUserData(session.user.id);
+          } catch (error) {
+            console.error("Erreur lors de la récupération des données utilisateur:", error);
+          }
         } else {
           setUser(null);
         }
@@ -45,6 +61,8 @@ export const useAuthProvider = () => {
   // Récupérer les données utilisateur complètes depuis la base de données
   const fetchAndSetUserData = async (userId: string) => {
     try {
+      console.log("Récupération des données pour l'utilisateur:", userId);
+      
       // Récupérer le profil utilisateur
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -52,7 +70,12 @@ export const useAuthProvider = () => {
         .eq('id', userId)
         .single();
       
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Erreur lors de la récupération du profil:", profileError);
+        throw profileError;
+      }
+      
+      console.log("Profil récupéré:", profileData);
       
       // Récupérer le rôle utilisateur
       const { data: roleData, error: roleError } = await supabase
@@ -61,24 +84,47 @@ export const useAuthProvider = () => {
         .eq('user_id', userId)
         .single();
       
-      if (roleError) throw roleError;
+      if (roleError) {
+        console.error("Erreur lors de la récupération du rôle:", roleError);
+        // Si aucun rôle n'est trouvé, utiliser 'user' comme valeur par défaut
+        const userData: User = {
+          id: userId,
+          email: profileData.email,
+          name: profileData.name || 'Utilisateur',
+          role: 'user',
+          company: profileData.company || undefined,
+          phone: profileData.phone || undefined,
+          avatar: profileData.avatar_url || undefined,
+          biography: profileData.biography || undefined,
+          createdAt: profileData.created_at || new Date().toISOString(),
+          lastLoginDate: new Date().toISOString(),
+          projects: [],
+          estimates: []
+        };
+        
+        setUser(userData);
+        return;
+      }
+      
+      console.log("Rôle récupéré:", roleData);
 
       // Construire l'objet utilisateur complet
       const userData: User = {
         id: userId,
         email: profileData.email,
-        name: profileData.name,
+        name: profileData.name || 'Utilisateur',
         role: roleData.role,
         company: profileData.company || undefined,
         phone: profileData.phone || undefined,
         avatar: profileData.avatar_url || undefined,
         biography: profileData.biography || undefined,
-        createdAt: new Date().toISOString(), // À mettre à jour si disponible
+        createdAt: profileData.created_at || new Date().toISOString(),
         lastLoginDate: new Date().toISOString(),
         projects: [],
         estimates: []
       };
       
+      console.log("Utilisateur créé:", userData);
       setUser(userData);
     } catch (error) {
       console.error("Erreur lors de la récupération des données utilisateur:", error);
@@ -90,21 +136,29 @@ export const useAuthProvider = () => {
     setIsLoading(true);
     
     try {
+      console.log("Connexion avec:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur de connexion:", error);
+        throw error;
+      }
       
-      // fetchAndSetUserData sera appelé via onAuthStateChange
+      console.log("Réponse de connexion:", data);
+      
+      // Ne pas appeler fetchAndSetUserData ici car onAuthStateChange le fera
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté."
       });
       
+      setIsLoading(false);
       return Promise.resolve();
     } catch (error) {
+      console.error("Exception lors de la connexion:", error);
       const errorMessage = error instanceof Error ? error.message : 'Identifiants invalides';
       setIsLoading(false);
       return Promise.reject(new Error(errorMessage));

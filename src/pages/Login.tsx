@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/lib/supabase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -33,13 +34,33 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
-      toast({
-        title: 'Connexion réussie',
-        description: 'Bienvenue sur votre espace client.',
+      console.log("Tentative de connexion avec:", email);
+      
+      // Appel direct à Supabase pour le débogage
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
-      navigate(from, { replace: true });
+      
+      if (error) {
+        console.error("Erreur Supabase lors de la connexion:", error);
+        throw error;
+      }
+      
+      if (data?.session) {
+        console.log("Session Supabase créée avec succès:", data.session);
+        
+        // Utiliser le hook login de notre contexte d'auth
+        await login(email, password);
+        
+        toast({
+          title: 'Connexion réussie',
+          description: 'Bienvenue sur votre espace client.',
+        });
+        navigate(from, { replace: true });
+      }
     } catch (error) {
+      console.error("Erreur complète lors de la connexion:", error);
       toast({
         variant: 'destructive',
         title: 'Échec de la connexion',
