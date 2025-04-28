@@ -16,9 +16,10 @@ export const useLogin = () => {
       
       // Option temporaire pour connexion avec admin@example.com/password pour les tests
       if (email === 'admin@example.com' && password === 'password') {
+        console.log("Detected admin test login, setting test mode");
         toast({
           title: 'Connexion réussie (mode test)',
-          description: 'Bienvenue sur votre espace client.',
+          description: 'Bienvenue sur votre espace administrateur.',
         });
         
         // Simuler une session admin

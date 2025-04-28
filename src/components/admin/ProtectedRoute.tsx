@@ -16,9 +16,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const location = useLocation();
   
-  // Vérifier le mode admin de test
+  // Check for admin test mode
   const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
   const testRole = localStorage.getItem('adminTestRole');
+  
+  console.log("Protected Route Check:", { 
+    isAuthenticated, 
+    isAdmin, 
+    isLoading, 
+    isTestAdmin, 
+    testRole,
+    path: location.pathname 
+  });
 
   if (isLoading) {
     return (
@@ -29,24 +38,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Si nous sommes en mode admin de test, vérifier le rôle si nécessaire
+  // If we're in admin test mode, check the role if necessary
   if (isTestAdmin) {
     if (requireAdmin && testRole !== 'admin' && testRole !== 'super_admin') {
+      console.log("Test user doesn't have admin privileges");
       return <Navigate to="/" replace />;
     }
+    console.log("Admin test mode active, allowing access");
     return <>{children}</>;
   }
 
   if (!isAuthenticated) {
-    // Rediriger vers la page de connexion avec l'emplacement actuel
+    // Redirect to the login page with the current location
+    console.log("User not authenticated, redirecting to login");
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
-    // Si l'utilisateur n'est pas un administrateur et que la route nécessite des privilèges d'administrateur
+    // If the user is not an administrator and the route requires admin privileges
+    console.log("User authenticated but not admin, access denied");
     return <Navigate to="/" replace />;
   }
 
+  console.log("Access granted to protected route");
   return <>{children}</>;
 };
 

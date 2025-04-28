@@ -1,108 +1,93 @@
 
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
 
-  const from = location.state?.from?.pathname || '/profile';
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log("User is authenticated, redirecting to:", from);
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, from]);
+  // Get from param or default to home
+  const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      console.log("Tentative de connexion avec:", email);
-      await login(email, password);
-      // La redirection sera gérée par l'effet useEffect quand isAuthenticated changera
-    } catch (error) {
-      console.error("Erreur complète lors de la connexion:", error);
-      // Notification d'erreur ajoutée ici pour plus de clarté
-      const errorMessage = error instanceof Error 
-        ? error.message === 'Email not confirmed'
-          ? 'Email non confirmé. Veuillez vérifier votre boîte mail.'
-          : error.message
-        : 'Vérifiez vos identifiants et réessayez.';
+    setIsLoading(true);
 
-      toast({
-        variant: 'destructive',
-        title: 'Échec de la connexion',
-        description: errorMessage,
-      });
+    try {
+      const result = await login(email, password);
+      
+      if (result.success) {
+        console.log("Login successful, checking if admin");
+        
+        // Check if this is the admin test account
+        if (email === 'admin@example.com' && password === 'password') {
+          console.log("Admin test account detected, redirecting to admin");
+          navigate('/admin', { replace: true });
+        } else {
+          console.log("Regular user login, redirecting to:", from);
+          navigate(from, { replace: true });
+        }
+      }
+    } catch (error) {
+      console.error("Login form error:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen py-16 px-4 bg-muted/30 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="w-full max-w-md px-4">
+        <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Connexion</CardTitle>
-            <CardDescription className="text-center">
-              Connectez-vous pour accéder à votre espace client
+            <CardTitle className="text-2xl">Connexion</CardTitle>
+            <CardDescription>
+              Entrez vos identifiants pour accéder à votre compte
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="exemple@email.com" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  required 
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <Link to="/reset-password" className="text-xs text-primary hover:underline">
+                  <a
+                    href="/reset-password"
+                    className="text-sm text-primary hover:underline"
+                  >
                     Mot de passe oublié?
-                  </Link>
+                  </a>
                 </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required 
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
+              <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Connexion en cours...
@@ -114,19 +99,20 @@ const Login = () => {
             </form>
           </CardContent>
           <CardFooter>
-            <div className="w-full text-center">
-              <p className="text-sm text-muted-foreground">
-                Vous n'avez pas de compte?{' '}
-                <Link to="/register" className="text-primary hover:underline">
-                  Créer un compte
-                </Link>
-              </p>
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-center w-full">
+              Vous n'avez pas de compte?{' '}
+              <a href="/register" className="text-primary hover:underline">
+                S'inscrire
+              </a>
             </div>
           </CardFooter>
+          {/* Admin test login hint */}
+          <div className="text-xs text-center pb-4 text-gray-500">
+            Compte administrateur test: admin@example.com / password
+          </div>
         </Card>
       </div>
-      <Footer />
-    </>
+    </div>
   );
 };
 

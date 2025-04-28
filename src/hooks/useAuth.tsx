@@ -27,7 +27,10 @@ export const useAuthProvider = (): AuthContextType => {
     const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
     const testRole = localStorage.getItem('adminTestRole');
     
+    console.log("Checking admin test mode:", { isTestAdmin, testRole });
+    
     if (isTestAdmin && testRole === 'admin') {
+      console.log("Admin test mode active, setting user state");
       setIsAdmin(true);
       setIsAuthenticated(true);
       setLoading(false);
@@ -48,9 +51,11 @@ export const useAuthProvider = (): AuthContextType => {
   useEffect(() => {
     // Ne pas exécuter cette logique si nous sommes en mode test admin
     if (localStorage.getItem('adminTestMode') === 'true') {
+      console.log("Admin test mode active, skipping Supabase auth");
       return;
     }
 
+    console.log("Setting up regular Supabase auth listener");
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session);
@@ -131,6 +136,7 @@ export const useAuthProvider = (): AuthContextType => {
   const logout = async () => {
     // Si nous sommes en mode test admin, nettoyer les données locales
     if (localStorage.getItem('adminTestMode') === 'true') {
+      console.log("Logging out from admin test mode");
       localStorage.removeItem('adminTestMode');
       localStorage.removeItem('adminTestEmail');
       localStorage.removeItem('adminTestRole');
