@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   BriefcaseBusiness,
@@ -41,6 +41,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { pathname } = useLocation();
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navigationItems = [
@@ -65,6 +66,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   return (
@@ -120,7 +126,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   Voir le site
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Déconnexion
                 </DropdownMenuItem>
