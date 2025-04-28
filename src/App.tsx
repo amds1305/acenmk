@@ -8,6 +8,8 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Admin from './pages/Admin';
+import AdminLogin from './pages/AdminLogin';
 
 function App() {
   return (
@@ -18,7 +20,12 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile/*" element={<Profile />} />
-          {/* Autres routes... */}
+          
+          {/* Routes d'administration */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/*" element={<Admin />} />
+          
+          {/* Route 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
