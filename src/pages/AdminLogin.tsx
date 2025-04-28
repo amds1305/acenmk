@@ -38,6 +38,7 @@ const AdminLogin = () => {
         // Simuler une session admin
         localStorage.setItem('adminTestMode', 'true');
         localStorage.setItem('adminTestEmail', email);
+        localStorage.setItem('adminTestRole', 'admin');
         
         navigate(from, { replace: true });
         return;

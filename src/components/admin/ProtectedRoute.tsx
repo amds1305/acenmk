@@ -18,6 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Vérifier le mode admin de test
   const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
+  const testRole = localStorage.getItem('adminTestRole');
 
   if (isLoading) {
     return (
@@ -28,8 +29,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Si nous sommes en mode admin de test, autoriser l'accès
+  // Si nous sommes en mode admin de test, vérifier le rôle si nécessaire
   if (isTestAdmin) {
+    if (requireAdmin && testRole !== 'admin' && testRole !== 'super_admin') {
+      return <Navigate to="/" replace />;
+    }
     return <>{children}</>;
   }
 

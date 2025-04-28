@@ -22,7 +22,35 @@ export const useAuthProvider = (): AuthContextType => {
   const messageService = useMessages();
   const securityService = useSecuritySettings();
 
+  // Vérifier le mode admin de test
   useEffect(() => {
+    const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
+    const testRole = localStorage.getItem('adminTestRole');
+    
+    if (isTestAdmin && testRole === 'admin') {
+      setIsAdmin(true);
+      setIsAuthenticated(true);
+      setLoading(false);
+      
+      const testEmail = localStorage.getItem('adminTestEmail') || 'admin@example.com';
+      const testUser: User = {
+        id: 'test-admin-id',
+        email: testEmail,
+        name: 'Administrateur Test',
+        role: 'admin',
+        avatar: '/placeholder.svg',
+        createdAt: new Date().toISOString(),
+      };
+      setUser(testUser);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Ne pas exécuter cette logique si nous sommes en mode test admin
+    if (localStorage.getItem('adminTestMode') === 'true') {
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session);
@@ -63,6 +91,19 @@ export const useAuthProvider = (): AuthContextType => {
                 setUser(updatedUser);
                 setIsAdmin(updatedUser.role === 'admin' || updatedUser.role === 'super_admin');
               }
+              
+              // Vérifier également la table user_roles pour les rôles spécifiques
+              const { data: userRoles, error: rolesError } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', session.user.id);
+                
+              if (!rolesError && userRoles && userRoles.length > 0) {
+                const hasAdminRole = userRoles.some(
+                  r => r.role === 'admin' || r.role === 'super_admin'
+                );
+                if (hasAdminRole) setIsAdmin(true);
+              }
             } catch (err) {
               console.error("Erreur lors de la récupération du profil:", err);
             }
@@ -87,11 +128,31 @@ export const useAuthProvider = (): AuthContextType => {
     };
   }, []);
 
+  const logout = async () => {
+    // Si nous sommes en mode test admin, nettoyer les données locales
+    if (localStorage.getItem('adminTestMode') === 'true') {
+      localStorage.removeItem('adminTestMode');
+      localStorage.removeItem('adminTestEmail');
+      localStorage.removeItem('adminTestRole');
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      toast({
+        title: 'Déconnexion réussie',
+        description: 'Vous êtes maintenant déconnecté du mode test.',
+      });
+      return { success: true };
+    }
+    
+    // Sinon, utiliser la déconnexion Supabase normale
+    return authService.logout();
+  };
+
   return {
     user,
     isLoading: loading,
     login: authService.login,
-    logout: authService.logout,
+    logout: logout,
     register: authService.register,
     updateProfile: profileService.updateProfile,
     uploadAvatar: profileService.uploadAvatar,

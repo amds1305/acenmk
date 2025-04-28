@@ -13,6 +13,22 @@ export const useLogin = () => {
     
     try {
       console.log("Login attempt with:", email);
+      
+      // Option temporaire pour connexion avec admin@example.com/password pour les tests
+      if (email === 'admin@example.com' && password === 'password') {
+        toast({
+          title: 'Connexion réussie (mode test)',
+          description: 'Bienvenue sur votre espace client.',
+        });
+        
+        // Simuler une session admin
+        localStorage.setItem('adminTestMode', 'true');
+        localStorage.setItem('adminTestEmail', email);
+        localStorage.setItem('adminTestRole', 'admin');
+        
+        return { success: true, data: { user: { email } } };
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
