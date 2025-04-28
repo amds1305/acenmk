@@ -16,6 +16,7 @@ import AdminCareers from '@/pages/AdminCareers';
 import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 import AdminTrustedClients from '@/pages/AdminTrustedClients';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
+import AdminUsers from '@/components/admin/AdminUsers';
 import { SectionsProvider } from '@/contexts/sections/SectionsContext';
 
 const Admin = () => {
@@ -37,6 +38,7 @@ const Admin = () => {
             <Route path="/careers" element={<AdminCareers />} />
             <Route path="/template" element={<AdminTemplateChooser />} />
             <Route path="/trusted-clients" element={<AdminTrustedClients />} />
+            <Route path="/users" element={<AdminUsers />} />
             <Route path="/supabase-migration" element={<AdminSupabaseMigration />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
