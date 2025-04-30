@@ -12,7 +12,7 @@ import AdminTeam from '@/components/admin/AdminTeam';
 import AdminTestimonials from '@/components/admin/AdminTestimonials';
 import AdminFaq from '@/components/admin/AdminFaq';
 import AdminBlogPosts from '@/components/admin/AdminBlogPosts';
-import AdminCareers from '@/components/admin/careers';
+import { AdminCareers } from '@/components/admin/careers';
 import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
