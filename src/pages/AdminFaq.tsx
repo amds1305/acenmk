@@ -1,14 +1,9 @@
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
 import AdminFaqComponent from '@/components/admin/AdminFaq';
 
 const AdminFaq = () => {
-  return (
-    <AdminLayout>
-      <AdminFaqComponent />
-    </AdminLayout>
-  );
+  return <AdminFaqComponent />;
 };
 
 export default AdminFaq;

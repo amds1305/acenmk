@@ -6,15 +6,15 @@ import AdminDashboard from '@/components/admin/AdminDashboard';
 import ProtectedRoute from '@/components/admin/ProtectedRoute';
 import AdminHome from '@/components/admin/AdminHome';
 import AdminHero from '@/pages/AdminHero';
-import AdminServices from '@/pages/AdminServices';
-import AdminAbout from '@/pages/AdminAbout';
-import AdminTeam from '@/pages/AdminTeam';
-import AdminTestimonials from '@/pages/AdminTestimonials';
-import AdminFaq from '@/pages/AdminFaq';
-import AdminBlog from '@/pages/AdminBlog';
-import AdminCareers from '@/pages/AdminCareers';
+import AdminServices from '@/components/admin/AdminServices';
+import AdminAbout from '@/components/admin/AdminAbout';
+import AdminTeam from '@/components/admin/AdminTeam';
+import AdminTestimonials from '@/components/admin/AdminTestimonials';
+import AdminFaq from '@/components/admin/AdminFaq';
+import AdminBlogPosts from '@/components/admin/AdminBlogPosts';
+import AdminCareers from '@/components/admin/careers';
 import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
-import AdminTrustedClients from '@/pages/AdminTrustedClients';
+import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
 import AdminUsers from '@/components/admin/AdminUsers';
 import { SectionsProvider } from '@/contexts/sections/SectionsContext';
@@ -33,8 +33,8 @@ const Admin = () => {
             <Route path="/team" element={<AdminTeam />} />
             <Route path="/testimonials" element={<AdminTestimonials />} />
             <Route path="/faq" element={<AdminFaq />} />
-            <Route path="/blog" element={<AdminBlog />} />
-            <Route path="/blog/:id" element={<AdminBlog />} />
+            <Route path="/blog" element={<AdminBlogPosts />} />
+            <Route path="/blog/:id" element={<AdminBlogPosts />} />
             <Route path="/careers" element={<AdminCareers />} />
             <Route path="/template" element={<AdminTemplateChooser />} />
             <Route path="/trusted-clients" element={<AdminTrustedClients />} />

@@ -1,14 +1,9 @@
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
 import AdminServicesComponent from '@/components/admin/AdminServices';
 
 const AdminServices = () => {
-  return (
-    <AdminLayout>
-      <AdminServicesComponent />
-    </AdminLayout>
-  );
+  return <AdminServicesComponent />;
 };
 
 export default AdminServices;

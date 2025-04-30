@@ -1,14 +1,9 @@
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
 import AdminTestimonialsComponent from '@/components/admin/AdminTestimonials';
 
 const AdminTestimonials = () => {
-  return (
-    <AdminLayout>
-      <AdminTestimonialsComponent />
-    </AdminLayout>
-  );
+  return <AdminTestimonialsComponent />;
 };
 
 export default AdminTestimonials;
