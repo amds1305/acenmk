@@ -4,22 +4,17 @@ import { cn } from '@/lib/utils';
 import { Linkedin, Twitter, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
+import { getTeamMembers } from '@/services/supabase/teamService';
 
 const Team = () => {
-  const { data: config, isLoading } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig,
+  const { data: teamMembers, isLoading, error } = useQuery({
+    queryKey: ['teamMembers'],
+    queryFn: getTeamMembers,
     staleTime: 0,
     refetchOnMount: true,
   });
   
-  console.log("Team component - Config reçue:", config);
-  
-  // Utiliser les données de l'équipe depuis la base de données si disponibles
-  const teamData = config?.sectionData?.team?.members || [];
-  
-  console.log("Team component - Données d'équipe:", teamData);
+  console.log("Team component - Données d'équipe:", teamMembers);
   
   // Utiliser des données par défaut si aucune donnée n'est disponible
   const defaultTeamMembers = [
@@ -49,7 +44,7 @@ const Team = () => {
     },
   ];
   
-  const teamMembers = teamData.length > 0 ? teamData : defaultTeamMembers;
+  const displayTeamMembers = teamMembers && teamMembers.length > 0 ? teamMembers : defaultTeamMembers;
   
   if (isLoading) {
     return (
@@ -61,6 +56,10 @@ const Team = () => {
         </div>
       </section>
     );
+  }
+
+  if (error) {
+    console.error("Erreur lors du chargement des membres de l'équipe:", error);
   }
 
   return (
@@ -76,7 +75,7 @@ const Team = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-          {teamMembers.map((member, index) => (
+          {displayTeamMembers.map((member, index) => (
             <div 
               key={member.id || index}
               className={cn(

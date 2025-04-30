@@ -28,6 +28,9 @@ export const UserFilter = ({ selectedRole, onRoleSelect }: UserFilterProps) => {
     }
   };
 
+  // Définir les rôles disponibles basés sur le type UserRole
+  const availableRoles: UserRole[] = ['super_admin', 'admin', 'client_premium', 'user'];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,18 +45,15 @@ export const UserFilter = ({ selectedRole, onRoleSelect }: UserFilterProps) => {
         <DropdownMenuItem onClick={() => onRoleSelect(null)}>
           Tous les rôles
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRoleSelect('super_admin')}>
-          Super Admin
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRoleSelect('admin')}>
-          Administrateur
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRoleSelect('client_premium')}>
-          Client Premium
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRoleSelect('user')}>
-          Client
-        </DropdownMenuItem>
+        
+        {availableRoles.map(role => (
+          <DropdownMenuItem 
+            key={role} 
+            onClick={() => onRoleSelect(role)}
+          >
+            {getRoleLabel(role)}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
