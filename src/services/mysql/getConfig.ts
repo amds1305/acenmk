@@ -16,7 +16,6 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     if (apiUrl) {
       try {
         console.log('Tentative de chargement de la configuration depuis MySQL...');
-        console.log(`URL de l'API: ${apiUrl}`);
         
         // Timestamp pour éviter la mise en cache du navigateur
         const timestamp = new Date().getTime();
@@ -42,23 +41,11 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         );
         
         if (!sectionsResponse.ok) {
-          console.error(`Erreur HTTP lors de la récupération des sections: ${sectionsResponse.status}`);
-          try {
-            console.error('Réponse:', await sectionsResponse.text());
-          } catch (textError) {
-            console.error('Impossible de lire la réponse');
-          }
           throw new Error(`Erreur lors de la récupération des sections: ${sectionsResponse.status}`);
         }
         
-        let sections = [];
-        try {
-          sections = await sectionsResponse.json();
-          console.log(`Sections récupérées: ${sections.length}`);
-        } catch (jsonError) {
-          console.error('Erreur parsing JSON des sections:', jsonError);
-          throw new Error('Erreur lors du parsing JSON des sections');
-        }
+        const sections = await sectionsResponse.json();
+        console.log(`Sections récupérées: ${sections.length}`);
         
         // Récupérer les données des sections
         console.log('Récupération des données des sections...');
@@ -68,23 +55,11 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         );
         
         if (!sectionDataResponse.ok) {
-          console.error(`Erreur HTTP lors de la récupération des données des sections: ${sectionDataResponse.status}`);
-          try {
-            console.error('Réponse:', await sectionDataResponse.text());
-          } catch (textError) {
-            console.error('Impossible de lire la réponse');
-          }
           throw new Error(`Erreur lors de la récupération des données des sections: ${sectionDataResponse.status}`);
         }
         
-        let sectionDataArray = [];
-        try {
-          sectionDataArray = await sectionDataResponse.json();
-          console.log(`Données de sections récupérées: ${sectionDataArray.length}`);
-        } catch (jsonError) {
-          console.error('Erreur parsing JSON des données de sections:', jsonError);
-          throw new Error('Erreur lors du parsing JSON des données de sections');
-        }
+        const sectionDataArray = await sectionDataResponse.json();
+        console.log(`Données de sections récupérées: ${sectionDataArray.length}`);
         
         // Transformer le tableau de données en objet
         const sectionData = {};
@@ -103,12 +78,8 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
         
         let templateConfig = { activeTemplate: 'default' };
         if (templateConfigResponse.ok) {
-          try {
-            templateConfig = await templateConfigResponse.json();
-            console.log('Configuration du template récupérée:', templateConfig);
-          } catch (jsonError) {
-            console.warn('Erreur parsing JSON de la config du template:', jsonError);
-          }
+          templateConfig = await templateConfigResponse.json();
+          console.log('Configuration du template récupérée:', templateConfig);
         } else {
           console.warn(`La récupération de la configuration du template a échoué: ${templateConfigResponse.status}`);
         }
