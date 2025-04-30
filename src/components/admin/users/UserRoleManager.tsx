@@ -55,8 +55,7 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
         return;
       }
       
-      // Mise à jour dans Supabase
-      // 1. Vérifier si l'utilisateur a déjà un rôle dans user_roles
+      // Vérifier si l'utilisateur a déjà un rôle dans user_roles
       const { data: existingRoles } = await supabase
         .from('user_roles')
         .select('*')

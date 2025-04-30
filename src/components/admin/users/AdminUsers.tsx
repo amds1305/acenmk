@@ -17,6 +17,7 @@ import { UserFilter } from './UserFilter';
 import { UsersStats } from './UsersStats';
 import UserProfileDialog from './UserProfileDialog';
 import SendMessageDialog from './SendMessageDialog';
+import AddUserDialog from './AddUserDialog';
 import { supabase } from '@/lib/supabase';
 
 const AdminUsers = () => {
@@ -27,6 +28,7 @@ const AdminUsers = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -82,7 +84,7 @@ const AdminUsers = () => {
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.company && user.company.toLowerCase().includes(searchTerm.toLowerCase()));
     
@@ -93,8 +95,25 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // Supprimer l'utilisateur dans Supabase Auth
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // Mode test - simuler la suppression
+        setTimeout(() => {
+          setUsers(users.filter(user => user.id !== userId));
+          toast({
+            title: "Utilisateur supprimé (mode test)",
+            description: "L'utilisateur a été supprimé avec succès."
+          });
+        }, 500);
+        return;
+      }
+      
+      // Supprimer l'utilisateur dans Supabase
+      // Note: Cette opération nécessite des droits d'admin dans Supabase
+      const { error } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
       
       if (error) throw error;
       
@@ -117,13 +136,54 @@ const AdminUsers = () => {
 
   const handleChangeRole = async (userId: string, newRole: UserRole) => {
     try {
-      // Mettre à jour le rôle dans la base de données
-      const { error } = await supabase
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // Mode test - simuler le changement de rôle
+        setTimeout(() => {
+          setUsers(users.map(user => 
+            user.id === userId ? { ...user, role: newRole } : user
+          ));
+          toast({
+            title: "Rôle mis à jour (mode test)",
+            description: "Le rôle de l'utilisateur a été modifié avec succès."
+          });
+        }, 500);
+        return;
+      }
+
+      // Vérifier si l'utilisateur a déjà un rôle
+      const { data: existingRoles } = await supabase
         .from('user_roles')
-        .update({ role: newRole })
+        .select('*')
         .eq('user_id', userId);
-        
-      if (error) throw error;
+
+      if (existingRoles && existingRoles.length > 0) {
+        // Mettre à jour le rôle existant
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('user_id', userId);
+          
+        if (error) throw error;
+      } else {
+        // Créer un nouveau rôle
+        const { error } = await supabase
+          .from('user_roles')
+          .insert([{ user_id: userId, role: newRole }]);
+          
+        if (error) throw error;
+      }
+      
+      // Mettre à jour le profil si nécessaire
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+
+      if (profileError) {
+        console.warn("Note: Impossible de mettre à jour le rôle dans la table profiles:", profileError);
+      }
       
       // Mettre à jour l'état local
       setUsers(users.map(user => 
@@ -160,6 +220,24 @@ const AdminUsers = () => {
     try {
       if (!selectedUser) return;
       
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // Mode test - simuler la mise à jour
+        setTimeout(() => {
+          setUsers(users.map(user => 
+            user.id === selectedUser.id 
+              ? { ...user, ...updatedUser }
+              : user
+          ));
+          toast({
+            title: "Profil mis à jour (mode test)",
+            description: "Le profil a été modifié avec succès."
+          });
+        }, 500);
+        return;
+      }
+      
       // Mettre à jour le profil dans Supabase
       const { error } = await supabase
         .from('profiles')
@@ -177,12 +255,27 @@ const AdminUsers = () => {
       
       // Si le rôle est modifié, mettre à jour dans la table user_roles
       if (updatedUser.role && updatedUser.role !== selectedUser.role) {
-        const { error: roleError } = await supabase
+        const { data: existingRoles } = await supabase
           .from('user_roles')
-          .update({ role: updatedUser.role })
+          .select('*')
           .eq('user_id', selectedUser.id);
-          
-        if (roleError) throw roleError;
+
+        if (existingRoles && existingRoles.length > 0) {
+          // Mettre à jour le rôle existant
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .update({ role: updatedUser.role })
+            .eq('user_id', selectedUser.id);
+            
+          if (roleError) throw roleError;
+        } else {
+          // Créer un nouveau rôle
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert([{ user_id: selectedUser.id, role: updatedUser.role }]);
+            
+          if (roleError) throw roleError;
+        }
       }
       
       // Mettre à jour l'état local
@@ -212,7 +305,7 @@ const AdminUsers = () => {
   };
 
   const handleExportUsers = () => {
-    // Convertir les utilisateurs en CSV ou autre format
+    // Convertir les utilisateurs en CSV
     const csvContent = "data:text/csv;charset=utf-8," + 
       "ID,Nom,Email,Rôle,Entreprise,Date d'inscription\n" +
       users.map(user => 
@@ -241,6 +334,10 @@ const AdminUsers = () => {
     });
   };
 
+  const handleAddUser = () => {
+    setIsAddUserDialogOpen(true);
+  };
+
   return (
     <>
       <h1 className="text-2xl font-bold mb-6">Gestion des utilisateurs</h1>
@@ -262,7 +359,7 @@ const AdminUsers = () => {
               <Button variant="outline" size="sm" onClick={handleExportUsers} disabled={isLoading}>
                 <Download className="h-4 w-4 mr-1" /> Exporter
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={handleAddUser}>
                 <Plus className="h-4 w-4 mr-1" /> Ajouter
               </Button>
             </div>
@@ -308,6 +405,14 @@ const AdminUsers = () => {
         onClose={() => {
           setIsMessageDialogOpen(false);
           setSelectedUser(null);
+        }}
+      />
+
+      <AddUserDialog
+        isOpen={isAddUserDialogOpen}
+        onClose={() => setIsAddUserDialogOpen(false)}
+        onUserAdded={() => {
+          fetchUsers();
         }}
       />
     </>

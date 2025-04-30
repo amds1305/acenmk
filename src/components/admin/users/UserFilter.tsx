@@ -14,26 +14,26 @@ import { UserRole } from '@/types/auth';
 
 interface UserFilterProps {
   selectedRole: string | null;
-  onRoleSelect: (role: UserRole | null) => void;
+  onRoleSelect: (role: string | null) => void;
 }
 
-const getRoleLabel = (role: UserRole) => {
-  switch(role) {
-    case 'super_admin': return 'Super Admin';
-    case 'admin': return 'Administrateur';
-    case 'client_premium': return 'Client Premium';
-    case 'user': return 'Client';
-    default: return role;
-  }
-};
-
 export const UserFilter = ({ selectedRole, onRoleSelect }: UserFilterProps) => {
+  const getRoleLabel = (role: string | null) => {
+    switch(role) {
+      case 'super_admin': return 'Super Admin';
+      case 'admin': return 'Administrateur';
+      case 'client_premium': return 'Client Premium';
+      case 'user': return 'Client';
+      default: return 'Tous les rôles';
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-full md:w-auto">
           <Filter className="h-4 w-4 mr-2" />
-          {selectedRole ? getRoleLabel(selectedRole as UserRole) : "Tous les rôles"}
+          {getRoleLabel(selectedRole)}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
