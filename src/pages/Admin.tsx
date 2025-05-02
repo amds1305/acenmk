@@ -17,6 +17,10 @@ import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
 import AdminUsers from '@/components/admin/AdminUsers';
+import AdminPricing from '@/components/admin/pricing/AdminPricing';
+import AdminAppointments from '@/components/admin/AdminAppointments';
+import AdminHeader from '@/components/admin/header/AdminHeader';
+import AdminFooter from '@/components/admin/footer/AdminFooter';
 import { SectionsProvider } from '@/contexts/sections/SectionsContext';
 
 const Admin = () => {
@@ -29,6 +33,7 @@ const Admin = () => {
             <Route path="/home" element={<AdminHome />} />
             <Route path="/hero" element={<AdminHero />} />
             <Route path="/services" element={<AdminServices />} />
+            <Route path="/pricing" element={<AdminPricing />} />
             <Route path="/about" element={<AdminAbout />} />
             <Route path="/team" element={<AdminTeam />} />
             <Route path="/testimonials" element={<AdminTestimonials />} />
@@ -36,8 +41,11 @@ const Admin = () => {
             <Route path="/blog" element={<AdminBlogPosts />} />
             <Route path="/blog/:id" element={<AdminBlogPosts />} />
             <Route path="/careers" element={<AdminCareers />} />
+            <Route path="/appointments" element={<AdminAppointments />} />
             <Route path="/template" element={<AdminTemplateChooser />} />
             <Route path="/trusted-clients" element={<AdminTrustedClients />} />
+            <Route path="/header" element={<AdminHeader />} />
+            <Route path="/footer" element={<AdminFooter />} />
             <Route path="/users" element={<AdminUsers />} />
             <Route path="/supabase-migration" element={<AdminSupabaseMigration />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
