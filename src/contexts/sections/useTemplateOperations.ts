@@ -2,7 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { HomepageConfig, HomeTemplateType } from '@/types/sections';
 import { useQueryClient } from '@tanstack/react-query';
-import { saveHomepageConfig } from '@/services/mysql';
+import { saveHomepageConfig } from '@/services/supabase/sectionsService';
 
 export function useTemplateOperations(
   config: HomepageConfig,
@@ -54,21 +54,21 @@ export function useTemplateOperations(
       }
       
       // Invalider toutes les requêtes pour forcer un rechargement complet des données
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+      queryClient.invalidateQueries({ queryKey: ['trustedClientsData'] });
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['faqs'] });
       
       toast({
         title: "Modifications enregistrées",
         description: "Les paramètres de la page d'accueil ont été mis à jour avec succès.",
       });
       
-      // Force un rechargement complet après 1 seconde
+      // Forcer un rechargement complet après 1 seconde pour s'assurer que les données sont à jour
       setTimeout(() => {
         queryClient.invalidateQueries();
-        
-        // Forcer le rechargement de la page d'accueil si on est en mode admin
-        if (window.location.pathname.includes('/admin')) {
-          console.log("Rafraîchissement forcé des données de l'admin...");
-        }
+        window.dispatchEvent(new CustomEvent('admin-changes-saved'));
       }, 1000);
       
       return true;
