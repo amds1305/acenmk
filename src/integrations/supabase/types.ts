@@ -135,6 +135,111 @@ export type Database = {
         }
         Relationships: []
       }
+      cvs: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          id: string
+          order_index: number
+          question: string
+          template: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          order_index?: number
+          question: string
+          template?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          order_index?: number
+          question?: string
+          template?: string
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          created_at: string
+          department: string
+          description: string
+          id: string
+          location: string
+          posted_date: string
+          requirements: string[]
+          responsibilities: string[]
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          description: string
+          id?: string
+          location: string
+          posted_date: string
+          requirements: string[]
+          responsibilities: string[]
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          description?: string
+          id?: string
+          location?: string
+          posted_date?: string
+          requirements?: string[]
+          responsibilities?: string[]
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       package_features: {
         Row: {
           created_at: string
@@ -346,6 +451,69 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          order_index: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          order_index?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          order_index?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          bio: string
+          created_at: string
+          email: string
+          id: string
+          image: string
+          linkedin: string
+          name: string
+          role: string
+          twitter: string
+        }
+        Insert: {
+          bio: string
+          created_at?: string
+          email: string
+          id?: string
+          image: string
+          linkedin: string
+          name: string
+          role: string
+          twitter: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          email?: string
+          id?: string
+          image?: string
+          linkedin?: string
+          name?: string
+          role?: string
+          twitter?: string
+        }
+        Relationships: []
+      }
       template_config: {
         Row: {
           active_template: string
@@ -364,6 +532,39 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          company: string | null
+          content: string
+          created_at: string
+          id: string
+          image: string | null
+          name: string
+          rating: number
+          role: string
+        }
+        Insert: {
+          company?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          name: string
+          rating?: number
+          role: string
+        }
+        Update: {
+          company?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          name?: string
+          rating?: number
+          role?: string
         }
         Relationships: []
       }
