@@ -26,15 +26,19 @@ export function useTemplateOperations(
       setConfig(updatedConfig);
       
       // Tenter de sauvegarder immédiatement la modification
-      try {
-        const success = await saveChanges(updatedConfig);
-        if (success) {
-          // Forcer le rechargement de toutes les requêtes
+      const success = await saveChanges(updatedConfig);
+      
+      if (success) {
+        toast({
+          title: "Template modifié",
+          description: `Le template a été changé pour ${templateType}. Rechargement de la page...`,
+        });
+        
+        // Invalider toutes les requêtes pour forcer un rechargement complet
+        setTimeout(() => {
           queryClient.invalidateQueries();
           window.location.reload(); // Force un rechargement complet de la page
-        }
-      } catch (saveError) {
-        console.error('Erreur lors de la sauvegarde immédiate du template:', saveError);
+        }, 1000);
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du type de template:', error);
@@ -67,13 +71,8 @@ export function useTemplateOperations(
         description: "Les paramètres de la page d'accueil ont été mis à jour avec succès.",
       });
       
-      // Forcer un rechargement complet après 1 seconde pour s'assurer que les données sont à jour
-      setTimeout(() => {
-        queryClient.invalidateQueries();
-        window.dispatchEvent(new CustomEvent('admin-changes-saved'));
-        // Reload pour garantir que les changements sont visibles
-        window.location.reload();
-      }, 1000);
+      // Déclencher l'événement de sauvegarde administrative
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
       
       return true;
       

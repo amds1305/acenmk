@@ -12,10 +12,19 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
     
     if (saved) {
       console.log('[MySQL Service] Configuration sauvegardée avec succès via Supabase');
+      
+      // 2. Nettoyer le cache localStorage pour forcer le rechargement des données
+      localStorage.removeItem('cachedHomepageConfig');
+      localStorage.removeItem('cachedConfigTimestamp');
+      
+      // 3. Déclencher l'événement de changements administratifs
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+      
       toast({
         title: "Modifications enregistrées",
         description: "Les paramètres ont été mis à jour avec succès.",
       });
+      
       return true;
     }
     
@@ -29,6 +38,9 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
       localStorage.setItem('homepageSections', JSON.stringify(config.sections));
       localStorage.setItem('homepageSectionData', JSON.stringify(config.sectionData));
       localStorage.setItem('homepageTemplateConfig', JSON.stringify(config.templateConfig));
+      
+      // Déclencher l'événement de changements administratifs même en cas de sauvegarde locale
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
       
       toast({
         title: "Sauvegarde locale",
