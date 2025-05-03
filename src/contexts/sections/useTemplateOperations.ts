@@ -2,7 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { HomepageConfig, HomeTemplateType } from '@/types/sections';
 import { useQueryClient } from '@tanstack/react-query';
-import { saveHomepageConfig } from '@/services/supabase/sectionsService';
+import { saveHomepageConfig } from '@/services/mysql';
 
 export function useTemplateOperations(
   config: HomepageConfig,
@@ -25,12 +25,14 @@ export function useTemplateOperations(
       
       setConfig(updatedConfig);
       
-      // Invalider immédiatement les requêtes pour propager le changement
-      queryClient.invalidateQueries();
-      
       // Tenter de sauvegarder immédiatement la modification
       try {
-        await saveChanges(updatedConfig);
+        const success = await saveChanges(updatedConfig);
+        if (success) {
+          // Forcer le rechargement de toutes les requêtes
+          queryClient.invalidateQueries();
+          window.location.reload(); // Force un rechargement complet de la page
+        }
       } catch (saveError) {
         console.error('Erreur lors de la sauvegarde immédiate du template:', saveError);
       }
@@ -69,6 +71,8 @@ export function useTemplateOperations(
       setTimeout(() => {
         queryClient.invalidateQueries();
         window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+        // Reload pour garantir que les changements sont visibles
+        window.location.reload();
       }, 1000);
       
       return true;

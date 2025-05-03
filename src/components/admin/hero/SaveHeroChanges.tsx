@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { saveHomepageConfig } from '@/services/sections';
 import { useToast } from '@/hooks/use-toast';
 import { getHomepageConfig } from '@/services/sections';
+import { queryClient } from '@/lib/queryClient';
 
 interface SaveHeroChangesProps {
   isSaving: boolean;
@@ -70,12 +71,17 @@ const SaveHeroChanges = ({
       };
 
       // Sauvegarder la configuration mise à jour
-      await saveHomepageConfig(updatedConfig);
-
-      toast({
-        title: "Modifications sauvegardées",
-        description: "Les changements sur la section Hero ont été enregistrés avec succès.",
-      });
+      const success = await saveHomepageConfig(updatedConfig);
+      
+      if (success) {
+        // Invalider explicitement toutes les requêtes pour forcer un rechargement
+        queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+        
+        toast({
+          title: "Modifications sauvegardées",
+          description: "Les changements sur la section Hero ont été enregistrés avec succès.",
+        });
+      }
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
       toast({

@@ -56,8 +56,32 @@ const Index = () => {
   
   // Force un rechargement des données au montage du composant
   useEffect(() => {
+    // Nettoyer le cache de localStorage pour forcer un rechargement depuis Supabase
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
     // Invalider le cache pour forcer un rafraîchissement complet
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    
+    // Ajouter un écouteur d'événements pour les changements administratifs
+    const handleAdminChanges = () => {
+      console.log("Changements administratifs détectés, rechargement...");
+      queryClient.invalidateQueries();
+      window.location.reload();
+    };
+
+    window.addEventListener('admin-changes-saved', handleAdminChanges);
+    
+    // Réactualiser régulièrement (toutes les 30 secondes)
+    const intervalId = setInterval(() => {
+      console.log("Actualisation périodique des données...");
+      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    }, 30000);
+    
+    return () => {
+      window.removeEventListener('admin-changes-saved', handleAdminChanges);
+      clearInterval(intervalId);
+    };
   }, [queryClient]);
   
   const { data: homeConfig, isLoading, error } = useQuery({
@@ -67,6 +91,7 @@ const Index = () => {
     refetchOnMount: true, // Recharger à chaque montage
     refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
     retry: 2,
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
   });
 
   useEffect(() => {

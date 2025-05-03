@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useSections } from '@/contexts/SectionsContext';
 import { SectionType } from '@/types/sections';
 import { NewSectionForm } from './AddSectionDialog';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function useSectionManager() {
   const { 
@@ -14,6 +15,7 @@ export function useSectionManager() {
     saveChanges
   } = useSections();
 
+  const queryClient = useQueryClient();
   const [newSection, setNewSection] = useState<NewSectionForm>({
     type: 'custom',
     title: '',
@@ -47,22 +49,46 @@ export function useSectionManager() {
 
   const handleDragEnd = () => {
     setDraggingIndex(null);
+    
+    // Force un rechargement des données après modification
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
   };
 
-  const handleAddSection = () => {
+  const handleAddSection = async () => {
     if (!newSection.title.trim()) return;
     
-    addNewSection(newSection.type, newSection.title);
+    await addNewSection(newSection.type, newSection.title);
+    
+    // Force un rechargement des données après modification
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    
     setNewSection({ type: 'custom', title: '' });
     setDialogOpen(false);
   };
 
-  const handleToggleVisibility = (id: string, currentVisibility: boolean) => {
-    updateSectionVisibility(id, !currentVisibility);
+  const handleToggleVisibility = async (id: string, currentVisibility: boolean) => {
+    await updateSectionVisibility(id, !currentVisibility);
+    
+    // Force un rechargement des données après modification
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
   };
 
-  const handleRemoveSection = (id: string) => {
-    removeExistingSection(id);
+  const handleRemoveSection = async (id: string) => {
+    await removeExistingSection(id);
+    
+    // Force un rechargement des données après modification
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+  };
+
+  const handleSaveChanges = async () => {
+    await saveChanges();
+    
+    // Forcer un rechargement complet après sauvegarde
+    setTimeout(() => {
+      queryClient.invalidateQueries();
+      // Déclencher l'événement de sauvegarde administrative
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+    }, 500);
   };
 
   return {
@@ -78,6 +104,6 @@ export function useSectionManager() {
     handleAddSection,
     handleToggleVisibility,
     handleRemoveSection,
-    saveChanges
+    saveChanges: handleSaveChanges
   };
 }

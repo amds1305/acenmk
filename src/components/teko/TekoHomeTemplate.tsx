@@ -31,13 +31,23 @@ const TekoHomeTemplate: React.FC = () => {
   
   // Force un rechargement des données au montage du composant et toutes les 30 secondes
   useEffect(() => {
+    // Nettoyer le cache de localStorage pour forcer un rechargement depuis Supabase
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
     // Rechargement initial
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    queryClient.invalidateQueries({ queryKey: ['faqs'] });
+    queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+    queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
     
     // Rechargement périodique toutes les 30 secondes
     const intervalId = setInterval(() => {
       console.log('Rechargement périodique des données...');
       queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+      queryClient.invalidateQueries({ queryKey: ['faqs'] });
+      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
     }, 30000);
     
     return () => clearInterval(intervalId);
