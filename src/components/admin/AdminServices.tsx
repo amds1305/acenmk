@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,46 +9,8 @@ import { Label } from '@/components/ui/label';
 import { ArrowUp, ArrowDown, Pencil, Plus, Save, Trash, EyeIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-
-// Service mock data
-const INITIAL_SERVICES = [
-  {
-    id: '1',
-    icon: 'Code',
-    title: 'Développement sur mesure',
-    description: 'Applications web et mobiles personnalisées selon vos besoins spécifiques et les dernières technologies.',
-  },
-  {
-    id: '2',
-    icon: 'Database',
-    title: 'Infrastructure cloud',
-    description: 'Solutions d\'hébergement sécurisées, évolutives et performantes pour vos applications critiques.',
-  },
-  {
-    id: '3',
-    icon: 'Layout',
-    title: 'UX/UI Design',
-    description: 'Interfaces utilisateur intuitives et esthétiques qui améliorent l\'expérience de vos utilisateurs.',
-  },
-  {
-    id: '4',
-    icon: 'Smartphone',
-    title: 'Applications mobiles',
-    description: 'Applications natives et hybrides pour iOS et Android avec une expérience utilisateur fluide.',
-  },
-  {
-    id: '5',
-    icon: 'Globe',
-    title: 'Transformation digitale',
-    description: 'Accompagnement stratégique pour digitaliser vos processus métier et gagner en efficacité.',
-  },
-  {
-    id: '6',
-    icon: 'BarChart',
-    title: 'Intelligence artificielle',
-    description: 'Intégration de solutions d\'IA et machine learning pour optimiser vos processus et analyses.',
-  },
-];
+import { getServices, saveService, updateService, deleteService, updateServicesOrder, ServiceItem } from '@/services/supabase/servicesService';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Les icônes disponibles
 const AVAILABLE_ICONS = [
@@ -59,12 +21,14 @@ const AVAILABLE_ICONS = [
 const AdminServices = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [services, setServices] = useState(INITIAL_SERVICES);
+  const queryClient = useQueryClient();
+  const [services, setServices] = useState<ServiceItem[]>([]);
   const [editingService, setEditingService] = useState<null | {
-    id: string;
-    icon: string;
+    id?: string;
     title: string;
     description: string;
+    icon: string;
+    order_index?: number;
     isNew?: boolean;
   }>(null);
   const [serviceToDelete, setServiceToDelete] = useState<null | { id: string, title: string }>(null);
@@ -74,7 +38,17 @@ const AdminServices = () => {
     subtitle: 'Des solutions technologiques complètes pour répondre à tous vos besoins numériques',
   });
 
-  const handleMove = (index: number, direction: 'up' | 'down') => {
+  // Chargement des services au montage du composant
+  useEffect(() => {
+    const loadServices = async () => {
+      const loadedServices = await getServices();
+      setServices(loadedServices);
+    };
+    
+    loadServices();
+  }, []);
+
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
     if (
       (direction === 'up' && index === 0) || 
       (direction === 'down' && index === services.length - 1)
@@ -84,62 +58,201 @@ const AdminServices = () => {
     
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     const newServices = [...services];
+    const currentOrder = newServices[index].order_index;
+    const swapOrder = newServices[newIndex].order_index;
+    
+    // Échanger les index d'ordre
+    newServices[index].order_index = swapOrder;
+    newServices[newIndex].order_index = currentOrder;
+    
+    // Échanger les services dans l'array local
     [newServices[index], newServices[newIndex]] = [newServices[newIndex], newServices[index]];
+    
+    // Mettre à jour l'état local immédiatement
     setServices(newServices);
+    
+    // Mettre à jour dans Supabase
+    const success = await updateServicesOrder(newServices);
+    
+    if (!success) {
+      // Rétablir l'ordre précédent en cas d'échec
+      const originalServices = [...services];
+      setServices(originalServices);
+      toast({
+        title: "Erreur",
+        description: "Un problème est survenu lors de la réorganisation des services.",
+        variant: "destructive"
+      });
+    } else {
+      // Invalider le cache React Query pour forcer un rafraichissement
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    }
   };
 
   const handleEdit = (service: typeof editingService) => {
     setEditingService(service);
   };
 
-  const handleSaveService = () => {
+  const handleSaveService = async () => {
     if (!editingService) return;
     
-    const newServices = [...services];
-    
-    if (editingService.isNew) {
-      newServices.push({
-        ...editingService,
-        id: Date.now().toString(),
-      });
-    } else {
-      const index = newServices.findIndex(s => s.id === editingService.id);
-      if (index !== -1) {
-        newServices[index] = editingService;
+    try {
+      if (editingService.isNew) {
+        // Ajouter un nouvel index d'ordre (dernier + 1)
+        const maxOrder = services.length > 0 
+          ? Math.max(...services.map(s => s.order_index))
+          : -1;
+        
+        const newService = {
+          title: editingService.title,
+          description: editingService.description,
+          icon: editingService.icon,
+          order_index: maxOrder + 1
+        };
+        
+        // Sauvegarder dans Supabase
+        const newId = await saveService(newService);
+        
+        if (newId) {
+          // Ajouter à l'état local
+          setServices([...services, { ...newService, id: newId }]);
+          toast({
+            title: "Service ajouté",
+            description: "Le nouveau service a été ajouté avec succès."
+          });
+          
+          // Invalider le cache React Query
+          queryClient.invalidateQueries({ queryKey: ['services'] });
+        } else {
+          throw new Error("Erreur lors de la création du service");
+        }
+      } else if (editingService.id) {
+        // Mise à jour d'un service existant
+        const updatedService = {
+          id: editingService.id,
+          title: editingService.title,
+          description: editingService.description,
+          icon: editingService.icon,
+          order_index: editingService.order_index || 0
+        };
+        
+        const success = await updateService(updatedService);
+        
+        if (success) {
+          // Mettre à jour l'état local
+          const newServices = services.map(s => 
+            s.id === updatedService.id ? updatedService : s
+          );
+          setServices(newServices);
+          
+          toast({
+            title: "Service mis à jour",
+            description: "Le service a été mis à jour avec succès."
+          });
+          
+          // Invalider le cache React Query
+          queryClient.invalidateQueries({ queryKey: ['services'] });
+        } else {
+          throw new Error("Erreur lors de la mise à jour du service");
+        }
       }
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du service:", error);
+      toast({
+        title: "Erreur",
+        description: "Un problème est survenu lors de la sauvegarde du service.",
+        variant: "destructive"
+      });
+    } finally {
+      setEditingService(null);
     }
-    
-    setServices(newServices);
-    setEditingService(null);
-    
-    toast({
-      title: editingService.isNew ? "Service ajouté" : "Service mis à jour",
-      description: editingService.isNew 
-        ? "Le nouveau service a été ajouté avec succès." 
-        : "Le service a été mis à jour avec succès.",
-    });
   };
 
-  const handleDeleteService = (id: string) => {
-    setServices(services.filter(service => service.id !== id));
-    setServiceToDelete(null);
-    
-    toast({
-      title: "Service supprimé",
-      description: "Le service a été supprimé avec succès.",
-    });
+  const handleDeleteService = async (id: string) => {
+    try {
+      const success = await deleteService(id);
+      
+      if (success) {
+        // Mettre à jour l'état local
+        setServices(services.filter(service => service.id !== id));
+        setServiceToDelete(null);
+        
+        toast({
+          title: "Service supprimé",
+          description: "Le service a été supprimé avec succès."
+        });
+        
+        // Invalider le cache React Query
+        queryClient.invalidateQueries({ queryKey: ['services'] });
+      } else {
+        throw new Error("Erreur lors de la suppression du service");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du service:", error);
+      toast({
+        title: "Erreur",
+        description: "Un problème est survenu lors de la suppression du service.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSaveSection = () => {
-    // Ici nous sauvegarderions normalement les données vers une API
-    console.log('Section settings', sectionSettings);
-    console.log('Services', services);
-    
-    toast({
-      title: "Modifications enregistrées",
-      description: "La section Services a été mise à jour avec succès.",
-    });
+  const handleSaveSection = async () => {
+    // Enregistrement des paramètres de section dans Supabase
+    // En utilisant la table section_data
+    try {
+      const { data, error } = await supabase
+        .from('section_data')
+        .upsert({
+          section_id: 'services',
+          data: sectionSettings,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'section_id' });
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Modifications enregistrées",
+        description: "La section Services a été mise à jour avec succès.",
+      });
+      
+      // Invalider le cache React Query pour forcer un rafraichissement
+      queryClient.invalidateQueries({ queryKey: ['sectionData'] });
+      
+      // Déclencher l'événement de mise à jour pour notifier l'application
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement des paramètres:", error);
+      toast({
+        title: "Erreur",
+        description: "Un problème est survenu lors de la sauvegarde des paramètres.",
+        variant: "destructive"
+      });
+    }
   };
+
+  // Charger les paramètres de section depuis Supabase
+  useEffect(() => {
+    const loadSectionSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('section_data')
+          .select('data')
+          .eq('section_id', 'services')
+          .maybeSingle();
+          
+        if (error) throw error;
+        
+        if (data && data.data) {
+          setSectionSettings(data.data);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des paramètres:", error);
+      }
+    };
+    
+    loadSectionSettings();
+  }, []);
 
   return (
     <div className="space-y-6">
