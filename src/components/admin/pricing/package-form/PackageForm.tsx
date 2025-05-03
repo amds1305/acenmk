@@ -5,22 +5,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Save } from 'lucide-react';
 
 interface PackageFormProps {
   initialData?: any;
   onSubmit: (data: any) => void;
+  isSaving?: boolean;
 }
 
-export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
+export const PackageForm = ({ initialData, onSubmit, isSaving = false }: PackageFormProps) => {
   const [formData, setFormData] = React.useState({
     id: initialData?.id || null,
     title: initialData?.title || '',
     description: initialData?.description || '',
     starting_price: initialData?.starting_price || '',
     is_featured: initialData?.is_featured || false,
-    is_visible: initialData?.is_visible || true,
-    features: initialData?.package_features || [{ feature: '', is_included: true }],
+    is_visible: initialData?.is_visible !== undefined ? initialData.is_visible : true,
+    features: initialData?.package_features?.length > 0 
+      ? initialData.package_features 
+      : [{ feature: '', is_included: true }],
   });
 
   return (
@@ -35,6 +38,7 @@ export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
             id="title"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            required
           />
         </div>
 
@@ -42,7 +46,7 @@ export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
           <Label htmlFor="description">Description</Label>
           <Textarea
             id="description"
-            value={formData.description}
+            value={formData.description || ''}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
         </div>
@@ -77,7 +81,7 @@ export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
 
         <div>
           <Label>Caractéristiques</Label>
-          <div className="space-y-2">
+          <div className="space-y-2 mt-2">
             {formData.features.map((feature: any, index: number) => (
               <div key={index} className="flex gap-2">
                 <Input
@@ -102,9 +106,12 @@ export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    const newFeatures = formData.features.filter((_, i) => i !== index);
-                    setFormData({ ...formData, features: newFeatures });
+                    if (formData.features.length > 1) {
+                      const newFeatures = formData.features.filter((_, i) => i !== index);
+                      setFormData({ ...formData, features: newFeatures });
+                    }
                   }}
+                  disabled={formData.features.length <= 1}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -127,7 +134,9 @@ export const PackageForm = ({ initialData, onSubmit }: PackageFormProps) => {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="submit">
+        <Button type="submit" disabled={isSaving} className="flex items-center gap-2">
+          {isSaving && <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>}
+          <Save className="h-4 w-4 mr-1" />
           {initialData ? 'Mettre à jour' : 'Créer'}
         </Button>
       </div>

@@ -6,11 +6,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { usePackages } from './hooks/usePackages';
 import { PackageForm } from './package-form/PackageForm';
 import { PackageCard } from './package-card/PackageCard';
+import { toast } from '@/components/ui/use-toast';
 
 const AdminPricing = () => {
   const [isAddingPackage, setIsAddingPackage] = React.useState(false);
   const [editingPackage, setEditingPackage] = React.useState<any>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
   const { packages, isLoading, handleSavePackage, handleDeletePackage } = usePackages();
+
+  const handleSubmit = async (data: any) => {
+    try {
+      setIsSaving(true);
+      const result = await handleSavePackage(data);
+      if (result) {
+        setIsAddingPackage(false);
+        setEditingPackage(null);
+      }
+    } catch (error) {
+      console.error("Error saving package:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -22,16 +44,28 @@ const AdminPricing = () => {
         </Button>
       </div>
 
-      <div className="grid gap-6">
-        {packages?.map((pkg) => (
-          <PackageCard
-            key={pkg.id}
-            pkg={pkg}
-            onEdit={setEditingPackage}
-            onDelete={handleDeletePackage}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {packages && packages.length > 0 ? (
+            packages.map((pkg) => (
+              <PackageCard
+                key={pkg.id}
+                pkg={pkg}
+                onEdit={setEditingPackage}
+                onDelete={handleDeletePackage}
+              />
+            ))
+          ) : (
+            <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <p className="text-muted-foreground">Aucune offre trouvée. Cliquez sur "Ajouter une offre" pour créer votre première offre.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       <Dialog 
         open={isAddingPackage || !!editingPackage} 
@@ -50,11 +84,8 @@ const AdminPricing = () => {
           </DialogHeader>
           <PackageForm
             initialData={editingPackage}
-            onSubmit={(data) => {
-              handleSavePackage(data);
-              setIsAddingPackage(false);
-              setEditingPackage(null);
-            }}
+            onSubmit={handleSubmit}
+            isSaving={isSaving}
           />
         </DialogContent>
       </Dialog>
