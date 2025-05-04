@@ -11,6 +11,7 @@ import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import AdminWrapper from './pages/AdminWrapper';
 import Admin from './pages/Admin';
+import Portfolio from './pages/Portfolio';
 
 // Lazily loaded components for better performance
 const Login = lazy(() => import('./pages/Login'));
@@ -32,6 +33,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/profile/*" element={<Profile />} />
+              <Route path="/portfolio" element={<Portfolio />} />
               
               {/* Routes d'administration */}
               <Route path="/admin/login" element={<AdminLogin />} />
