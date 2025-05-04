@@ -12,6 +12,8 @@ import NotFound from './pages/NotFound';
 import AdminWrapper from './pages/AdminWrapper';
 import Admin from './pages/Admin';
 import Portfolio from './pages/Portfolio';
+import AceJob from './pages/AceJob';
+import Careers from './pages/Careers';
 
 // Lazily loaded components for better performance
 const Login = lazy(() => import('./pages/Login'));
@@ -21,6 +23,9 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminHero = lazy(() => import('./pages/AdminHero'));
 const AdminSupabaseMigration = lazy(() => import('./pages/AdminSupabaseMigration'));
 const AdminTemplateChooser = lazy(() => import('./pages/AdminTemplateChooser')); 
+const Blog = lazy(() => import('./pages/Blog'));
+const ProjectEstimation = lazy(() => import('./pages/ProjectEstimation'));
+const Faq = lazy(() => import('./pages/Faq'));
 
 function App() {
   return (
@@ -34,6 +39,11 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/profile/*" element={<Profile />} />
               <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/estimation" element={<ProjectEstimation />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/ace-job" element={<AceJob />} />
               
               {/* Routes d'administration */}
               <Route path="/admin/login" element={<AdminLogin />} />
