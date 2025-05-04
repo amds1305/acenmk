@@ -10,6 +10,7 @@ import NmkKinkTrustedClients from './NmkKinkTrustedClients';
 import NmkKinkTestimonials from './NmkKinkTestimonials';
 import NmkKinkFaq from './NmkKinkFaq';
 import NmkKinkContact from './NmkKinkContact';
+import NmkKinkPricing from './NmkKinkPricing';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkKink template
@@ -101,6 +102,9 @@ const NmkKinkHomeTemplate: React.FC = () => {
         console.log(`Rendering Kink section: ${section.id} (${section.type})`);
         return <SectionComponent key={section.id} />;
       })}
+      
+      {/* Ajout de la section de tarification */}
+      <NmkKinkPricing />
     </div>
   );
 };
