@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -22,8 +21,8 @@ import {
   ChevronDown,
   Database,
   MessageCircleQuestion,
-  Footer,
-  Header
+  LayoutPanelBottom,
+  LayoutPanelTop
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,8 +84,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/blog', label: 'Blog', icon: <Newspaper className="h-5 w-5" /> },
     { path: '/admin/careers', label: 'Carrières', icon: <Briefcase className="h-5 w-5" /> },
     { path: '/admin/appointments', label: 'Rendez-vous', icon: <Calendar className="h-5 w-5" /> },
-    { path: '/admin/header', label: 'En-tête', icon: <Header className="h-5 w-5" /> },
-    { path: '/admin/footer', label: 'Pied de page', icon: <Footer className="h-5 w-5" /> },
+    { path: '/admin/header', label: 'En-tête', icon: <LayoutPanelTop className="h-5 w-5" /> },
+    { path: '/admin/footer', label: 'Pied de page', icon: <LayoutPanelBottom className="h-5 w-5" /> },
     { divider: true },
     { path: '/admin/users', label: 'Utilisateurs', icon: <UserCog className="h-5 w-5" /> },
     { path: '/admin/roles', label: 'Rôles et Permissions', icon: <Shield className="h-5 w-5" /> },
