@@ -2,6 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PermissionsManager from '@/components/admin/permissions/PermissionsManager';
+import RolesManager from '@/components/admin/roles/RolesManager';
 
 const AdminRolesPermissions = () => {
   return (
@@ -20,9 +21,7 @@ const AdminRolesPermissions = () => {
         </TabsContent>
         
         <TabsContent value="roles" className="pt-4">
-          <p className="text-muted-foreground">
-            La gestion avancée des rôles sera disponible dans une prochaine version.
-          </p>
+          <RolesManager />
         </TabsContent>
         
         <TabsContent value="groups" className="pt-4">
