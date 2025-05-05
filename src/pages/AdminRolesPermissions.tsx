@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PermissionsManager from '@/components/admin/permissions/PermissionsManager';
 import RolesManager from '@/components/admin/roles/RolesManager';
+import UsersPermissionsManager from '@/components/admin/permissions/UsersPermissionsManager';
 
 const AdminRolesPermissions = () => {
   return (
@@ -13,6 +14,7 @@ const AdminRolesPermissions = () => {
         <TabsList>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="roles">Rôles</TabsTrigger>
+          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           <TabsTrigger value="groups">Groupes</TabsTrigger>
         </TabsList>
         
@@ -22,6 +24,10 @@ const AdminRolesPermissions = () => {
         
         <TabsContent value="roles" className="pt-4">
           <RolesManager />
+        </TabsContent>
+        
+        <TabsContent value="users" className="pt-4">
+          <UsersPermissionsManager />
         </TabsContent>
         
         <TabsContent value="groups" className="pt-4">

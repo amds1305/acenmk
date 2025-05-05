@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Filter } from 'lucide-react';
-import { UserRole } from '@/types/auth';
+import { getRolesByLevel, getRoleLabel, UserRole } from '@/utils/roleUtils';
 
 interface UserFilterProps {
   selectedRole: string | null;
@@ -18,25 +18,15 @@ interface UserFilterProps {
 }
 
 export const UserFilter = ({ selectedRole, onRoleSelect }: UserFilterProps) => {
-  const getRoleLabel = (role: string | null) => {
-    switch(role) {
-      case 'super_admin': return 'Super Admin';
-      case 'admin': return 'Administrateur';
-      case 'client_premium': return 'Client Premium';
-      case 'user': return 'Client';
-      default: return 'Tous les rôles';
-    }
-  };
-
-  // Définir les rôles disponibles basés sur le type UserRole
-  const availableRoles: UserRole[] = ['super_admin', 'admin', 'client_premium', 'user'];
+  const externalRoles = getRolesByLevel('external');
+  const internalRoles = getRolesByLevel('internal');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-full md:w-auto">
           <Filter className="h-4 w-4 mr-2" />
-          {getRoleLabel(selectedRole)}
+          {selectedRole ? getRoleLabel(selectedRole as UserRole) : "Tous les rôles"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -46,11 +36,16 @@ export const UserFilter = ({ selectedRole, onRoleSelect }: UserFilterProps) => {
           Tous les rôles
         </DropdownMenuItem>
         
-        {availableRoles.map(role => (
-          <DropdownMenuItem 
-            key={role} 
-            onClick={() => onRoleSelect(role)}
-          >
+        <DropdownMenuLabel>Rôles externes</DropdownMenuLabel>
+        {externalRoles.map(role => (
+          <DropdownMenuItem key={role} onClick={() => onRoleSelect(role)}>
+            {getRoleLabel(role)}
+          </DropdownMenuItem>
+        ))}
+        
+        <DropdownMenuLabel>Rôles internes</DropdownMenuLabel>
+        {internalRoles.map(role => (
+          <DropdownMenuItem key={role} onClick={() => onRoleSelect(role)}>
             {getRoleLabel(role)}
           </DropdownMenuItem>
         ))}
