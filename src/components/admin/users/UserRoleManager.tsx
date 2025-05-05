@@ -12,9 +12,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { User, UserRole } from '@/types/auth';
 import { supabase } from '@/lib/supabase';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { Loader2, ShieldAlert, Shield, User as UserIcon, Users } from 'lucide-react';
+import { getRoleBadgeVariant, getRoleLabel, getRolesByLevel, getRoleDescription, getRoleInfo } from '@/utils/roleUtils';
+import { Badge } from '@/components/ui/badge';
 
 interface UserRoleManagerProps {
   userId: string;
@@ -47,7 +58,7 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
           onRoleUpdated(targetRole);
           toast({
             title: 'Rôle modifié (mode test)',
-            description: `L'utilisateur a maintenant le rôle: ${targetRole}`,
+            description: `L'utilisateur a maintenant le rôle: ${getRoleLabel(targetRole)}`,
           });
           setIsLoading(false);
           setIsConfirmDialogOpen(false);
@@ -92,7 +103,7 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
       
       toast({
         title: 'Rôle modifié avec succès',
-        description: `L'utilisateur a maintenant le rôle: ${targetRole}`,
+        description: `L'utilisateur a maintenant le rôle: ${getRoleLabel(targetRole)}`,
       });
     } catch (error) {
       console.error("Erreur lors de la modification du rôle:", error);
@@ -110,8 +121,8 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
   const handleChangeRole = (role: UserRole) => {
     setTargetRole(role);
     
-    // Si on passe à admin ou super_admin, demander confirmation
-    if (role === 'admin' || role === 'super_admin') {
+    // Si on passe à admin, business_admin ou super_admin, demander confirmation
+    if (['admin', 'business_admin', 'super_admin'].includes(role)) {
       setIsPromotingToAdmin(true);
       setIsConfirmDialogOpen(true);
     } else {
@@ -120,45 +131,76 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
     }
   };
 
+  // Get the appropriate icon for each role category
+  const getRoleIcon = (role: UserRole) => {
+    const info = getRoleInfo(role);
+    
+    switch(info.category) {
+      case 'admin':
+        return <ShieldAlert className="h-4 w-4 mr-1" />;
+      case 'staff':
+        return <Users className="h-4 w-4 mr-1" />;
+      case 'provider':
+        return <Shield className="h-4 w-4 mr-1" />;
+      default:
+        return <UserIcon className="h-4 w-4 mr-1" />;
+    }
+  };
+
+  const externalRoles = getRolesByLevel('external').filter(role => role !== 'visitor');
+  const internalRoles = getRolesByLevel('internal');
+
   return (
     <>
-      <div className="space-y-2">
-        <p className="text-sm font-medium mb-2">Changer le rôle utilisateur:</p>
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            size="sm" 
-            variant={currentRole === 'user' ? 'default' : 'outline'} 
-            onClick={() => handleChangeRole('user')}
-            disabled={currentRole === 'user' || isLoading}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <p className="text-sm font-medium mb-2">Changer le rôle utilisateur:</p>
+          
+          <Select 
+            value={targetRole || currentRole} 
+            onValueChange={(value) => handleChangeRole(value as UserRole)}
+            disabled={isLoading}
           >
-            Client
-          </Button>
-          <Button 
-            size="sm" 
-            variant={currentRole === 'client_premium' ? 'default' : 'outline'} 
-            onClick={() => handleChangeRole('client_premium')}
-            disabled={currentRole === 'client_premium' || isLoading}
-          >
-            Client Premium
-          </Button>
-          <Button 
-            size="sm" 
-            variant={currentRole === 'admin' ? 'default' : 'outline'} 
-            onClick={() => handleChangeRole('admin')}
-            disabled={currentRole === 'admin' || isLoading}
-          >
-            <ShieldAlert className="h-4 w-4 mr-1" />
-            Administrateur
-          </Button>
-          <Button 
-            size="sm" 
-            variant={currentRole === 'super_admin' ? 'default' : 'outline'} 
-            onClick={() => handleChangeRole('super_admin')}
-            disabled={currentRole === 'super_admin' || isLoading}
-          >
-            <ShieldAlert className="h-4 w-4 mr-1" />
-            Super Admin
-          </Button>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sélectionner un rôle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Utilisateurs Externes</SelectLabel>
+                {externalRoles.map(role => (
+                  <SelectItem key={role} value={role}>
+                    <div className="flex items-center">
+                      {getRoleIcon(role)}
+                      <span>{getRoleLabel(role)}</span>
+                      {currentRole === role && <Badge className="ml-2 h-5 px-1">Actuel</Badge>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Utilisateurs Internes</SelectLabel>
+                {internalRoles.map(role => (
+                  <SelectItem key={role} value={role}>
+                    <div className="flex items-center">
+                      {getRoleIcon(role)}
+                      <span>{getRoleLabel(role)}</span>
+                      {currentRole === role && <Badge className="ml-2 h-5 px-1">Actuel</Badge>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <div className="text-xs text-muted-foreground">
+            <p>{getRoleDescription(currentRole)}</p>
+          </div>
+        </div>
+        
+        <div className="pt-2">
+          <p className="text-xs text-muted-foreground">
+            Statut actuel: <Badge variant={getRoleBadgeVariant(currentRole) as any}>{getRoleLabel(currentRole)}</Badge>
+          </p>
         </div>
       </div>
 
@@ -169,7 +211,12 @@ const UserRoleManager: React.FC<UserRoleManagerProps> = ({
             <AlertDialogTitle>Promotion au rôle administrateur</AlertDialogTitle>
             <AlertDialogDescription>
               Vous êtes sur le point d'attribuer des privilèges d'administration à cet utilisateur. 
-              Cette action lui donnera un accès complet au tableau de bord administratif.
+              Cette action lui donnera un accès étendu au système selon le rôle sélectionné.
+              {targetRole === 'super_admin' && (
+                <p className="font-semibold mt-2 text-destructive">
+                  ATTENTION: Le rôle Super Administrateur accorde un contrôle total sur l'ensemble du système.
+                </p>
+              )}
               Êtes-vous sûr de vouloir continuer ?
             </AlertDialogDescription>
           </AlertDialogHeader>

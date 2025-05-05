@@ -1,68 +1,8 @@
 
-export type Project = {
-  id: string;
-  title: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  lastUpdated: string;
-};
+export type UserRole = 'visitor' | 'client_standard' | 'client_premium' | 'external_provider' | 
+                       'contributor' | 'manager' | 'business_admin' | 'super_admin' | 'user' | 'admin';
 
-export type Estimate = {
-  id: string;
-  title: string;
-  status: 'pending' | 'approved' | 'rejected';
-  date: string;
-  amount: number;
-};
-
-export type Message = {
-  id: string;
-  content: string;
-  date: string;
-  read: boolean;
-  sender: 'user' | 'admin';
-};
-
-export type UserRole = 'admin' | 'user' | 'client_premium' | 'super_admin';
-
-export type UserPreferences = {
-  notifications: {
-    email: boolean;
-    sms: boolean;
-    projectUpdates: boolean;
-    marketing: boolean;
-  };
-  privacy: {
-    profileVisibility: 'public' | 'private' | 'contacts_only';
-    showEmail: boolean;
-    showPhone: boolean;
-  };
-  theme: 'light' | 'dark' | 'system';
-};
-
-export type Address = {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-};
-
-export type SocialLink = {
-  platform: 'facebook' | 'twitter' | 'instagram' | 'linkedin' | 'github' | 'other';
-  url: string;
-  label?: string;
-};
-
-export type LoginHistory = {
-  id: string;
-  date: string;
-  ip: string;
-  deviceInfo: string;
-  location?: string;
-  success: boolean;
-};
-
-export type User = {
+export interface User {
   id: string;
   email: string;
   name: string;
@@ -70,31 +10,23 @@ export type User = {
   avatar?: string;
   company?: string;
   phone?: string;
-  createdAt: string;
-  projects?: Project[];
-  estimates?: Estimate[];
   biography?: string;
-  address?: Address;
-  socialLinks?: SocialLink[];
-  preferences?: UserPreferences;
-  loginHistory?: LoginHistory[];
-  twoFactorEnabled?: boolean;
+  createdAt: string;
   lastLoginDate?: string;
-};
+}
 
-export type AuthContextType = {
+export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  register: (name: string, email: string, password: string, company?: string, phone?: string) => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-  uploadAvatar: (file: File) => Promise<string>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  toggleTwoFactor: (enable: boolean) => Promise<void>;
-  updatePreferences: (preferences: UserPreferences) => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  messages: Message[];
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
+  logout: () => Promise<{ success: boolean; error?: any }>;
+  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: any }>;
+  updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: any }>;
+  uploadAvatar: (file: File) => Promise<{ success: boolean; url?: string; error?: any }>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: any }>;
+  toggleTwoFactor: (enable: boolean) => Promise<{ success: boolean; error?: any }>;
+  messages: any[];
   unreadMessages: number;
-};
+}

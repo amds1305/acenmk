@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { User, AuthContextType } from '@/types/auth';
+import { User, AuthContextType, UserRole } from '@/types/auth';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthentication } from './auth/useAuthentication';
 import { useProfile } from './auth/useProfile';
 import { useMessages } from './auth/useMessages';
 import { useSecuritySettings } from './auth/useSecuritySettings';
+import { isAdminRole } from '@/utils/roleUtils';
 
 export const useAuthProvider = (): AuthContextType => {
   const [user, setUser] = useState<User | null>(null);
@@ -25,13 +26,14 @@ export const useAuthProvider = (): AuthContextType => {
   // Vérifier le mode admin de test
   useEffect(() => {
     const isTestAdmin = localStorage.getItem('adminTestMode') === 'true';
-    const testRole = localStorage.getItem('adminTestRole');
+    const testRole = localStorage.getItem('adminTestRole') as UserRole || 'user';
     
     console.log("Checking admin test mode:", { isTestAdmin, testRole });
     
-    if (isTestAdmin && testRole === 'admin') {
+    if (isTestAdmin) {
       console.log("Admin test mode active, setting user state");
-      setIsAdmin(true);
+      const isAdminUser = isAdminRole(testRole);
+      setIsAdmin(isAdminUser);
       setIsAuthenticated(true);
       setLoading(false);
       
@@ -40,7 +42,7 @@ export const useAuthProvider = (): AuthContextType => {
         id: 'test-admin-id',
         email: testEmail,
         name: 'Administrateur Test',
-        role: 'admin',
+        role: testRole,
         avatar: '/placeholder.svg',
         createdAt: new Date().toISOString(),
       };
@@ -73,7 +75,7 @@ export const useAuthProvider = (): AuthContextType => {
           
           setUser(basicUser);
           setIsAuthenticated(true);
-          setIsAdmin(basicUser.role === 'admin' || basicUser.role === 'super_admin');
+          setIsAdmin(isAdminRole(basicUser.role));
 
           setTimeout(async () => {
             try {
@@ -94,19 +96,23 @@ export const useAuthProvider = (): AuthContextType => {
                 };
                 
                 setUser(updatedUser);
-                setIsAdmin(updatedUser.role === 'admin' || updatedUser.role === 'super_admin');
+                setIsAdmin(isAdminRole(updatedUser.role));
               }
               
               // Vérifier également la table user_roles pour les rôles spécifiques
               const { data: userRoles, error: rolesError } = await supabase
                 .from('user_roles')
                 .select('role')
-                .eq('user_id', session.user.id);
+                .eq('user_id', session.user.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
                 
               if (!rolesError && userRoles && userRoles.length > 0) {
-                const hasAdminRole = userRoles.some(
-                  r => r.role === 'admin' || r.role === 'super_admin'
-                );
+                const latestRole = userRoles[0].role as UserRole;
+                const hasAdminRole = isAdminRole(latestRole);
+                
+                // Mettre à jour l'utilisateur avec le rôle le plus récent
+                setUser(prev => prev ? { ...prev, role: latestRole } : prev);
                 if (hasAdminRole) setIsAdmin(true);
               }
             } catch (err) {

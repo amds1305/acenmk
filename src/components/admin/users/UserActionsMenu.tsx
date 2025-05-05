@@ -6,11 +6,15 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Edit2, Trash2, Mail, User as UserIcon } from 'lucide-react';
+import { MoreHorizontal, Edit2, Trash2, Mail, User as UserIcon, Shield, ShieldAlert, Users } from 'lucide-react';
 import { User, UserRole } from '@/types/auth';
+import { getRolesByCategory, getRolesByLevel, getRoleLabel } from '@/utils/roleUtils';
 
 interface UserActionsMenuProps {
   user: User;
@@ -29,6 +33,9 @@ export const UserActionsMenu = ({
   onChangeRole,
   onDelete
 }: UserActionsMenuProps) => {
+  const externalRoles = getRolesByLevel('external').filter(role => role !== 'visitor');
+  const internalRoles = getRolesByLevel('internal');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,31 +61,50 @@ export const UserActionsMenu = ({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuLabel>Changer le rôle</DropdownMenuLabel>
-        <DropdownMenuItem 
-          onClick={() => onChangeRole('user')}
-          disabled={user.role === 'user'}
-        >
-          Client
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => onChangeRole('client_premium')}
-          disabled={user.role === 'client_premium'}
-        >
-          Client Premium
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => onChangeRole('admin')}
-          disabled={user.role === 'admin'}
-        >
-          Administrateur
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => onChangeRole('super_admin')}
-          disabled={user.role === 'super_admin'}
-        >
-          Super Admin
-        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Shield className="h-4 w-4 mr-2" />
+            Changer le rôle
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuLabel>Utilisateurs Externes</DropdownMenuLabel>
+            {externalRoles.map(role => (
+              <DropdownMenuItem 
+                key={role}
+                onClick={() => onChangeRole(role)}
+                disabled={user.role === role}
+              >
+                <UserIcon className="h-4 w-4 mr-2" />
+                {getRoleLabel(role)}
+              </DropdownMenuItem>
+            ))}
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Utilisateurs Internes</DropdownMenuLabel>
+            
+            {internalRoles.filter(r => ['contributor', 'manager'].includes(r)).map(role => (
+              <DropdownMenuItem 
+                key={role}
+                onClick={() => onChangeRole(role)}
+                disabled={user.role === role}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                {getRoleLabel(role)}
+              </DropdownMenuItem>
+            ))}
+            
+            {internalRoles.filter(r => ['business_admin', 'super_admin'].includes(r)).map(role => (
+              <DropdownMenuItem 
+                key={role}
+                onClick={() => onChangeRole(role)}
+                disabled={user.role === role}
+              >
+                <ShieldAlert className="h-4 w-4 mr-2" />
+                {getRoleLabel(role)}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         
         <DropdownMenuSeparator />
         

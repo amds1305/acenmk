@@ -16,11 +16,12 @@ import { AdminCareers } from '@/components/admin/careers';
 import AdminTemplateChooser from '@/pages/AdminTemplateChooser';
 import { AdminTrustedClients } from '@/components/admin/trusted-clients';
 import AdminSupabaseMigration from '@/pages/AdminSupabaseMigration';
-import AdminUsers from '@/components/admin/AdminUsers';
+import AdminUsers from '@/components/admin/users/AdminUsers';
 import AdminPricing from '@/components/admin/pricing/AdminPricing';
 import AdminAppointments from '@/components/admin/AdminAppointments';
 import AdminHeader from '@/components/admin/header/AdminHeader';
 import AdminFooter from '@/components/admin/footer/AdminFooter';
+import AdminRolesPermissions from '@/pages/AdminRolesPermissions';
 import { SectionsProvider } from '@/contexts/sections/SectionsContext';
 
 const Admin = () => {
@@ -47,6 +48,7 @@ const Admin = () => {
             <Route path="/header" element={<AdminHeader />} />
             <Route path="/footer" element={<AdminFooter />} />
             <Route path="/users" element={<AdminUsers />} />
+            <Route path="/roles" element={<AdminRolesPermissions />} />
             <Route path="/supabase-migration" element={<AdminSupabaseMigration />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>

@@ -1,27 +1,31 @@
 
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import {
-  BriefcaseBusiness,
-  LayoutDashboard,
-  FileText,
-  Home,
-  PackageOpen,
-  Info,
-  Users,
-  MessageSquareQuote,
-  MessageCircleQuestion,
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Home, 
+  Layers, 
+  ShoppingBag, 
+  FileText, 
+  Users, 
+  Settings, 
+  Calendar, 
+  LifeBuoy, 
+  Briefcase,
+  Navigation,
+  UserCog,
+  Shield,
+  MessagesSquare,
+  Newspaper,
   Menu,
-  Calendar,
-  ExternalLink,
-  LogOut,
-  Globe,
-  LayoutTemplate,
+  X,
+  ChevronDown,
   Database,
-  StarIcon,
-  Tags
+  MessageCircleQuestion,
+  Footer,
+  Header
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,165 +33,172 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { pathname } = useLocation();
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const navigationItems = [
-    { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
-    { name: 'Page d\'accueil', href: '/admin/home', icon: Home },
-    { name: 'Hero', href: '/admin/hero', icon: StarIcon },
-    { name: 'Services', href: '/admin/services', icon: PackageOpen },
-    { name: 'Nos offres', href: '/admin/pricing', icon: Tags },
-    { name: 'À propos', href: '/admin/about', icon: Info },
-    { name: 'Équipe', href: '/admin/team', icon: Users },
-    { name: 'Clients', href: '/admin/trusted-clients', icon: BriefcaseBusiness },
-    { name: 'Témoignages', href: '/admin/testimonials', icon: MessageSquareQuote },
-    { name: 'FAQ', href: '/admin/faq', icon: MessageCircleQuestion },
-    { name: 'Articles', href: '/admin/blog', icon: FileText },
-    { name: 'Rendez-vous', href: '/admin/appointments', icon: Calendar },
-    { name: 'Template', href: '/admin/template', icon: LayoutTemplate },
-    { name: 'En-tête', href: '/admin/header', icon: Globe },
-    { name: 'Pied de page', href: '/admin/footer', icon: Globe },
-    { name: 'Utilisateurs', href: '/admin/users', icon: Users },
-    { name: 'Migration Supabase', href: '/admin/supabase-migration', icon: Database }
+  const [expanded, setExpanded] = React.useState(false);
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const location = useLocation();
+  
+  const toggleSidebar = () => {
+    setExpanded(!expanded);
+  };
+  
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès."
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Erreur de déconnexion",
+        description: "Une erreur s'est produite lors de la déconnexion."
+      });
+    }
+  };
+  
+  const isActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+  
+  const navItems = [
+    { path: '/admin', label: 'Tableau de bord', icon: <LayoutDashboard className="h-5 w-5" /> },
+    { path: '/admin/home', label: 'Page d\'accueil', icon: <Home className="h-5 w-5" /> },
+    { path: '/admin/hero', label: 'Hero', icon: <Layers className="h-5 w-5" /> },
+    { path: '/admin/services', label: 'Services', icon: <ShoppingBag className="h-5 w-5" /> },
+    { path: '/admin/pricing', label: 'Tarifs', icon: <FileText className="h-5 w-5" /> },
+    { path: '/admin/about', label: 'À propos', icon: <LifeBuoy className="h-5 w-5" /> },
+    { path: '/admin/team', label: 'Équipe', icon: <Users className="h-5 w-5" /> },
+    { path: '/admin/testimonials', label: 'Témoignages', icon: <MessagesSquare className="h-5 w-5" /> },
+    { path: '/admin/faq', label: 'FAQ', icon: <MessageCircleQuestion className="h-5 w-5" /> },
+    { path: '/admin/blog', label: 'Blog', icon: <Newspaper className="h-5 w-5" /> },
+    { path: '/admin/careers', label: 'Carrières', icon: <Briefcase className="h-5 w-5" /> },
+    { path: '/admin/appointments', label: 'Rendez-vous', icon: <Calendar className="h-5 w-5" /> },
+    { path: '/admin/header', label: 'En-tête', icon: <Header className="h-5 w-5" /> },
+    { path: '/admin/footer', label: 'Pied de page', icon: <Footer className="h-5 w-5" /> },
+    { divider: true },
+    { path: '/admin/users', label: 'Utilisateurs', icon: <UserCog className="h-5 w-5" /> },
+    { path: '/admin/roles', label: 'Rôles et Permissions', icon: <Shield className="h-5 w-5" /> },
+    { path: '/admin/template', label: 'Template', icon: <Settings className="h-5 w-5" /> },
+    { path: '/admin/trusted-clients', label: 'Clients fiables', icon: <Navigation className="h-5 w-5" /> },
+    { path: '/admin/supabase-migration', label: 'Migration Supabase', icon: <Database className="h-5 w-5" /> },
   ];
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
-
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar pour desktop */}
-      <div className={cn(
-        "hidden md:flex md:w-64 flex-col border-r bg-background z-30",
-      )}>
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold">Administration</h2>
-        </div>
-        <ScrollArea className="flex-1 py-2">
-          <nav className="space-y-1 px-2">
-            {navigationItems.map((item) => {
-              const ItemIcon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center px-3 py-2 text-sm rounded-md transition-colors",
-                    pathname === item.href
-                      ? "bg-secondary text-secondary-foreground font-medium"
-                      : "text-muted-foreground hover:bg-secondary/50"
-                  )}
-                >
-                  <ItemIcon className="mr-3 h-4 w-4" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </ScrollArea>
-        <div className="p-4 border-t">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                A
-              </div>
-              <span className="ml-2 font-medium text-sm">Admin</span>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.open('/', '_blank')}>
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Voir le site
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Déconnexion
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      {/* Sidebar - Mobile Toggle */}
+      <div className="md:hidden fixed bottom-4 right-4 z-50">
+        <Button 
+          variant="default" 
+          size="icon" 
+          className="rounded-full shadow-lg"
+          onClick={toggleSidebar}
+        >
+          {expanded ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
       </div>
-
-      {/* Barre de navigation mobile */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-background z-40 border-b">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="text-lg font-semibold">Administration</h1>
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-            <Menu className="h-5 w-5" />
+      
+      {/* Sidebar */}
+      <div 
+        className={`
+          fixed md:sticky top-0 z-30 
+          ${expanded ? 'left-0' : '-left-full md:left-0'} 
+          w-64 h-screen transition-all duration-200 ease-in-out 
+          bg-card border-r shadow-sm 
+          flex flex-col
+        `}
+      >
+        <div className="p-4 flex items-center justify-between border-b">
+          <div className="font-bold text-lg">ACE Admin</div>
+          <Button variant="ghost" size="sm" className="md:hidden" onClick={toggleSidebar}>
+            <X className="h-5 w-5" />
           </Button>
         </div>
-      </div>
-
-      {/* Sidebar mobile */}
-      {isOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/50" onClick={toggleSidebar} />
-          <div className="absolute top-0 left-0 bottom-0 w-64 bg-background p-4 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Administration</h2>
-              <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            </div>
-            <nav className="space-y-1">
-              {navigationItems.map((item) => {
-                const ItemIcon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "flex items-center px-3 py-2 text-sm rounded-md transition-colors",
-                      pathname === item.href
-                        ? "bg-secondary text-secondary-foreground font-medium"
-                        : "text-muted-foreground hover:bg-secondary/50"
-                    )}
-                    onClick={toggleSidebar}
-                  >
-                    <ItemIcon className="mr-3 h-4 w-4" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+        
+        <div className="flex-grow overflow-y-auto py-2">
+          <nav className="space-y-1 px-2">
+            {navItems.map((item, i) => 
+              item.divider ? (
+                <div key={`divider-${i}`} className="my-3 border-t mx-2"></div>
+              ) : (
+                <Link 
+                  key={item.path} 
+                  to={item.path} 
+                  className={`
+                    flex items-center px-3 py-2 rounded-md text-sm font-medium
+                    ${isActive(item.path) 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }
+                  `}
+                  onClick={() => setExpanded(false)}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              )
+            )}
+          </nav>
         </div>
-      )}
-
-      {/* Contenu principal */}
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6 md:p-8 md:pt-6 mt-14 md:mt-0">
-          {children}
-        </main>
+        
+        <div className="p-4 border-t">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full flex items-center justify-between">
+                <div className="flex items-center">
+                  <Avatar className="h-6 w-6 mr-2">
+                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="truncate max-w-[150px]">{user?.name}</span>
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" alignOffset={-40} className="w-56">
+              <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+              <DropdownMenuItem>
+                <UserCog className="mr-2 h-4 w-4" />
+                <span>Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Paramètres</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <span className="text-destructive">Déconnexion</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+      
+      {/* Main content */}
+      <div className="flex-1 w-full">
+        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {children}
+        </div>
+      </div>
+      
+      {/* Mobile sidebar backdrop */}
+      {expanded && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-20"
+          onClick={() => setExpanded(false)}
+        />
+      )}
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, UserRole } from '@/types/auth';
 import { UserActionsMenu } from './UserActionsMenu';
+import { getRoleBadgeVariant, getRoleLabel } from '@/utils/roleUtils';
 
 interface UserTableProps {
   users: User[];
@@ -21,25 +22,6 @@ interface UserTableProps {
   onChangeRole: (userId: string, newRole: UserRole) => void;
   onDeleteUser: (userId: string) => void;
 }
-
-const getRoleBadgeVariant = (role: UserRole) => {
-  switch(role) {
-    case 'super_admin': return 'destructive';
-    case 'admin': return 'default';
-    case 'client_premium': return 'orange';
-    default: return 'secondary';
-  }
-};
-
-const getRoleLabel = (role: UserRole) => {
-  switch(role) {
-    case 'super_admin': return 'Super Admin';
-    case 'admin': return 'Administrateur';
-    case 'client_premium': return 'Client Premium';
-    case 'user': return 'Client';
-    default: return role;
-  }
-};
 
 export const UserTable = ({ 
   users, 
@@ -80,7 +62,7 @@ export const UserTable = ({
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  <Badge variant={getRoleBadgeVariant(user.role)} className="font-normal">
+                  <Badge variant={getRoleBadgeVariant(user.role) as any} className="font-normal">
                     {getRoleLabel(user.role)}
                   </Badge>
                 </TableCell>
