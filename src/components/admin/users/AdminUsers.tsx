@@ -19,6 +19,41 @@ import UserProfileDialog from './UserProfileDialog';
 import SendMessageDialog from './SendMessageDialog';
 import AddUserDialog from './AddUserDialog';
 import { supabase } from '@/lib/supabase';
+import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
+
+// Ajouter les utilisateurs fictifs manquants de l'ancienne version
+const mockUsers = [
+  MOCK_ADMIN_USER,
+  MOCK_USER,
+  {
+    id: 'user3',
+    email: 'premium@example.com',
+    name: 'Client Premium',
+    role: 'client_premium' as UserRole,
+    company: 'Premium Corp',
+    phone: '+33 6 12 34 56 78',
+    avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
+    createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
+  },
+  {
+    id: 'user4',
+    email: 'new@example.com',
+    name: 'Nouveau Client',
+    role: 'user' as UserRole,
+    company: 'New Company',
+    createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+  },
+  {
+    id: 'user5',
+    email: 'super@example.com',
+    name: 'Super Admin',
+    role: 'super_admin' as UserRole,
+    company: 'Admin Solutions',
+    phone: '+33 7 98 76 54 32',
+    avatar: 'https://i.pravatar.cc/150?u=super@example.com',
+    createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
+  }
+];
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -32,15 +67,26 @@ const AdminUsers = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Charger les utilisateurs depuis Supabase
+  // Charger les utilisateurs depuis Supabase ou les mocks
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
     setIsLoading(true);
+    
     try {
-      // Récupérer les profils des utilisateurs
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // En mode test, utiliser les utilisateurs fictifs
+        console.log("Mode test activé, chargement des utilisateurs fictifs");
+        setUsers(mockUsers);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Récupérer les profils des utilisateurs depuis Supabase
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
@@ -77,6 +123,9 @@ const AdminUsers = () => {
         title: "Erreur",
         description: "Impossible de charger la liste des utilisateurs."
       });
+      
+      // En cas d'erreur, charger les utilisateurs fictifs comme fallback
+      setUsers(mockUsers);
     } finally {
       setIsLoading(false);
     }
