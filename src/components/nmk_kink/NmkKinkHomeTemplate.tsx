@@ -70,27 +70,22 @@ const NmkKinkHomeTemplate: React.FC = () => {
 
   console.log("KinkTemplate - Configuration chargée:", config);
 
-  // Sections par défaut à afficher si aucune n'est définie
+  // Si aucune section n'est définie ou visible, utiliser les sections par défaut
   const defaultSections = [
-    { id: 'hero-default', type: 'hero' as SectionType, order: 1, visible: true },
-    { id: 'services-default', type: 'services' as SectionType, order: 2, visible: true },
-    { id: 'about-default', type: 'about' as SectionType, order: 3, visible: true },
-    { id: 'team-default', type: 'team' as SectionType, order: 4, visible: true },
-    { id: 'testimonials-default', type: 'testimonials' as SectionType, order: 5, visible: true },
-    { id: 'trusted-clients-default', type: 'trusted-clients' as SectionType, order: 6, visible: true },
-    { id: 'faq-default', type: 'faq' as SectionType, order: 7, visible: true },
-    { id: 'contact-default', type: 'contact' as SectionType, order: 8, visible: true },
+    { id: 'hero-default', type: 'hero' as SectionType, order: 1, visible: true, title: 'Hero' },
+    { id: 'services-default', type: 'services' as SectionType, order: 2, visible: true, title: 'Services' },
+    { id: 'about-default', type: 'about' as SectionType, order: 3, visible: true, title: 'À propos' },
+    { id: 'team-default', type: 'team' as SectionType, order: 4, visible: true, title: 'Équipe' },
+    { id: 'trusted-clients-default', type: 'trusted-clients' as SectionType, order: 5, visible: true, title: 'Clients' },
+    { id: 'testimonials-default', type: 'testimonials' as SectionType, order: 6, visible: true, title: 'Témoignages' },
+    { id: 'faq-default', type: 'faq' as SectionType, order: 7, visible: true, title: 'FAQ' },
+    { id: 'contact-default', type: 'contact' as SectionType, order: 8, visible: true, title: 'Contact' },
   ];
-
-  // Get visible sections sorted by order, or use default sections if none are defined
-  const sections = (config?.sections && config.sections.length > 0)
+  
+  // Get visible sections sorted by order, or use defaults if none are defined
+  const sections = config?.sections?.length > 0
     ? config.sections.filter(section => section.visible).sort((a, b) => a.order - b.order)
     : defaultSections;
-
-  // Si aucune section n'est définie, afficher un message d'erreur
-  if (sections.length === 0) {
-    console.warn("Aucune section n'est configurée pour le template Kink");
-  }
   
   console.log("KinkTemplate - Sections à afficher:", sections);
 
@@ -108,7 +103,7 @@ const NmkKinkHomeTemplate: React.FC = () => {
         return <SectionComponent key={section.id} />;
       })}
       
-      {/* La section pricing est toujours affichée */}
+      {/* Ajout de la section de tarification */}
       <NmkKinkPricing />
     </div>
   );

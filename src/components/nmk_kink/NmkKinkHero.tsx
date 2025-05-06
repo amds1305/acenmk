@@ -1,71 +1,59 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
 
-const NmkKinkHero = () => {
-  const { data: config } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig
-  });
-
-  // Get hero data from config or use defaults
-  const defaultHeroData = {
-    title: "Conception Innovante & Solutions Numériques",
-    subtitle: "Des solutions digitales sur mesure pour transformer votre vision en réalité.",
-    ctaText: "Nos services",
-    ctaUrl: "#services",
-    secondaryCtaText: "Contactez-nous",
-    secondaryCtaUrl: "#contact"
-  };
-
-  const heroData = config?.sectionData?.hero 
-    ? { ...defaultHeroData, ...config.sectionData.hero } 
-    : defaultHeroData;
-
+const NmkKinkHero: React.FC = () => {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden bg-[#121212] text-white">
+    <section className="relative h-screen w-full overflow-hidden bg-white">
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
+      
+      {/* Lignes décoratives */}
       <div className="absolute inset-0 z-0 opacity-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1589652717521-10c0d092dea9?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3')] bg-cover bg-center opacity-30"></div>
+        <div className="absolute left-1/4 top-0 h-full w-px bg-gray-300"></div>
+        <div className="absolute left-2/4 top-0 h-full w-px bg-gray-300"></div>
+        <div className="absolute left-3/4 top-0 h-full w-px bg-gray-300"></div>
+        <div className="absolute left-0 top-1/4 h-px w-full bg-gray-300"></div>
+        <div className="absolute left-0 top-2/4 h-px w-full bg-gray-300"></div>
+        <div className="absolute left-0 top-3/4 h-px w-full bg-gray-300"></div>
       </div>
       
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-block mb-8 px-3 py-1 border border-white/20 rounded-full text-sm font-medium bg-white/5 backdrop-blur-sm">
-            Design • Développement • Innovation
-          </div>
+      <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center">
+        <h1 className="mb-4 font-sans text-5xl font-bold leading-tight tracking-tighter md:text-7xl lg:text-8xl">
+          <span className="block">Créer des</span>
+          <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            expériences numériques
+          </span>
+          <span className="block">exceptionnelles</span>
+        </h1>
+        
+        <p className="mt-6 max-w-2xl text-lg text-gray-600 md:text-xl">
+          Nous concevons et développons des sites web et applications de haute qualité 
+          qui transforment votre vision en réalité numérique.
+        </p>
+        
+        <div className="mt-10 flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <a href="#services" 
+            className="group inline-flex items-center justify-center rounded-full border-2 border-gray-900 bg-gray-900 px-8 py-3 text-base font-medium text-white transition-all duration-300 hover:bg-transparent hover:text-gray-900">
+            Nos services
+            <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
+          </a>
           
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-            {heroData.title}
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed">
-            {heroData.subtitle}
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-white text-black hover:bg-gray-200 rounded-full">
-              <a href={heroData.ctaUrl || "#services"}>
-                {heroData.ctaText}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </Button>
-            
-            {heroData.secondaryCtaText && (
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10 rounded-full">
-                <a href={heroData.secondaryCtaUrl || "#contact"}>
-                  {heroData.secondaryCtaText}
-                </a>
-              </Button>
-            )}
-          </div>
+          <a href="#contact" 
+            className="group inline-flex items-center justify-center rounded-full border-2 border-gray-300 bg-transparent px-8 py-3 text-base font-medium text-gray-700 transition-all duration-300 hover:border-gray-900 hover:bg-transparent hover:text-gray-900">
+            Nous contacter
+            <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
+          </a>
+        </div>
+        
+        <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+          <a href="#services" className="animate-bounce text-gray-400 transition-colors hover:text-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </a>
         </div>
       </div>
-      
-      <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#121212] to-transparent"></div>
     </section>
   );
 };

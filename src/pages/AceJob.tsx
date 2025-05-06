@@ -25,14 +25,14 @@ const AceJob = () => {
     setActiveTab(value);
     
     // Afficher une notification lors du changement d'onglet
-    const tabMessages: Record<string, string> = {
+    const tabMessages = {
       applications: "Gestion des candidatures actives",
       cvlibrary: "Accès à la CVthèque",
       cvgenerator: "Création et optimisation de CV"
     };
     
     toast({
-      title: `${tabMessages[value] || value}`,
+      title: `${tabMessages[value as keyof typeof tabMessages]}`,
       description: "Chargement des données terminé",
     });
   };

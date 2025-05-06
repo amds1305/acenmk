@@ -1,13 +1,19 @@
 
 import React from 'react';
+import TemplateSelector from '@/components/admin/home/TemplateSelector';
 
-const AdminTemplateChooserPage = () => {
+const AdminTemplateChooser = () => {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Sélection du Template</h1>
-      <p className="text-muted-foreground">Cette fonctionnalité est en cours de développement.</p>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Choix du template</h1>
+      <p className="text-muted-foreground">
+        Sélectionnez le template à utiliser pour votre site web.
+      </p>
+      <div className="mt-4">
+        <TemplateSelector />
+      </div>
     </div>
   );
 };
 
-export default AdminTemplateChooserPage;
+export default AdminTemplateChooser;
