@@ -26,6 +26,7 @@ const AdminTemplateChooser = lazy(() => import('./pages/AdminTemplateChooser'));
 const Blog = lazy(() => import('./pages/Blog'));
 const ProjectEstimation = lazy(() => import('./pages/ProjectEstimation'));
 const Faq = lazy(() => import('./pages/Faq'));
+const AdminRolesPermissions = lazy(() => import('./pages/AdminRolesPermissions'));
 
 function App() {
   return (
@@ -47,7 +48,15 @@ function App() {
               
               {/* Routes d'administration */}
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/admin" element={<AdminWrapper />}>
+                <Route index element={<Admin />} />
+                <Route path="home" element={<Admin />} />
+                <Route path="hero" element={<AdminHero />} />
+                <Route path="template" element={<AdminTemplateChooser />} />
+                <Route path="migration" element={<AdminSupabaseMigration />} />
+                <Route path="roles" element={<AdminRolesPermissions />} />
+                {/* Autres routes d'administration */}
+              </Route>
               
               {/* Route 404 */}
               <Route path="*" element={<NotFound />} />
