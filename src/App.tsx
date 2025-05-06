@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from './contexts/AuthContext';
 import { SectionsProvider } from './contexts/SectionsContext';
 import { AceJobProvider } from './contexts/AceJobContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import AdminLayout from './components/admin/AdminLayout';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
@@ -49,65 +50,67 @@ import AdminWrapper from './pages/AdminWrapper';
 
 function App() {
   return (
-    <AuthProvider>
-      <SectionsProvider>
-        <AceJobProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/team" element={<TeamPage />} />
-            <Route path="/testimonials" element={<TestimonialsPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/legal" element={<LegalPage />} />
-            <Route path="/cgu" element={<CguPage />} />
-            <Route path="/confidentiality" element={<ConfidentialityPage />} />
-            <Route path="/accessibility" element={<AccessibilityPage />} />
-            <Route path="/sitemap" element={<SitemapPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/jobs" element={<JobsPage />} />
-            <Route path="/jobs/:id" element={<JobDetailsPage />} />
-            
-            {/* ACE JOB routes */}
-            <Route path="/ace-job" element={<AceJobDashboard />} />
-            <Route path="/ace-job/cv-generator" element={<AceJobCvGenerator />} />
-            <Route path="/ace-job/offers" element={<AceJobOffers />} />
-            <Route path="/ace-job/companies" element={<AceJobCompanies />} />
-            <Route path="/ace-job/candidatures" element={<AceJobCandidatures />} />
-            
-            {/* Admin routes with the new wrapper */}
-            <Route path="/admin/*" element={<AdminWrapper />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="services" element={<AdminServices />} />
-              <Route path="team" element={<AdminTeam />} />
-              <Route path="testimonials" element={<AdminTestimonials />} />
-              <Route path="faq" element={<AdminFaq />} />
-              <Route path="pricing" element={<AdminPricing />} />
-              <Route path="pages" element={<AdminPages />} />
-              <Route path="jobs" element={<AdminJobs />} />
-              <Route path="media" element={<AdminMedia />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="home" element={<AdminHome />} />
-              <Route path="roles-permissions" element={<AdminRolesPermissions />} />
-              <Route path="template" element={<AdminTemplateChooser />} />
-              <Route path="kink-template" element={<AdminKinkTemplate />} />
-            </Route>
-            
-            {/* Fallback route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-        </AceJobProvider>
-      </SectionsProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <SectionsProvider>
+          <AceJobProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/testimonials" element={<TestimonialsPage />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/legal" element={<LegalPage />} />
+              <Route path="/cgu" element={<CguPage />} />
+              <Route path="/confidentiality" element={<ConfidentialityPage />} />
+              <Route path="/accessibility" element={<AccessibilityPage />} />
+              <Route path="/sitemap" element={<SitemapPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/jobs" element={<JobsPage />} />
+              <Route path="/jobs/:id" element={<JobDetailsPage />} />
+              
+              {/* ACE JOB routes */}
+              <Route path="/ace-job" element={<AceJobDashboard />} />
+              <Route path="/ace-job/cv-generator" element={<AceJobCvGenerator />} />
+              <Route path="/ace-job/offers" element={<AceJobOffers />} />
+              <Route path="/ace-job/companies" element={<AceJobCompanies />} />
+              <Route path="/ace-job/candidatures" element={<AceJobCandidatures />} />
+              
+              {/* Admin routes with the new wrapper */}
+              <Route path="/admin/*" element={<AdminWrapper />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="services" element={<AdminServices />} />
+                <Route path="team" element={<AdminTeam />} />
+                <Route path="testimonials" element={<AdminTestimonials />} />
+                <Route path="faq" element={<AdminFaq />} />
+                <Route path="pricing" element={<AdminPricing />} />
+                <Route path="pages" element={<AdminPages />} />
+                <Route path="jobs" element={<AdminJobs />} />
+                <Route path="media" element={<AdminMedia />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="home" element={<AdminHome />} />
+                <Route path="roles-permissions" element={<AdminRolesPermissions />} />
+                <Route path="template" element={<AdminTemplateChooser />} />
+                <Route path="kink-template" element={<AdminKinkTemplate />} />
+              </Route>
+              
+              {/* Fallback route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </AceJobProvider>
+        </SectionsProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
