@@ -70,10 +70,22 @@ const NmkKinkHomeTemplate: React.FC = () => {
 
   console.log("KinkTemplate - Configuration chargée:", config);
 
-  // Get visible sections sorted by order
-  const sections = config?.sections
-    ?.filter(section => section.visible)
-    ?.sort((a, b) => a.order - b.order) || [];
+  // Sections par défaut à afficher si aucune n'est définie
+  const defaultSections = [
+    { id: 'hero-default', type: 'hero' as SectionType, order: 1, visible: true },
+    { id: 'services-default', type: 'services' as SectionType, order: 2, visible: true },
+    { id: 'about-default', type: 'about' as SectionType, order: 3, visible: true },
+    { id: 'team-default', type: 'team' as SectionType, order: 4, visible: true },
+    { id: 'testimonials-default', type: 'testimonials' as SectionType, order: 5, visible: true },
+    { id: 'trusted-clients-default', type: 'trusted-clients' as SectionType, order: 6, visible: true },
+    { id: 'faq-default', type: 'faq' as SectionType, order: 7, visible: true },
+    { id: 'contact-default', type: 'contact' as SectionType, order: 8, visible: true },
+  ];
+
+  // Get visible sections sorted by order, or use default sections if none are defined
+  const sections = (config?.sections && config.sections.length > 0)
+    ? config.sections.filter(section => section.visible).sort((a, b) => a.order - b.order)
+    : defaultSections;
 
   // Si aucune section n'est définie, afficher un message d'erreur
   if (sections.length === 0) {
