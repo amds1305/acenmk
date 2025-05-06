@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PermissionsManager from '@/components/admin/permissions/PermissionsManager';
 import RolesManager from '@/components/admin/roles/RolesManager';
 import UsersPermissionsManager from '@/components/admin/permissions/UsersPermissionsManager';
+import GroupsManager from '@/components/admin/permissions/GroupsManager';
 
 const AdminRolesPermissions = () => {
   return (
@@ -31,9 +32,7 @@ const AdminRolesPermissions = () => {
         </TabsContent>
         
         <TabsContent value="groups" className="pt-4">
-          <p className="text-muted-foreground">
-            La gestion des groupes d'utilisateurs sera disponible dans une prochaine version.
-          </p>
+          <GroupsManager />
         </TabsContent>
       </Tabs>
     </div>
