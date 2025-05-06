@@ -5,7 +5,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SectionsProvider } from './contexts/SectionsContext';
 import { AceJobProvider } from './contexts/AceJobContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import AdminLayout from './components/admin/AdminLayout';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
