@@ -14,8 +14,15 @@ import KinkPricingEditor from '@/components/admin/kink/KinkPricingEditor';
 import { useSections } from '@/contexts/sections/SectionsContext';
 
 const AdminTemplateChooser = () => {
-  const { config } = useSections();
+  const { config, updateTemplateType } = useSections();
   const isKinkTemplate = config?.templateConfig?.activeTemplate === 'nmk_kink';
+
+  // Si aucun template n'est sélectionné, définir Kink comme template par défaut
+  React.useEffect(() => {
+    if (config?.templateConfig && !config.templateConfig.activeTemplate) {
+      updateTemplateType('nmk_kink');
+    }
+  }, [config?.templateConfig, updateTemplateType]);
 
   return (
     <div className="space-y-6">
@@ -24,6 +31,8 @@ const AdminTemplateChooser = () => {
       <div className="mb-6">
         <p className="text-muted-foreground mb-4">
           Sélectionnez le template à utiliser pour votre site web, puis configurez ses sections.
+          <br />
+          <span className="text-sm font-medium text-primary">Le template Kink est défini comme template par défaut.</span>
         </p>
         <TemplateSelector />
       </div>
