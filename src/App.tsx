@@ -10,7 +10,6 @@ import { queryClient } from './lib/queryClient';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import AdminWrapper from './pages/AdminWrapper';
-import Admin from './pages/Admin';
 import Portfolio from './pages/Portfolio';
 import AceJob from './pages/AceJob';
 import Careers from './pages/Careers';
@@ -48,15 +47,7 @@ function App() {
               
               {/* Routes d'administration */}
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<AdminWrapper />}>
-                <Route index element={<Admin />} />
-                <Route path="home" element={<Admin />} />
-                <Route path="hero" element={<AdminHero />} />
-                <Route path="template" element={<AdminTemplateChooser />} />
-                <Route path="migration" element={<AdminSupabaseMigration />} />
-                <Route path="roles" element={<AdminRolesPermissions />} />
-                {/* Autres routes d'administration */}
-              </Route>
+              <Route path="/admin/*" element={<AdminWrapper />} /> {/* Utilisation du wildcard pour capturer toutes les routes admin */}
               
               {/* Route 404 */}
               <Route path="*" element={<NotFound />} />
