@@ -20,6 +20,7 @@ import AdminHeader from '@/components/admin/header/AdminHeader';
 import AdminFooter from '@/components/admin/footer/AdminFooter';
 import AdminRolesPermissions from '@/pages/AdminRolesPermissions';
 import AdminHome from '@/components/admin/AdminHome';
+import TemplateSelector from '@/components/admin/home/TemplateSelector';
 
 // Ce composant a été modifié pour supprimer les wrappers AdminLayout et SectionsProvider
 // qui sont maintenant gérés par AdminWrapper.tsx
@@ -39,7 +40,7 @@ const Admin = () => {
       <Route path="/blog/:id" element={<AdminBlogPosts />} />
       <Route path="/careers" element={<AdminCareers />} />
       <Route path="/appointments" element={<AdminAppointments />} />
-      <Route path="/template" element={<AdminTemplateChooser />} />
+      <Route path="/template" element={<TemplateSelector />} />
       <Route path="/trusted-clients" element={<AdminTrustedClients />} />
       <Route path="/header" element={<AdminHeader />} />
       <Route path="/footer" element={<AdminFooter />} />

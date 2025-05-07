@@ -6,7 +6,6 @@ import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import SectionsManager from './home/SectionsManager';
-import TemplateSelector from './home/TemplateSelector';
 import { useSections } from '@/contexts/SectionsContext';
 import { HeroData } from '@/components/Hero';
 
@@ -35,12 +34,14 @@ const AdminHome = () => {
     <div className="space-y-6">
       <HomeHeader onSave={handleSave} />
       
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Sélection du Template</h2>
-        <TemplateSelector />
-      </div>
-      
       <SectionsManager />
+
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Aperçu des sections</h2>
+        <p className="text-sm text-muted-foreground">
+          Modifiez chaque section en détail via le menu latéral
+        </p>
+      </div>
 
       <Tabs defaultValue="hero" className="w-full">
         <TabsList className="mb-4 grid grid-cols-3 sm:grid-cols-5">
