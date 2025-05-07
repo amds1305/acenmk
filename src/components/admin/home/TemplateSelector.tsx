@@ -131,41 +131,46 @@ const TemplateSelector: React.FC = () => {
           <div className="grid grid-cols-1 gap-6">
             {defaultTemplates.map((template) => (
               <div key={template.id} className="relative">
-                <RadioGroupItem
-                  value={template.id}
-                  id={`template-${template.id}`}
-                  className="sr-only peer"
-                  checked={activeTemplate === template.id}
-                  onChange={() => handleTemplateChange(template.id)}
-                />
-                <Label
-                  htmlFor={`template-${template.id}`}
-                  className="flex flex-col border border-gray-200 rounded-md p-4 cursor-pointer hover:border-primary transition-colors peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary"
+                <RadioGroup 
+                  value={activeTemplate === template.id ? template.id : ""}
+                  onValueChange={handleTemplateChange}
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="aspect-video w-full max-w-[300px] mb-3 overflow-hidden rounded-md relative">
-                      <img 
-                        src={template.image} 
-                        alt={template.name} 
-                        className="w-full h-full object-cover transition-transform hover:scale-105" 
-                      />
-                      {template.badge && (
-                        <div className="absolute top-2 right-2 bg-primary/80 text-white rounded-full py-1 px-3 text-xs font-medium">
-                          {template.badge}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem
+                      value={template.id}
+                      id={`template-${template.id}`}
+                      className="sr-only peer"
+                    />
+                    <Label
+                      htmlFor={`template-${template.id}`}
+                      className="flex flex-col border border-gray-200 rounded-md p-4 cursor-pointer hover:border-primary transition-colors peer-data-[state=checked]:border-primary peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-primary w-full"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="aspect-video w-full max-w-[300px] mb-3 overflow-hidden rounded-md relative">
+                          <img 
+                            src={template.image} 
+                            alt={template.name} 
+                            className="w-full h-full object-cover transition-transform hover:scale-105" 
+                          />
+                          {template.badge && (
+                            <div className="absolute top-2 right-2 bg-primary/80 text-white rounded-full py-1 px-3 text-xs font-medium">
+                              {template.badge}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-semibold">{template.name}</div>
+                        <p className="text-sm text-gray-500">{template.description}</p>
+                      </div>
+                      {activeTemplate === template.id && (
+                        <div className="absolute top-2 left-2 bg-primary text-white rounded-full p-1">
+                          <Check className="h-4 w-4" />
                         </div>
                       )}
-                    </div>
+                    </Label>
                   </div>
-                  <div>
-                    <div className="font-semibold">{template.name}</div>
-                    <p className="text-sm text-gray-500">{template.description}</p>
-                  </div>
-                  {activeTemplate === template.id && (
-                    <div className="absolute top-2 left-2 bg-primary text-white rounded-full p-1">
-                      <Check className="h-4 w-4" />
-                    </div>
-                  )}
-                </Label>
+                </RadioGroup>
               </div>
             ))}
           </div>
