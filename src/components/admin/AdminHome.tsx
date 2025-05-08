@@ -34,8 +34,10 @@ const AdminHome = () => {
     <div className="space-y-6">
       <HomeHeader onSave={handleSave} />
       
-      {/* Intégration du gestionnaire de sections avec drag and drop en première position */}
-      <SectionsManager />
+      {/* Gestionnaire de sections avec drag and drop */}
+      <div className="bg-white dark:bg-gray-950 shadow-sm rounded-lg border border-gray-200 dark:border-gray-800">
+        <SectionsManager />
+      </div>
 
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Aperçu des sections</h2>
