@@ -5,19 +5,25 @@ import PermissionsManager from '@/components/admin/permissions/PermissionsManage
 import RolesManager from '@/components/admin/roles/RolesManager';
 import UsersPermissionsManager from '@/components/admin/permissions/UsersPermissionsManager';
 import GroupsManager from '@/components/admin/permissions/GroupsManager';
+import RoutePermissionsManager from '@/components/admin/permissions/RoutePermissionsManager';
 
 const AdminRolesPermissions = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold mb-6">Rôles et Permissions</h1>
       
-      <Tabs defaultValue="permissions">
+      <Tabs defaultValue="route-permissions">
         <TabsList>
+          <TabsTrigger value="route-permissions">Accès aux rubriques</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="roles">Rôles</TabsTrigger>
           <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           <TabsTrigger value="groups">Groupes</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="route-permissions" className="pt-4">
+          <RoutePermissionsManager />
+        </TabsContent>
         
         <TabsContent value="permissions" className="pt-4">
           <PermissionsManager />

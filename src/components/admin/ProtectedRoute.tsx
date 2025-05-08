@@ -2,6 +2,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePermissions } from '@/contexts/PermissionsContext';
 import { Loader2 } from 'lucide-react';
 import { UserRole } from '@/types/auth';
 import { isAdminRole } from '@/utils/roleUtils';
@@ -18,6 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole
 }) => {
   const { isAuthenticated, isAdmin, user, isLoading } = useAuth();
+  const { hasAccess } = usePermissions();
   const location = useLocation();
   
   // Check for admin test mode
@@ -43,7 +45,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // If we're in admin test mode, check the role if necessary
+  // Si nous sommes en mode test admin
   if (isTestAdmin) {
     if (requireAdmin && testRole !== 'admin' && testRole !== 'super_admin' && 
         testRole !== 'business_admin') {
@@ -51,7 +53,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return <Navigate to="/" replace />;
     }
     
-    // If a specific role is required, check that
+    // Si un rôle spécifique est requis, vérifier
     if (requiredRole && testRole !== requiredRole) {
       console.log(`Test user doesn't have the required role: ${requiredRole}`);
       return <Navigate to="/admin" replace />;
@@ -61,22 +63,28 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <>{children}</>;
   }
 
+  // Vérifier si l'utilisateur est authentifié
   if (!isAuthenticated) {
-    // Redirect to the login page with the current location
     console.log("User not authenticated, redirecting to login");
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
-  // Check if admin access is required
+  // Vérifier les permissions basées sur le chemin actuel
+  if (!hasAccess(location.pathname, user?.role)) {
+    console.log(`User does not have access to ${location.pathname}`);
+    // Rediriger vers la page d'accueil admin ou le tableau de bord
+    return <Navigate to="/admin" replace />;
+  }
+
+  // Vérifier si l'accès admin est requis
   if (requireAdmin) {
     if (!isAdmin && !(user && isAdminRole(user.role))) {
-      // If the user is not an administrator and the route requires admin privileges
       console.log("User authenticated but not admin, access denied");
       return <Navigate to="/" replace />;
     }
   }
 
-  // Check for specific role requirement
+  // Vérifier si un rôle spécifique est requis
   if (requiredRole && user && user.role !== requiredRole) {
     console.log(`User doesn't have the required role: ${requiredRole}`);
     return <Navigate to="/admin" replace />;
