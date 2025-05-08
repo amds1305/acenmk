@@ -1,455 +1,275 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePermissions } from '@/contexts/PermissionsContext';
-import { PermissionRule, RouteWithAccess } from '@/types/permissions';
-import { UserRole } from '@/types/auth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import {
-  Lock,
-  Globe,
-  Users,
-  Search,
-  Shield,
-  Save,
-  Loader2,
-  Settings,
-  RefreshCw
-} from 'lucide-react';
-import { getRoleInfo } from '@/utils/roleUtils';
-import { getAllRoutes } from '@/lib/routes';
+import { SaveIndicator } from '@/components/ui/save-indicator';
+import { Search, Filter, Save, RefreshCw, AlertCircle } from 'lucide-react';
+import { UserRole } from '@/types/auth';
 
-const RoutePermissionsManager: React.FC = () => {
+// Liste des rôles disponibles
+const availableRoles: { id: UserRole; label: string }[] = [
+  { id: 'user', label: 'Client' },
+  { id: 'client_premium', label: 'Client Premium' },
+  { id: 'admin', label: 'Admin' },
+  { id: 'super_admin', label: 'Super Admin' },
+];
+
+const RoutePermissionsManager = () => {
   const { 
     accessConfig, 
-    isLoading, 
-    updateRouteAccess, 
-    savePermissions, 
-    scanAndUpdateRoutes 
+    isLoading,
+    updateRouteAccess,
+    savePermissions,
+    scanAndUpdateRoutes
   } = usePermissions();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isPublicFilter, setIsPublicFilter] = useState<boolean | null>(null);
-  const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [editingPermission, setEditingPermission] = useState<PermissionRule | null>(null);
+  const [activeTab, setActiveTab] = useState('app');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   
-  // Combinaison de toutes les routes (publiques et admin)
-  const allRoutes = useMemo(() => {
-    const routes: Record<string, PermissionRule> = {};
-    
-    // Routes normales
-    Object.entries(accessConfig.routes).forEach(([path, permission]) => {
-      routes[path] = permission;
-    });
-    
-    // Routes admin avec préfixe /admin
-    Object.entries(accessConfig.adminRoutes).forEach(([path, permission]) => {
-      routes[`/admin/${path}`] = permission;
-    });
-    
-    return routes;
-  }, [accessConfig]);
-  
-  // Liste des rôles disponibles
-  const availableRoles: UserRole[] = [
-    'user', 'client_standard', 'client_premium', 'external_provider', 'contributor', 'manager', 
-    'business_admin', 'admin', 'super_admin'
-  ];
-  
-  // Filtrer les routes selon la recherche et le filtre public/privé
-  const filteredRoutes = useMemo(() => {
-    return Object.entries(allRoutes)
-      .filter(([path, permission]) => {
-        // Filtre par recherche
-        if (searchQuery && !path.toLowerCase().includes(searchQuery.toLowerCase())) {
-          return false;
-        }
-        
-        // Filtre par type (public/privé)
-        if (isPublicFilter !== null && permission.isPublic !== isPublicFilter) {
-          return false;
-        }
-        
-        return true;
-      })
-      .sort((a, b) => {
-        // Trier d'abord par type (admin/non-admin)
-        if (a[0].startsWith('/admin') && !b[0].startsWith('/admin')) return 1;
-        if (!a[0].startsWith('/admin') && b[0].startsWith('/admin')) return -1;
-        
-        // Puis par chemin
-        return a[0].localeCompare(b[0]);
-      });
-  }, [allRoutes, searchQuery, isPublicFilter]);
+  // État pour gérer les permissions éditées mais non sauvegardées
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Ouvrir le dialogue d'édition
-  const handleEditRoute = (path: string, permission: PermissionRule) => {
-    setSelectedRoute(path);
-    setEditingPermission({
-      isPublic: permission.isPublic,
-      allowedRoles: [...permission.allowedRoles],
-      description: permission.description
-    });
-    setDialogOpen(true);
-  };
-
-  // Mettre à jour une permission
-  const handleUpdatePermission = async () => {
-    if (!selectedRoute || !editingPermission) return;
-    
-    try {
-      await updateRouteAccess(selectedRoute, editingPermission);
-      setDialogOpen(false);
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la permission:', error);
+  // Filtrer les routes en fonction du terme de recherche
+  const filteredRoutes = React.useMemo(() => {
+    if (activeTab === 'app') {
+      return Object.entries(accessConfig.routes || {})
+        .filter(([path]) => path.toLowerCase().includes(searchTerm.toLowerCase()));
+    } else {
+      return Object.entries(accessConfig.adminRoutes || {})
+        .filter(([path]) => path.toLowerCase().includes(searchTerm.toLowerCase()));
     }
-  };
+  }, [activeTab, accessConfig, searchTerm]);
 
-  // Toggle le rôle dans la liste des rôles autorisés
-  const toggleRole = (role: UserRole) => {
-    if (!editingPermission) return;
-    
-    const updatedRoles = editingPermission.allowedRoles.includes(role)
-      ? editingPermission.allowedRoles.filter(r => r !== role)
-      : [...editingPermission.allowedRoles, role];
+  // Gestionnaire pour mettre à jour l'accès public à une route
+  const handleTogglePublic = (route: string, isPublic: boolean) => {
+    const routeConfig = activeTab === 'app' 
+      ? accessConfig.routes[route]
+      : accessConfig.adminRoutes[route];
       
-    setEditingPermission({
-      ...editingPermission,
-      allowedRoles: updatedRoles
-    });
-  };
-
-  // Sauvegarder toutes les modifications
-  const handleSaveAll = async () => {
-    try {
-      setIsSaving(true);
-      await savePermissions();
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde des permissions:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Scanner les routes de l'application
-  const handleScanRoutes = async () => {
-    try {
-      setIsScanning(true);
-      await scanAndUpdateRoutes();
-    } catch (error) {
-      console.error('Erreur lors du scan des routes:', error);
-    } finally {
-      setIsScanning(false);
-    }
-  };
-
-  // Effectuer un scan automatique au chargement
-  useEffect(() => {
-    // Scanner les routes au démarrage
-    const initialScan = async () => {
-      try {
-        const allDefinedRoutes = getAllRoutes();
-        console.log('Routes définies:', allDefinedRoutes);
-      } catch (error) {
-        console.error('Erreur lors du scan initial des routes:', error);
-      }
+    if (!routeConfig) return;
+    
+    const updatedPermission = {
+      ...routeConfig,
+      isPublic,
+      allowedRoles: routeConfig.allowedRoles
     };
     
-    initialScan();
-  }, []);
+    updateRouteAccess(activeTab === 'app' ? route : `/admin/${route}`, updatedPermission);
+    setHasUnsavedChanges(true);
+  };
+
+  // Gestionnaire pour mettre à jour les rôles autorisés pour une route
+  const handleToggleRole = (route: string, role: UserRole, isAllowed: boolean) => {
+    const routeConfig = activeTab === 'app' 
+      ? accessConfig.routes[route]
+      : accessConfig.adminRoutes[route];
+      
+    if (!routeConfig) return;
+    
+    let updatedRoles: UserRole[];
+    
+    if (isAllowed) {
+      updatedRoles = [...routeConfig.allowedRoles, role];
+    } else {
+      updatedRoles = routeConfig.allowedRoles.filter(r => r !== role);
+    }
+    
+    const updatedPermission = {
+      ...routeConfig,
+      isPublic: routeConfig.isPublic,
+      allowedRoles: updatedRoles
+    };
+    
+    updateRouteAccess(activeTab === 'app' ? route : `/admin/${route}`, updatedPermission);
+    setHasUnsavedChanges(true);
+  };
+
+  // Fonction pour sauvegarder les modifications
+  const handleSaveChanges = async () => {
+    try {
+      setSaveStatus('saving');
+      await savePermissions();
+      setSaveStatus('success');
+      setHasUnsavedChanges(false);
+      
+      // Déclencher l'événement de sauvegarde
+      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+      
+      // Réinitialiser le statut après un délai
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    } catch (error) {
+      setSaveStatus('error');
+      console.error('Erreur lors de l\'enregistrement des permissions:', error);
+      
+      // Réinitialiser le statut après un délai même en cas d'erreur
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    }
+  };
+
+  // Fonction pour scanner les nouvelles routes
+  const handleScanRoutes = async () => {
+    try {
+      setSaveStatus('saving');
+      await scanAndUpdateRoutes();
+      setSaveStatus('success');
+      
+      // Réinitialiser le statut après un délai
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    } catch (error) {
+      setSaveStatus('error');
+      console.error('Erreur lors de l\'analyse des routes:', error);
+      
+      // Réinitialiser le statut après un délai même en cas d'erreur
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    }
+  };
+
+  // Effacer le message "modifications non sauvegardées" lors du changement d'onglet
+  useEffect(() => {
+    setHasUnsavedChanges(false);
+  }, [activeTab]);
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <div>
-            <CardTitle>Gestion des accès aux rubriques</CardTitle>
-            <CardDescription>
-              Configurez les accès aux différentes rubriques du site selon les rôles utilisateur
-            </CardDescription>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              onClick={handleScanRoutes} 
-              variant="outline"
-              disabled={isScanning || isLoading}
-              className="self-start"
-            >
-              {isScanning ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Scan en cours...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Scanner les rubriques
-                </>
-              )}
-            </Button>
-            
-            <Button 
-              onClick={handleSaveAll} 
-              disabled={isLoading || isSaving}
-              className="self-start"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Enregistrement...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Enregistrer les modifications
-                </>
-              )}
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Contrôle d'accès aux rubriques</h2>
+          <p className="text-sm text-muted-foreground">
+            Gérez les permissions d'accès aux différentes rubriques du site
+          </p>
         </div>
-      </CardHeader>
-      
-      <CardContent>
-        {/* Filtres */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-grow">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une route..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            <Button
-              variant={isPublicFilter === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setIsPublicFilter(null)}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Tous
-            </Button>
-            <Button
-              variant={isPublicFilter === true ? "default" : "outline"}
-              size="sm"
-              onClick={() => setIsPublicFilter(true)}
-            >
-              <Globe className="mr-2 h-4 w-4" />
-              Public
-            </Button>
-            <Button
-              variant={isPublicFilter === false ? "default" : "outline"}
-              size="sm"
-              onClick={() => setIsPublicFilter(false)}
-            >
-              <Lock className="mr-2 h-4 w-4" />
-              Restreint
-            </Button>
-          </div>
+        <div className="flex items-center gap-4">
+          <SaveIndicator status={saveStatus} />
+          <Button onClick={handleScanRoutes} variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Scanner les routes
+          </Button>
+          <Button onClick={handleSaveChanges} disabled={!hasUnsavedChanges || saveStatus === 'saving'}>
+            <Save className="mr-2 h-4 w-4" />
+            Enregistrer
+          </Button>
         </div>
-        
-        {/* Tableau des routes */}
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Chargement des permissions...</span>
-          </div>
-        ) : filteredRoutes.length === 0 ? (
-          <div className="text-center py-12">
-            <Shield className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-medium">Aucune route trouvée</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Aucune route ne correspond à vos critères de recherche.
-            </p>
-          </div>
-        ) : (
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Chemin</TableHead>
-                  <TableHead>Visibilité</TableHead>
-                  <TableHead>Rôles autorisés</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRoutes.map(([path, permission]) => (
-                  <TableRow key={path}>
-                    <TableCell>
-                      <div className="font-medium">{path}</div>
-                      {permission.description && (
-                        <div className="text-sm text-muted-foreground">{permission.description}</div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {permission.isPublic ? (
-                        <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                          <Globe className="h-3 w-3" />
-                          Public
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                          <Lock className="h-3 w-3" />
-                          Restreint
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {permission.allowedRoles.slice(0, 3).map(role => (
-                          <Badge key={role} variant="secondary" className="text-xs">
-                            {getRoleInfo(role).name}
-                          </Badge>
-                        ))}
-                        {permission.allowedRoles.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{permission.allowedRoles.length - 3} autres
-                          </Badge>
-                        )}
-                        {permission.allowedRoles.length === 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            Aucun rôle autorisé
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditRoute(path, permission)}
-                      >
-                        <Settings className="h-4 w-4 mr-1" />
-                        Configurer
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </CardContent>
-      
-      {/* Dialogue d'édition des permissions */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Configurer les accès</DialogTitle>
-            <DialogDescription>
-              {selectedRoute}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {editingPermission && (
-            <div className="space-y-4 py-2">
-              <div>
-                <Label htmlFor="visibility">Visibilité</Label>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Checkbox 
-                    id="isPublic" 
-                    checked={editingPermission.isPublic}
-                    onCheckedChange={(checked) => 
-                      setEditingPermission({
-                        ...editingPermission,
-                        isPublic: checked === true
-                      })
-                    }
-                  />
-                  <label
-                    htmlFor="isPublic"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Accès public (visible par tous)
-                  </label>
-                </div>
-              </div>
+      </div>
+
+      {hasUnsavedChanges && (
+        <Alert className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
+          <AlertCircle className="h-4 w-4 text-amber-500" />
+          <AlertTitle className="text-amber-800 dark:text-amber-400">
+            Modifications non enregistrées
+          </AlertTitle>
+          <AlertDescription className="text-amber-700 dark:text-amber-300">
+            Vos modifications n'ont pas été enregistrées. Cliquez sur "Enregistrer" pour les appliquer.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Card>
+        <CardHeader>
+          <Tabs defaultValue="app" value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="app">Interface utilisateur</TabsTrigger>
+                <TabsTrigger value="admin">Interface admin</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-2">
-                <Label>Rôles autorisés</Label>
-                <div className="text-sm text-muted-foreground mb-2">
-                  Les rôles sélectionnés pourront accéder à cette rubrique, même si elle n'est pas publique
-                </div>
-                
-                <ScrollArea className="h-48 border rounded-md p-2">
-                  <div className="space-y-2">
-                    {availableRoles.map(role => {
-                      const roleInfo = getRoleInfo(role);
-                      return (
-                        <div key={role} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`role-${role}`}
-                            checked={editingPermission.allowedRoles.includes(role)}
-                            onCheckedChange={() => toggleRole(role)}
-                          />
-                          <label
-                            htmlFor={`role-${role}`}
-                            className="flex items-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            <Badge variant="outline" className="mr-2">
-                              {roleInfo.name}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">{roleInfo.description}</span>
-                          </label>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description (optionnel)</Label>
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  id="description" 
-                  value={editingPermission.description || ''}
-                  onChange={(e) => setEditingPermission({
-                    ...editingPermission,
-                    description: e.target.value
-                  })}
+                  placeholder="Rechercher une route..." 
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-8 w-[250px]"
                 />
               </div>
             </div>
+          </Tabs>
+        </CardHeader>
+        
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin h-8 w-8 border-t-2 border-primary rounded-full"></div>
+            </div>
+          ) : filteredRoutes.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Aucune route trouvée pour "{searchTerm}"
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredRoutes.map(([route, permissions]) => (
+                <Card key={route} className="overflow-hidden">
+                  <div className="bg-muted/50 px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{route}</span>
+                      {permissions.isPublic ? (
+                        <Badge variant="secondary">Public</Badge>
+                      ) : (
+                        <Badge>Restreint</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`public-${route}`} className="text-sm">Public</Label>
+                      <Switch 
+                        id={`public-${route}`}
+                        checked={permissions.isPublic} 
+                        onCheckedChange={(isChecked) => handleTogglePublic(route, isChecked)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <CardContent className="pt-4">
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium">Rôles autorisés :</div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {availableRoles.map(role => (
+                          <div key={role.id} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`${route}-${role.id}`}
+                              disabled={permissions.isPublic}
+                              checked={permissions.isPublic || permissions.allowedRoles.includes(role.id)}
+                              onCheckedChange={(isChecked) => handleToggleRole(route, role.id, !!isChecked)}
+                            />
+                            <Label 
+                              htmlFor={`${route}-${role.id}`}
+                              className={permissions.isPublic ? "text-muted-foreground" : ""}
+                            >
+                              {role.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {permissions.description && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {permissions.description}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={handleUpdatePermission}>
-              Appliquer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

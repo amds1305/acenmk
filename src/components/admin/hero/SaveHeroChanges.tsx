@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { saveHomepageConfig } from '@/services/sections';
 import { useToast } from '@/hooks/use-toast';
@@ -20,10 +19,12 @@ const SaveHeroChanges = ({
   getActiveVersion
 }: SaveHeroChangesProps) => {
   const { toast } = useToast();
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
   // Sauvegarder les modifications
   const saveChanges = async () => {
     setIsSaving(true);
+    setSaveStatus('saving');
     
     try {
       // Récupérer la version active pour les données de base du Hero
@@ -77,31 +78,50 @@ const SaveHeroChanges = ({
         // Invalider explicitement toutes les requêtes pour forcer un rechargement
         queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
         
+        setSaveStatus('success');
+        
         toast({
           title: "Modifications sauvegardées",
           description: "Les changements sur la section Hero ont été enregistrés avec succès.",
         });
+        
+        // Déclencher l'événement de sauvegarde
+        window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+        
+        // Réinitialiser l'état après un délai
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
       }
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
+      setSaveStatus('error');
+      
       toast({
         title: "Erreur",
         description: "Un problème est survenu lors de la sauvegarde des modifications.",
         variant: "destructive",
       });
+      
+      // Réinitialiser l'état après un délai même en cas d'erreur
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Button 
-      onClick={saveChanges} 
-      disabled={isSaving} 
-      className="ml-auto"
-    >
-      {isSaving ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
-    </Button>
+    <div className="flex items-center gap-4 ml-auto">
+      <SaveIndicator status={saveStatus} />
+      <Button 
+        onClick={saveChanges} 
+        disabled={isSaving} 
+      >
+        {isSaving ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
+      </Button>
+    </div>
   );
 };
 
