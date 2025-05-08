@@ -2,6 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { HomepageConfig, Section, SectionType, SectionData } from '@/types/sections';
 import { addSection, removeSection, saveHomepageConfig } from '@/services/mysql';
+import { ExternalLinkOptions } from './types';
 
 export function useSectionOperations(
   config: HomepageConfig, 
@@ -9,9 +10,10 @@ export function useSectionOperations(
 ) {
   const { toast } = useToast();
 
-  const addNewSection = async (type: SectionType, title: string) => {
+  const addNewSection = async (type: SectionType, title: string, options?: ExternalLinkOptions) => {
     try {
-      const updatedConfig = await addSection(config, type, title);
+      // Créer une section avec les options supplémentaires pour les liens externes
+      const updatedConfig = await addSection(config, type, title, options);
       setConfig(updatedConfig);
     } catch (error) {
       console.error('Erreur lors de l\'ajout d\'une section:', error);

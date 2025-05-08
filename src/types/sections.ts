@@ -11,7 +11,8 @@ export type SectionType =
   | 'faq' 
   | 'contact'
   | 'custom'
-  | 'trusted-clients'; // Ajout du nouveau type pour la section "Ils nous font confiance"
+  | 'trusted-clients'
+  | 'external-link'; // Nouveau type pour les liens externes
 
 export interface Section {
   id: string;
@@ -20,6 +21,9 @@ export interface Section {
   visible: boolean;
   order: number;
   customComponent?: string; // Pour les sections personnalisées
+  externalUrl?: string; // Nouvelle propriété pour les liens externes
+  requiresAuth?: boolean; // Indique si l'accès nécessite une authentification
+  allowedRoles?: string[]; // Rôles autorisés à accéder à cette section
 }
 
 export interface SectionData {
@@ -56,6 +60,17 @@ export interface ClientLogo {
   logoUrl: string;
   websiteUrl?: string;
   category?: string; // New field for client category
+}
+
+// Nouvelle interface pour les données de section de lien externe
+export interface ExternalLinkSectionData {
+  url: string;
+  title: string;
+  description?: string;
+  icon?: string;
+  openInNewTab?: boolean;
+  requiresAuth: boolean;
+  allowedRoles: string[];
 }
 
 export interface HomepageConfig {

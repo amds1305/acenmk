@@ -1,10 +1,16 @@
 
 import { HomepageConfig, Section, SectionData, SectionType, HomeTemplateType } from '@/types/sections';
 
+export interface ExternalLinkOptions {
+  externalUrl?: string;
+  requiresAuth?: boolean;
+  allowedRoles?: string[];
+}
+
 export interface SectionsContextProps {
   config: HomepageConfig;
   isLoading: boolean;
-  addNewSection: (type: SectionType, title: string) => Promise<void>;
+  addNewSection: (type: SectionType, title: string, options?: ExternalLinkOptions) => Promise<void>;
   removeExistingSection: (id: string) => Promise<void>;
   reorderExistingSections: (orderedIds: string[]) => Promise<void>;
   updateSectionVisibility: (id: string, visible: boolean) => Promise<void>;

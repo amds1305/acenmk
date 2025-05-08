@@ -2,12 +2,14 @@
 import { HomepageConfig, Section, SectionType } from '@/types/sections';
 import { v4 as uuidv4 } from 'uuid';
 import { saveHomepageConfig } from './saveConfig';
+import { ExternalLinkOptions } from '@/contexts/sections/types';
 
 // Function to add a section
 export const addSection = async (
   config: HomepageConfig, 
   type: SectionType, 
-  title: string
+  title: string,
+  options?: ExternalLinkOptions
 ): Promise<HomepageConfig> => {
   const id = type === 'custom' ? uuidv4() : `${type}-${uuidv4().slice(0, 8)}`;
   const maxOrder = Math.max(...config.sections.map(s => s.order), 0);
@@ -19,11 +21,26 @@ export const addSection = async (
     visible: true,
     order: maxOrder + 1,
     ...(type === 'custom' && { customComponent: '' }),
+    ...(type === 'external-link' && options?.externalUrl && { externalUrl: options.externalUrl }),
+    ...(type === 'external-link' && { requiresAuth: options?.requiresAuth || false }),
+    ...(type === 'external-link' && options?.requiresAuth && { allowedRoles: options?.allowedRoles || [] }),
   };
+  
+  // Si c'est un lien externe, préparer les données spécifiques
+  let updatedSectionData = { ...config.sectionData };
+  if (type === 'external-link' && options?.externalUrl) {
+    updatedSectionData[id] = {
+      url: options.externalUrl,
+      title: title,
+      requiresAuth: options.requiresAuth || false,
+      allowedRoles: options.allowedRoles || []
+    };
+  }
   
   const updatedConfig = {
     ...config,
-    sections: [...config.sections, newSection]
+    sections: [...config.sections, newSection],
+    sectionData: updatedSectionData
   };
   
   await saveHomepageConfig(updatedConfig);

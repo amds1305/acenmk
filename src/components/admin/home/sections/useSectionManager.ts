@@ -57,12 +57,34 @@ export function useSectionManager() {
   const handleAddSection = async () => {
     if (!newSection.title.trim()) return;
     
-    await addNewSection(newSection.type, newSection.title);
+    // Pour les liens externes, vérifier que l'URL est fournie
+    if (newSection.type === 'external-link' && !newSection.externalUrl?.trim()) {
+      return;
+    }
+
+    // Ajouter la section avec toutes ses propriétés
+    await addNewSection(
+      newSection.type, 
+      newSection.title, 
+      {
+        externalUrl: newSection.externalUrl,
+        requiresAuth: newSection.requiresAuth,
+        allowedRoles: newSection.allowedRoles
+      }
+    );
     
     // Force un rechargement des données après modification
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
     
-    setNewSection({ type: 'custom', title: '' });
+    // Réinitialiser le formulaire
+    setNewSection({ 
+      type: 'custom', 
+      title: '',
+      externalUrl: undefined,
+      requiresAuth: false,
+      allowedRoles: []
+    });
+    
     setDialogOpen(false);
   };
 

@@ -1,4 +1,3 @@
-
 import { RouteMetadata } from '@/types/permissions';
 
 // Définition des métadonnées pour chaque route
@@ -150,6 +149,16 @@ const routeMetadataMap: Record<string, RouteMetadata> = {
     parentPath: '/admin',
     showInNav: true,
     order: 600,
+    category: 'admin'
+  },
+  '/admin/external-links': {
+    path: '/admin/external-links',
+    title: 'Liens Externes',
+    description: 'Gestion des liens vers des applications externes',
+    icon: 'external-link',
+    parentPath: '/admin',
+    showInNav: true,
+    order: 530,
     category: 'admin'
   }
 };
