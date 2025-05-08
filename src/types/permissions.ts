@@ -43,4 +43,5 @@ export interface PermissionsContextType {
   getPublicRoutes: () => RouteWithAccess[];
   getAdminRoutesForRole: (role: UserRole) => RouteWithAccess[];
   isRoutePublic: (route: string) => boolean;
+  scanAndUpdateRoutes: () => Promise<void>;
 }

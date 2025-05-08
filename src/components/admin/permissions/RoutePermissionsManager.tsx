@@ -1,9 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { PermissionRule, RouteWithAccess } from '@/types/permissions';
-import { User, UserRole } from '@/types/auth';
-import { useAuth } from '@/contexts/AuthContext';
+import { UserRole } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,7 +23,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -33,23 +31,30 @@ import {
   Globe,
   Users,
   Search,
-  KeyRound,
   Shield,
   Save,
-  Eye,
-  EyeOff,
   Loader2,
-  Settings
+  Settings,
+  RefreshCw
 } from 'lucide-react';
 import { getRoleInfo } from '@/utils/roleUtils';
+import { getAllRoutes } from '@/lib/routes';
 
 const RoutePermissionsManager: React.FC = () => {
-  const { accessConfig, isLoading, updateRouteAccess, savePermissions } = usePermissions();
+  const { 
+    accessConfig, 
+    isLoading, 
+    updateRouteAccess, 
+    savePermissions, 
+    scanAndUpdateRoutes 
+  } = usePermissions();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isPublicFilter, setIsPublicFilter] = useState<boolean | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [editingPermission, setEditingPermission] = useState<PermissionRule | null>(null);
   
   // Combinaison de toutes les routes (publiques et admin)
@@ -71,7 +76,7 @@ const RoutePermissionsManager: React.FC = () => {
   
   // Liste des rôles disponibles
   const availableRoles: UserRole[] = [
-    'user', 'client_standard', 'client_premium', 'contributor', 'manager', 
+    'user', 'client_standard', 'client_premium', 'external_provider', 'contributor', 'manager', 
     'business_admin', 'admin', 'super_admin'
   ];
   
@@ -150,6 +155,33 @@ const RoutePermissionsManager: React.FC = () => {
     }
   };
 
+  // Scanner les routes de l'application
+  const handleScanRoutes = async () => {
+    try {
+      setIsScanning(true);
+      await scanAndUpdateRoutes();
+    } catch (error) {
+      console.error('Erreur lors du scan des routes:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Effectuer un scan automatique au chargement
+  useEffect(() => {
+    // Scanner les routes au démarrage
+    const initialScan = async () => {
+      try {
+        const allDefinedRoutes = getAllRoutes();
+        console.log('Routes définies:', allDefinedRoutes);
+      } catch (error) {
+        console.error('Erreur lors du scan initial des routes:', error);
+      }
+    };
+    
+    initialScan();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -160,23 +192,44 @@ const RoutePermissionsManager: React.FC = () => {
               Configurez les accès aux différentes rubriques du site selon les rôles utilisateur
             </CardDescription>
           </div>
-          <Button 
-            onClick={handleSaveAll} 
-            disabled={isLoading || isSaving}
-            className="self-start"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Enregistrement...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Enregistrer les modifications
-              </>
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              onClick={handleScanRoutes} 
+              variant="outline"
+              disabled={isScanning || isLoading}
+              className="self-start"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Scan en cours...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Scanner les rubriques
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              onClick={handleSaveAll} 
+              disabled={isLoading || isSaving}
+              className="self-start"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Enregistrer les modifications
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       

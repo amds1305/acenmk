@@ -1,9 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { AccessControlConfig, PermissionsContextType, PermissionRule, RouteWithAccess } from '@/types/permissions';
+import { 
+  AccessControlConfig, 
+  PermissionsContextType, 
+  PermissionRule, 
+  RouteWithAccess 
+} from '@/types/permissions';
 import { UserRole } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
-import { getRouteMetadata } from '@/lib/routes';
+import { getRouteMetadata, extractAppRoutes, getAllRoutes } from '@/lib/routes';
 import { DEFAULT_ACCESS_CONFIG } from '@/config/accessControl';
 import { supabase } from '@/lib/supabase';
 
@@ -15,6 +20,56 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  /**
+   * Synchronise la configuration d'accès avec les routes actuelles de l'application
+   * @param currentConfig Configuration actuelle des accès
+   * @returns Configuration mise à jour pour inclure toutes les routes de l'application
+   */
+  const syncRoutesWithAccessConfig = useCallback(
+    (currentConfig: AccessControlConfig): AccessControlConfig => {
+      const updatedConfig: AccessControlConfig = {
+        routes: { ...currentConfig.routes },
+        adminRoutes: { ...currentConfig.adminRoutes }
+      };
+      
+      // Extraire toutes les routes de l'application
+      const appRoutes = extractAppRoutes();
+      console.log('Routes extraites de l\'application:', appRoutes);
+      
+      // Parcourir toutes les routes et les ajouter à la config si elles n'existent pas déjà
+      appRoutes.forEach(route => {
+        // Séparer les routes admin et les routes normales
+        if (route.startsWith('/admin')) {
+          // Pour les routes admin, on extrait la partie après '/admin/'
+          const adminRoute = route.replace('/admin/', '');
+          
+          // Si cette route admin n'existe pas déjà dans la config, l'ajouter
+          if (!updatedConfig.adminRoutes[adminRoute] && adminRoute !== '') {
+            console.log(`Ajout de la route admin: ${adminRoute}`);
+            updatedConfig.adminRoutes[adminRoute] = {
+              isPublic: false,
+              allowedRoles: ['admin', 'super_admin'],
+              description: `Route d'administration: ${route}`
+            };
+          }
+        } else {
+          // Si cette route normale n'existe pas déjà dans la config, l'ajouter
+          if (!updatedConfig.routes[route]) {
+            console.log(`Ajout de la route: ${route}`);
+            updatedConfig.routes[route] = {
+              isPublic: true, // Par défaut, les nouvelles routes sont publiques
+              allowedRoles: [],
+              description: `Nouvelle route: ${route}`
+            };
+          }
+        }
+      });
+      
+      return updatedConfig;
+    },
+    []
+  );
+
   // Charger la configuration des accès
   const loadAccessConfig = useCallback(async () => {
     try {
@@ -23,34 +78,39 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // Vérifier si nous sommes en mode test
       const isTestMode = localStorage.getItem('adminTestMode') === 'true';
       
+      let loadedConfig: AccessControlConfig;
+      
       if (isTestMode) {
         console.log('Mode test: utilisation de la config par défaut pour les permissions');
-        setAccessConfig(DEFAULT_ACCESS_CONFIG);
-        setIsLoading(false);
-        return;
+        loadedConfig = DEFAULT_ACCESS_CONFIG;
+      } else {
+        // Dans une implémentation réelle, récupérer depuis la base de données
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('*')
+          .eq('id', 'route_permissions')
+          .single();
+          
+        if (error) {
+          if (error.code === 'PGRST116') { // Code for "not found"
+            console.log('Aucune configuration trouvée, utilisation des valeurs par défaut');
+            loadedConfig = DEFAULT_ACCESS_CONFIG;
+          } else {
+            throw error;
+          }
+        } else if (data && data.value) {
+          console.log('Configuration des permissions chargée avec succès');
+          loadedConfig = data.value as AccessControlConfig;
+        } else {
+          console.log('Aucune donnée trouvée, utilisation des valeurs par défaut');
+          loadedConfig = DEFAULT_ACCESS_CONFIG;
+        }
       }
       
-      // Dans une implémentation réelle, récupérer depuis la base de données
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('*')
-        .eq('id', 'route_permissions')
-        .single();
-        
-      if (error) {
-        if (error.code === 'PGRST116') { // Code for "not found"
-          console.log('Aucune configuration trouvée, utilisation des valeurs par défaut');
-          setAccessConfig(DEFAULT_ACCESS_CONFIG);
-        } else {
-          throw error;
-        }
-      } else if (data && data.value) {
-        console.log('Configuration des permissions chargée avec succès');
-        setAccessConfig(data.value as AccessControlConfig);
-      } else {
-        console.log('Aucune donnée trouvée, utilisation des valeurs par défaut');
-        setAccessConfig(DEFAULT_ACCESS_CONFIG);
-      }
+      // Synchroniser la configuration chargée avec les routes actuelles de l'application
+      const updatedConfig = syncRoutesWithAccessConfig(loadedConfig);
+      setAccessConfig(updatedConfig);
+      
     } catch (error) {
       console.error('Erreur lors du chargement des permissions:', error);
       toast({
@@ -59,11 +119,12 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         variant: 'destructive',
       });
       // Utiliser la configuration par défaut en cas d'erreur
-      setAccessConfig(DEFAULT_ACCESS_CONFIG);
+      const defaultConfig = syncRoutesWithAccessConfig(DEFAULT_ACCESS_CONFIG);
+      setAccessConfig(defaultConfig);
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, syncRoutesWithAccessConfig]);
 
   // Charger la configuration au démarrage
   useEffect(() => {
@@ -200,6 +261,43 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [accessConfig, toast]);
 
+  // Scanner l'application pour détecter de nouvelles routes et mettre à jour la config
+  const scanAndUpdateRoutes = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      
+      // Récupérer toutes les routes de l'application
+      const appRoutes = extractAppRoutes();
+      
+      // Mettre à jour la configuration d'accès
+      const updatedConfig = syncRoutesWithAccessConfig(accessConfig);
+      
+      // Si des changements ont été détectés, mettre à jour la configuration
+      if (JSON.stringify(updatedConfig) !== JSON.stringify(accessConfig)) {
+        setAccessConfig(updatedConfig);
+        
+        toast({
+          title: 'Routes mises à jour',
+          description: 'Nouvelles routes détectées et ajoutées à la configuration des accès',
+        });
+      } else {
+        toast({
+          title: 'Scan terminé',
+          description: 'Aucune nouvelle route détectée',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du scan des routes:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de scanner les routes de l\'application',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [accessConfig, syncRoutesWithAccessConfig, toast]);
+
   // Obtenir les routes accessibles pour un rôle spécifique
   const getRoutesForRole = useCallback((role: UserRole): RouteWithAccess[] => {
     const routes: RouteWithAccess[] = [];
@@ -260,7 +358,8 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
     getRoutesForRole,
     getPublicRoutes,
     getAdminRoutesForRole,
-    isRoutePublic
+    isRoutePublic,
+    scanAndUpdateRoutes
   };
 
   return (
