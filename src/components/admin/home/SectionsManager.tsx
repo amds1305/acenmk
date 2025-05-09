@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Save } from 'lucide-react';
 import { AddSectionDialog, SectionsList, useSectionManager } from './sections';
+import { useToast } from '@/hooks/use-toast';
 
 const SectionsManager: React.FC = () => {
   const {
@@ -22,6 +23,30 @@ const SectionsManager: React.FC = () => {
     saveChanges
   } = useSectionManager();
 
+  const { toast } = useToast();
+  
+  const handleSaveClick = () => {
+    saveChanges()
+      .then(() => {
+        toast({
+          title: "Sections sauvegardées",
+          description: "Les sections ont été mises à jour avec succès.",
+        });
+      })
+      .catch((error) => {
+        console.error('Error saving sections:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la sauvegarde des sections.",
+        });
+      });
+  };
+  
+  // Debug logging
+  console.log('SectionsManager - Config loaded:', config);
+  console.log('SectionsManager - Sections:', config?.sections || []);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -37,7 +62,7 @@ const SectionsManager: React.FC = () => {
             Ajouter
           </Button>
           
-          <Button onClick={saveChanges} variant="default" size="sm" className="gap-1">
+          <Button onClick={handleSaveClick} variant="default" size="sm" className="gap-1">
             <Save className="h-4 w-4" />
             Enregistrer
           </Button>
@@ -45,8 +70,15 @@ const SectionsManager: React.FC = () => {
       </CardHeader>
       
       <CardContent>
+        {/* Display debug info if there are no sections */}
+        {(!config.sections || config.sections.length === 0) && (
+          <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-4">
+            <p className="text-muted-foreground">Aucune section trouvée. Les données n'ont peut-être pas été chargées correctement.</p>
+          </div>
+        )}
+        
         <SectionsList
-          sections={config.sections}
+          sections={config.sections || []}
           draggingIndex={draggingIndex}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}

@@ -6,11 +6,28 @@ import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import SectionsManager from './home/SectionsManager';
-import { useSections } from '@/contexts/SectionsContext';
+import { useSections } from '@/contexts/sections/SectionsContext';
 import { HeroData } from '@/components/Hero';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AdminHome = () => {
-  const { config, updateExistingSectionData, saveChanges } = useSections();
+  const { config, updateExistingSectionData, saveChanges, reloadConfig } = useSections();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Force a reload of the configuration when the component mounts
+  useEffect(() => {
+    console.log('AdminHome: reloading configuration');
+    reloadConfig();
+    
+    // Invalidate the cache for various queries
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+    queryClient.invalidateQueries({ queryKey: ['faqs'] });
+    queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+  }, [reloadConfig, queryClient]);
   
   // Create a properly typed heroData object with default values
   const heroData: HeroData = {
@@ -27,8 +44,24 @@ const AdminHome = () => {
   };
 
   const handleSave = () => {
-    saveChanges();
+    saveChanges().then(() => {
+      toast({
+        title: "Configuration sauvegardée",
+        description: "Les modifications ont été enregistrées avec succès.",
+      });
+    }).catch((error) => {
+      console.error('Error saving config:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde.",
+      });
+    });
   };
+
+  // Log out the sections for debugging
+  console.log('AdminHome: Sections loaded:', config.sections);
+  console.log('AdminHome: Template Config:', config.templateConfig);
 
   return (
     <div className="space-y-6">
