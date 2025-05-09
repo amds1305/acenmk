@@ -1,9 +1,9 @@
 
-import React from 'react';
-import { TeamList } from '@/components/admin/team';
+import React, { useState } from 'react';
+import { AdminTeam } from '@/components/admin/team';
 
 const AdminTeamPage = () => {
-  return <TeamList />;
+  return <AdminTeam />;
 };
 
 export default AdminTeamPage;

@@ -1,13 +1,11 @@
 
-// Ce fichier est conservé pour la compatibilité avec le code existant,
-// mais les données réelles seront chargées depuis la base de données
+import { TeamMember, SectionSettings } from './types';
 
-import { TeamMember } from './types';
-
-// Structure vide pour la compatibilité avec le code existant
+// Initial empty array for team members
 export const INITIAL_TEAM_MEMBERS: TeamMember[] = [];
 
-export const INITIAL_SECTION_SETTINGS = {
-  title: 'Notre Équipe d\'Experts',
-  subtitle: 'Une équipe talentueuse et passionnée dédiée à votre réussite',
+// Initial settings for the team section
+export const INITIAL_SECTION_SETTINGS: SectionSettings = {
+  title: "Notre équipe",
+  subtitle: "Des experts passionnés à votre service"
 };
