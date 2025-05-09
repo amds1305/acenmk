@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { saveHomepageConfig } from '@/services/sections';
 import { useToast } from '@/hooks/use-toast';
 import { getHomepageConfig } from '@/services/sections';
 import { queryClient } from '@/lib/queryClient';
+import { SaveIndicator } from '@/components/ui/save-indicator';
 
 interface SaveHeroChangesProps {
   isSaving: boolean;
