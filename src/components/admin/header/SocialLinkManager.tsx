@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,12 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Pen, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import { SocialLink } from './types';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
+import { supabase } from '@/lib/supabase';
 
 const SocialLinkManager = () => {
   const { toast } = useToast();
+  const { showSaveSuccess, showSaveError } = useAdminNotification();
 
   // Social links - use actual Lucide icon components with visibility property
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
@@ -17,6 +20,120 @@ const SocialLinkManager = () => {
     { icon: Github, href: 'https://github.com', ariaLabel: 'Github', isVisible: true, order: 1 },
     { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram', isVisible: true, order: 2 },
   ]);
+
+  // Load social links from localStorage or database when component mounts
+  useEffect(() => {
+    const loadSocialLinks = async () => {
+      try {
+        // First attempt to load from localStorage (for backward compatibility)
+        const savedLinks = localStorage.getItem('socialLinks');
+        if (savedLinks) {
+          const parsedLinks = JSON.parse(savedLinks);
+          
+          // Convert string icon names to actual Lucide components
+          const iconMap = { Twitter, Github, Instagram, Facebook, Linkedin, Youtube };
+          
+          // Create updated links with resolved icon components
+          const updatedLinks = parsedLinks.map(link => ({
+            ...link,
+            icon: iconMap[link.icon] || Twitter // Default to Twitter if icon not found
+          }));
+          
+          setSocialLinks(updatedLinks);
+        }
+        
+        // Then check if we have data in Supabase
+        const { data, error } = await supabase
+          .from('header_social_links')
+          .select('*')
+          .order('order', { ascending: true });
+          
+        if (error) {
+          console.error('Error fetching social links from Supabase:', error);
+        } else if (data && data.length > 0) {
+          // If we have data in Supabase, use it instead of localStorage data
+          const iconMap = { Twitter, Github, Instagram, Facebook, Linkedin, Youtube };
+          
+          const dbLinks = data.map(link => ({
+            icon: iconMap[link.icon_name] || Twitter,
+            href: link.href,
+            ariaLabel: link.aria_label,
+            isVisible: link.is_visible,
+            order: link.order
+          }));
+          
+          setSocialLinks(dbLinks);
+        }
+      } catch (error) {
+        console.error('Error loading social links:', error);
+      }
+    };
+    
+    loadSocialLinks();
+  }, []);
+
+  // Save social links to localStorage and optionally to database
+  const saveSocialLinks = async (links: SocialLink[]) => {
+    try {
+      // First save to localStorage for backward compatibility
+      const serializedLinks = links.map(link => {
+        // Find the icon name by comparing the component reference
+        const iconName = Object.entries({ Twitter, Github, Instagram, Facebook, Linkedin, Youtube }).find(
+          ([_, component]) => component === link.icon
+        )?.[0] || 'Twitter';
+        
+        return {
+          ...link,
+          icon: iconName
+        };
+      });
+      
+      localStorage.setItem('socialLinks', JSON.stringify(serializedLinks));
+      
+      // Then try to save to Supabase if available
+      try {
+        // First delete all existing links
+        await supabase.from('header_social_links').delete().neq('id', 0);
+        
+        // Then insert the new links
+        const dbLinks = links.map(link => {
+          // Find the icon name by comparing the component reference
+          const iconName = Object.entries({ Twitter, Github, Instagram, Facebook, Linkedin, Youtube }).find(
+            ([_, component]) => component === link.icon
+          )?.[0] || 'Twitter';
+          
+          return {
+            icon_name: iconName,
+            href: link.href,
+            aria_label: link.ariaLabel,
+            is_visible: link.isVisible,
+            order: link.order
+          };
+        });
+        
+        const { error } = await supabase.from('header_social_links').insert(dbLinks);
+        
+        if (error) {
+          console.error('Error saving social links to Supabase:', error);
+          // Still continue as we have saved to localStorage
+        }
+        
+      } catch (dbError) {
+        console.error('Database error when saving social links:', dbError);
+        // Still continue as we have saved to localStorage
+      }
+      
+      // Trigger a page reload to apply the changes to the header
+      // For better UX, we should implement a context to avoid page reload
+      // but this is a simpler solution for now
+      window.dispatchEvent(new CustomEvent('header-config-updated'));
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving social links:', error);
+      return false;
+    }
+  };
 
   // Define available social icons
   const availableSocialIcons: Record<string, LucideIcon> = {
@@ -36,7 +153,7 @@ const SocialLinkManager = () => {
   const [newSocialVisible, setNewSocialVisible] = useState(true);
 
   // Add or update social link
-  const handleSaveSocialLink = () => {
+  const handleSaveSocialLink = async () => {
     if (!newSocialIcon || !newSocialHref || !newSocialAriaLabel) {
       toast({
         title: "Erreur",
@@ -57,9 +174,11 @@ const SocialLinkManager = () => {
       return;
     }
 
+    let updatedLinks: SocialLink[];
+    
     if (editingSocialLink) {
       // Update existing link
-      setSocialLinks(socialLinks.map(link => 
+      updatedLinks = socialLinks.map(link => 
         link === editingSocialLink 
           ? { 
               icon: iconComponent, 
@@ -69,28 +188,46 @@ const SocialLinkManager = () => {
               order: link.order
             } 
           : link
-      ));
-      toast({
-        title: "Succès",
-        description: "Lien social mis à jour"
-      });
+      );
+      setSocialLinks(updatedLinks);
+      
+      const saveSuccess = await saveSocialLinks(updatedLinks);
+      if (saveSuccess) {
+        showSaveSuccess();
+        toast({
+          title: "Succès",
+          description: "Lien social mis à jour"
+        });
+      } else {
+        showSaveError();
+      }
     } else {
       // Add new link
       const newOrder = socialLinks.length > 0 
         ? Math.max(...socialLinks.map(link => link.order)) + 1
         : 0;
       
-      setSocialLinks([...socialLinks, { 
+      const newLink = { 
         icon: iconComponent, 
         href: newSocialHref, 
         ariaLabel: newSocialAriaLabel,
         isVisible: newSocialVisible,
         order: newOrder
-      }]);
-      toast({
-        title: "Succès",
-        description: "Lien social ajouté"
-      });
+      };
+      
+      updatedLinks = [...socialLinks, newLink];
+      setSocialLinks(updatedLinks);
+      
+      const saveSuccess = await saveSocialLinks(updatedLinks);
+      if (saveSuccess) {
+        showSaveSuccess();
+        toast({
+          title: "Succès",
+          description: "Lien social ajouté"
+        });
+      } else {
+        showSaveError();
+      }
     }
 
     // Reset form
@@ -102,12 +239,20 @@ const SocialLinkManager = () => {
   };
 
   // Delete social link
-  const handleDeleteSocialLink = (link: SocialLink) => {
-    setSocialLinks(socialLinks.filter(l => l !== link));
-    toast({
-      title: "Succès",
-      description: "Lien social supprimé"
-    });
+  const handleDeleteSocialLink = async (link: SocialLink) => {
+    const updatedLinks = socialLinks.filter(l => l !== link);
+    setSocialLinks(updatedLinks);
+    
+    const saveSuccess = await saveSocialLinks(updatedLinks);
+    if (saveSuccess) {
+      showSaveSuccess();
+      toast({
+        title: "Succès",
+        description: "Lien social supprimé"
+      });
+    } else {
+      showSaveError();
+    }
   };
 
   // Edit social link (prepare form for editing)
@@ -125,15 +270,23 @@ const SocialLinkManager = () => {
   };
 
   // Toggle visibility for a social link
-  const handleToggleVisibility = (link: SocialLink) => {
-    setSocialLinks(socialLinks.map(l => 
+  const handleToggleVisibility = async (link: SocialLink) => {
+    const updatedLinks = socialLinks.map(l => 
       l === link ? { ...l, isVisible: !l.isVisible } : l
-    ));
+    );
     
-    toast({
-      title: "Visibilité modifiée",
-      description: `Le lien ${link.ariaLabel} est maintenant ${link.isVisible ? 'masqué' : 'visible'}`
-    });
+    setSocialLinks(updatedLinks);
+    
+    const saveSuccess = await saveSocialLinks(updatedLinks);
+    if (saveSuccess) {
+      showSaveSuccess();
+      toast({
+        title: "Visibilité modifiée",
+        description: `Le lien ${link.ariaLabel} est maintenant ${link.isVisible ? 'masqué' : 'visible'}`
+      });
+    } else {
+      showSaveError();
+    }
   };
 
   // Function to render the correct icon component

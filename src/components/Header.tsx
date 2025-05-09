@@ -21,6 +21,9 @@ const Header = () => {
   const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu, headerConfig = defaultHeaderConfig } = useHeader();
   const { theme, toggleTheme } = useTheme();
   
+  // Log to debug visibility of social links
+  console.log('Header rendering with social links:', socialLinks);
+  
   return (
     <header 
       className={cn(
@@ -35,7 +38,7 @@ const Header = () => {
         {/* Desktop Navigation and Social Links */}
         <DesktopNav 
           navLinks={navLinks}
-          socialLinks={socialLinks}
+          socialLinks={socialLinks} // These are now pre-filtered in useHeader
           toggleSearch={toggleSearch}
           themeSelector={<ThemeSelector />}
           showThemeSelector={headerConfig.showThemeSelector}
@@ -68,7 +71,7 @@ const Header = () => {
       <MobileMenu 
         isOpen={mobileMenuOpen}
         navLinks={navLinks}
-        socialLinks={socialLinks.filter(link => link.isVisible !== false)}
+        socialLinks={socialLinks} // These are now pre-filtered in useHeader
         onNavLinkClick={closeMobileMenu}
       />
     </header>

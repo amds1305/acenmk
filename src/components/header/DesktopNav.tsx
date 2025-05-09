@@ -23,6 +23,9 @@ const DesktopNav = ({
 }: DesktopNavProps) => {
   const location = useLocation();
   
+  // Log to debug visibility of social links
+  console.log('DesktopNav rendering with social links:', socialLinks);
+  
   // Fonction pour vérifier si un lien est actif
   const isActive = (href: string): boolean => {
     if (href === '/') {
@@ -64,20 +67,18 @@ const DesktopNav = ({
       <div className="flex items-center gap-4">
         {/* Social Links */}
         <div className="flex items-center space-x-3">
-          {socialLinks
-            .filter(link => link.isVisible !== false) // Afficher uniquement les liens marqués comme visibles
-            .map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon hover-scale"
-                aria-label={link.ariaLabel}
-              >
-                <link.icon size={18} />
-              </a>
-            ))}
+          {socialLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon hover-scale"
+              aria-label={link.ariaLabel}
+            >
+              <link.icon size={18} />
+            </a>
+          ))}
         </div>
         
         {/* Theme Selector */}

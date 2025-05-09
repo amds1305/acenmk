@@ -45,17 +45,41 @@ export const useHeader = () => {
   // Effet pour charger la configuration du header (à terme depuis une API ou localStorage)
   useEffect(() => {
     // Simuler le chargement de la configuration depuis une source externe
-    const loadHeaderConfig = () => {
-      // Dans un cas réel, on chargerait depuis une API ou localStorage
-      const savedConfig = localStorage.getItem('headerConfig');
-      
-      if (savedConfig) {
-        try {
-          const parsedConfig = JSON.parse(savedConfig);
-          setHeaderConfig(parsedConfig);
-        } catch (error) {
-          console.error('Erreur lors du chargement de la configuration du header:', error);
+    const loadHeaderConfig = async () => {
+      try {
+        // Dans un cas réel, on chargerait depuis une API ou localStorage
+        const savedConfig = localStorage.getItem('headerConfig');
+        
+        if (savedConfig) {
+          try {
+            const parsedConfig = JSON.parse(savedConfig);
+            setHeaderConfig(parsedConfig);
+          } catch (error) {
+            console.error('Erreur lors du chargement de la configuration du header:', error);
+          }
         }
+        
+        // Charger les liens sociaux depuis le localStorage
+        const savedSocialLinks = localStorage.getItem('socialLinks');
+        if (savedSocialLinks) {
+          try {
+            const parsedSocialLinks = JSON.parse(savedSocialLinks);
+            // Transformer les noms d'icônes en composants Lucide
+            const iconMap = { Facebook, Twitter, Instagram, Linkedin, Github };
+            
+            // On garde la structure existante mais on met à jour isVisible
+            const updatedLinks = socialLinks.map(link => {
+              const savedLink = parsedSocialLinks.find(sl => sl.ariaLabel === link.ariaLabel);
+              return savedLink ? { ...link, isVisible: savedLink.isVisible } : link;
+            });
+            
+            // Mise à jour de socialLinks avec les données de visibilité
+          } catch (error) {
+            console.error('Erreur lors du chargement des liens sociaux:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de la configuration:', error);
       }
     };
     
@@ -76,6 +100,9 @@ export const useHeader = () => {
     setMobileMenuOpen(false);
   };
   
+  // Filter out invisible social links before returning them
+  const visibleSocialLinks = socialLinks.filter(link => link.isVisible !== false);
+  
   return {
     isScrolled,
     mobileMenuOpen,
@@ -83,7 +110,7 @@ export const useHeader = () => {
     toggleMobileMenu,
     toggleSearch,
     navLinks,
-    socialLinks,
+    socialLinks: visibleSocialLinks, // Only return visible social links
     closeMobileMenu,
     headerConfig
   };
