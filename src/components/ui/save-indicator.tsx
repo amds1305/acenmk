@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SaveIndicatorProps {
@@ -14,10 +14,13 @@ export const SaveIndicator: React.FC<SaveIndicatorProps> = ({
   className,
   showText = true
 }) => {
+  if (status === 'idle') {
+    return null; // Ne rien afficher en état d'inactivité
+  }
+
   return (
     <div className={cn(
-      "flex items-center gap-2 transition-opacity duration-300", 
-      status === 'idle' ? 'opacity-0' : 'opacity-100',
+      "flex items-center gap-2 transition-all duration-300 animate-in fade-in", 
       className
     )}>
       {status === 'saving' && (
@@ -36,7 +39,7 @@ export const SaveIndicator: React.FC<SaveIndicatorProps> = ({
       
       {status === 'error' && (
         <>
-          <span className="h-4 w-4 text-destructive">!</span>
+          <AlertCircle className="h-4 w-4 text-destructive" />
           {showText && <span className="text-sm text-destructive">Erreur d'enregistrement</span>}
         </>
       )}

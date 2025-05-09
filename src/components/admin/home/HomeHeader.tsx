@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, EyeIcon } from 'lucide-react';
 import { SaveIndicator } from '@/components/ui/save-indicator';
@@ -10,33 +10,22 @@ interface HomeHeaderProps {
 }
 
 const HomeHeader = ({ onSave }: HomeHeaderProps) => {
-  const { showProcessing, isProcessing } = useAdminNotification();
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const { saveStatus, setSaveStatus, showProcessing, isProcessing, showSaveSuccess, showSaveError } = useAdminNotification();
 
   const handleSave = async () => {
     try {
       setSaveStatus('saving');
       showProcessing();
       await onSave();
-      setSaveStatus('success');
-      
-      // Réinitialiser l'indicateur après un délai
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      showSaveSuccess();
     } catch (error) {
       console.error('Error saving changes:', error);
-      setSaveStatus('error');
-      
-      // Réinitialiser l'indicateur après un délai même en cas d'erreur
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      showSaveError(error);
     }
   };
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center mb-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Page d'accueil</h1>
         <p className="text-muted-foreground">

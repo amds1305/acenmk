@@ -4,7 +4,9 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Save, RefreshCw } from 'lucide-react';
 import { AddSectionDialog, SectionsList, useSectionManager } from './sections';
-import { useToast } from '@/hooks/use-toast';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
+import { SaveIndicator } from '@/components/ui/save-indicator';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const SectionsManager: React.FC = () => {
   const {
@@ -23,33 +25,23 @@ const SectionsManager: React.FC = () => {
     saveChanges,
     reloadConfig,
   } = useSectionManager();
-
-  const { toast } = useToast();
   
-  const handleSaveClick = () => {
-    saveChanges()
-      .then(() => {
-        toast({
-          title: "Sections sauvegardées",
-          description: "Les sections ont été mises à jour avec succès.",
-        });
-      })
-      .catch((error) => {
-        console.error('Error saving sections:', error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la sauvegarde des sections.",
-        });
-      });
+  const { saveStatus, setSaveStatus, showSaveSuccess, showSaveError } = useAdminNotification();
+  
+  const handleSaveClick = async () => {
+    setSaveStatus('saving');
+    try {
+      await saveChanges();
+      showSaveSuccess();
+    } catch (error) {
+      console.error('Error saving sections:', error);
+      showSaveError(error);
+    }
   };
   
   const handleReloadClick = () => {
+    setSaveStatus('idle');
     reloadConfig();
-    toast({
-      title: "Actualisation",
-      description: "Les données des sections sont en cours de rechargement...",
-    });
   };
   
   // Debug logging
@@ -65,7 +57,9 @@ const SectionsManager: React.FC = () => {
             Ajoutez, réorganisez et gérez les sections de la page d'accueil
           </CardDescription>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <SaveIndicator status={saveStatus} showText={false} />
+          
           <Button size="sm" className="gap-1" onClick={handleReloadClick} variant="outline">
             <RefreshCw className="h-4 w-4" />
             Actualiser
@@ -76,9 +70,15 @@ const SectionsManager: React.FC = () => {
             Ajouter
           </Button>
           
-          <Button onClick={handleSaveClick} variant="default" size="sm" className="gap-1">
+          <Button 
+            onClick={handleSaveClick} 
+            variant="default" 
+            size="sm" 
+            className="gap-1"
+            disabled={saveStatus === 'saving'}
+          >
             <Save className="h-4 w-4" />
-            Enregistrer
+            {saveStatus === 'saving' ? 'Enregistrement...' : 'Enregistrer'}
           </Button>
         </div>
       </CardHeader>
@@ -86,24 +86,30 @@ const SectionsManager: React.FC = () => {
       <CardContent>
         {/* Display debug info if there are no sections */}
         {(!config.sections || config.sections.length === 0) && (
-          <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-4">
-            <p className="text-muted-foreground">Aucune section trouvée. Les données n'ont peut-être pas été chargées correctement.</p>
-            <Button variant="outline" size="sm" className="mt-2" onClick={handleReloadClick}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Recharger les données
-            </Button>
-          </div>
+          <Alert className="mb-4">
+            <AlertTitle>Aucune section trouvée</AlertTitle>
+            <AlertDescription className="space-y-2">
+              <p>Les données n'ont peut-être pas été chargées correctement.</p>
+              <Button variant="outline" size="sm" className="mt-2" onClick={handleReloadClick}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Recharger les données
+              </Button>
+            </AlertDescription>
+          </Alert>
         )}
         
-        <SectionsList
-          sections={config.sections || []}
-          draggingIndex={draggingIndex}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onToggleVisibility={handleToggleVisibility}
-          onRemoveSection={handleRemoveSection}
-        />
+        {/* Afficher les sections si elles existent */}
+        {config.sections && config.sections.length > 0 && (
+          <SectionsList
+            sections={config.sections || []}
+            draggingIndex={draggingIndex}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onToggleVisibility={handleToggleVisibility}
+            onRemoveSection={handleRemoveSection}
+          />
+        )}
 
         <AddSectionDialog
           open={dialogOpen}

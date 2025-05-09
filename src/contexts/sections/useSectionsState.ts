@@ -8,15 +8,24 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
 export function useSectionsState() {
-  const [config, setConfig] = useState<HomepageConfig>({ sections: [], sectionData: {}, templateConfig: DEFAULT_TEMPLATE_CONFIG });
+  const [config, setConfig] = useState<HomepageConfig>({ 
+    sections: [], 
+    sectionData: {}, 
+    templateConfig: DEFAULT_TEMPLATE_CONFIG 
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Use React Query to fetch the config
-  const { data: fetchedConfig, refetch } = useQuery({
+  const { data: fetchedConfig, refetch, isRefetching, isError } = useQuery({
     queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig,
+    queryFn: async () => {
+      console.log('Tentative de chargement de la configuration depuis Supabase...');
+      const result = await getHomepageConfig();
+      console.log('Configuration chargée depuis Supabase:', result);
+      return result;
+    },
     staleTime: 0, // Always consider as stale to force reload
     refetchOnWindowFocus: true,
     onSuccess: (data) => {
@@ -50,13 +59,13 @@ export function useSectionsState() {
       setIsLoading(true);
       console.log('Chargement manuel de la configuration...');
       
-      // Invalidate the cache and force a refetch
+      // Invalider le cache et forcer un rechargement
       queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
       await refetch();
       
       console.log('Configuration rechargée manuellement');
       
-      // Optional: display a success toast
+      // Afficher un toast de succès
       toast({
         title: "Succès",
         description: "Configuration rechargée avec succès.",
@@ -73,16 +82,16 @@ export function useSectionsState() {
     }
   }, [toast, queryClient, refetch]);
 
-  // Load initial configuration
+  // Charger la configuration initiale
   useEffect(() => {
     console.log('Chargement initial de la configuration...');
     loadConfig();
     
-    // Set up a refresh interval
+    // Configurer un intervalle de rafraîchissement
     const intervalId = setInterval(() => {
       console.log('Rafraîchissement périodique de la configuration...');
       queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    }, 60000); // Refresh every minute
+    }, 60000); // Rafraîchir toutes les minutes
     
     return () => clearInterval(intervalId);
   }, [loadConfig, queryClient]);
@@ -90,8 +99,10 @@ export function useSectionsState() {
   return {
     config,
     setConfig,
-    isLoading,
+    isLoading: isLoading || isRefetching,
     setIsLoading,
-    loadConfig
+    loadConfig,
+    isRefetching,
+    isError
   };
 }

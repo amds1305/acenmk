@@ -4,11 +4,13 @@ import { useSectionsState } from './useSectionsState';
 import { useSectionOperations } from './useSectionOperations';
 import { useTemplateOperations } from './useTemplateOperations';
 import { SectionsContextProps } from './types';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
 
 const SectionsContext = createContext<SectionsContextProps | undefined>(undefined);
 
 export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { config, setConfig, isLoading, loadConfig } = useSectionsState();
+  const { config, setConfig, isLoading, loadConfig, isRefetching, isError } = useSectionsState();
+  const { saveStatus, setSaveStatus } = useAdminNotification();
   
   const { 
     addNewSection,
@@ -24,6 +26,9 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const value: SectionsContextProps = {
     config,
     isLoading,
+    isRefetching,
+    isError,
+    saveStatus,
     addNewSection,
     removeExistingSection,
     reorderExistingSections,
