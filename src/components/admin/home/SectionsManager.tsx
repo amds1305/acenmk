@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Save } from 'lucide-react';
+import { PlusCircle, Save, RefreshCw } from 'lucide-react';
 import { AddSectionDialog, SectionsList, useSectionManager } from './sections';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,8 @@ const SectionsManager: React.FC = () => {
     handleAddSection,
     handleToggleVisibility,
     handleRemoveSection,
-    saveChanges
+    saveChanges,
+    reloadConfig,
   } = useSectionManager();
 
   const { toast } = useToast();
@@ -43,6 +44,14 @@ const SectionsManager: React.FC = () => {
       });
   };
   
+  const handleReloadClick = () => {
+    reloadConfig();
+    toast({
+      title: "Actualisation",
+      description: "Les données des sections sont en cours de rechargement...",
+    });
+  };
+  
   // Debug logging
   console.log('SectionsManager - Config loaded:', config);
   console.log('SectionsManager - Sections:', config?.sections || []);
@@ -57,6 +66,11 @@ const SectionsManager: React.FC = () => {
           </CardDescription>
         </div>
         <div className="flex gap-2">
+          <Button size="sm" className="gap-1" onClick={handleReloadClick} variant="outline">
+            <RefreshCw className="h-4 w-4" />
+            Actualiser
+          </Button>
+          
           <Button size="sm" className="gap-1" onClick={() => setDialogOpen(true)}>
             <PlusCircle className="h-4 w-4" />
             Ajouter
@@ -74,6 +88,10 @@ const SectionsManager: React.FC = () => {
         {(!config.sections || config.sections.length === 0) && (
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-4">
             <p className="text-muted-foreground">Aucune section trouvée. Les données n'ont peut-être pas été chargées correctement.</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={handleReloadClick}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Recharger les données
+            </Button>
           </div>
         )}
         

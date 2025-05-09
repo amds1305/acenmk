@@ -28,6 +28,10 @@ const SectionsList: React.FC<SectionsListProps> = ({
     ? [...sections].sort((a, b) => a.order - b.order)
     : [];
 
+  // Debug logging to help identify issues
+  console.log('SectionsList - Received sections:', sections);
+  console.log('SectionsList - Ordered sections:', safelyOrderedSections);
+
   // If no sections, display an informative message
   if (safelyOrderedSections.length === 0) {
     return (

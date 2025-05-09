@@ -40,6 +40,7 @@ export function useSectionsState() {
   // Update config state when fetched data changes
   useEffect(() => {
     if (fetchedConfig) {
+      console.log('Setting config with fetched data:', fetchedConfig);
       setConfig(fetchedConfig);
     }
   }, [fetchedConfig]);
@@ -54,6 +55,12 @@ export function useSectionsState() {
       await refetch();
       
       console.log('Configuration rechargée manuellement');
+      
+      // Optional: display a success toast
+      toast({
+        title: "Succès",
+        description: "Configuration rechargée avec succès.",
+      });
     } catch (error) {
       console.error('Erreur lors du chargement manuel de la configuration:', error);
       toast({
