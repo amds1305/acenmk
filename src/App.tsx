@@ -31,6 +31,7 @@ const AdminRolesPermissions = lazy(() => import('./pages/AdminRolesPermissions')
 const AdminExternalLinks = lazy(() => import('./pages/AdminExternalLinks'));
 const AdminCareers = lazy(() => import('./pages/AdminCareers'));
 const AdminPricing = lazy(() => import('./pages/AdminPricing'));
+const AdminHome = lazy(() => import('./pages/AdminHome'));
 
 // Import des composants admin manquants
 const AdminServices = lazy(() => import('./pages/AdminServices'));
@@ -68,7 +69,7 @@ function App() {
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminWrapper />}>
                   <Route index element={<Admin />} />
-                  <Route path="home" element={<Admin />} />
+                  <Route path="home" element={<AdminHome />} />
                   <Route path="hero" element={<AdminHero />} />
                   <Route path="services" element={<AdminServices />} />
                   <Route path="pricing" element={<AdminPricing />} />
