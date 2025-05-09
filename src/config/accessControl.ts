@@ -1,5 +1,6 @@
 
 import { AccessControlConfig } from '@/types/permissions';
+import { UserRole } from '@/types/auth';
 
 // Configuration par défaut des contrôles d'accès
 export const DEFAULT_ACCESS_CONFIG: AccessControlConfig = {
