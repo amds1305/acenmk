@@ -1,21 +1,21 @@
 
 import { LucideIcon } from 'lucide-react';
 
+// Types pour les liens de navigation
 export interface NavLink {
-  id: string;
   name: string;
   href: string;
-  order: number;
-  isVisible: boolean;
-  parentId: string | null;
+  icon?: LucideIcon;
   isExternal?: boolean;
   requiresAuth?: boolean;
+  allowedRoles?: string[];
 }
 
+// Types pour les liens sociaux
 export interface SocialLink {
-  id?: string;
-  name: string;
-  href: string;
   icon: LucideIcon;
+  href: string;
   ariaLabel: string;
+  isVisible?: boolean;
+  order?: number;
 }

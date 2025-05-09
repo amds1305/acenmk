@@ -9,6 +9,7 @@ interface MobileNavProps {
   toggleTheme: () => void;
   toggleSearch: () => void;
   theme: string;
+  showThemeSelector?: boolean;
 }
 
 const MobileNav: React.FC<MobileNavProps> = ({
@@ -16,19 +17,22 @@ const MobileNav: React.FC<MobileNavProps> = ({
   toggleMobileMenu,
   toggleTheme,
   toggleSearch,
-  theme
+  theme,
+  showThemeSelector = true
 }) => {
   return (
     <div className="md:hidden flex items-center space-x-3">
-      <Button
-        onClick={toggleTheme}
-        variant="ghost"
-        size="icon"
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
-        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-      </Button>
+      {showThemeSelector && (
+        <Button
+          onClick={toggleTheme}
+          variant="ghost"
+          size="icon"
+          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </Button>
+      )}
       
       <Button
         onClick={toggleSearch}

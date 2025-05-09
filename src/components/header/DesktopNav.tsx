@@ -11,9 +11,16 @@ interface DesktopNavProps {
   socialLinks: SocialLink[];
   toggleSearch: () => void;
   themeSelector: React.ReactNode;
+  showThemeSelector?: boolean;
 }
 
-const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: DesktopNavProps) => {
+const DesktopNav = ({ 
+  navLinks, 
+  socialLinks, 
+  toggleSearch, 
+  themeSelector,
+  showThemeSelector = true 
+}: DesktopNavProps) => {
   const location = useLocation();
   
   // Fonction pour vérifier si un lien est actif
@@ -57,22 +64,24 @@ const DesktopNav = ({ navLinks, socialLinks, toggleSearch, themeSelector }: Desk
       <div className="flex items-center gap-4">
         {/* Social Links */}
         <div className="flex items-center space-x-3">
-          {socialLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-icon hover-scale"
-              aria-label={link.ariaLabel}
-            >
-              <link.icon size={18} />
-            </a>
-          ))}
+          {socialLinks
+            .filter(link => link.isVisible !== false) // Afficher uniquement les liens marqués comme visibles
+            .map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon hover-scale"
+                aria-label={link.ariaLabel}
+              >
+                <link.icon size={18} />
+              </a>
+            ))}
         </div>
         
         {/* Theme Selector */}
-        {themeSelector}
+        {showThemeSelector && themeSelector}
         
         {/* Search Button */}
         <Button 

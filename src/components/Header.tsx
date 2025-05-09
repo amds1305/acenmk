@@ -11,8 +11,14 @@ import { useHeader } from './header/useHeader';
 import ThemeSelector from './header/ThemeSelector';
 import UserMenu from './header/UserMenu';
 
+// Configuration par défaut du header - À terme, cela pourrait être chargé depuis une API
+const defaultHeaderConfig = {
+  showThemeSelector: true,
+  // Autres options de configuration possibles
+};
+
 const Header = () => {
-  const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu } = useHeader();
+  const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu, headerConfig = defaultHeaderConfig } = useHeader();
   const { theme, toggleTheme } = useTheme();
   
   return (
@@ -32,6 +38,7 @@ const Header = () => {
           socialLinks={socialLinks}
           toggleSearch={toggleSearch}
           themeSelector={<ThemeSelector />}
+          showThemeSelector={headerConfig.showThemeSelector}
         />
         
         {/* User Menu */}
@@ -46,6 +53,7 @@ const Header = () => {
           toggleTheme={toggleTheme}
           toggleSearch={toggleSearch}
           theme={theme}
+          showThemeSelector={headerConfig.showThemeSelector}
         />
       </div>
       
@@ -60,7 +68,7 @@ const Header = () => {
       <MobileMenu 
         isOpen={mobileMenuOpen}
         navLinks={navLinks}
-        socialLinks={socialLinks}
+        socialLinks={socialLinks.filter(link => link.isVisible !== false)}
         onNavLinkClick={closeMobileMenu}
       />
     </header>

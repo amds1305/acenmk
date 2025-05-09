@@ -3,18 +3,19 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Pen, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon } from 'lucide-react';
+import { Pen, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import { SocialLink } from './types';
 
 const SocialLinkManager = () => {
   const { toast } = useToast();
 
-  // Social links - use actual Lucide icon components
+  // Social links - use actual Lucide icon components with visibility property
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
-    { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter' },
-    { icon: Github, href: 'https://github.com', ariaLabel: 'Github' },
-    { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram' },
+    { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter', isVisible: true, order: 0 },
+    { icon: Github, href: 'https://github.com', ariaLabel: 'Github', isVisible: true, order: 1 },
+    { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram', isVisible: true, order: 2 },
   ]);
 
   // Define available social icons
@@ -32,6 +33,7 @@ const SocialLinkManager = () => {
   const [newSocialIcon, setNewSocialIcon] = useState('Twitter');
   const [newSocialHref, setNewSocialHref] = useState('');
   const [newSocialAriaLabel, setNewSocialAriaLabel] = useState('');
+  const [newSocialVisible, setNewSocialVisible] = useState(true);
 
   // Add or update social link
   const handleSaveSocialLink = () => {
@@ -59,7 +61,13 @@ const SocialLinkManager = () => {
       // Update existing link
       setSocialLinks(socialLinks.map(link => 
         link === editingSocialLink 
-          ? { icon: iconComponent, href: newSocialHref, ariaLabel: newSocialAriaLabel } 
+          ? { 
+              icon: iconComponent, 
+              href: newSocialHref, 
+              ariaLabel: newSocialAriaLabel,
+              isVisible: newSocialVisible,
+              order: link.order
+            } 
           : link
       ));
       toast({
@@ -68,10 +76,16 @@ const SocialLinkManager = () => {
       });
     } else {
       // Add new link
+      const newOrder = socialLinks.length > 0 
+        ? Math.max(...socialLinks.map(link => link.order)) + 1
+        : 0;
+      
       setSocialLinks([...socialLinks, { 
         icon: iconComponent, 
         href: newSocialHref, 
-        ariaLabel: newSocialAriaLabel 
+        ariaLabel: newSocialAriaLabel,
+        isVisible: newSocialVisible,
+        order: newOrder
       }]);
       toast({
         title: "Succès",
@@ -84,6 +98,7 @@ const SocialLinkManager = () => {
     setNewSocialIcon('Twitter');
     setNewSocialHref('');
     setNewSocialAriaLabel('');
+    setNewSocialVisible(true);
   };
 
   // Delete social link
@@ -106,6 +121,19 @@ const SocialLinkManager = () => {
     setNewSocialIcon(iconName);
     setNewSocialHref(link.href);
     setNewSocialAriaLabel(link.ariaLabel);
+    setNewSocialVisible(link.isVisible);
+  };
+
+  // Toggle visibility for a social link
+  const handleToggleVisibility = (link: SocialLink) => {
+    setSocialLinks(socialLinks.map(l => 
+      l === link ? { ...l, isVisible: !l.isVisible } : l
+    ));
+    
+    toast({
+      title: "Visibilité modifiée",
+      description: `Le lien ${link.ariaLabel} est maintenant ${link.isVisible ? 'masqué' : 'visible'}`
+    });
   };
 
   // Function to render the correct icon component
@@ -121,13 +149,27 @@ const SocialLinkManager = () => {
           {socialLinks.map((link, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
               <div className="flex items-center gap-2">
-                {renderSocialIcon(link.icon)}
+                <div className={`${!link.isVisible ? "opacity-50" : ""}`}>
+                  {renderSocialIcon(link.icon)}
+                </div>
                 <div>
-                  <p className="font-medium">{link.ariaLabel}</p>
+                  <p className={`font-medium ${!link.isVisible ? "text-gray-400 dark:text-gray-500" : ""}`}>
+                    {link.ariaLabel}
+                  </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{link.href}</p>
                 </div>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 items-center">
+                <div className="flex items-center space-x-2 mr-2">
+                  <Switch 
+                    checked={link.isVisible} 
+                    onCheckedChange={() => handleToggleVisibility(link)}
+                    aria-label={`Afficher/masquer ${link.ariaLabel}`}
+                  />
+                  <span className="text-sm text-gray-500">
+                    {link.isVisible ? 'Visible' : 'Masqué'}
+                  </span>
+                </div>
                 <Button size="sm" variant="ghost" onClick={() => handleEditSocialLink(link)}>
                   <Pen className="h-4 w-4" />
                 </Button>
@@ -167,6 +209,16 @@ const SocialLinkManager = () => {
               value={newSocialAriaLabel}
               onChange={(e) => setNewSocialAriaLabel(e.target.value)}
             />
+            <div className="flex items-center space-x-2">
+              <Switch 
+                checked={newSocialVisible} 
+                onCheckedChange={setNewSocialVisible}
+                id="visible-switch"
+              />
+              <label htmlFor="visible-switch" className="text-sm">
+                {newSocialVisible ? 'Visible' : 'Masqué'}
+              </label>
+            </div>
             <div className="flex space-x-2">
               <Button onClick={handleSaveSocialLink}>
                 {editingSocialLink ? 'Mettre à jour' : 'Ajouter'}
@@ -177,6 +229,7 @@ const SocialLinkManager = () => {
                   setNewSocialIcon('Twitter');
                   setNewSocialHref('');
                   setNewSocialAriaLabel('');
+                  setNewSocialVisible(true);
                 }}>
                   Annuler
                 </Button>
