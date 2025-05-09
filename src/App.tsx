@@ -29,6 +29,21 @@ const ProjectEstimation = lazy(() => import('./pages/ProjectEstimation'));
 const Faq = lazy(() => import('./pages/Faq'));
 const AdminRolesPermissions = lazy(() => import('./pages/AdminRolesPermissions'));
 const AdminExternalLinks = lazy(() => import('./pages/AdminExternalLinks'));
+const AdminCareers = lazy(() => import('./pages/AdminCareers'));
+const AdminPricing = lazy(() => import('./pages/AdminPricing'));
+
+// Import des composants admin manquants
+const AdminServices = lazy(() => import('./pages/AdminServices'));
+const AdminAbout = lazy(() => import('./pages/AdminAbout'));
+const AdminTeam = lazy(() => import('./pages/AdminTeam'));
+const AdminTestimonials = lazy(() => import('./pages/AdminTestimonials'));
+const AdminFaq = lazy(() => import('./pages/AdminFaq'));
+const AdminBlog = lazy(() => import('./pages/AdminBlog'));
+const AdminAppointments = lazy(() => import('./pages/AdminAppointments'));
+const AdminHeader = lazy(() => import('./pages/AdminHeader'));
+const AdminFooter = lazy(() => import('./pages/AdminFooter'));
+const AdminUsers = lazy(() => import('./pages/AdminUsers'));
+const AdminTrustedClients = lazy(() => import('./pages/AdminTrustedClients'));
 
 function App() {
   return (
@@ -55,10 +70,23 @@ function App() {
                   <Route index element={<Admin />} />
                   <Route path="home" element={<Admin />} />
                   <Route path="hero" element={<AdminHero />} />
+                  <Route path="services" element={<AdminServices />} />
+                  <Route path="pricing" element={<AdminPricing />} />
+                  <Route path="about" element={<AdminAbout />} />
+                  <Route path="team" element={<AdminTeam />} />
+                  <Route path="testimonials" element={<AdminTestimonials />} />
+                  <Route path="faq" element={<AdminFaq />} />
+                  <Route path="blog" element={<AdminBlog />} />
+                  <Route path="careers" element={<AdminCareers />} />
+                  <Route path="appointments" element={<AdminAppointments />} />
+                  <Route path="header" element={<AdminHeader />} />
+                  <Route path="footer" element={<AdminFooter />} />
+                  <Route path="users" element={<AdminUsers />} />
                   <Route path="external-links" element={<AdminExternalLinks />} />
                   <Route path="roles" element={<AdminRolesPermissions />} />
                   <Route path="supabase-migration" element={<AdminSupabaseMigration />} />
                   <Route path="template" element={<AdminTemplateChooser />} />
+                  <Route path="trusted-clients" element={<AdminTrustedClients />} />
                   <Route path="*" element={<Admin />} />
                 </Route>
                 
