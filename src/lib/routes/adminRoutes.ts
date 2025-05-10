@@ -71,5 +71,15 @@ export const adminRouteMetadata: Record<string, RouteMetadata> = {
     showInNav: true,
     order: 530,
     category: 'admin'
+  },
+  '/admin/trusted-clients': {
+    path: '/admin/trusted-clients',
+    title: 'Logos clients',
+    description: 'Gestion des logos de clients de confiance',
+    icon: 'users',
+    parentPath: '/admin',
+    showInNav: true,
+    order: 525,
+    category: 'admin'
   }
 };

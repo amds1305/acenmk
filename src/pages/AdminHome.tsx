@@ -1,11 +1,11 @@
 
 import React from 'react';
-import AdminHomeComponent from '@/components/admin/AdminHome';
+import { AdminHome } from '@/components/admin';
 
 const AdminHomePage = () => {
   // Simple wrapper around the actual component
   return (
-    <AdminHomeComponent />
+    <AdminHome />
   );
 };
 

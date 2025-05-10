@@ -1,103 +1,58 @@
 
 import React from 'react';
+import { ClientLogo } from '@/types/sections';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/mysql';
 
 const NmkRobotTrustedClients = () => {
-  // Utiliser React Query pour récupérer les données
   const { data: config } = useQuery({
     queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig,
+    queryFn: getHomepageConfig
   });
 
-  // Extraire les données de la section
-  const sectionData = config?.sectionData['trusted-clients'];
-  
-  // Données par défaut si aucune n'est disponible ou utiliser les données existantes
-  const clients = sectionData?.clients || [
-    { 
-      id: '1', 
-      name: 'ace nümerik', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=ace+nümerik',
-      websiteUrl: 'https://www.acenumerik.com'
-    },
-    { 
-      id: '2', 
-      name: 'TechVision', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=TechVision',
-      websiteUrl: 'https://example.com'
-    },
-    { 
-      id: '3', 
-      name: 'DataSphere', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=DataSphere',
-      websiteUrl: 'https://example.com'
-    },
-    { 
-      id: '4', 
-      name: 'CloudNova', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=CloudNova',
-      websiteUrl: 'https://example.com'
-    },
-    { 
-      id: '5', 
-      name: 'SecureNet', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=SecureNet',
-      websiteUrl: 'https://example.com'
-    },
-    { 
-      id: '6', 
-      name: 'DevMatrix', 
-      logoUrl: 'https://placehold.co/200x80/111827/9b87f5?text=DevMatrix',
-      websiteUrl: 'https://example.com'
-    }
-  ];
+  const trustedClientsData = config?.sectionData?.['trusted-clients'] as {
+    title: string;
+    clients: ClientLogo[];
+    showTrustedClients?: boolean;
+  } | undefined;
+
+  // Skip rendering if no data or section is explicitly hidden
+  if (!trustedClientsData || trustedClientsData.showTrustedClients === false || !trustedClientsData.clients?.length) {
+    return null;
+  }
 
   return (
-    <section className="py-20 bg-[#111827]">
+    <section className="py-16 bg-black">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <span className="text-[#9b87f5] font-mono uppercase tracking-wider">
-            {sectionData?.featuredLabel || 'Nos clients'}
-          </span>
-          
-          <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-white">
-            {sectionData?.title || 'Ils nous font confiance'}
-          </h2>
-        </div>
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
+          {trustedClientsData.title || 'Ils nous font confiance'}
+        </h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
-          {clients.map((client) => (
-            <div 
-              key={client.id} 
-              className="flex items-center justify-center p-4 filter grayscale hover:grayscale-0 hover:filter-none transition-all duration-300"
-            >
-              {client.websiteUrl ? (
-                <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {trustedClientsData.clients.map((client) => (
+            <div key={client.id} className="flex flex-col items-center">
+              <div className="h-24 flex items-center justify-center mb-4">
+                {client.websiteUrl ? (
+                  <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <img 
+                      src={client.logoUrl} 
+                      alt={client.name} 
+                      className="h-16 w-auto object-contain filter brightness-0 invert transition-transform hover:scale-110" 
+                    />
+                  </a>
+                ) : (
                   <img 
                     src={client.logoUrl} 
                     alt={client.name} 
-                    className="max-h-16 max-w-full"
-                    title={client.name}
+                    className="h-16 w-auto object-contain filter brightness-0 invert" 
                   />
-                </a>
-              ) : (
-                <img 
-                  src={client.logoUrl} 
-                  alt={client.name} 
-                  className="max-h-16 max-w-full"
-                />
+                )}
+              </div>
+              {client.category && (
+                <p className="text-sm text-gray-400 text-center">{client.category}</p>
               )}
             </div>
           ))}
-        </div>
-        
-        <div className="mt-16 p-8 bg-[#1A1F2C] border border-gray-800 text-center">
-          <p className="text-xl text-gray-300 mb-6">
-            "ace nümerik a transformé nos capacités de fabrication avec leurs robots collaboratifs avancés, augmentant notre productivité de 35%."
-          </p>
-          <div className="text-white font-bold">Michael Thompson</div>
-          <div className="text-[#9b87f5]">Directeur des Opérations, Global Manufacturing</div>
         </div>
       </div>
     </section>
