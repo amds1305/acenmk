@@ -33,6 +33,18 @@ export const useHeaderStyle = (): UseHeaderStyleReturn => {
     borderColor: '#e5e7eb',
     dropShadow: true,
     showThemeSelector: true,
+    
+    // Nouvelles propriétés avec des valeurs par défaut
+    menuHoverBgColor: 'rgba(239, 246, 255, 0.15)',
+    menuActiveBgColor: 'rgba(239, 246, 255, 0.1)',
+    socialIconColor: '#6B7280',
+    socialIconHoverColor: 'hsl(var(--primary))',
+    socialIconBgColor: 'transparent',
+    socialIconBorderColor: '#E5E7EB',
+    utilityIconColor: '#6B7280',
+    utilityIconHoverColor: 'hsl(var(--primary))',
+    utilityIconBgColor: 'transparent',
+    utilityIconBorderColor: '#E5E7EB'
   });
 
   // Charger les styles depuis la base de données

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
 import { ArrowRight } from 'lucide-react';
 import { iconsMap } from '@/components/admin/header/iconsMap';
+import { useHeaderContext } from '@/contexts/HeaderContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   onNavLinkClick
 }) => {
   const location = useLocation();
+  const { headerStyle } = useHeaderContext();
   
   if (!isOpen) return null;
 
@@ -36,6 +38,29 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     return location.pathname.startsWith(href);
   };
 
+  // Génération de styles CSS personnalisés
+  const navItemStyle = {
+    color: headerStyle?.textColor,
+    fontFamily: headerStyle?.fontFamily,
+    fontSize: headerStyle?.fontSize,
+  };
+  
+  const navItemHoverStyle = {
+    color: headerStyle?.hoverColor,
+    backgroundColor: headerStyle?.menuHoverBgColor,
+  };
+  
+  const navItemActiveStyle = {
+    color: headerStyle?.activeColor,
+    backgroundColor: headerStyle?.menuActiveBgColor,
+  };
+  
+  const socialIconStyle = {
+    color: headerStyle?.socialIconColor,
+    backgroundColor: headerStyle?.socialIconBgColor,
+    borderColor: headerStyle?.socialIconBorderColor,
+  };
+  
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
@@ -55,6 +80,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                   : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5",
                 `animation-delay-${index * 50}`
               )}
+              style={isActive(link.href) ? { ...navItemStyle, ...navItemActiveStyle } : navItemStyle}
             >
               {IconComponent ? <IconComponent size={20} /> : null}
               <span>{link.name}</span>
@@ -70,6 +96,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               href={link.href}
               aria-label={link.ariaLabel}
               className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full p-2 flex items-center justify-center"
+              style={socialIconStyle}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = headerStyle?.socialIconHoverColor;
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = headerStyle?.socialIconColor;
+              }}
             >
               <link.icon size={20} />
             </a>

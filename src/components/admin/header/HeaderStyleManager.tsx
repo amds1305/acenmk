@@ -1,15 +1,14 @@
 
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
 import { useHeaderStyle } from './style/useHeaderStyle';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
+import MenuStylesTab from './style/MenuStylesTab';
+import IconStylesTab from './style/IconStylesTab';
 
 const HeaderStyleManager = () => {
   const { saveStatus } = useAdminNotification();
@@ -20,7 +19,8 @@ const HeaderStyleManager = () => {
       <Tabs defaultValue="general">
         <TabsList className="mb-4">
           <TabsTrigger value="general">Général</TabsTrigger>
-          <TabsTrigger value="text">Texte</TabsTrigger>
+          <TabsTrigger value="menu">Menu</TabsTrigger>
+          <TabsTrigger value="icons">Icônes</TabsTrigger>
           <TabsTrigger value="visual">Effets visuels</TabsTrigger>
         </TabsList>
         
@@ -73,64 +73,18 @@ const HeaderStyleManager = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="text">
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="textColor">Couleur du texte</Label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  id="textColor"
-                  type="text"
-                  value={headerStyle.textColor}
-                  onChange={(e) => updateStyle('textColor', e.target.value)}
-                />
-                <Input 
-                  type="color"
-                  value={headerStyle.textColor}
-                  onChange={(e) => updateStyle('textColor', e.target.value)}
-                  className="w-12 h-10 p-1"
-                />
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="hoverColor">Couleur au survol</Label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  id="hoverColor"
-                  type="text"
-                  value={headerStyle.hoverColor}
-                  onChange={(e) => updateStyle('hoverColor', e.target.value)}
-                />
-                <Input 
-                  type="color"
-                  value={headerStyle.hoverColor}
-                  onChange={(e) => updateStyle('hoverColor', e.target.value)}
-                  className="w-12 h-10 p-1"
-                />
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="fontFamily">Police de caractères</Label>
-              <Input 
-                id="fontFamily"
-                type="text"
-                value={headerStyle.fontFamily}
-                onChange={(e) => updateStyle('fontFamily', e.target.value)}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="fontSize">Taille de la police</Label>
-              <Input 
-                id="fontSize"
-                type="text"
-                value={headerStyle.fontSize}
-                onChange={(e) => updateStyle('fontSize', e.target.value)}
-              />
-            </div>
-          </div>
+        <TabsContent value="menu">
+          <MenuStylesTab 
+            headerStyle={headerStyle} 
+            updateStyle={updateStyle} 
+          />
+        </TabsContent>
+        
+        <TabsContent value="icons">
+          <IconStylesTab 
+            headerStyle={headerStyle} 
+            updateStyle={updateStyle} 
+          />
         </TabsContent>
         
         <TabsContent value="visual">
@@ -209,5 +163,10 @@ const HeaderStyleManager = () => {
     </CardContent>
   );
 };
+
+// Importation nécessaire
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 
 export default HeaderStyleManager;

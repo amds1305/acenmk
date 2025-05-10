@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Logo, NavLink, SocialLink, SearchBarSettings, ActionButton, UserMenuSettings, HeaderStyle } from '@/components/admin/header/types';
 import { LucideIcon } from 'lucide-react';
@@ -175,7 +174,19 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
       borderBottom: headerStyleData.border_bottom,
       borderColor: headerStyleData.border_color,
       dropShadow: headerStyleData.drop_shadow,
-      showThemeSelector: true // Récupéré de la table header_config
+      showThemeSelector: true,
+      
+      // Nouvelles propriétés
+      menuHoverBgColor: headerStyleData.menu_hover_bg_color || 'rgba(239, 246, 255, 0.15)',
+      menuActiveBgColor: headerStyleData.menu_active_bg_color || 'rgba(239, 246, 255, 0.1)',
+      socialIconColor: headerStyleData.social_icon_color || '#6B7280',
+      socialIconHoverColor: headerStyleData.social_icon_hover_color || 'hsl(var(--primary))',
+      socialIconBgColor: headerStyleData.social_icon_bg_color || 'transparent',
+      socialIconBorderColor: headerStyleData.social_icon_border_color || '#E5E7EB',
+      utilityIconColor: headerStyleData.utility_icon_color || '#6B7280',
+      utilityIconHoverColor: headerStyleData.utility_icon_hover_color || 'hsl(var(--primary))',
+      utilityIconBgColor: headerStyleData.utility_icon_bg_color || 'transparent',
+      utilityIconBorderColor: headerStyleData.utility_icon_border_color || '#E5E7EB'
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config
@@ -538,7 +549,19 @@ export async function saveHeaderStyle(style: HeaderStyle): Promise<boolean> {
           glassmorphism: style.glassmorphism,
           border_bottom: style.borderBottom,
           border_color: style.borderColor,
-          drop_shadow: style.dropShadow
+          drop_shadow: style.dropShadow,
+          
+          // Nouvelles propriétés
+          menu_hover_bg_color: style.menuHoverBgColor,
+          menu_active_bg_color: style.menuActiveBgColor,
+          social_icon_color: style.socialIconColor,
+          social_icon_hover_color: style.socialIconHoverColor,
+          social_icon_bg_color: style.socialIconBgColor,
+          social_icon_border_color: style.socialIconBorderColor,
+          utility_icon_color: style.utilityIconColor,
+          utility_icon_hover_color: style.utilityIconHoverColor,
+          utility_icon_bg_color: style.utilityIconBgColor,
+          utility_icon_border_color: style.utilityIconBorderColor
         })
         .eq('id', existingStyle.id);
 
@@ -563,7 +586,19 @@ export async function saveHeaderStyle(style: HeaderStyle): Promise<boolean> {
           glassmorphism: style.glassmorphism,
           border_bottom: style.borderBottom,
           border_color: style.borderColor,
-          drop_shadow: style.dropShadow
+          drop_shadow: style.dropShadow,
+          
+          // Nouvelles propriétés
+          menu_hover_bg_color: style.menuHoverBgColor,
+          menu_active_bg_color: style.menuActiveBgColor,
+          social_icon_color: style.socialIconColor,
+          social_icon_hover_color: style.socialIconHoverColor,
+          social_icon_bg_color: style.socialIconBgColor,
+          social_icon_border_color: style.socialIconBorderColor,
+          utility_icon_color: style.utilityIconColor,
+          utility_icon_hover_color: style.utilityIconHoverColor,
+          utility_icon_bg_color: style.utilityIconBgColor,
+          utility_icon_border_color: style.utilityIconBorderColor
         });
 
       if (error) {

@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 // Types pour le gestionnaire de logo
@@ -79,4 +78,20 @@ export interface HeaderStyle {
   borderColor: string;
   dropShadow: boolean;
   showThemeSelector: boolean;
+  
+  // Nouvelles propriétés pour une personnalisation plus fine
+  menuHoverBgColor: string;  // Couleur de fond au survol des éléments du menu
+  menuActiveBgColor: string; // Couleur de fond des éléments actifs du menu
+  
+  // Personnalisation des icônes
+  socialIconColor: string;       // Couleur des icônes de réseaux sociaux
+  socialIconHoverColor: string;  // Couleur des icônes de réseaux sociaux au survol
+  socialIconBgColor: string;     // Couleur de fond des icônes de réseaux sociaux
+  socialIconBorderColor: string; // Couleur de bordure des icônes de réseaux sociaux
+  
+  // Personnalisation de l'icône de recherche et thème
+  utilityIconColor: string;       // Couleur des icônes utilitaires (recherche, thème)
+  utilityIconHoverColor: string;  // Couleur des icônes utilitaires au survol
+  utilityIconBgColor: string;     // Couleur de fond des icônes utilitaires
+  utilityIconBorderColor: string; // Couleur de bordure des icônes utilitaires
 }

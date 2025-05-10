@@ -10,6 +10,7 @@ import MobileMenu from './header/MobileMenu';
 import { useHeader } from './header/useHeader';
 import ThemeSelector from './header/ThemeSelector';
 import UserMenu from './header/UserMenu';
+import { HeaderProvider } from '@/contexts/HeaderContext';
 
 // Configuration par défaut du header - À terme, cela pourrait être chargé depuis une API
 const defaultHeaderConfig = {
@@ -17,12 +18,9 @@ const defaultHeaderConfig = {
   // Autres options de configuration possibles
 };
 
-const Header = () => {
+const HeaderContent = () => {
   const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu, headerConfig = defaultHeaderConfig } = useHeader();
   const { theme, toggleTheme } = useTheme();
-  
-  // Log to debug visibility of social links
-  console.log('Header rendering with social links:', socialLinks);
   
   return (
     <header 
@@ -38,7 +36,7 @@ const Header = () => {
         {/* Desktop Navigation and Social Links */}
         <DesktopNav 
           navLinks={navLinks}
-          socialLinks={socialLinks} // These are now pre-filtered in useHeader
+          socialLinks={socialLinks}
           toggleSearch={toggleSearch}
           themeSelector={<ThemeSelector />}
           showThemeSelector={headerConfig.showThemeSelector}
@@ -71,10 +69,18 @@ const Header = () => {
       <MobileMenu 
         isOpen={mobileMenuOpen}
         navLinks={navLinks}
-        socialLinks={socialLinks} // These are now pre-filtered in useHeader
+        socialLinks={socialLinks}
         onNavLinkClick={closeMobileMenu}
       />
     </header>
+  );
+};
+
+const Header = () => {
+  return (
+    <HeaderProvider>
+      <HeaderContent />
+    </HeaderProvider>
   );
 };
 
