@@ -34,7 +34,7 @@ const NmkRobotFaq = () => {
       answer: "Our robots are designed for reliability and ease of maintenance. We provide comprehensive maintenance plans, remote diagnostics capabilities, and predictive maintenance features. Our support team is available 24/7 to address any issues that may arise."
     },
     {
-      question: "Can your systems integrate with our existing equipment?",
+      question: "Can your systems integrate with your existing equipment?",
       answer: "Yes, our robotic systems are designed to seamlessly integrate with existing equipment and infrastructure. We use industry-standard communication protocols and offer custom interface solutions when needed to ensure compatibility with your current systems."
     },
     {

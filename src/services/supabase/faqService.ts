@@ -25,6 +25,21 @@ export async function getFaqs(): Promise<FAQ[]> {
   return data || [];
 }
 
+export async function getFAQs(template: string = 'default'): Promise<FAQ[]> {
+  const { data, error } = await supabase
+    .from('faqs')
+    .select('*')
+    .eq('template', template)
+    .order('order_index', { ascending: true });
+
+  if (error) {
+    console.error(`Erreur lors de la récupération des FAQs pour le template ${template}:`, error);
+    throw error;
+  }
+
+  return data || [];
+}
+
 export async function createFaq(faq: Omit<FAQ, 'id' | 'created_at'>): Promise<FAQ> {
   const { data, error } = await supabase
     .from('faqs')
