@@ -12,6 +12,7 @@ import { useSearchBar } from './search/useSearchBar';
 import { useUserMenu } from './user-menu/useUserMenu';
 import { useHeaderStyle } from './style/useHeaderStyle';
 import { useSocialLinks } from './social/useSocialLinks';
+import { useNavLinks } from './navigation/useNavLinks';
 
 export { 
   AdminHeader, 
@@ -26,5 +27,6 @@ export {
   useSearchBar,
   useUserMenu,
   useHeaderStyle,
-  useSocialLinks
+  useSocialLinks,
+  useNavLinks
 };

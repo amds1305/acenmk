@@ -1,38 +1,37 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Pen, Trash2, Plus, ChevronDown, ChevronUp, ChevronRight, ExternalLink, Eye, EyeOff, Move } from 'lucide-react';
+import { Pen, Trash2, Plus, ChevronDown, ChevronUp, ChevronRight, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { NavLink } from './types';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { v4 as uuidv4 } from 'uuid';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { SaveIndicator } from '@/components/ui/save-indicator';
+import { useNavLinks } from './navigation/useNavLinks';
 
 const NavLinkManager = () => {
-  const { toast } = useToast();
-  
-  // État initial des liens de navigation (simulé - devrait être de vraies données)
-  const [navLinks, setNavLinks] = useState<NavLink[]>([
-    { id: '1', name: 'Accueil', href: '/', order: 1, isVisible: true, parentId: null },
-    { id: '2', name: 'Services', href: '/#services', order: 2, isVisible: true, parentId: null },
-    { id: '3', name: 'Portfolio', href: '/portfolio', order: 3, isVisible: true, parentId: null },
-    { id: '4', name: 'Services Web', href: '/services/web', order: 1, isVisible: true, parentId: '2' },
-    { id: '5', name: 'Services Design', href: '/services/design', order: 2, isVisible: true, parentId: '2' },
-    { id: '6', name: 'Estimation', href: '/estimation', order: 4, isVisible: true, parentId: null },
-    { id: '7', name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null },
-    { id: '8', name: 'ACE JOB', href: '/ace-job', order: 6, isVisible: true, parentId: null },
-  ]);
-
-  // État pour le lien en cours d'édition
-  const [editingLink, setEditingLink] = useState<NavLink | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Utilisation du nouveau hook personnalisé
+  const {
+    navLinks,
+    editingLink,
+    isDialogOpen,
+    isLoading,
+    setEditingLink,
+    setIsDialogOpen,
+    handleAddLink,
+    handleEditLink,
+    handleDeleteLink,
+    handleSaveLink,
+    toggleLinkVisibility,
+    moveLink
+  } = useNavLinks();
 
   // Formulaire pour l'édition/ajout de lien
   const form = useForm<NavLink>({
@@ -49,108 +48,25 @@ const NavLinkManager = () => {
   // Liens de premier niveau (sans parent)
   const parentLinks = navLinks.filter(link => link.parentId === null);
 
-  // Ouvrir le dialogue d'édition pour un lien existant
-  const handleEditLink = (link: NavLink) => {
-    setEditingLink(link);
-    form.reset(link);
-    setIsDialogOpen(true);
-  };
-
-  // Ouvrir le dialogue pour ajouter un nouveau lien
-  const handleAddLink = () => {
-    setEditingLink(null);
-    form.reset({
-      name: '',
-      href: '',
-      isVisible: true,
-      order: navLinks.length + 1,
-      id: uuidv4(),
-      parentId: null
-    });
-    setIsDialogOpen(true);
-  };
-
-  // Supprimer un lien
-  const handleDeleteLink = (linkId: string) => {
-    // Vérifier si le lien a des enfants
-    const hasChildren = navLinks.some(link => link.parentId === linkId);
-    
-    if (hasChildren) {
-      toast({
-        title: "Action impossible",
-        description: "Ce lien possède des sous-menus. Veuillez d'abord supprimer ou déplacer ses sous-menus.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setNavLinks(navLinks.filter(link => link.id !== linkId));
-    toast({
-      title: "Succès",
-      description: "Lien supprimé"
-    });
-  };
-
-  // Soumettre le formulaire pour ajouter/éditer un lien
-  const onSubmit = (data: NavLink) => {
+  // Reset le formulaire quand le lien d'édition change
+  React.useEffect(() => {
     if (editingLink) {
-      // Mise à jour d'un lien existant
-      setNavLinks(navLinks.map(link => 
-        link.id === editingLink.id ? data : link
-      ));
-      toast({
-        title: "Succès",
-        description: "Lien mis à jour"
-      });
+      form.reset(editingLink);
     } else {
-      // Ajout d'un nouveau lien
-      setNavLinks([...navLinks, data]);
-      toast({
-        title: "Succès",
-        description: "Lien ajouté"
+      form.reset({
+        name: '',
+        href: '',
+        isVisible: true,
+        order: navLinks.length + 1,
+        id: uuidv4(),
+        parentId: null
       });
     }
-    
-    setIsDialogOpen(false);
-  };
+  }, [editingLink, form, navLinks.length]);
 
-  // Basculer la visibilité d'un lien
-  const toggleLinkVisibility = (linkId: string) => {
-    setNavLinks(navLinks.map(link => 
-      link.id === linkId ? { ...link, isVisible: !link.isVisible } : link
-    ));
-  };
-
-  // Déplacer un lien vers le haut ou le bas dans l'ordre
-  const moveLink = (linkId: string, direction: 'up' | 'down') => {
-    const linkIndex = navLinks.findIndex(link => link.id === linkId);
-    const link = navLinks[linkIndex];
-    
-    // Trouver tous les liens au même niveau (même parent ou null)
-    const sameLevelLinks = navLinks.filter(l => l.parentId === link.parentId);
-    const linkLevelIndex = sameLevelLinks.findIndex(l => l.id === linkId);
-    
-    if ((direction === 'up' && linkLevelIndex === 0) || 
-        (direction === 'down' && linkLevelIndex === sameLevelLinks.length - 1)) {
-      return; // Ne peut pas déplacer plus haut/bas
-    }
-    
-    // Mettre à jour l'ordre de tous les liens au même niveau
-    const newSameLevelLinks = [...sameLevelLinks];
-    const swapIndex = direction === 'up' ? linkLevelIndex - 1 : linkLevelIndex + 1;
-    
-    // Échanger l'ordre des deux liens
-    const tempOrder = newSameLevelLinks[linkLevelIndex].order;
-    newSameLevelLinks[linkLevelIndex].order = newSameLevelLinks[swapIndex].order;
-    newSameLevelLinks[swapIndex].order = tempOrder;
-    
-    // Mettre à jour l'état global
-    const updatedLinks = navLinks.map(l => {
-      const updatedLink = newSameLevelLinks.find(nl => nl.id === l.id);
-      return updatedLink || l;
-    });
-    
-    setNavLinks(updatedLinks);
+  // Soumettre le formulaire
+  const onSubmit = (data: NavLink) => {
+    handleSaveLink(data);
   };
 
   // Fonction récursive pour afficher les liens et leurs sous-liens
@@ -215,10 +131,13 @@ const NavLinkManager = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="font-medium">Structure du menu de navigation</h3>
-          <Button onClick={handleAddLink} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Nouveau lien
-          </Button>
+          <div className="flex items-center gap-4">
+            <SaveIndicator status={isLoading ? 'saving' : 'idle'} />
+            <Button onClick={handleAddLink} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Nouveau lien
+            </Button>
+          </div>
         </div>
         
         <div className="space-y-2">
@@ -280,7 +199,7 @@ const NavLinkManager = () => {
                     <FormItem>
                       <FormLabel>Parent (optionnel)</FormLabel>
                       <Select 
-                        onValueChange={field.onChange} 
+                        onValueChange={(value) => field.onChange(value === "null" ? null : value)} 
                         value={field.value || "null"}
                       >
                         <FormControl>
@@ -375,7 +294,7 @@ const NavLinkManager = () => {
                 />
 
                 <DialogFooter>
-                  <Button type="submit">
+                  <Button type="submit" disabled={isLoading}>
                     {editingLink ? 'Mettre à jour' : 'Ajouter'}
                   </Button>
                 </DialogFooter>
