@@ -2,57 +2,39 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
-import { saveNavLinks, getHeaderConfig } from '@/services/supabase/headerService';
 import { NavLink } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-
-export interface UseNavLinksReturn {
-  navLinks: NavLink[];
-  editingLink: NavLink | null;
-  isDialogOpen: boolean;
-  isLoading: boolean;
-  setEditingLink: (link: NavLink | null) => void;
-  setIsDialogOpen: (open: boolean) => void;
-  handleAddLink: () => void;
-  handleEditLink: (link: NavLink) => void;
-  handleDeleteLink: (linkId: string) => void;
-  handleSaveLink: (data: NavLink) => void;
-  toggleLinkVisibility: (linkId: string) => void;
-  moveLink: (linkId: string, direction: 'up' | 'down') => void;
-}
+import { UseNavLinksReturn } from './types';
+import { getDefaultNavLinks, hasChildren, getSameLevelLinks } from './utils';
+import { loadNavLinks, saveNavLinksToDatabase } from './api';
 
 export const useNavLinks = (): UseNavLinksReturn => {
   const { toast } = useToast();
   const { showSaveSuccess, showSaveError } = useAdminNotification();
   const [isLoading, setIsLoading] = useState(false);
   
-  // État initial des liens de navigation
+  // Initial state for navigation links
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
   const [editingLink, setEditingLink] = useState<NavLink | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Charger les liens de navigation depuis Supabase
+  // Load navigation links from Supabase
   useEffect(() => {
-    const loadNavLinks = async () => {
+    const fetchNavLinks = async () => {
       try {
         setIsLoading(true);
-        const { navLinks: links } = await getHeaderConfig();
+        const links = await loadNavLinks();
         if (links && links.length > 0) {
           setNavLinks(links);
         } else {
-          // Valeurs par défaut si aucun lien n'est trouvé, avec Accueil comme icône
-          setNavLinks([
-            { id: uuidv4(), name: '', href: '/', order: 1, isVisible: true, parentId: null, icon: 'Home' },
-            { id: uuidv4(), name: 'Services', href: '/#services', order: 2, isVisible: true, parentId: null },
-            { id: uuidv4(), name: 'Portfolio', href: '/portfolio', order: 3, isVisible: true, parentId: null },
-            { id: uuidv4(), name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null },
-          ]);
+          // Default values if no links are found, with Home as an icon
+          setNavLinks(getDefaultNavLinks());
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des liens de navigation:', error);
+        console.error('Error loading navigation links:', error);
         toast({
-          title: "Erreur",
-          description: "Impossible de charger les liens de navigation",
+          title: "Error",
+          description: "Unable to load navigation links",
           variant: "destructive"
         });
       } finally {
@@ -60,14 +42,14 @@ export const useNavLinks = (): UseNavLinksReturn => {
       }
     };
     
-    loadNavLinks();
+    fetchNavLinks();
   }, [toast]);
 
-  // Sauvegarder les liens dans la base de données
+  // Save links to the database
   const saveToDatabase = async (updatedLinks: NavLink[]): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const success = await saveNavLinks(updatedLinks);
+      const success = await saveNavLinksToDatabase(updatedLinks);
       
       if (success) {
         showSaveSuccess();
@@ -77,7 +59,7 @@ export const useNavLinks = (): UseNavLinksReturn => {
         return false;
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des liens de navigation:', error);
+      console.error('Error saving navigation links:', error);
       showSaveError();
       return false;
     } finally {
@@ -85,24 +67,22 @@ export const useNavLinks = (): UseNavLinksReturn => {
     }
   };
 
-  // Ouvrir le dialogue d'édition pour un lien existant
+  // Open editor dialog for an existing link
   const handleEditLink = (link: NavLink) => {
     setEditingLink(link);
     setIsDialogOpen(true);
   };
 
-  // Ouvrir le dialogue pour ajouter un nouveau lien
+  // Open dialog to add a new link
   const handleAddLink = () => {
     setEditingLink(null);
     setIsDialogOpen(true);
   };
 
-  // Supprimer un lien
+  // Delete a link
   const handleDeleteLink = async (linkId: string) => {
-    // Vérifier si le lien a des enfants
-    const hasChildren = navLinks.some(link => link.parentId === linkId);
-    
-    if (hasChildren) {
+    // Check if the link has children
+    if (hasChildren(navLinks, linkId)) {
       toast({
         title: "Action impossible",
         description: "Ce lien possède des sous-menus. Veuillez d'abord supprimer ou déplacer ses sous-menus.",
@@ -129,17 +109,17 @@ export const useNavLinks = (): UseNavLinksReturn => {
     }
   };
 
-  // Soumettre le formulaire pour ajouter/éditer un lien
+  // Submit form to add/edit a link
   const handleSaveLink = async (data: NavLink) => {
     let updatedLinks: NavLink[];
     
     if (editingLink) {
-      // Mise à jour d'un lien existant
+      // Update an existing link
       updatedLinks = navLinks.map(link => 
         link.id === editingLink.id ? data : link
       );
     } else {
-      // Ajout d'un nouveau lien
+      // Add a new link
       updatedLinks = [...navLinks, data];
     }
     
@@ -162,7 +142,7 @@ export const useNavLinks = (): UseNavLinksReturn => {
     setIsDialogOpen(false);
   };
 
-  // Basculer la visibilité d'un lien
+  // Toggle a link's visibility
   const toggleLinkVisibility = async (linkId: string) => {
     const updatedLinks = navLinks.map(link => 
       link.id === linkId ? { ...link, isVisible: !link.isVisible } : link
@@ -180,30 +160,30 @@ export const useNavLinks = (): UseNavLinksReturn => {
     }
   };
 
-  // Déplacer un lien vers le haut ou le bas dans l'ordre
+  // Move a link up or down in order
   const moveLink = async (linkId: string, direction: 'up' | 'down') => {
     const linkIndex = navLinks.findIndex(link => link.id === linkId);
     const link = navLinks[linkIndex];
     
-    // Trouver tous les liens au même niveau (même parent ou null)
-    const sameLevelLinks = navLinks.filter(l => l.parentId === link.parentId);
+    // Find all links at the same level (same parent or null)
+    const sameLevelLinks = getSameLevelLinks(navLinks, link.parentId);
     const linkLevelIndex = sameLevelLinks.findIndex(l => l.id === linkId);
     
     if ((direction === 'up' && linkLevelIndex === 0) || 
         (direction === 'down' && linkLevelIndex === sameLevelLinks.length - 1)) {
-      return; // Ne peut pas déplacer plus haut/bas
+      return; // Cannot move further up/down
     }
     
-    // Mettre à jour l'ordre de tous les liens au même niveau
+    // Update the order of all links at the same level
     const newSameLevelLinks = [...sameLevelLinks];
     const swapIndex = direction === 'up' ? linkLevelIndex - 1 : linkLevelIndex + 1;
     
-    // Échanger l'ordre des deux liens
+    // Swap the order of the two links
     const tempOrder = newSameLevelLinks[linkLevelIndex].order;
     newSameLevelLinks[linkLevelIndex].order = newSameLevelLinks[swapIndex].order;
     newSameLevelLinks[swapIndex].order = tempOrder;
     
-    // Mettre à jour l'état global
+    // Update the global state
     const updatedLinks = navLinks.map(l => {
       const updatedLink = newSameLevelLinks.find(nl => nl.id === l.id);
       return updatedLink || l;
