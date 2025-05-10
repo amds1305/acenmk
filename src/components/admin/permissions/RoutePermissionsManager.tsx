@@ -13,14 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { Search, Filter, Save, RefreshCw, AlertCircle } from 'lucide-react';
 import { UserRole } from '@/types/auth';
-
-// Liste des rôles disponibles
-const availableRoles: { id: UserRole; label: string }[] = [
-  { id: 'user', label: 'Client' },
-  { id: 'client_premium', label: 'Client Premium' },
-  { id: 'admin', label: 'Admin' },
-  { id: 'super_admin', label: 'Super Admin' },
-];
+import { getRoleInfo, getRoleLabel, getRoleBadgeVariant, getRolesByCategory } from '@/utils/roleUtils';
 
 const RoutePermissionsManager = () => {
   const { 
@@ -37,6 +30,24 @@ const RoutePermissionsManager = () => {
   
   // État pour gérer les permissions éditées mais non sauvegardées
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Obtenir tous les rôles disponibles depuis roleUtils.ts
+  // Filtrer pour ne pas inclure 'visitor' qui est un rôle spécial
+  const availableRoles = React.useMemo(() => {
+    // Récupérer les rôles client et admin (comme définis dans roleUtils)
+    const clientRoles = getRolesByCategory('client');
+    const providerRoles = getRolesByCategory('provider');
+    const staffRoles = getRolesByCategory('staff');
+    const adminRoles = getRolesByCategory('admin');
+    
+    // Combiner tous les rôles pertinents (exclure visitor qui est un cas spécial)
+    return [...clientRoles, ...providerRoles, ...staffRoles, ...adminRoles]
+      .filter(role => role !== 'visitor')
+      .map(role => ({
+        id: role,
+        label: getRoleLabel(role)
+      }));
+  }, []);
 
   // Filtrer les routes en fonction du terme de recherche
   const filteredRoutes = React.useMemo(() => {
