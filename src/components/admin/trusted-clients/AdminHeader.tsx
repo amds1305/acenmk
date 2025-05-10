@@ -19,7 +19,7 @@ const AdminHeader = ({ title, description, onSave }: AdminHeaderProps) => {
         </p>
       </div>
       <div className="flex space-x-2">
-        <Button variant="outline" onClick={() => window.open('/#hero', '_blank')}>
+        <Button variant="outline" onClick={() => window.open('/', '_blank')}>
           <EyeIcon className="mr-2 h-4 w-4" />
           Voir
         </Button>

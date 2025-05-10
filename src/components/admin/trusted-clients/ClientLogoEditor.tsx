@@ -46,7 +46,7 @@ const ClientLogoEditor = ({
               id="logo-name" 
               value={currentLogo?.name || ''} 
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="Ex: Entreprise ABC"
+              placeholder="Ex: ace nümerik"
             />
           </div>
           
@@ -75,7 +75,7 @@ const ClientLogoEditor = ({
               id="category" 
               value={currentLogo?.category || ''} 
               onChange={(e) => handleChange('category', e.target.value)}
-              placeholder="Ex: eCommerce, Government, etc."
+              placeholder="Ex: Technologie, Gouvernement, etc."
             />
           </div>
           

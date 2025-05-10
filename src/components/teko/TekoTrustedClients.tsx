@@ -16,7 +16,7 @@ const TekoTrustedClients: React.FC = () => {
       
       return {
         title: 'Ils nous font confiance',
-        featuredLabel: 'Featured Clients',
+        featuredLabel: 'Nos clients',
         showTrustedClients: true,
         clients: []
       };
@@ -35,13 +35,13 @@ const TekoTrustedClients: React.FC = () => {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
             <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
-            {data.featuredLabel || 'Featured Clients'}
+            {data.featuredLabel || 'Nos clients'}
             <ChevronRight className="h-3 w-3 opacity-60" />
           </div>
         </div>
         
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-          {data.title || 'Brands we\'ve worked with'}
+          {data.title || 'Ils nous font confiance'}
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">

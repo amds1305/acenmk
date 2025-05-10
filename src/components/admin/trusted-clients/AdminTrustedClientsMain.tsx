@@ -7,31 +7,77 @@ import { useSections } from '@/contexts/SectionsContext';
 import { ClientLogo } from '@/types/sections';
 import { v4 as uuidv4 } from 'uuid';
 
-// Import our new components
+// Import our components
 import ClientLogoCard from './ClientLogoCard';
 import ClientLogoEditor from './ClientLogoEditor';
 import SectionSettings from './SectionSettings';
 import EmptyState from './EmptyState';
 import AdminHeader from './AdminHeader';
 
-const AdminTrustedClients = () => {
+const AdminTrustedClientsMain = () => {
   const { toast } = useToast();
   const { config, updateExistingSectionData, saveChanges } = useSections();
 
   // Get the trusted-clients section data if it exists
   const trustedClientsData = config.sectionData['trusted-clients'] || {};
   
+  // Sample data for initial state
+  const sampleClients = [
+    {
+      id: uuidv4(),
+      name: "ace nümerik",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=ace+nümerik",
+      websiteUrl: "https://www.acenumerik.com",
+      category: "Technologie"
+    },
+    {
+      id: uuidv4(),
+      name: "TechVision",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=TechVision",
+      websiteUrl: "https://www.techvision-example.com",
+      category: "Intelligence Artificielle"
+    },
+    {
+      id: uuidv4(),
+      name: "DataSphere",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=DataSphere",
+      websiteUrl: "https://www.datasphere-example.com",
+      category: "Big Data"
+    },
+    {
+      id: uuidv4(),
+      name: "CloudNova",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=CloudNova",
+      websiteUrl: "https://www.cloudnova-example.com",
+      category: "Cloud Computing"
+    },
+    {
+      id: uuidv4(),
+      name: "SecureNet",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=SecureNet",
+      websiteUrl: "https://www.securenet-example.com",
+      category: "Cybersécurité"
+    },
+    {
+      id: uuidv4(),
+      name: "DevMatrix",
+      logoUrl: "https://placehold.co/200x80/eee/999?text=DevMatrix",
+      websiteUrl: "https://www.devmatrix-example.com",
+      category: "Développement Logiciel"
+    }
+  ];
+  
   const [showTrustedClients, setShowTrustedClients] = useState<boolean>(
     trustedClientsData.showTrustedClients !== undefined ? trustedClientsData.showTrustedClients : true
   );
   const [trustedClientsTitle, setTrustedClientsTitle] = useState<string>(
-    trustedClientsData.title || 'Brands we\'ve worked with'
+    trustedClientsData.title || 'Ils nous font confiance'
   );
   const [featuredLabel, setFeaturedLabel] = useState<string>(
-    trustedClientsData.featuredLabel || 'Featured Clients'
+    trustedClientsData.featuredLabel || 'Nos clients'
   );
   const [trustedClients, setTrustedClients] = useState<ClientLogo[]>(
-    trustedClientsData.clients || []
+    trustedClientsData.clients || sampleClients
   );
 
   // States for managing logo editing
@@ -157,4 +203,4 @@ const AdminTrustedClients = () => {
   );
 };
 
-export default AdminTrustedClients;
+export default AdminTrustedClientsMain;

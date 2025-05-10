@@ -11,56 +11,25 @@ const NmkFireTrustedClients = () => {
   });
 
   // Extraire les données de la section
-  const sectionData = config?.sections.find(section => section.type === 'trusted-clients');
-  const clientsData = config?.sectionData[sectionData?.id || ''];
+  const sectionData = config?.sectionData['trusted-clients'];
+  
+  // Ne pas afficher la section si elle est explicitement désactivée ou s'il n'y a pas de clients
+  if (!sectionData || sectionData.showTrustedClients === false || !sectionData.clients || sectionData.clients.length === 0) {
+    return null;
+  }
 
-  // Données par défaut si aucune n'est disponible
-  const defaultClients = [
-    {
-      id: '1',
-      name: 'Client 1',
-      logoUrl: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    },
-    {
-      id: '2',
-      name: 'Client 2',
-      logoUrl: 'https://images.unsplash.com/photo-1614680376408-16afefa3332b?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    },
-    {
-      id: '3',
-      name: 'Client 3',
-      logoUrl: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    },
-    {
-      id: '4',
-      name: 'Client 4',
-      logoUrl: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    },
-    {
-      id: '5',
-      name: 'Client 5',
-      logoUrl: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    },
-    {
-      id: '6',
-      name: 'Client 6',
-      logoUrl: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3',
-    }
-  ];
-
-  // Utiliser les données de la section ou les données par défaut
-  const clients = clientsData?.clients || defaultClients;
+  const clients = sectionData.clients;
 
   return (
     <section id="trusted-clients" className="py-24 bg-[#f5f5f5]">
       <div className="container mx-auto px-4 sm:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#888] mb-6">
-            Our Clients
+            {sectionData.featuredLabel || 'Nos clients'}
           </span>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-16 font-mono text-[#0d0d0d]">
-            Trusted by innovative companies
+            {sectionData.title || 'Ils nous font confiance'}
           </h2>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center">

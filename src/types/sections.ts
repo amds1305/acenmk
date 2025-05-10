@@ -1,4 +1,3 @@
-
 // Types pour la gestion des sections de la page d'accueil
 import { HeroData } from '@/components/Hero';
 
@@ -59,7 +58,7 @@ export interface ClientLogo {
   name: string;
   logoUrl: string;
   websiteUrl?: string;
-  category?: string; // New field for client category
+  category?: string;
 }
 
 // Nouvelle interface pour les données de section de lien externe

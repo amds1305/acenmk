@@ -1,5 +1,2 @@
 
-import AdminTrustedClientsMain from './AdminTrustedClientsMain';
-
-export { AdminTrustedClientsMain };
-export { AdminTrustedClientsMain as AdminTrustedClients };
+export { default as AdminTrustedClientsMain } from './AdminTrustedClientsMain';

@@ -47,7 +47,7 @@ const SectionSettings = ({
             id="trusted-clients-title" 
             value={trustedClientsTitle} 
             onChange={(e) => setTrustedClientsTitle(e.target.value)}
-            placeholder="Brands we've worked with"
+            placeholder="Ils nous font confiance"
           />
         </div>
         
@@ -58,7 +58,7 @@ const SectionSettings = ({
               id="featured-label" 
               value={featuredLabel} 
               onChange={(e) => setFeaturedLabel(e.target.value)}
-              placeholder="Featured Clients"
+              placeholder="Nos clients"
             />
           </div>
         )}

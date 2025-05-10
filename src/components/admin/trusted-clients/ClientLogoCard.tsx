@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Edit, Trash, Globe } from 'lucide-react';
+import { Edit, Trash, Link } from 'lucide-react';
 import { ClientLogo } from '@/types/sections';
 
 interface ClientLogoCardProps {
@@ -32,7 +32,7 @@ const ClientLogoCard = ({ logo, onEdit, onDelete }: ClientLogoCardProps) => {
               rel="noopener noreferrer"
               className="text-sm text-primary flex items-center mt-1"
             >
-              <Globe className="h-3 w-3 mr-1" />
+              <Link className="h-3 w-3 mr-1" />
               {logo.websiteUrl}
             </a>
           )}
