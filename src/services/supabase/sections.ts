@@ -1,3 +1,3 @@
 
 // Re-export everything from the sections directory
-export * from './sections/index';
+export * from '../sections/index';
