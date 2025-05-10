@@ -1,100 +1,84 @@
-
 import { RouteMetadata } from './types';
 
-// Public route definitions
-export const publicRouteMetadata: Record<string, RouteMetadata> = {
-  '/': {
-    path: '/',
-    title: 'Accueil',
-    description: 'Page d\'accueil du site',
-    icon: 'home',
+export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
+  "/": {
+    path: "/",
+    title: "Accueil",
+    description: "Page d'accueil du site web",
+    icon: "home",
     showInNav: true,
-    order: 0,
-    category: 'public'
+    order: 1
   },
-  '/login': {
-    path: '/login',
-    title: 'Connexion',
-    description: 'Page de connexion',
-    icon: 'log-in',
+  "/a-propos": {
+    path: "/a-propos",
+    title: "À propos",
+    description: "En savoir plus sur notre entreprise",
+    icon: "info",
     showInNav: true,
-    order: 100,
-    category: 'auth'
+    order: 2
   },
-  '/register': {
-    path: '/register',
-    title: 'Inscription',
-    description: 'Page d\'inscription',
-    icon: 'user-plus',
+  "/services": {
+    path: "/services",
+    title: "Services",
+    description: "Découvrez nos services",
+    icon: "settings",
     showInNav: true,
-    order: 101,
-    category: 'auth'
+    order: 3
   },
-  '/blog': {
-    path: '/blog',
-    title: 'Blog',
-    description: 'Articles de blog',
-    icon: 'file-text',
+  "/projets": {
+    path: "/projets",
+    title: "Projets",
+    description: "Nos réalisations",
+    icon: "briefcase",
     showInNav: true,
-    order: 40,
-    category: 'content'
+    order: 4
   },
-  '/faq': {
-    path: '/faq',
-    title: 'FAQ',
-    description: 'Foire aux questions',
-    icon: 'help-circle',
+  "/contact": {
+    path: "/contact",
+    title: "Contact",
+    description: "Nous contacter",
+    icon: "mail",
     showInNav: true,
-    order: 50,
-    category: 'content'
+    order: 99
   },
-  '/estimation': {
-    path: '/estimation',
-    title: 'Estimation',
-    description: 'Estimation de projet',
-    icon: 'calculator',
-    showInNav: true,
-    order: 30,
-    category: 'services'
+  "/register": {
+    path: "/register",
+    title: "Inscription",
+    description: "Créer un nouveau compte",
+    icon: "user-plus",
+    showInNav: false,
+    order: 100
   },
-  '/portfolio': {
-    path: '/portfolio',
-    title: 'Portfolio',
-    description: 'Nos réalisations',
-    icon: 'image',
-    showInNav: true,
-    order: 20,
-    category: 'content'
+  "/login": {
+    path: "/login",
+    title: "Connexion",
+    description: "Se connecter à votre compte",
+    icon: "log-in",
+    showInNav: false,
+    order: 101
   },
-  '/careers': {
-    path: '/careers',
-    title: 'Carrières',
-    description: 'Offres d\'emploi',
-    icon: 'briefcase',
-    showInNav: true,
-    order: 60,
-    category: 'services'
+  "/profile": {
+    path: "/profile",
+    title: "Profil",
+    description: "Gérer votre profil",
+    icon: "user",
+    showInNav: false,
+    order: 102
   },
-  '/ace-job': {
-    path: '/ace-job',
-    title: 'AceJob',
-    description: 'Services de CV et candidatures',
-    icon: 'file-text',
-    showInNav: true,
-    order: 25,
-    category: 'services'
-  }
-};
-
-// Add user routes that require authentication
-export const userRouteMetadata: Record<string, RouteMetadata> = {
-  '/profile': {
-    path: '/profile',
-    title: 'Profil',
-    description: 'Profil utilisateur',
-    icon: 'user',
-    showInNav: true,
-    order: 200,
-    category: 'user'
-  }
+  "/reset-password": {
+    path: "/reset-password",
+    title: "Réinitialiser le mot de passe",
+    description: "Réinitialiser votre mot de passe",
+    icon: "lock",
+    showInNav: false,
+    order: 103
+  },
+  "/acejob": {
+    path: "/acejob",
+    title: "ACE JOB",
+    description: "Module de gestion des candidatures et CVs",
+    icon: "badge",
+    showInNav: false,
+    order: 50
+  },
 };

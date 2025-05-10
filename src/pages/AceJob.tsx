@@ -16,6 +16,10 @@ import {
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
 import { Toaster } from "@/components/ui/toaster";
+import ProtectedModule from '@/components/shared/ProtectedModule';
+
+// Définir les rôles qui peuvent accéder à ce module
+const requiredRoles = ['admin', 'super_admin', 'business_admin', 'contributor'];
 
 const AceJob = () => {
   const [activeTab, setActiveTab] = useState("applications");
@@ -38,48 +42,50 @@ const AceJob = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <div className="flex-1 pt-20 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
-          <Breadcrumb className="mb-6">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Accueil</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>ACE JOB</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        
-          <h1 className="text-4xl font-bold mb-8 text-center">ACE JOB - Gestion des candidatures</h1>
+    <ProtectedModule requiredRoles={requiredRoles} path="/acejob">
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 pt-20 bg-gray-50 dark:bg-gray-900">
+          <div className="container mx-auto px-4 py-8">
+            <Breadcrumb className="mb-6">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Accueil</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>ACE JOB</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           
-          <Tabs defaultValue="applications" className="w-full" onValueChange={handleTabChange} value={activeTab}>
-            <TabsList className="grid grid-cols-3 mb-8">
-              <TabsTrigger value="applications">Candidatures</TabsTrigger>
-              <TabsTrigger value="cvlibrary">CVthèque</TabsTrigger>
-              <TabsTrigger value="cvgenerator">Générateur de CV</TabsTrigger>
-            </TabsList>
+            <h1 className="text-4xl font-bold mb-8 text-center">ACE JOB - Gestion des candidatures</h1>
             
-            <TabsContent value="applications">
-              <AdminApplications />
-            </TabsContent>
-            
-            <TabsContent value="cvlibrary">
-              <CVLibrary />
-            </TabsContent>
-            
-            <TabsContent value="cvgenerator">
-              <CVGenerator />
-            </TabsContent>
-          </Tabs>
+            <Tabs defaultValue="applications" className="w-full" onValueChange={handleTabChange} value={activeTab}>
+              <TabsList className="grid grid-cols-3 mb-8">
+                <TabsTrigger value="applications">Candidatures</TabsTrigger>
+                <TabsTrigger value="cvlibrary">CVthèque</TabsTrigger>
+                <TabsTrigger value="cvgenerator">Générateur de CV</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="applications">
+                <AdminApplications />
+              </TabsContent>
+              
+              <TabsContent value="cvlibrary">
+                <CVLibrary />
+              </TabsContent>
+              
+              <TabsContent value="cvgenerator">
+                <CVGenerator />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
+        <Footer />
+        <Toaster />
       </div>
-      <Footer />
-      <Toaster />
-    </div>
+    </ProtectedModule>
   );
 };
 

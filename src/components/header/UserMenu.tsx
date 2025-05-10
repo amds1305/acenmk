@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,22 +9,50 @@ import {
   DropdownMenuItem, 
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuGroup
 } from '@/components/ui/dropdown-menu';
 import { 
   User, LogOut, Settings, MessageSquare, 
-  FileText, Briefcase, Bell 
+  FileText, Briefcase, Bell, Badge
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge as BadgeUI } from '@/components/ui/badge';
+import { usePermissions } from '@/contexts/PermissionsContext';
+import { isAdminRole } from '@/utils/roleUtils';
+
+// Définition des modules internes
+const internalModules = [
+  {
+    name: 'ACE JOB',
+    path: '/acejob',
+    icon: <Badge className="h-4 w-4" />,
+    requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
+  }
+  // Possibilité d'ajouter d'autres modules internes facilement ici
+];
 
 const UserMenu = () => {
   const { user, logout, isAuthenticated, unreadMessages } = useAuth();
+  const { hasAccess } = usePermissions();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  // Filtrer les modules internes en fonction des permissions de l'utilisateur
+  const authorizedModules = internalModules.filter(module => {
+    // Vérifier si l'utilisateur a le rôle requis
+    if (user && module.requiredRole.some(role => user.role === role)) {
+      return true;
+    }
+    // Vérifier si l'utilisateur a accès au chemin via le système de permissions
+    if (user && hasAccess(module.path, user.role)) {
+      return true;
+    }
+    return false;
+  });
 
   if (!isAuthenticated) {
     return (
@@ -50,12 +77,12 @@ const UserMenu = () => {
           onClick={() => navigate('/messages')}
         >
           <Bell className="h-5 w-5" />
-          <Badge 
+          <BadgeUI 
             className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs" 
             variant="destructive"
           >
             {unreadMessages}
-          </Badge>
+          </BadgeUI>
         </Button>
       )}
       
@@ -91,17 +118,41 @@ const UserMenu = () => {
             <MessageSquare className="mr-2 h-4 w-4" />
             <span>Messages</span>
             {unreadMessages > 0 && (
-              <Badge className="ml-auto" variant="destructive">
+              <BadgeUI className="ml-auto" variant="destructive">
                 {unreadMessages}
-              </Badge>
+              </BadgeUI>
             )}
           </DropdownMenuItem>
           
-          {user?.role === 'admin' && (
-            <DropdownMenuItem onClick={() => navigate('/admin')}>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Administration</span>
-            </DropdownMenuItem>
+          {/* Modules internes autorisés */}
+          {authorizedModules.length > 0 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="flex items-center text-xs text-muted-foreground">
+                  <Badge className="mr-1 h-3 w-3" />
+                  Modules internes
+                </DropdownMenuLabel>
+                
+                {authorizedModules.map((module) => (
+                  <DropdownMenuItem key={module.name} onClick={() => navigate(module.path)}>
+                    {module.icon && <span className="mr-2">{module.icon}</span>}
+                    <span>{module.name}</span>
+                    <BadgeUI variant="outline" className="ml-auto text-xs">interne</BadgeUI>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </>
+          )}
+          
+          {user?.role === 'admin' || isAdminRole(user?.role || '') && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/admin')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Administration</span>
+              </DropdownMenuItem>
+            </>
           )}
           
           <DropdownMenuSeparator />
