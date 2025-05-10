@@ -176,17 +176,17 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
       dropShadow: headerStyleData.drop_shadow,
       showThemeSelector: true,
       
-      // Nouvelles propriétés
-      menuHoverBgColor: headerStyleData.menu_hover_bg_color || 'rgba(239, 246, 255, 0.15)',
-      menuActiveBgColor: headerStyleData.menu_active_bg_color || 'rgba(239, 246, 255, 0.1)',
-      socialIconColor: headerStyleData.social_icon_color || '#6B7280',
-      socialIconHoverColor: headerStyleData.social_icon_hover_color || 'hsl(var(--primary))',
-      socialIconBgColor: headerStyleData.social_icon_bg_color || 'transparent',
-      socialIconBorderColor: headerStyleData.social_icon_border_color || '#E5E7EB',
-      utilityIconColor: headerStyleData.utility_icon_color || '#6B7280',
-      utilityIconHoverColor: headerStyleData.utility_icon_hover_color || 'hsl(var(--primary))',
-      utilityIconBgColor: headerStyleData.utility_icon_bg_color || 'transparent',
-      utilityIconBorderColor: headerStyleData.utility_icon_border_color || '#E5E7EB'
+      // Utiliser les nouvelles colonnes de la base de données
+      menuHoverBgColor: headerStyleData.menu_hover_bg_color,
+      menuActiveBgColor: headerStyleData.menu_active_bg_color,
+      socialIconColor: headerStyleData.social_icon_color,
+      socialIconHoverColor: headerStyleData.social_icon_hover_color,
+      socialIconBgColor: headerStyleData.social_icon_bg_color,
+      socialIconBorderColor: headerStyleData.social_icon_border_color,
+      utilityIconColor: headerStyleData.utility_icon_color,
+      utilityIconHoverColor: headerStyleData.utility_icon_hover_color,
+      utilityIconBgColor: headerStyleData.utility_icon_bg_color,
+      utilityIconBorderColor: headerStyleData.utility_icon_border_color
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config
@@ -551,7 +551,7 @@ export async function saveHeaderStyle(style: HeaderStyle): Promise<boolean> {
           border_color: style.borderColor,
           drop_shadow: style.dropShadow,
           
-          // Nouvelles propriétés
+          // Mettre à jour les nouvelles colonnes
           menu_hover_bg_color: style.menuHoverBgColor,
           menu_active_bg_color: style.menuActiveBgColor,
           social_icon_color: style.socialIconColor,
@@ -588,7 +588,7 @@ export async function saveHeaderStyle(style: HeaderStyle): Promise<boolean> {
           border_color: style.borderColor,
           drop_shadow: style.dropShadow,
           
-          // Nouvelles propriétés
+          // Insérer les nouvelles colonnes
           menu_hover_bg_color: style.menuHoverBgColor,
           menu_active_bg_color: style.menuActiveBgColor,
           social_icon_color: style.socialIconColor,

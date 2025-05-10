@@ -423,11 +423,21 @@ export type Database = {
           glassmorphism: boolean | null
           hover_color: string
           id: string
+          menu_active_bg_color: string | null
+          menu_hover_bg_color: string | null
           padding: string
+          social_icon_bg_color: string | null
+          social_icon_border_color: string | null
+          social_icon_color: string | null
+          social_icon_hover_color: string | null
           sticky: boolean | null
           text_color: string
           transparent: boolean | null
           updated_at: string
+          utility_icon_bg_color: string | null
+          utility_icon_border_color: string | null
+          utility_icon_color: string | null
+          utility_icon_hover_color: string | null
         }
         Insert: {
           active_color: string
@@ -441,11 +451,21 @@ export type Database = {
           glassmorphism?: boolean | null
           hover_color: string
           id?: string
+          menu_active_bg_color?: string | null
+          menu_hover_bg_color?: string | null
           padding: string
+          social_icon_bg_color?: string | null
+          social_icon_border_color?: string | null
+          social_icon_color?: string | null
+          social_icon_hover_color?: string | null
           sticky?: boolean | null
           text_color: string
           transparent?: boolean | null
           updated_at?: string
+          utility_icon_bg_color?: string | null
+          utility_icon_border_color?: string | null
+          utility_icon_color?: string | null
+          utility_icon_hover_color?: string | null
         }
         Update: {
           active_color?: string
@@ -459,11 +479,21 @@ export type Database = {
           glassmorphism?: boolean | null
           hover_color?: string
           id?: string
+          menu_active_bg_color?: string | null
+          menu_hover_bg_color?: string | null
           padding?: string
+          social_icon_bg_color?: string | null
+          social_icon_border_color?: string | null
+          social_icon_color?: string | null
+          social_icon_hover_color?: string | null
           sticky?: boolean | null
           text_color?: string
           transparent?: boolean | null
           updated_at?: string
+          utility_icon_bg_color?: string | null
+          utility_icon_border_color?: string | null
+          utility_icon_color?: string | null
+          utility_icon_hover_color?: string | null
         }
         Relationships: []
       }
