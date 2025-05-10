@@ -5,8 +5,11 @@ import HeroEditorHeader from './HeroEditorHeader';
 import HeroPreviewCard from './HeroPreviewCard';
 import HeroEditorTabs from './HeroEditorTabs';
 import LoadingHero from './LoadingHero';
+import { ToastAction } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminHeroEditor = () => {
+  const { toast } = useToast();
   const {
     activeTab,
     setActiveTab,
@@ -20,7 +23,34 @@ const AdminHeroEditor = () => {
     deleteVersion,
     updateCarouselSettings,
     setActiveVersion,
+    saveHeroChanges
   } = useHeroEditor();
+
+  // Effet pour déclencher la sauvegarde lorsque isSaving devient true
+  React.useEffect(() => {
+    async function save() {
+      if (isSaving) {
+        try {
+          await saveHeroChanges();
+          toast({
+            title: "Modifications enregistrées",
+            description: "Les changements ont été appliqués avec succès.",
+          });
+        } catch (error) {
+          console.error('Erreur lors de la sauvegarde:', error);
+          toast({
+            variant: "destructive",
+            title: "Erreur de sauvegarde",
+            description: "Impossible d'enregistrer vos modifications.",
+            action: <ToastAction altText="Réessayer" onClick={() => setIsSaving(true)}>Réessayer</ToastAction>,
+          });
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    }
+    save();
+  }, [isSaving, saveHeroChanges, toast, setIsSaving]);
 
   if (isLoading) {
     return <LoadingHero />;

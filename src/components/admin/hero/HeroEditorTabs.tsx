@@ -1,11 +1,9 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import VersionManager from './VersionManager';
-import StyleEditor from './StyleEditor';
-import BlockEditor from './BlockEditor';
-import CarouselSettings from './CarouselSettings';
-import { ButtonStyleEditor } from './style-editor';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { HeroVersion, HeroCarouselSettings } from './types';
 
 interface HeroEditorTabsProps {
@@ -22,7 +20,7 @@ interface HeroEditorTabsProps {
   onUpdateCarouselSettings: (settings: HeroCarouselSettings) => void;
 }
 
-const HeroEditorTabs = ({
+const HeroEditorTabs: React.FC<HeroEditorTabsProps> = ({
   activeTab,
   setActiveTab,
   versions,
@@ -34,55 +32,59 @@ const HeroEditorTabs = ({
   onSetActiveVersion,
   onUpdateVersion,
   onUpdateCarouselSettings
-}: HeroEditorTabsProps) => {
+}) => {
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-5 w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="mb-6 grid grid-cols-3 md:w-auto">
         <TabsTrigger value="versions">Versions</TabsTrigger>
-        <TabsTrigger value="style">Style</TabsTrigger>
-        <TabsTrigger value="buttons">Boutons</TabsTrigger>
+        <TabsTrigger value="carousel">Diaporama</TabsTrigger>
         <TabsTrigger value="blocks">Blocs</TabsTrigger>
-        <TabsTrigger value="carousel">Carousel</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="versions" className="py-4">
-        <VersionManager 
-          versions={versions}
-          activeVersionId={activeVersionId}
-          onAddVersion={onAddVersion}
-          onDeleteVersion={onDeleteVersion}
-          onSetActiveVersion={onSetActiveVersion}
-          onUpdateVersion={onUpdateVersion}
-        />
+      <TabsContent value="versions" className="space-y-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-medium">Gestion des versions</h3>
+          <Button onClick={onAddVersion} size="sm" variant="outline" className="flex items-center gap-1">
+            <Plus className="h-4 w-4" /> Ajouter
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {versions.map((version) => (
+            <Card 
+              key={version.id} 
+              className={`cursor-pointer hover:shadow-md transition-shadow ${
+                version.id === activeVersionId ? 'border-primary' : ''
+              }`}
+              onClick={() => onSetActiveVersion(version.id)}
+            >
+              <CardContent className="p-4">
+                <div className="font-medium">{version.name}</div>
+                <p className="text-sm text-muted-foreground truncate">{version.title}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </TabsContent>
 
-      <TabsContent value="style" className="py-4">
-        <StyleEditor 
-          version={activeVersion}
-          onUpdateVersion={onUpdateVersion}
-        />
+      <TabsContent value="carousel">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              Les paramètres du diaporama seront implémentés ultérieurement.
+            </p>
+          </CardContent>
+        </Card>
       </TabsContent>
 
-      <TabsContent value="buttons" className="py-4">
-        <ButtonStyleEditor 
-          version={activeVersion}
-          onUpdateVersion={onUpdateVersion}
-        />
-      </TabsContent>
-
-      <TabsContent value="blocks" className="py-4">
-        <BlockEditor 
-          version={activeVersion}
-          onUpdateVersion={onUpdateVersion}
-        />
-      </TabsContent>
-
-      <TabsContent value="carousel" className="py-4">
-        <CarouselSettings 
-          settings={carousel}
-          onUpdateSettings={onUpdateCarouselSettings}
-          versionsCount={versions.length}
-        />
+      <TabsContent value="blocks">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              L'éditeur de blocs sera implémenté ultérieurement.
+            </p>
+          </CardContent>
+        </Card>
       </TabsContent>
     </Tabs>
   );

@@ -1,34 +1,44 @@
 
 import React from 'react';
-import SaveHeroChanges from './SaveHeroChanges';
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
+import { HeroSettings } from './types';
 
 interface HeroEditorHeaderProps {
   isSaving: boolean;
-  setIsSaving: (value: boolean) => void;
-  heroSettings: any;
+  setIsSaving: (saving: boolean) => void;
+  heroSettings: HeroSettings;
   getActiveVersion: () => any;
 }
 
-const HeroEditorHeader = ({
+const HeroEditorHeader: React.FC<HeroEditorHeaderProps> = ({
   isSaving,
   setIsSaving,
   heroSettings,
-  getActiveVersion
-}: HeroEditorHeaderProps) => {
+  getActiveVersion,
+}) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex justify-between items-center mb-6">
       <div>
-        <h1 className="text-2xl font-bold">Éditeur de Hero avancé</h1>
+        <h1 className="text-2xl font-bold">Éditeur de section Hero</h1>
         <p className="text-muted-foreground">
-          Personnalisez en détail l'apparence et le comportement de la section Hero
+          Personnalisez l'apparence et le contenu de la section Hero
         </p>
       </div>
-      <SaveHeroChanges
-        isSaving={isSaving}
-        setIsSaving={setIsSaving}
-        heroSettings={heroSettings}
-        getActiveVersion={getActiveVersion}
-      />
+      <Button 
+        onClick={() => setIsSaving(true)}
+        className="flex items-center gap-2"
+        disabled={isSaving}
+      >
+        {isSaving ? (
+          "Sauvegarde..."
+        ) : (
+          <>
+            <Save className="h-4 w-4" />
+            Enregistrer
+          </>
+        )}
+      </Button>
     </div>
   );
 };
