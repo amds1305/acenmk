@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -26,14 +26,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, CheckSquare, XSquare, Edit2 } from 'lucide-react';
+import { Loader2, CheckSquare, XSquare, Edit2, Users } from 'lucide-react';
 import { User } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
 import { getRoleLabel, getRoleBadgeVariant } from '@/utils/roleUtils';
 import { useUsers } from '@/hooks/useUsers';
 
 const UsersPermissionsManager: React.FC = () => {
-  const { users, isLoading, updateUserRole } = useUsers();
+  const { users, isLoading, error } = useUsers();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [permissionsMap, setPermissionsMap] = useState<Record<string, string[]>>({});
@@ -54,22 +54,24 @@ const UsersPermissionsManager: React.FC = () => {
   ];
   
   // Initialiser les permissions basées sur les rôles
-  React.useEffect(() => {
-    const permMap: Record<string, string[]> = {};
-    
-    users.forEach(user => {
-      if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
-        permMap[user.id] = adminPermissions;
-      } else if (user.role === 'manager') {
-        permMap[user.id] = [...commonPermissions, 'view_analytics', 'manage_projects'];
-      } else if (user.role === 'contributor') {
-        permMap[user.id] = [...commonPermissions, 'create_content', 'edit_content'];
-      } else {
-        permMap[user.id] = ['view_profile', 'edit_profile', 'view_projects', 'view_messages', 'send_messages'];
-      }
-    });
-    
-    setPermissionsMap(permMap);
+  useEffect(() => {
+    if (users && users.length > 0) {
+      const permMap: Record<string, string[]> = {};
+      
+      users.forEach(user => {
+        if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
+          permMap[user.id] = adminPermissions;
+        } else if (user.role === 'manager') {
+          permMap[user.id] = [...commonPermissions, 'view_analytics', 'manage_projects'];
+        } else if (user.role === 'contributor') {
+          permMap[user.id] = [...commonPermissions, 'create_content', 'edit_content'];
+        } else {
+          permMap[user.id] = ['view_profile', 'edit_profile', 'view_projects', 'view_messages', 'send_messages'];
+        }
+      });
+      
+      setPermissionsMap(permMap);
+    }
   }, [users]);
   
   const handleEditPermissions = (user: User) => {
@@ -114,6 +116,27 @@ const UsersPermissionsManager: React.FC = () => {
     return permissionsMap[userId]?.includes(permission) || false;
   };
   
+  if (error) {
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="rounded-full bg-destructive/10 p-3 mb-3">
+              <Loader2 className="h-6 w-6 text-destructive" />
+            </div>
+            <h3 className="font-medium">Erreur de chargement</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Une erreur est survenue lors du chargement des utilisateurs
+            </p>
+            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+              Réessayer
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
     <Card className="w-full">
       <CardHeader>
@@ -128,7 +151,7 @@ const UsersPermissionsManager: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2">Chargement des données...</span>
           </div>
-        ) : (
+        ) : users && users.length > 0 ? (
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -181,6 +204,14 @@ const UsersPermissionsManager: React.FC = () => {
                 ))}
               </TableBody>
             </Table>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 text-center border rounded-lg">
+            <Users className="h-10 w-10 text-muted-foreground mb-3" />
+            <h3 className="font-medium">Aucun utilisateur trouvé</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Aucun utilisateur n'est disponible dans le système
+            </p>
           </div>
         )}
         
