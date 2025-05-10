@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
 export interface NavLink {
   name: string;
   href: string;
-  icon?: LucideIcon;
+  icon?: string;  // Nom de l'icône au lieu du composant
   isExternal?: boolean;
   requiresAuth?: boolean;
   allowedRoles?: string[];

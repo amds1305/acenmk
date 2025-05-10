@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
 import { cn } from '@/lib/utils';
 import { useLocation } from 'react-router-dom';
+import { iconsMap } from '@/components/admin/header/iconsMap';
 
 interface DesktopNavProps {
   navLinks: NavLink[];
@@ -43,24 +44,33 @@ const DesktopNav = ({
     <div className="hidden md:flex items-center space-x-8">
       {/* Navigation Links */}
       <nav className="flex items-center space-x-3 overflow-x-auto max-w-[40vw] no-scrollbar">
-        {navLinks.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className={cn(
-              "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative whitespace-nowrap",
-              isActive(link.href) 
-                ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
-                : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5"
-            )}
-          >
-            {link.name}
-            <span className={cn(
-              "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transform transition-all duration-300",
-              isActive(link.href) ? "w-8" : "w-0 group-hover:w-8"
-            )} />
-          </a>
-        ))}
+        {navLinks.map((link) => {
+          // Vérifier si ce lien a une icône à afficher
+          const IconComponent = link.icon ? iconsMap[link.icon] : null;
+          
+          return (
+            <a
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative whitespace-nowrap",
+                isActive(link.href) 
+                  ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
+                  : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5"
+              )}
+            >
+              {IconComponent ? (
+                <IconComponent size={18} className="mx-auto" />
+              ) : (
+                <span>{link.name}</span>
+              )}
+              <span className={cn(
+                "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transform transition-all duration-300",
+                isActive(link.href) ? "w-8" : "w-0 group-hover:w-8"
+              )} />
+            </a>
+          );
+        })}
       </nav>
       
       {/* Social & Action Links */}

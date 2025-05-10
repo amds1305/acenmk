@@ -40,9 +40,9 @@ export const useNavLinks = (): UseNavLinksReturn => {
         if (links && links.length > 0) {
           setNavLinks(links);
         } else {
-          // Valeurs par défaut si aucun lien n'est trouvé
+          // Valeurs par défaut si aucun lien n'est trouvé, avec Accueil comme icône
           setNavLinks([
-            { id: uuidv4(), name: 'Accueil', href: '/', order: 1, isVisible: true, parentId: null },
+            { id: uuidv4(), name: '', href: '/', order: 1, isVisible: true, parentId: null, icon: 'Home' },
             { id: uuidv4(), name: 'Services', href: '/#services', order: 2, isVisible: true, parentId: null },
             { id: uuidv4(), name: 'Portfolio', href: '/portfolio', order: 3, isVisible: true, parentId: null },
             { id: uuidv4(), name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null },

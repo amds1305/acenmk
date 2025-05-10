@@ -15,9 +15,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from 'react-hook-form';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { useNavLinks } from './navigation/useNavLinks';
+import { iconsMap } from './iconsMap';
 
 const NavLinkManager = () => {
-  // Utilisation du nouveau hook personnalisé
+  // Utilisation du hook personnalisé
   const {
     navLinks,
     editingLink,
@@ -41,9 +42,13 @@ const NavLinkManager = () => {
       isVisible: true,
       order: 0,
       id: '',
-      parentId: null
+      parentId: null,
+      icon: ''
     }
   });
+
+  // Liste des icônes disponibles pour la sélection
+  const availableIcons = Object.keys(iconsMap);
 
   // Liens de premier niveau (sans parent)
   const parentLinks = navLinks.filter(link => link.parentId === null);
@@ -59,7 +64,8 @@ const NavLinkManager = () => {
         isVisible: true,
         order: navLinks.length + 1,
         id: uuidv4(),
-        parentId: null
+        parentId: null,
+        icon: ''
       });
     }
   }, [editingLink, form, navLinks.length]);
@@ -77,6 +83,8 @@ const NavLinkManager = () => {
     return sortedLinks.map((link) => {
       // Trouver les enfants de ce lien
       const children = navLinks.filter(l => l.parentId === link.id);
+      // Récupérer l'icône si elle existe
+      const IconComponent = link.icon ? iconsMap[link.icon] : null;
       
       return (
         <div key={link.id} className="space-y-2">
@@ -85,7 +93,14 @@ const NavLinkManager = () => {
               {level > 0 && <ChevronRight className="h-4 w-4 text-gray-400" />}
               <div>
                 <div className="flex items-center">
-                  <p className={`font-medium ${!link.isVisible ? 'text-gray-400 dark:text-gray-500' : ''}`}>{link.name}</p>
+                  {IconComponent && (
+                    <div className="mr-2">
+                      <IconComponent className="h-4 w-4" />
+                    </div>
+                  )}
+                  <p className={`font-medium ${!link.isVisible ? 'text-gray-400 dark:text-gray-500' : ''}`}>
+                    {link.name || <em className="text-gray-400">(Icône sans texte)</em>}
+                  </p>
                   {link.isExternal && <ExternalLink className="ml-1 h-3 w-3 text-gray-400" />}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{link.href}</p>
@@ -165,12 +180,46 @@ const NavLinkManager = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nom du lien</FormLabel>
+                      <FormLabel>Nom du lien (optionnel si icône)</FormLabel>
                       <FormControl>
                         <Input placeholder="Accueil" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Le texte affiché dans le menu de navigation
+                        Le texte affiché dans le menu de navigation (peut être vide si vous utilisez une icône)
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="icon"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icône (optionnel)</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ''}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choisir une icône (optionnel)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">Aucune icône</SelectItem>
+                          {availableIcons.map(icon => (
+                            <SelectItem key={icon} value={icon}>
+                              <div className="flex items-center">
+                                {React.createElement(iconsMap[icon], { size: 16, className: "mr-2" })}
+                                {icon}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Sélectionnez une icône à afficher (si Accueil, utilisez "Home")
                       </FormDescription>
                     </FormItem>
                   )}
