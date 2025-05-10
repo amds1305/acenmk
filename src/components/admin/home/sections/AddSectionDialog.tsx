@@ -29,6 +29,11 @@ const standardSectionTypes: SectionType[] = [
   'hero', 'services', 'about', 'team', 'testimonials', 'faq', 'contact'
 ];
 
+// Fonction d'aide pour formater les noms de type de section
+const formatSectionType = (type: string): string => {
+  return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 // Rôles disponibles (à adapter selon votre système)
 const availableRoles: { id: string; label: string }[] = [
   { id: 'user', label: 'Client' },
@@ -99,7 +104,7 @@ const AddSectionDialog: React.FC<AddSectionDialogProps> = ({
               <SelectContent>
                 {standardSectionTypes.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    {formatSectionType(type)}
                   </SelectItem>
                 ))}
                 <SelectItem value="custom">Section personnalisée</SelectItem>

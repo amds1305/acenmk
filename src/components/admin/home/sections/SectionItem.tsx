@@ -38,7 +38,9 @@ const SectionItem: React.FC<SectionItemProps> = ({
         </div>
         <div>
           <div className="font-medium">{section.title}</div>
-          <div className="text-xs text-muted-foreground">Type: {section.type}</div>
+          <div className="text-xs text-muted-foreground">Type: {
+            section.type.charAt(0).toUpperCase() + section.type.slice(1).replace(/-/g, ' ')
+          }</div>
         </div>
       </div>
       
