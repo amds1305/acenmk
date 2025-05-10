@@ -146,7 +146,8 @@ const UserMenu = () => {
             </>
           )}
           
-          {user?.role === 'admin' || isAdminRole(user?.role || '') && (
+          {/* Correction de la condition pour afficher le lien d'administration */}
+          {user && (user.role === 'admin' || isAdminRole(user.role)) && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/admin')}>
