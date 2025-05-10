@@ -1,79 +1,64 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Pen, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { Pen, Trash2, Twitter, Github, Instagram, Facebook, Linkedin, Youtube, LucideIcon } from 'lucide-react';
 import { SocialLink } from './types';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
-import { supabase } from '@/lib/supabase';
+import { saveSocialLinks, getHeaderConfig } from '@/services/supabase/headerService';
 
 const SocialLinkManager = () => {
   const { toast } = useToast();
   const { showSaveSuccess, showSaveError } = useAdminNotification();
 
-  // Social links - use actual Lucide icon components with visibility property
+  // Social links state
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
     { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter', isVisible: true, order: 0 },
     { icon: Github, href: 'https://github.com', ariaLabel: 'Github', isVisible: true, order: 1 },
     { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram', isVisible: true, order: 2 },
   ]);
 
-  // Load social links from localStorage or database when component mounts
+  // Load social links from Supabase when component mounts
   useEffect(() => {
     const loadSocialLinks = async () => {
       try {
-        // First attempt to load from localStorage (for backward compatibility)
-        const savedLinks = localStorage.getItem('socialLinks');
-        if (savedLinks) {
-          const parsedLinks = JSON.parse(savedLinks);
-          
-          // Convert string icon names to actual Lucide components
-          const iconMap = { Twitter, Github, Instagram, Facebook, Linkedin, Youtube };
-          
-          // Create updated links with resolved icon components
-          const updatedLinks = parsedLinks.map(link => ({
-            ...link,
-            icon: iconMap[link.icon] || Twitter // Default to Twitter if icon not found
-          }));
-          
-          setSocialLinks(updatedLinks);
-        }
-        
-        // Then check if we have data in Supabase
-        const { data, error } = await supabase
-          .from('header_social_links')
-          .select('*')
-          .order('order', { ascending: true });
-          
-        if (error) {
-          console.error('Error fetching social links from Supabase:', error);
-        } else if (data && data.length > 0) {
-          // If we have data in Supabase, use it instead of localStorage data
-          const iconMap = { Twitter, Github, Instagram, Facebook, Linkedin, Youtube };
-          
-          const dbLinks = data.map(link => ({
-            icon: iconMap[link.icon_name] || Twitter,
-            href: link.href,
-            ariaLabel: link.aria_label,
-            isVisible: link.is_visible,
-            order: link.order
-          }));
-          
-          setSocialLinks(dbLinks);
+        const { socialLinks } = await getHeaderConfig();
+        if (socialLinks && socialLinks.length > 0) {
+          setSocialLinks(socialLinks);
         }
       } catch (error) {
         console.error('Error loading social links:', error);
+        
+        // Fallback to localStorage (for backward compatibility)
+        const savedLinks = localStorage.getItem('socialLinks');
+        if (savedLinks) {
+          try {
+            const parsedLinks = JSON.parse(savedLinks);
+            
+            // Convert string icon names to actual Lucide components
+            const iconMap = { Twitter, Github, Instagram, Facebook, Linkedin, Youtube };
+            
+            // Create updated links with resolved icon components
+            const updatedLinks = parsedLinks.map(link => ({
+              ...link,
+              icon: iconMap[link.icon] || Twitter // Default to Twitter if icon not found
+            }));
+            
+            setSocialLinks(updatedLinks);
+          } catch (error) {
+            console.error('Error parsing localStorage social links:', error);
+          }
+        }
       }
     };
     
     loadSocialLinks();
   }, []);
 
-  // Save social links to localStorage and optionally to database
-  const saveSocialLinks = async (links: SocialLink[]) => {
+  // Save social links to Supabase and localStorage
+  const handleSaveSocialLinks = async (links: SocialLink[]) => {
     try {
       // First save to localStorage for backward compatibility
       const serializedLinks = links.map(link => {
@@ -90,42 +75,14 @@ const SocialLinkManager = () => {
       
       localStorage.setItem('socialLinks', JSON.stringify(serializedLinks));
       
-      // Then try to save to Supabase if available
-      try {
-        // First delete all existing links
-        await supabase.from('header_social_links').delete().neq('id', 0);
-        
-        // Then insert the new links
-        const dbLinks = links.map(link => {
-          // Find the icon name by comparing the component reference
-          const iconName = Object.entries({ Twitter, Github, Instagram, Facebook, Linkedin, Youtube }).find(
-            ([_, component]) => component === link.icon
-          )?.[0] || 'Twitter';
-          
-          return {
-            icon_name: iconName,
-            href: link.href,
-            aria_label: link.ariaLabel,
-            is_visible: link.isVisible,
-            order: link.order
-          };
-        });
-        
-        const { error } = await supabase.from('header_social_links').insert(dbLinks);
-        
-        if (error) {
-          console.error('Error saving social links to Supabase:', error);
-          // Still continue as we have saved to localStorage
-        }
-        
-      } catch (dbError) {
-        console.error('Database error when saving social links:', dbError);
-        // Still continue as we have saved to localStorage
+      // Then save to Supabase
+      const saveSuccess = await saveSocialLinks(links);
+      
+      if (!saveSuccess) {
+        console.warn('Failed to save to Supabase, but saved to localStorage');
       }
       
       // Trigger a page reload to apply the changes to the header
-      // For better UX, we should implement a context to avoid page reload
-      // but this is a simpler solution for now
       window.dispatchEvent(new CustomEvent('header-config-updated'));
       
       return true;
@@ -191,7 +148,7 @@ const SocialLinkManager = () => {
       );
       setSocialLinks(updatedLinks);
       
-      const saveSuccess = await saveSocialLinks(updatedLinks);
+      const saveSuccess = await handleSaveSocialLinks(updatedLinks);
       if (saveSuccess) {
         showSaveSuccess();
         toast({
@@ -218,7 +175,7 @@ const SocialLinkManager = () => {
       updatedLinks = [...socialLinks, newLink];
       setSocialLinks(updatedLinks);
       
-      const saveSuccess = await saveSocialLinks(updatedLinks);
+      const saveSuccess = await handleSaveSocialLinks(updatedLinks);
       if (saveSuccess) {
         showSaveSuccess();
         toast({
@@ -243,7 +200,7 @@ const SocialLinkManager = () => {
     const updatedLinks = socialLinks.filter(l => l !== link);
     setSocialLinks(updatedLinks);
     
-    const saveSuccess = await saveSocialLinks(updatedLinks);
+    const saveSuccess = await handleSaveSocialLinks(updatedLinks);
     if (saveSuccess) {
       showSaveSuccess();
       toast({
@@ -277,7 +234,7 @@ const SocialLinkManager = () => {
     
     setSocialLinks(updatedLinks);
     
-    const saveSuccess = await saveSocialLinks(updatedLinks);
+    const saveSuccess = await handleSaveSocialLinks(updatedLinks);
     if (saveSuccess) {
       showSaveSuccess();
       toast({

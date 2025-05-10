@@ -30,7 +30,7 @@ export const getHeaderConfig = async () => {
     const { data: socialLinks, error: socialError } = await supabase
       .from('header_social_links')
       .select('*')
-      .order('order', { ascending: true });
+      .order('display_order', { ascending: true });
       
     if (socialError) {
       console.error('Error fetching social links:', socialError);
@@ -42,7 +42,7 @@ export const getHeaderConfig = async () => {
       href: link.href,
       ariaLabel: link.aria_label,
       isVisible: link.is_visible,
-      order: link.order
+      order: link.display_order
     })) || [];
     
     return {
@@ -102,7 +102,7 @@ export const saveSocialLinks = async (links: SocialLink[]) => {
         href: link.href,
         aria_label: link.ariaLabel,
         is_visible: link.isVisible,
-        order: link.order
+        display_order: link.order
       };
     });
     

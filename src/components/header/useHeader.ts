@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { Facebook, Twitter, Instagram, Linkedin, Github } from 'lucide-react';
+import { getHeaderConfig } from '@/services/supabase/headerService';
+import { SocialLink } from './types';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -9,6 +10,7 @@ export const useHeader = () => {
   const [headerConfig, setHeaderConfig] = useState({
     showThemeSelector: true,
   });
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   
   // Liste complète des liens de navigation
   const navLinks = [
@@ -24,15 +26,6 @@ export const useHeader = () => {
     { name: 'Contact', href: '/#contact' }
   ];
   
-  // Sample social links - in a real app, these would come from a CMS or API
-  const socialLinks = [
-    { icon: Facebook, href: 'https://facebook.com', ariaLabel: 'Facebook', isVisible: true, order: 0 },
-    { icon: Twitter, href: 'https://twitter.com', ariaLabel: 'Twitter', isVisible: true, order: 1 },
-    { icon: Instagram, href: 'https://instagram.com', ariaLabel: 'Instagram', isVisible: true, order: 2 },
-    { icon: Linkedin, href: 'https://linkedin.com', ariaLabel: 'LinkedIn', isVisible: true, order: 3 },
-    { icon: Github, href: 'https://github.com', ariaLabel: 'GitHub', isVisible: true, order: 4 }
-  ];
-  
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -42,48 +35,48 @@ export const useHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Effet pour charger la configuration du header (à terme depuis une API ou localStorage)
+  // Effet pour charger la configuration du header depuis Supabase
   useEffect(() => {
-    // Simuler le chargement de la configuration depuis une source externe
     const loadHeaderConfig = async () => {
       try {
-        // Dans un cas réel, on chargerait depuis une API ou localStorage
-        const savedConfig = localStorage.getItem('headerConfig');
+        const { config, socialLinks } = await getHeaderConfig();
+        setHeaderConfig(config);
+        setSocialLinks(socialLinks);
+      } catch (error) {
+        console.error('Erreur lors du chargement de la configuration du header:', error);
         
+        // Fallback to localStorage if Supabase fails
+        const savedConfig = localStorage.getItem('headerConfig');
         if (savedConfig) {
           try {
-            const parsedConfig = JSON.parse(savedConfig);
-            setHeaderConfig(parsedConfig);
+            setHeaderConfig(JSON.parse(savedConfig));
           } catch (error) {
-            console.error('Erreur lors du chargement de la configuration du header:', error);
+            console.error('Erreur lors du parsing de la config locale:', error);
           }
         }
         
-        // Charger les liens sociaux depuis le localStorage
-        const savedSocialLinks = localStorage.getItem('socialLinks');
-        if (savedSocialLinks) {
+        const savedLinks = localStorage.getItem('socialLinks');
+        if (savedLinks) {
           try {
-            const parsedSocialLinks = JSON.parse(savedSocialLinks);
-            // Transformer les noms d'icônes en composants Lucide
-            const iconMap = { Facebook, Twitter, Instagram, Linkedin, Github };
-            
-            // On garde la structure existante mais on met à jour isVisible
-            const updatedLinks = socialLinks.map(link => {
-              const savedLink = parsedSocialLinks.find(sl => sl.ariaLabel === link.ariaLabel);
-              return savedLink ? { ...link, isVisible: savedLink.isVisible } : link;
-            });
-            
-            // Mise à jour de socialLinks avec les données de visibilité
+            setSocialLinks(JSON.parse(savedLinks));
           } catch (error) {
-            console.error('Erreur lors du chargement des liens sociaux:', error);
+            console.error('Erreur lors du parsing des liens sociaux locaux:', error);
           }
         }
-      } catch (error) {
-        console.error('Erreur lors du chargement de la configuration:', error);
       }
     };
     
     loadHeaderConfig();
+    
+    // Listen for header config updates
+    const handleConfigUpdated = () => {
+      loadHeaderConfig();
+    };
+    
+    window.addEventListener('header-config-updated', handleConfigUpdated);
+    return () => {
+      window.removeEventListener('header-config-updated', handleConfigUpdated);
+    };
   }, []);
   
   const toggleMobileMenu = () => {
@@ -100,7 +93,7 @@ export const useHeader = () => {
     setMobileMenuOpen(false);
   };
   
-  // Filter out invisible social links before returning them
+  // Filter out invisible social links
   const visibleSocialLinks = socialLinks.filter(link => link.isVisible !== false);
   
   return {
@@ -110,7 +103,7 @@ export const useHeader = () => {
     toggleMobileMenu,
     toggleSearch,
     navLinks,
-    socialLinks: visibleSocialLinks, // Only return visible social links
+    socialLinks: visibleSocialLinks, // Only return visible links
     closeMobileMenu,
     headerConfig
   };

@@ -198,6 +198,60 @@ export type Database = {
         }
         Relationships: []
       }
+      header_config: {
+        Row: {
+          created_at: string
+          id: string
+          show_theme_selector: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          show_theme_selector?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          show_theme_selector?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      header_social_links: {
+        Row: {
+          aria_label: string
+          created_at: string
+          display_order: number
+          href: string
+          icon_name: string
+          id: string
+          is_visible: boolean
+          updated_at: string
+        }
+        Insert: {
+          aria_label: string
+          created_at?: string
+          display_order?: number
+          href: string
+          icon_name: string
+          id?: string
+          is_visible?: boolean
+          updated_at?: string
+        }
+        Update: {
+          aria_label?: string
+          created_at?: string
+          display_order?: number
+          href?: string
+          icon_name?: string
+          id?: string
+          is_visible?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           created_at: string
