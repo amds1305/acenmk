@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -15,7 +14,8 @@ import Portfolio from './pages/Portfolio';
 import AceJob from './pages/AceJob';
 import Careers from './pages/Careers';
 import Admin from './pages/Admin';
-import AdminRolesPermissions from './pages/AdminRolesPermissions'; // Import eagerly instead of lazily
+import AdminRolesPermissions from './pages/AdminRolesPermissions';
+import AdminHome from './pages/AdminHome';
 
 // Lazily loaded components for better performance
 const Login = lazy(() => import('./pages/Login'));
@@ -31,7 +31,6 @@ const Faq = lazy(() => import('./pages/Faq'));
 const AdminExternalLinks = lazy(() => import('./pages/AdminExternalLinks'));
 const AdminCareers = lazy(() => import('./pages/AdminCareers'));
 const AdminPricing = lazy(() => import('./pages/AdminPricing'));
-const AdminHome = lazy(() => import('./pages/AdminHome'));
 
 // Import des composants admin manquants
 const AdminServices = lazy(() => import('./pages/AdminServices'));
