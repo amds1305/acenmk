@@ -1,49 +1,19 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { HeaderStyle } from './types';
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
+import { useHeaderStyle } from './style/useHeaderStyle';
+import { SaveIndicator } from '@/components/ui/save-indicator';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
 
 const HeaderStyleManager = () => {
-  const { toast } = useToast();
-  
-  // État initial des styles du header
-  const [headerStyle, setHeaderStyle] = useState<HeaderStyle>({
-    backgroundColor: 'transparent',
-    textColor: '#333333',
-    hoverColor: '#ca3c66',
-    activeColor: '#ca3c66',
-    fontFamily: 'Inter, sans-serif',
-    fontSize: '1rem',
-    padding: '1rem',
-    sticky: true,
-    transparent: true,
-    glassmorphism: true,
-    borderBottom: true,
-    borderColor: '#e5e7eb',
-    dropShadow: true,
-    showThemeSelector: true,
-  });
-
-  // Fonction pour mettre à jour un style spécifique
-  const updateStyle = <K extends keyof HeaderStyle>(key: K, value: HeaderStyle[K]) => {
-    setHeaderStyle(prev => ({ ...prev, [key]: value }));
-  };
-
-  // Fonction pour sauvegarder les changements
-  const saveChanges = () => {
-    toast({
-      title: 'Styles sauvegardés',
-      description: 'Les styles du header ont été mis à jour avec succès.',
-    });
-    
-    console.log('Styles du header sauvegardés:', headerStyle);
-    // Ici, vous pourriez appeler une API pour sauvegarder les styles
-  };
+  const { saveStatus } = useAdminNotification();
+  const { headerStyle, updateStyle, saveChanges, isLoading } = useHeaderStyle();
 
   return (
     <CardContent>
@@ -225,13 +195,16 @@ const HeaderStyleManager = () => {
         </TabsContent>
       </Tabs>
       
-      <div className="mt-6">
-        <button
+      <div className="mt-6 flex items-center justify-between">
+        <SaveIndicator status={saveStatus} />
+        <Button
           onClick={saveChanges}
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          disabled={isLoading}
+          className="flex items-center gap-2"
         >
+          <Save className="h-4 w-4" />
           Enregistrer les styles
-        </button>
+        </Button>
       </div>
     </CardContent>
   );

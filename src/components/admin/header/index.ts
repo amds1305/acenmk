@@ -7,6 +7,11 @@ import SearchBarManager from './SearchBarManager';
 import ActionButtonsManager from './ActionButtonsManager';
 import HeaderStyleManager from './HeaderStyleManager';
 import UserMenuManager from './UserMenuManager';
+import { useLogo } from './logo/useLogo';
+import { useSearchBar } from './search/useSearchBar';
+import { useUserMenu } from './user-menu/useUserMenu';
+import { useHeaderStyle } from './style/useHeaderStyle';
+import { useSocialLinks } from './social/useSocialLinks';
 
 export { 
   AdminHeader, 
@@ -16,5 +21,10 @@ export {
   SearchBarManager,
   ActionButtonsManager,
   HeaderStyleManager,
-  UserMenuManager
+  UserMenuManager,
+  useLogo,
+  useSearchBar,
+  useUserMenu,
+  useHeaderStyle,
+  useSocialLinks
 };

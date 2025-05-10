@@ -198,6 +198,48 @@ export type Database = {
         }
         Relationships: []
       }
+      header_action_buttons: {
+        Row: {
+          created_at: string
+          href: string
+          icon: string | null
+          id: string
+          is_visible: boolean | null
+          label: string
+          order_index: number
+          required_role: string | null
+          requires_auth: boolean | null
+          updated_at: string
+          variant: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label: string
+          order_index: number
+          required_role?: string | null
+          requires_auth?: boolean | null
+          updated_at?: string
+          variant: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label?: string
+          order_index?: number
+          required_role?: string | null
+          requires_auth?: boolean | null
+          updated_at?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       header_config: {
         Row: {
           created_at: string
@@ -215,6 +257,122 @@ export type Database = {
           created_at?: string
           id?: string
           show_theme_selector?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      header_logo: {
+        Row: {
+          alt: string
+          created_at: string
+          height: number
+          id: string
+          position: string
+          src: string
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          alt: string
+          created_at?: string
+          height: number
+          id?: string
+          position: string
+          src: string
+          updated_at?: string
+          width: number
+        }
+        Update: {
+          alt?: string
+          created_at?: string
+          height?: number
+          id?: string
+          position?: string
+          src?: string
+          updated_at?: string
+          width?: number
+        }
+        Relationships: []
+      }
+      header_nav_links: {
+        Row: {
+          created_at: string
+          href: string
+          icon: string | null
+          id: string
+          is_external: boolean | null
+          is_visible: boolean | null
+          name: string
+          order_index: number
+          parent_id: string | null
+          required_role: string | null
+          requires_auth: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          icon?: string | null
+          id?: string
+          is_external?: boolean | null
+          is_visible?: boolean | null
+          name: string
+          order_index: number
+          parent_id?: string | null
+          required_role?: string | null
+          requires_auth?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          icon?: string | null
+          id?: string
+          is_external?: boolean | null
+          is_visible?: boolean | null
+          name?: string
+          order_index?: number
+          parent_id?: string | null
+          required_role?: string | null
+          requires_auth?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "header_nav_links_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "header_nav_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      header_search_bar: {
+        Row: {
+          created_at: string
+          expand_on_focus: boolean | null
+          id: string
+          is_enabled: boolean | null
+          placeholder: string
+          position: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expand_on_focus?: boolean | null
+          id?: string
+          is_enabled?: boolean | null
+          placeholder: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expand_on_focus?: boolean | null
+          id?: string
+          is_enabled?: boolean | null
+          placeholder?: string
+          position?: string
           updated_at?: string
         }
         Relationships: []
@@ -248,6 +406,96 @@ export type Database = {
           icon_name?: string
           id?: string
           is_visible?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      header_style: {
+        Row: {
+          active_color: string
+          background_color: string
+          border_bottom: boolean | null
+          border_color: string
+          created_at: string
+          drop_shadow: boolean | null
+          font_family: string
+          font_size: string
+          glassmorphism: boolean | null
+          hover_color: string
+          id: string
+          padding: string
+          sticky: boolean | null
+          text_color: string
+          transparent: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          active_color: string
+          background_color: string
+          border_bottom?: boolean | null
+          border_color: string
+          created_at?: string
+          drop_shadow?: boolean | null
+          font_family: string
+          font_size: string
+          glassmorphism?: boolean | null
+          hover_color: string
+          id?: string
+          padding: string
+          sticky?: boolean | null
+          text_color: string
+          transparent?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          active_color?: string
+          background_color?: string
+          border_bottom?: boolean | null
+          border_color?: string
+          created_at?: string
+          drop_shadow?: boolean | null
+          font_family?: string
+          font_size?: string
+          glassmorphism?: boolean | null
+          hover_color?: string
+          id?: string
+          padding?: string
+          sticky?: boolean | null
+          text_color?: string
+          transparent?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      header_user_menu: {
+        Row: {
+          created_at: string
+          id: string
+          login_button_label: string
+          register_button_label: string
+          show_login_button: boolean | null
+          show_profile_icon: boolean | null
+          show_register_button: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login_button_label: string
+          register_button_label: string
+          show_login_button?: boolean | null
+          show_profile_icon?: boolean | null
+          show_register_button?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login_button_label?: string
+          register_button_label?: string
+          show_login_button?: boolean | null
+          show_profile_icon?: boolean | null
+          show_register_button?: boolean | null
           updated_at?: string
         }
         Relationships: []
