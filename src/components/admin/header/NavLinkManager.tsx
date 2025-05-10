@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { useNavLinks } from './navigation';
-import { NavLinkDialog, NavLinkList } from './navigation/components';
+import { NavLinkDialog, NavLinkList, NavLinkSearch } from './navigation/components';
+import { NavLink } from './types';
 
 const NavLinkManager = () => {
   // Utilisation du hook personnalisé
@@ -24,6 +25,30 @@ const NavLinkManager = () => {
     moveLink
   } = useNavLinks();
 
+  // State for filtered links
+  const [filteredLinks, setFilteredLinks] = useState<NavLink[]>(navLinks);
+
+  // Handle search query changes
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredLinks(navLinks);
+      return;
+    }
+
+    const lowerCaseQuery = query.toLowerCase();
+    const filtered = navLinks.filter(link => 
+      link.name.toLowerCase().includes(lowerCaseQuery) || 
+      link.href.toLowerCase().includes(lowerCaseQuery)
+    );
+    
+    setFilteredLinks(filtered);
+  };
+
+  // Update filtered links when navLinks changes
+  React.useEffect(() => {
+    setFilteredLinks(navLinks);
+  }, [navLinks]);
+
   return (
     <CardContent>
       <div className="space-y-4">
@@ -38,8 +63,11 @@ const NavLinkManager = () => {
           </div>
         </div>
         
+        {/* Add search component */}
+        <NavLinkSearch onSearch={handleSearch} />
+        
         <NavLinkList
-          navLinks={navLinks}
+          navLinks={filteredLinks}
           onEdit={handleEditLink}
           onDelete={handleDeleteLink}
           onMove={moveLink}

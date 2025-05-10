@@ -47,6 +47,15 @@ const NavLinkList = ({
   // Liens de premier niveau (sans parent)
   const parentLinks = navLinks.filter(link => link.parentId === null);
 
+  // Display a message when no links are found
+  if (parentLinks.length === 0) {
+    return (
+      <div className="py-8 text-center text-muted-foreground">
+        Aucun lien trouvé. Ajustez votre recherche ou ajoutez de nouveaux liens.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
       {renderNavLinks(parentLinks)}
