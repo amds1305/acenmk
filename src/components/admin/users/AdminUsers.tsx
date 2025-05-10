@@ -19,13 +19,47 @@ import UserProfileDialog from './UserProfileDialog';
 import SendMessageDialog from './SendMessageDialog';
 import AddUserDialog from './AddUserDialog';
 import { supabase } from '@/lib/supabase';
-import { mapUserData } from '@/lib/supabase';
+import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
 
 // Hook pour obtenir les utilisateurs depuis Supabase
 const useSupabaseUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
+
+  // Utilisateurs fictifs pour l'exemple
+  const mockUsers = [
+    MOCK_ADMIN_USER,
+    MOCK_USER,
+    {
+      id: 'user3',
+      email: 'premium@example.com',
+      name: 'Client Premium',
+      role: 'client_premium' as UserRole,
+      company: 'Premium Corp',
+      phone: '+33 6 12 34 56 78',
+      avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
+      createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
+    },
+    {
+      id: 'user4',
+      email: 'new@example.com',
+      name: 'Nouveau Client',
+      role: 'user' as UserRole,
+      company: 'New Company',
+      createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+    },
+    {
+      id: 'user5',
+      email: 'super@example.com',
+      name: 'Super Admin',
+      role: 'super_admin' as UserRole,
+      company: 'Admin Solutions',
+      phone: '+33 7 98 76 54 32',
+      avatar: 'https://i.pravatar.cc/150?u=super@example.com',
+      createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
+    }
+  ];
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -67,14 +101,22 @@ const useSupabaseUsers = () => {
         createdAt: profile.created_at
       }));
       
-      setUsers(mappedUsers);
-      console.log("Utilisateurs chargés depuis Supabase:", mappedUsers);
+      // Si aucun utilisateur n'est récupéré ou en cas d'erreur, utiliser les utilisateurs fictifs
+      if (mappedUsers && mappedUsers.length > 0) {
+        setUsers(mappedUsers);
+        console.log("Utilisateurs chargés depuis Supabase:", mappedUsers);
+      } else {
+        setUsers(mockUsers);
+        console.log("Aucun utilisateur trouvé dans Supabase, utilisation des exemples fictifs");
+      }
     } catch (error) {
       console.error("Erreur lors du chargement des utilisateurs:", error);
+      // Utiliser les utilisateurs fictifs en cas d'erreur
+      setUsers(mockUsers);
       toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger la liste des utilisateurs."
+        variant: "warning",
+        title: "Mode démo",
+        description: "Impossible de charger les utilisateurs réels. Affichage d'exemples fictifs."
       });
     } finally {
       setIsLoading(false);

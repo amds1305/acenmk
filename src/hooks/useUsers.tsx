@@ -3,12 +3,47 @@ import { useState, useEffect } from 'react';
 import { User, UserRole } from '@/types/auth';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
 
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Utilisateurs fictifs pour l'exemple
+  const mockUsers = [
+    MOCK_ADMIN_USER,
+    MOCK_USER,
+    {
+      id: 'user3',
+      email: 'premium@example.com',
+      name: 'Client Premium',
+      role: 'client_premium' as UserRole,
+      company: 'Premium Corp',
+      phone: '+33 6 12 34 56 78',
+      avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
+      createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
+    },
+    {
+      id: 'user4',
+      email: 'new@example.com',
+      name: 'Nouveau Client',
+      role: 'user' as UserRole,
+      company: 'New Company',
+      createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+    },
+    {
+      id: 'user5',
+      email: 'super@example.com',
+      name: 'Super Admin',
+      role: 'super_admin' as UserRole,
+      company: 'Admin Solutions',
+      phone: '+33 7 98 76 54 32',
+      avatar: 'https://i.pravatar.cc/150?u=super@example.com',
+      createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
+    }
+  ];
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -51,14 +86,22 @@ export const useUsers = () => {
         createdAt: profile.created_at
       }));
       
-      setUsers(mappedUsers);
+      // Si aucun utilisateur n'est récupéré, utiliser les utilisateurs fictifs
+      if (mappedUsers && mappedUsers.length > 0) {
+        setUsers(mappedUsers);
+      } else {
+        setUsers(mockUsers);
+        console.log("Aucun utilisateur trouvé dans Supabase, utilisation des exemples fictifs");
+      }
     } catch (err: any) {
       console.error("Erreur lors du chargement des utilisateurs:", err);
       setError(err.message || "Impossible de charger les utilisateurs");
+      // Utiliser les utilisateurs fictifs en cas d'erreur
+      setUsers(mockUsers);
       toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger la liste des utilisateurs."
+        variant: "warning",
+        title: "Mode démo",
+        description: "Impossible de charger les utilisateurs réels. Affichage d'exemples fictifs."
       });
     } finally {
       setIsLoading(false);

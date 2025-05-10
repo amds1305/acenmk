@@ -31,14 +31,50 @@ import { User } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
 import { getRoleLabel, getRoleBadgeVariant } from '@/utils/roleUtils';
 import { useUsers } from '@/hooks/useUsers';
+import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
 
 const UsersPermissionsManager: React.FC = () => {
   const { users, isLoading, error } = useUsers();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [permissionsMap, setPermissionsMap] = useState<Record<string, string[]>>({});
+  const [displayUsers, setDisplayUsers] = useState<User[]>([]);
   
   const { toast } = useToast();
+  
+  // Utilisateurs fictifs pour l'exemple
+  const mockUsers = [
+    MOCK_ADMIN_USER,
+    MOCK_USER,
+    {
+      id: 'user3',
+      email: 'premium@example.com',
+      name: 'Client Premium',
+      role: 'client_premium',
+      company: 'Premium Corp',
+      phone: '+33 6 12 34 56 78',
+      avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
+      createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
+    } as User,
+    {
+      id: 'user4',
+      email: 'new@example.com',
+      name: 'Nouveau Client',
+      role: 'user',
+      company: 'New Company',
+      createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+    } as User,
+    {
+      id: 'user5',
+      email: 'super@example.com',
+      name: 'Super Admin',
+      role: 'super_admin',
+      company: 'Admin Solutions',
+      phone: '+33 7 98 76 54 32',
+      avatar: 'https://i.pravatar.cc/150?u=super@example.com',
+      createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
+    } as User,
+  ];
   
   // Définir des permissions de base par défaut
   const commonPermissions = [
@@ -53,12 +89,21 @@ const UsersPermissionsManager: React.FC = () => {
     'view_analytics', 'manage_templates', 'manage_billing'
   ];
   
-  // Initialiser les permissions basées sur les rôles
+  // Déterminer les utilisateurs à afficher
   useEffect(() => {
     if (users && users.length > 0) {
+      setDisplayUsers(users);
+    } else {
+      setDisplayUsers(mockUsers);
+    }
+  }, [users]);
+  
+  // Initialiser les permissions basées sur les rôles
+  useEffect(() => {
+    if (displayUsers && displayUsers.length > 0) {
       const permMap: Record<string, string[]> = {};
       
-      users.forEach(user => {
+      displayUsers.forEach(user => {
         if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
           permMap[user.id] = adminPermissions;
         } else if (user.role === 'manager') {
@@ -72,7 +117,7 @@ const UsersPermissionsManager: React.FC = () => {
       
       setPermissionsMap(permMap);
     }
-  }, [users]);
+  }, [displayUsers]);
   
   const handleEditPermissions = (user: User) => {
     setSelectedUser(user);
@@ -151,7 +196,7 @@ const UsersPermissionsManager: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2">Chargement des données...</span>
           </div>
-        ) : users && users.length > 0 ? (
+        ) : displayUsers && displayUsers.length > 0 ? (
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -163,7 +208,7 @@ const UsersPermissionsManager: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {displayUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
