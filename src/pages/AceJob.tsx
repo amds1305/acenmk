@@ -54,12 +54,12 @@ const AceJob = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>ACE JOB</BreadcrumbPage>
+                  <BreadcrumbPage>AceJob</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           
-            <h1 className="text-4xl font-bold mb-8 text-center">ACE JOB - Gestion des candidatures</h1>
+            <h1 className="text-4xl font-bold mb-8 text-center">AceJob - Gestion des candidatures</h1>
             
             <Tabs defaultValue="applications" className="w-full" onValueChange={handleTabChange} value={activeTab}>
               <TabsList className="grid grid-cols-3 mb-8">

@@ -1,3 +1,4 @@
+
 import { RouteMetadata } from './types';
 
 export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
@@ -75,7 +76,7 @@ export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
   },
   "/acejob": {
     path: "/acejob",
-    title: "ACE JOB",
+    title: "AceJob",
     description: "Module de gestion des candidatures et CVs",
     icon: "badge",
     showInNav: false,

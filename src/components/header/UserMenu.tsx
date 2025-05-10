@@ -23,7 +23,7 @@ import { isAdminRole } from '@/utils/roleUtils';
 // Définition des modules internes
 const internalModules = [
   {
-    name: 'ACE JOB',
+    name: 'AceJob',
     path: '/acejob',
     icon: <Badge className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
