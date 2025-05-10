@@ -37,10 +37,10 @@ const SectionItem: React.FC<SectionItemProps> = ({
           <GripVertical className="h-5 w-5" />
         </div>
         <div>
-          <div className="font-medium">{section.title}</div>
-          <div className="text-xs text-muted-foreground">Type: {
+          <div className="font-medium">{
             section.type.charAt(0).toUpperCase() + section.type.slice(1).replace(/-/g, ' ')
           }</div>
+          <div className="text-xs text-muted-foreground">Titre: {section.title}</div>
         </div>
       </div>
       
