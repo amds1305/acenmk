@@ -74,8 +74,8 @@ export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
     showInNav: false,
     order: 103
   },
-  "/acejob": {
-    path: "/acejob",
+  "/ace-job": {
+    path: "/ace-job",
     title: "AceJob",
     description: "Module de gestion des candidatures et CVs",
     icon: "badge",

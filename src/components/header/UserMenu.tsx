@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,7 +25,7 @@ import { isAdminRole } from '@/utils/roleUtils';
 const internalModules = [
   {
     name: 'AceJob',
-    path: '/acejob',
+    path: '/ace-job',
     icon: <Badge className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }
