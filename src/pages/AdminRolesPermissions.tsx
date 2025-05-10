@@ -13,7 +13,7 @@ const AdminRolesPermissions = () => {
       <h1 className="text-2xl font-bold mb-6">Rôles et Permissions</h1>
       
       <Tabs defaultValue="route-permissions">
-        <TabsList>
+        <TabsList className="mb-4">
           <TabsTrigger value="route-permissions">Accès aux rubriques</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="roles">Rôles</TabsTrigger>

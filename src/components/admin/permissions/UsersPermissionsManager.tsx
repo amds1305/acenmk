@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -7,179 +7,32 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, CheckSquare, XSquare, Edit2, Users } from 'lucide-react';
-import { User } from '@/types/auth';
-import { useToast } from '@/hooks/use-toast';
-import { getRoleLabel, getRoleBadgeVariant } from '@/utils/roleUtils';
 import { useUsers } from '@/hooks/useUsers';
-import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
+import UserPermissionsList from './UserPermissionsList';
+import UserPermissionDialog from './UserPermissionDialog';
+import UserPermissionsError from './UserPermissionsError';
 
 const UsersPermissionsManager: React.FC = () => {
   const { users, isLoading, error } = useUsers();
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [permissionsMap, setPermissionsMap] = useState<Record<string, string[]>>({});
-  const [displayUsers, setDisplayUsers] = useState<User[]>([]);
+  const {
+    permissionsMap,
+    selectedUser,
+    isEditDialogOpen,
+    handleEditPermissions,
+    handleUpdatePermission,
+    handleSavePermissions,
+    setIsEditDialogOpen,
+    setSelectedUser
+  } = useUserPermissions(users);
   
-  const { toast } = useToast();
-  
-  // Utilisateurs fictifs pour l'exemple
-  const mockUsers = [
-    MOCK_ADMIN_USER,
-    MOCK_USER,
-    {
-      id: 'user3',
-      email: 'premium@example.com',
-      name: 'Client Premium',
-      role: 'client_premium',
-      company: 'Premium Corp',
-      phone: '+33 6 12 34 56 78',
-      avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
-      createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
-    } as User,
-    {
-      id: 'user4',
-      email: 'new@example.com',
-      name: 'Nouveau Client',
-      role: 'user',
-      company: 'New Company',
-      createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
-    } as User,
-    {
-      id: 'user5',
-      email: 'super@example.com',
-      name: 'Super Admin',
-      role: 'super_admin',
-      company: 'Admin Solutions',
-      phone: '+33 7 98 76 54 32',
-      avatar: 'https://i.pravatar.cc/150?u=super@example.com',
-      createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
-    } as User,
-  ];
-  
-  // Définir des permissions de base par défaut
-  const commonPermissions = [
-    'view_profile', 'edit_profile', 
-    'view_projects', 'create_projects', 'edit_projects',
-    'view_messages', 'send_messages'
-  ];
-  
-  const adminPermissions = [
-    ...commonPermissions,
-    'manage_users', 'manage_roles', 'manage_site', 'delete_users',
-    'view_analytics', 'manage_templates', 'manage_billing'
-  ];
-  
-  // Déterminer les utilisateurs à afficher
-  useEffect(() => {
-    if (users && users.length > 0) {
-      setDisplayUsers(users);
-    } else {
-      setDisplayUsers(mockUsers);
-    }
-  }, [users]);
-  
-  // Initialiser les permissions basées sur les rôles
-  useEffect(() => {
-    if (displayUsers && displayUsers.length > 0) {
-      const permMap: Record<string, string[]> = {};
-      
-      displayUsers.forEach(user => {
-        if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
-          permMap[user.id] = adminPermissions;
-        } else if (user.role === 'manager') {
-          permMap[user.id] = [...commonPermissions, 'view_analytics', 'manage_projects'];
-        } else if (user.role === 'contributor') {
-          permMap[user.id] = [...commonPermissions, 'create_content', 'edit_content'];
-        } else {
-          permMap[user.id] = ['view_profile', 'edit_profile', 'view_projects', 'view_messages', 'send_messages'];
-        }
-      });
-      
-      setPermissionsMap(permMap);
-    }
-  }, [displayUsers]);
-  
-  const handleEditPermissions = (user: User) => {
-    setSelectedUser(user);
-    setEditDialogOpen(true);
-  };
-  
-  const handleUpdatePermission = (permission: string, hasPermission: boolean) => {
-    if (!selectedUser) return;
-    
-    setPermissionsMap(prev => {
-      const userPermissions = [...(prev[selectedUser.id] || [])];
-      
-      if (hasPermission) {
-        if (!userPermissions.includes(permission)) {
-          userPermissions.push(permission);
-        }
-      } else {
-        const index = userPermissions.indexOf(permission);
-        if (index !== -1) {
-          userPermissions.splice(index, 1);
-        }
-      }
-      
-      return {
-        ...prev,
-        [selectedUser.id]: userPermissions
-      };
-    });
-  };
-  
-  const handleSavePermissions = async () => {
-    // Dans une implémentation réelle, vous enregistreriez ces permissions dans la base de données
-    toast({
-      title: "Permissions mises à jour",
-      description: "Les permissions de l'utilisateur ont été mises à jour avec succès."
-    });
-    setEditDialogOpen(false);
-  };
-  
-  const hasPermission = (userId: string, permission: string): boolean => {
-    return permissionsMap[userId]?.includes(permission) || false;
+  const handleCloseDialog = () => {
+    setIsEditDialogOpen(false);
+    setSelectedUser(null);
   };
   
   if (error) {
-    return (
-      <Card className="w-full">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="rounded-full bg-destructive/10 p-3 mb-3">
-              <Loader2 className="h-6 w-6 text-destructive" />
-            </div>
-            <h3 className="font-medium">Erreur de chargement</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Une erreur est survenue lors du chargement des utilisateurs
-            </p>
-            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-              Réessayer
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <UserPermissionsError onRetry={() => window.location.reload()} />;
   }
   
   return (
@@ -191,190 +44,21 @@ const UsersPermissionsManager: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Chargement des données...</span>
-          </div>
-        ) : displayUsers && displayUsers.length > 0 ? (
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Utilisateur</TableHead>
-                  <TableHead>Rôle</TableHead>
-                  <TableHead>Permissions</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getRoleBadgeVariant(user.role) as any}>
-                        {getRoleLabel(user.role)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {permissionsMap[user.id]?.slice(0, 3).map(perm => (
-                          <Badge key={perm} variant="outline" className="text-xs">
-                            {perm}
-                          </Badge>
-                        ))}
-                        {permissionsMap[user.id]?.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{permissionsMap[user.id].length - 3} autres
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEditPermissions(user)}
-                      >
-                        <Edit2 className="h-4 w-4 mr-1" />
-                        Modifier
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-10 text-center border rounded-lg">
-            <Users className="h-10 w-10 text-muted-foreground mb-3" />
-            <h3 className="font-medium">Aucun utilisateur trouvé</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Aucun utilisateur n'est disponible dans le système
-            </p>
-          </div>
-        )}
+        <UserPermissionsList 
+          users={users}
+          permissionsMap={permissionsMap}
+          onEditPermissions={handleEditPermissions}
+          isLoading={isLoading}
+        />
         
-        {/* Dialogue d'édition des permissions */}
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>
-                Modifier les permissions de {selectedUser?.name}
-              </DialogTitle>
-              <DialogDescription>
-                Activez ou désactivez les permissions individuelles pour cet utilisateur.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4">
-              <ScrollArea className="h-[400px] pr-4">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Permissions de profil</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      {['view_profile', 'edit_profile'].map(permission => (
-                        <div key={permission} className="flex items-center justify-between p-2 border rounded-md">
-                          <span className="text-sm">{permission}</span>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant={hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, true)}
-                            >
-                              <CheckSquare className="h-4 w-4 mr-1" />
-                              Oui
-                            </Button>
-                            <Button 
-                              variant={!hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, false)}
-                            >
-                              <XSquare className="h-4 w-4 mr-1" />
-                              Non
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Permissions de projets</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      {['view_projects', 'create_projects', 'edit_projects'].map(permission => (
-                        <div key={permission} className="flex items-center justify-between p-2 border rounded-md">
-                          <span className="text-sm">{permission}</span>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant={hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, true)}
-                            >
-                              <CheckSquare className="h-4 w-4 mr-1" />
-                              Oui
-                            </Button>
-                            <Button 
-                              variant={!hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, false)}
-                            >
-                              <XSquare className="h-4 w-4 mr-1" />
-                              Non
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Permissions d'administration</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      {['manage_users', 'manage_roles', 'manage_site', 'view_analytics'].map(permission => (
-                        <div key={permission} className="flex items-center justify-between p-2 border rounded-md">
-                          <span className="text-sm">{permission}</span>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant={hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, true)}
-                            >
-                              <CheckSquare className="h-4 w-4 mr-1" />
-                              Oui
-                            </Button>
-                            <Button 
-                              variant={!hasPermission(selectedUser?.id || '', permission) ? "default" : "outline"} 
-                              size="sm"
-                              onClick={() => handleUpdatePermission(permission, false)}
-                            >
-                              <XSquare className="h-4 w-4 mr-1" />
-                              Non
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button onClick={handleSavePermissions}>
-                Enregistrer les modifications
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <UserPermissionDialog
+          user={selectedUser}
+          isOpen={isEditDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSavePermissions}
+          permissionsMap={permissionsMap}
+          onUpdatePermission={handleUpdatePermission}
+        />
       </CardContent>
     </Card>
   );

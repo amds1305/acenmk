@@ -15,6 +15,7 @@ import Portfolio from './pages/Portfolio';
 import AceJob from './pages/AceJob';
 import Careers from './pages/Careers';
 import Admin from './pages/Admin';
+import AdminRolesPermissions from './pages/AdminRolesPermissions'; // Import eagerly instead of lazily
 
 // Lazily loaded components for better performance
 const Login = lazy(() => import('./pages/Login'));
@@ -27,7 +28,6 @@ const AdminTemplateChooser = lazy(() => import('./pages/AdminTemplateChooser'));
 const Blog = lazy(() => import('./pages/Blog'));
 const ProjectEstimation = lazy(() => import('./pages/ProjectEstimation'));
 const Faq = lazy(() => import('./pages/Faq'));
-const AdminRolesPermissions = lazy(() => import('./pages/AdminRolesPermissions'));
 const AdminExternalLinks = lazy(() => import('./pages/AdminExternalLinks'));
 const AdminCareers = lazy(() => import('./pages/AdminCareers'));
 const AdminPricing = lazy(() => import('./pages/AdminPricing'));
