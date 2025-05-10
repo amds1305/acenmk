@@ -26,3 +26,10 @@ export interface SectionsContextProps {
   saveChanges: () => Promise<void>;
   reloadConfig: () => Promise<void>;
 }
+
+// Interface pour les options de liens externes
+export interface ExternalLinkOptions {
+  externalUrl?: string;
+  requiresAuth?: boolean;
+  allowedRoles?: string[];
+}

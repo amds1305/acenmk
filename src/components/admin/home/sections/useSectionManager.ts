@@ -5,7 +5,15 @@ import { Section, SectionType } from '@/types/sections';
 import { useSections } from '@/contexts/sections/SectionsContext';
 
 export function useSectionManager() {
-  const { config, updateSectionVisibility, removeExistingSection, addNewSection, reloadConfig, saveChanges } = useSections();
+  const { 
+    config, 
+    updateSectionOrder, 
+    updateSectionVisibility, 
+    removeExistingSection, 
+    addNewSection, 
+    reloadConfig, 
+    saveChanges 
+  } = useSections();
   
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -17,15 +25,12 @@ export function useSectionManager() {
   
   // Force le rechargement des sections au montage
   useEffect(() => {
+    console.log("useSectionManager - Rechargement forcé des sections");
     reloadConfig();
   }, [reloadConfig]);
-
-  const updateSections = useCallback((sections: Section[]) => {
-    // Cette fonction sera implémentée pour mettre à jour l'ordre des sections
-    const { updateSectionOrder } = useSections();
-    if (updateSectionOrder) {
-      updateSectionOrder(sections);
-    }
+  
+  const handleDragStart = useCallback((index: number) => {
+    setDraggingIndex(index);
   }, []);
   
   const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
@@ -47,9 +52,9 @@ export function useSectionManager() {
       order: idx
     }));
     
-    updateSections(reorderedSections);
+    updateSectionOrder(reorderedSections);
     setDraggingIndex(index);
-  }, [draggingIndex, config.sections, updateSections]);
+  }, [draggingIndex, config.sections, updateSectionOrder]);
   
   const handleDragEnd = useCallback(() => {
     setDraggingIndex(null);
@@ -101,6 +106,7 @@ export function useSectionManager() {
     ];
     
     if (!config.sections || config.sections.length === 0) {
+      console.log("useSectionManager - Ajout des sections par défaut");
       // Ajouter les sections par défaut
       defaultSections.forEach(section => {
         addNewSection(section);
@@ -115,7 +121,7 @@ export function useSectionManager() {
     draggingIndex,
     dialogOpen,
     setDialogOpen,
-    handleDragStart: (index: number) => setDraggingIndex(index),
+    handleDragStart,
     handleDragOver,
     handleDragEnd,
     handleAddSection,

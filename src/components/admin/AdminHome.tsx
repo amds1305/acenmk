@@ -2,7 +2,6 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import HomeHeader from './home/HomeHeader';
-import HomeVisibilityCard from './home/HomeVisibilityCard';
 import HeroEditCard from './home/HeroEditCard';
 import SectionRedirectCard from './home/SectionRedirectCard';
 import SectionsManager from './home/SectionsManager';

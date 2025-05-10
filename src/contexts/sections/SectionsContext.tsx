@@ -21,7 +21,7 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     updateExistingSection
   } = useSectionOperations(config, setConfig);
   
-  const { updateTemplateType, saveChanges } = useTemplateOperations(config, setConfig);
+  const { updateTemplateType, saveChanges } = useTemplateOperations(config, setConfig, setSaveStatus);
 
   const value: SectionsContextProps = {
     config,
