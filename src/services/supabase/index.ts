@@ -6,4 +6,5 @@ export * from './teamService';
 export * from './sectionsService'; 
 export * from './servicesService';
 export * from './adminService';
-
+export * from './sections';
+export * from './headerService';

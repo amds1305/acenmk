@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from '@/hooks/use-toast';
 import { getServices, saveService, updateService, deleteService, updateServicesOrder, ServiceItem } from '@/services/supabase/servicesService';
 import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 // Les icônes disponibles
 const AVAILABLE_ICONS = [
