@@ -19,73 +19,18 @@ import UserProfileDialog from './UserProfileDialog';
 import SendMessageDialog from './SendMessageDialog';
 import AddUserDialog from './AddUserDialog';
 import { supabase } from '@/lib/supabase';
-import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
+import { mapUserData } from '@/lib/supabase';
 
-// Ajouter les utilisateurs fictifs manquants de l'ancienne version
-const mockUsers = [
-  MOCK_ADMIN_USER,
-  MOCK_USER,
-  {
-    id: 'user3',
-    email: 'premium@example.com',
-    name: 'Client Premium',
-    role: 'client_premium' as UserRole,
-    company: 'Premium Corp',
-    phone: '+33 6 12 34 56 78',
-    avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
-    createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
-  },
-  {
-    id: 'user4',
-    email: 'new@example.com',
-    name: 'Nouveau Client',
-    role: 'user' as UserRole,
-    company: 'New Company',
-    createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
-  },
-  {
-    id: 'user5',
-    email: 'super@example.com',
-    name: 'Super Admin',
-    role: 'super_admin' as UserRole,
-    company: 'Admin Solutions',
-    phone: '+33 7 98 76 54 32',
-    avatar: 'https://i.pravatar.cc/150?u=super@example.com',
-    createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
-  }
-];
-
-const AdminUsers = () => {
+// Hook pour obtenir les utilisateurs depuis Supabase
+const useSupabaseUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
-
-  // Charger les utilisateurs depuis Supabase ou les mocks
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   const fetchUsers = async () => {
     setIsLoading(true);
     
     try {
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      if (isTestMode) {
-        // En mode test, utiliser les utilisateurs fictifs
-        console.log("Mode test activé, chargement des utilisateurs fictifs");
-        setUsers(mockUsers);
-        setIsLoading(false);
-        return;
-      }
-      
       // Récupérer les profils des utilisateurs depuis Supabase
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
@@ -96,40 +41,64 @@ const AdminUsers = () => {
       // Récupérer les rôles des utilisateurs
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
         
       if (rolesError) throw rolesError;
       
-      // Combiner les informations pour créer la liste des utilisateurs
-      const mappedUsers = profiles.map(profile => {
-        const userRole = userRoles.find(role => role.user_id === profile.id);
-        return {
-          id: profile.id,
-          email: profile.email,
-          name: profile.name,
-          role: (userRole?.role || 'user') as UserRole,
-          company: profile.company || undefined,
-          phone: profile.phone || undefined,
-          avatar: profile.avatar_url || undefined,
-          createdAt: profile.created_at,
-        } as User;
+      // Préparer un map des derniers rôles par utilisateur
+      const roleMap: Record<string, UserRole> = {};
+      userRoles.forEach(role => {
+        if (!roleMap[role.user_id]) {
+          roleMap[role.user_id] = role.role as UserRole;
+        }
       });
       
+      // Créer la liste des utilisateurs avec leurs rôles
+      const mappedUsers = profiles.map(profile => ({
+        id: profile.id,
+        email: profile.email,
+        name: profile.name || profile.email?.split('@')[0] || 'Sans nom',
+        role: roleMap[profile.id] || 'user' as UserRole,
+        avatar: profile.avatar_url,
+        company: profile.company,
+        phone: profile.phone,
+        biography: profile.biography,
+        createdAt: profile.created_at
+      }));
+      
       setUsers(mappedUsers);
+      console.log("Utilisateurs chargés depuis Supabase:", mappedUsers);
     } catch (error) {
-      console.error("Erreur lors de la récupération des utilisateurs:", error);
+      console.error("Erreur lors du chargement des utilisateurs:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger la liste des utilisateurs."
       });
-      
-      // En cas d'erreur, charger les utilisateurs fictifs comme fallback
-      setUsers(mockUsers);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Charger les utilisateurs au démarrage
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  return { users, isLoading, fetchUsers, setUsers };
+};
+
+const AdminUsers = () => {
+  const { users, isLoading, fetchUsers, setUsers } = useSupabaseUsers();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
@@ -144,27 +113,13 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      if (isTestMode) {
-        // Mode test - simuler la suppression
-        setTimeout(() => {
-          setUsers(users.filter(user => user.id !== userId));
-          toast({
-            title: "Utilisateur supprimé (mode test)",
-            description: "L'utilisateur a été supprimé avec succès."
-          });
-        }, 500);
-        return;
-      }
-      
       // Supprimer l'utilisateur dans Supabase
-      // Note: Cette opération nécessite des droits d'admin dans Supabase
-      const { error } = await supabase.functions.invoke('delete-user', {
-        body: { userId }
-      });
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
       
-      if (error) throw error;
+      if (deleteError) throw deleteError;
       
       // Mettre à jour l'état local
       setUsers(users.filter(user => user.id !== userId));
@@ -185,22 +140,6 @@ const AdminUsers = () => {
 
   const handleChangeRole = async (userId: string, newRole: UserRole) => {
     try {
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      if (isTestMode) {
-        // Mode test - simuler le changement de rôle
-        setTimeout(() => {
-          setUsers(users.map(user => 
-            user.id === userId ? { ...user, role: newRole } : user
-          ));
-          toast({
-            title: "Rôle mis à jour (mode test)",
-            description: "Le rôle de l'utilisateur a été modifié avec succès."
-          });
-        }, 500);
-        return;
-      }
-
       // Vérifier si l'utilisateur a déjà un rôle
       const { data: existingRoles } = await supabase
         .from('user_roles')
@@ -222,16 +161,6 @@ const AdminUsers = () => {
           .insert([{ user_id: userId, role: newRole }]);
           
         if (error) throw error;
-      }
-      
-      // Mettre à jour le profil si nécessaire
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-
-      if (profileError) {
-        console.warn("Note: Impossible de mettre à jour le rôle dans la table profiles:", profileError);
       }
       
       // Mettre à jour l'état local
@@ -268,24 +197,6 @@ const AdminUsers = () => {
   const handleUpdateProfile = async (updatedUser: Partial<User>) => {
     try {
       if (!selectedUser) return;
-      
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      if (isTestMode) {
-        // Mode test - simuler la mise à jour
-        setTimeout(() => {
-          setUsers(users.map(user => 
-            user.id === selectedUser.id 
-              ? { ...user, ...updatedUser }
-              : user
-          ));
-          toast({
-            title: "Profil mis à jour (mode test)",
-            description: "Le profil a été modifié avec succès."
-          });
-        }, 500);
-        return;
-      }
       
       // Mettre à jour le profil dans Supabase
       const { error } = await supabase
@@ -427,6 +338,7 @@ const AdminUsers = () => {
             onSendMessage={handleSendMessage}
             onChangeRole={handleChangeRole}
             onDeleteUser={handleDeleteUser}
+            isLoading={isLoading}
           />
           
           <UsersStats 

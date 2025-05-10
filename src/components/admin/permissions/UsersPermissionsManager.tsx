@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -26,17 +26,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, ShieldAlert, CheckSquare, XSquare, Edit2 } from 'lucide-react';
-import { User, UserRole } from '@/types/auth';
+import { Loader2, CheckSquare, XSquare, Edit2 } from 'lucide-react';
+import { User } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
 import { getRoleLabel, getRoleBadgeVariant } from '@/utils/roleUtils';
+import { useUsers } from '@/hooks/useUsers';
 
 const UsersPermissionsManager: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const { users, isLoading, updateUserRole } = useUsers();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [permissionsMap, setPermissionsMap] = useState<Record<string, string[]>>({});
   
   const { toast } = useToast();
@@ -54,69 +53,24 @@ const UsersPermissionsManager: React.FC = () => {
     'view_analytics', 'manage_templates', 'manage_billing'
   ];
   
-  useEffect(() => {
-    // Charger tous les utilisateurs
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*');
-          
-        if (profilesError) throw profilesError;
-        
-        // Récupérer les rôles des utilisateurs
-        const { data: userRoles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('*');
-          
-        if (rolesError) throw rolesError;
-        
-        // Mapper les rôles aux utilisateurs
-        const mappedUsers = profiles.map(profile => {
-          const userRole = userRoles.find(role => role.user_id === profile.id);
-          return {
-            id: profile.id,
-            email: profile.email,
-            name: profile.name || profile.email?.split('@')[0] || 'Sans nom',
-            role: (userRole?.role || 'user') as UserRole,
-            avatar: profile.avatar_url,
-            createdAt: profile.created_at
-          } as User;
-        });
-        
-        setUsers(mappedUsers);
-        
-        // Simuler une carte de permissions selon les rôles
-        const permMap: Record<string, string[]> = {};
-        
-        mappedUsers.forEach(user => {
-          if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
-            permMap[user.id] = adminPermissions;
-          } else if (user.role === 'manager') {
-            permMap[user.id] = [...commonPermissions, 'view_analytics', 'manage_projects'];
-          } else if (user.role === 'contributor') {
-            permMap[user.id] = [...commonPermissions, 'create_content', 'edit_content'];
-          } else {
-            permMap[user.id] = ['view_profile', 'edit_profile', 'view_projects', 'view_messages', 'send_messages'];
-          }
-        });
-        
-        setPermissionsMap(permMap);
-      } catch (error) {
-        console.error("Erreur lors du chargement des utilisateurs:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible de charger les données des utilisateurs."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Initialiser les permissions basées sur les rôles
+  React.useEffect(() => {
+    const permMap: Record<string, string[]> = {};
     
-    fetchUsers();
-  }, [toast]);
+    users.forEach(user => {
+      if (user.role === 'super_admin' || user.role === 'business_admin' || user.role === 'admin') {
+        permMap[user.id] = adminPermissions;
+      } else if (user.role === 'manager') {
+        permMap[user.id] = [...commonPermissions, 'view_analytics', 'manage_projects'];
+      } else if (user.role === 'contributor') {
+        permMap[user.id] = [...commonPermissions, 'create_content', 'edit_content'];
+      } else {
+        permMap[user.id] = ['view_profile', 'edit_profile', 'view_projects', 'view_messages', 'send_messages'];
+      }
+    });
+    
+    setPermissionsMap(permMap);
+  }, [users]);
   
   const handleEditPermissions = (user: User) => {
     setSelectedUser(user);

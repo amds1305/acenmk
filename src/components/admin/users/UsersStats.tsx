@@ -7,7 +7,10 @@ interface UsersStatsProps {
   totalCount: number;
 }
 
-export const UsersStats = ({ filteredCount, totalCount }: UsersStatsProps) => {
+export const UsersStats: React.FC<UsersStatsProps> = ({
+  filteredCount,
+  totalCount
+}) => {
   return (
     <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
       <div>

@@ -934,6 +934,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      initialize_mock_users: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       rollback_transaction: {
         Args: Record<PropertyKey, never>
         Returns: undefined
