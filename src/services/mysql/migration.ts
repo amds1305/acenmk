@@ -1,75 +1,16 @@
 
 import { HomepageConfig } from '@/types/sections';
-import { saveHomepageConfig } from './saveConfig';
 import { loadFromStorage } from '../sections/storageService';
 import { getApiUrl } from './config';
+import { supabase } from '@/lib/supabase';
 
 /**
- * Migre les données du localStorage vers MySQL via l'API
+ * Migre les données du localStorage vers Supabase
  * @returns {Promise<boolean>} true en cas de succès, false en cas d'échec
  */
-export const migrateLocalStorageToMySQL = async (): Promise<boolean> => {
+export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
   try {
-    console.log('Début de la migration vers MySQL...');
-    
-    // Vérifier si l'URL de l'API est configurée
-    const apiUrl = getApiUrl();
-    if (!apiUrl) {
-      console.error('URL de l\'API MySQL non configurée. Veuillez configurer l\'URL de l\'API dans les paramètres.');
-      return false;
-    }
-    
-    console.log(`URL de l'API configurée: ${apiUrl}`);
-    
-    // Tester la connexion à l'API avec un timeout plus long
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout (augmenté)
-      
-      const testUrl = `${apiUrl}/config.php?test=json&_=${Date.now()}`;
-      console.log(`Test de connexion à l'API: ${testUrl}`);
-      
-      const testResponse = await fetch(testUrl, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        signal: controller.signal,
-        mode: 'cors', // Explicitement demander le mode CORS
-        cache: 'no-store' // Ajouter ce paramètre pour éviter les problèmes de cache
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!testResponse.ok) {
-        console.error(`Impossible de se connecter à l'API MySQL (statut: ${testResponse.status})`);
-        let responseText = '';
-        try {
-          responseText = await testResponse.text();
-          console.error('Réponse:', responseText);
-        } catch (e) {
-          console.error('Impossible de lire la réponse');
-        }
-        return false;
-      }
-      
-      // Tester que la réponse est du JSON valide
-      try {
-        const jsonResponse = await testResponse.json();
-        console.log('Réponse de test reçue:', jsonResponse);
-      } catch (e) {
-        console.error('La réponse du serveur n\'est pas un JSON valide. Vérifiez que le fichier config.php est correctement configuré.');
-        console.error('Erreur de parsing JSON:', e);
-        return false;
-      }
-    } catch (error: any) {
-      console.error('Erreur lors du test de connexion à l\'API MySQL:', error);
-      if (error.name === 'AbortError') {
-        console.error('La connexion a expiré. Vérifiez que l\'URL de l\'API est correcte et que le serveur répond.');
-      }
-      return false;
-    }
+    console.log('Début de la migration vers Supabase...');
     
     // Récupérer les données du localStorage
     const localConfig: HomepageConfig = loadFromStorage();
@@ -82,21 +23,72 @@ export const migrateLocalStorageToMySQL = async (): Promise<boolean> => {
     
     console.log(`Données à migrer: ${localConfig.sections.length} sections et ${Object.keys(localConfig.sectionData).length} sections de données`);
     
-    // Sauvegarder la configuration dans MySQL via l'API
-    const success = await saveHomepageConfig(localConfig);
-    
-    if (success) {
-      console.log('Migration vers MySQL réussie');
-    } else {
-      console.error('Erreur de migration: la sauvegarde a échoué');
+    // 1. Sauvegarde des sections
+    for (const section of localConfig.sections) {
+      const { error } = await supabase
+        .from('sections')
+        .upsert({
+          id: section.id,
+          type: section.type,
+          title: section.title,
+          visible: section.visible,
+          order: section.order,
+          custom_component: section.customComponent
+        }, { onConflict: 'id' });
+
+      if (error) throw error;
     }
     
-    return success;
+    // 2. Sauvegarde des données de section
+    const sectionDataArray = Object.entries(localConfig.sectionData).map(([section_id, data]) => ({
+      section_id,
+      data
+    }));
+    
+    for (const entry of sectionDataArray) {
+      const { error } = await supabase
+        .from('section_data')
+        .upsert({ 
+          section_id: entry.section_id,
+          data: entry.data
+        }, { onConflict: 'section_id' });
+
+      if (error) throw error;
+    }
+    
+    // 3. Sauvegarde de la configuration du template
+    if (localConfig.templateConfig) {
+      const { error } = await supabase
+        .from('template_config')
+        .upsert({
+          id: 'default',
+          active_template: localConfig.templateConfig.activeTemplate
+        }, { onConflict: 'id' });
+
+      if (error) throw error;
+    }
+    
+    console.log('Migration vers Supabase réussie');
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la migration des données vers Supabase:', error);
+    return false;
+  }
+};
+
+/**
+ * Migre les données du localStorage vers MySQL via l'API
+ * @returns {Promise<boolean>} true en cas de succès, false en cas d'échec
+ */
+export const migrateLocalStorageToMySQL = async (): Promise<boolean> => {
+  try {
+    console.log('Début de la migration vers MySQL...');
+    
+    // Cette fonction est maintenant juste un alias de migrateLocalStorageToSupabase
+    // puisque nous n'utilisons plus d'API MySQL séparée
+    return await migrateLocalStorageToSupabase();
   } catch (error) {
     console.error('Erreur lors de la migration des données vers MySQL:', error);
     return false;
   }
 };
-
-// Maintenir la compatibilité avec le nom de fonction précédent pour éviter des erreurs
-export const migrateLocalStorageToSupabase = migrateLocalStorageToMySQL;
