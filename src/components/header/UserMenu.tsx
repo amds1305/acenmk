@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { 
   User, LogOut, Settings, MessageSquare, 
-  FileText, Briefcase, Bell, Badge
+  FileText, Briefcase, Bell, GraduationCap
 } from 'lucide-react';
 import { Badge as BadgeUI } from '@/components/ui/badge';
 import { usePermissions } from '@/contexts/PermissionsContext';
@@ -26,7 +25,7 @@ const internalModules = [
   {
     name: 'AceJob',
     path: '/ace-job',
-    icon: <Badge className="h-4 w-4" />,
+    icon: <GraduationCap className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }
   // Possibilité d'ajouter d'autres modules internes facilement ici
@@ -131,7 +130,7 @@ const UserMenu = () => {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="flex items-center text-xs text-muted-foreground">
-                  <Badge className="mr-1 h-3 w-3" />
+                  <GraduationCap className="mr-1 h-3 w-3" />
                   Modules internes
                 </DropdownMenuLabel>
                 
