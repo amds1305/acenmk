@@ -1,12 +1,11 @@
 
 import { RouteMetadata, RouteMetadataMap } from './types';
-import { publicRouteMetadata, userRouteMetadata } from './publicRoutes';
+import { PUBLIC_ROUTES } from './publicRoutes';
 import { adminRouteMetadata } from './adminRoutes';
 
 // Combine all route metadata into one map
 const routeMetadataMap: RouteMetadataMap = {
-  ...publicRouteMetadata,
-  ...userRouteMetadata,
+  ...PUBLIC_ROUTES,
   ...adminRouteMetadata
 };
 
