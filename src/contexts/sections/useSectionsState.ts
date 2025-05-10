@@ -1,108 +1,75 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { HomepageConfig } from '@/types/sections';
+import { useState, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/mysql';
-import { DEFAULT_TEMPLATE_CONFIG } from '@/services/sections/defaultData';
-import { useQueryClient } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { DEFAULT_SECTIONS, DEFAULT_TEMPLATE_CONFIG, DEFAULT_HOMEPAGE_CONFIG } from '@/services/sections/defaultData';
+import { HomepageConfig } from '@/types/sections';
 
-export function useSectionsState() {
-  const [config, setConfig] = useState<HomepageConfig>({ 
-    sections: [], 
-    sectionData: {}, 
-    templateConfig: DEFAULT_TEMPLATE_CONFIG 
+// Clé pour le cache de configuration
+const CONFIG_CACHE_KEY = 'homeConfig';
+
+export const useSectionsState = () => {
+  const [config, setConfig] = useState<HomepageConfig>({
+    sections: DEFAULT_SECTIONS,
+    sectionData: {},
+    templateConfig: DEFAULT_TEMPLATE_CONFIG,
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  
   const queryClient = useQueryClient();
 
-  // Use React Query to fetch the config
-  const { data: fetchedConfig, refetch, isRefetching, isError } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: async () => {
-      console.log('Tentative de chargement de la configuration depuis Supabase...');
-      const result = await getHomepageConfig();
-      console.log('Configuration chargée depuis Supabase:', result);
-      return result;
-    },
-    staleTime: 0, // Always consider as stale to force reload
-    refetchOnWindowFocus: true,
+  // Charger la configuration initiale
+  const { 
+    isLoading, 
+    isError, 
+    isRefetching, 
+    refetch 
+  } = useQuery({
+    queryKey: [CONFIG_CACHE_KEY],
+    queryFn: getHomepageConfig,
+    staleTime: 0, // Toujours considérer comme périmé pour forcer le rechargement
+    refetchOnMount: true,
+    retry: 2,
     onSuccess: (data) => {
-      console.log('Config fetched successfully:', data);
-      if (data) {
-        setConfig(data);
-        setIsLoading(false);
-      }
+      console.log('Configuration chargée avec succès:', data);
+      setConfig(data || DEFAULT_HOMEPAGE_CONFIG);
     },
     onError: (error) => {
-      console.error('Error fetching config:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger la configuration du site.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
+      console.error('Erreur lors du chargement de la configuration:', error);
+      setConfig(DEFAULT_HOMEPAGE_CONFIG);
     }
   });
-
-  // Update config state when fetched data changes
-  useEffect(() => {
-    if (fetchedConfig) {
-      console.log('Setting config with fetched data:', fetchedConfig);
-      setConfig(fetchedConfig);
-    }
-  }, [fetchedConfig]);
-
+  
+  // Fonction pour forcer le rechargement de la configuration
   const loadConfig = useCallback(async () => {
+    console.log('Forcer le rechargement de la configuration...');
+    
+    // Nettoyer le cache local si présent
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
+    // Invalider le cache React Query
+    queryClient.invalidateQueries({ queryKey: [CONFIG_CACHE_KEY] });
+    
     try {
-      setIsLoading(true);
-      console.log('Chargement manuel de la configuration...');
+      // Recharger manuellement les données
+      const freshData = await getHomepageConfig();
+      console.log('Nouvelles données chargées:', freshData);
       
-      // Invalider le cache et forcer un rechargement
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-      await refetch();
-      
-      console.log('Configuration rechargée manuellement');
-      
-      // Afficher un toast de succès
-      toast({
-        title: "Succès",
-        description: "Configuration rechargée avec succès.",
-      });
+      // Mettre à jour l'état local
+      setConfig(freshData || DEFAULT_HOMEPAGE_CONFIG);
+      return freshData;
     } catch (error) {
-      console.error('Erreur lors du chargement manuel de la configuration:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger la configuration du site.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      console.error('Erreur lors du rechargement forcé:', error);
+      return null;
     }
-  }, [toast, queryClient, refetch]);
-
-  // Charger la configuration initiale
-  useEffect(() => {
-    console.log('Chargement initial de la configuration...');
-    loadConfig();
-    
-    // Configurer un intervalle de rafraîchissement
-    const intervalId = setInterval(() => {
-      console.log('Rafraîchissement périodique de la configuration...');
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    }, 60000); // Rafraîchir toutes les minutes
-    
-    return () => clearInterval(intervalId);
-  }, [loadConfig, queryClient]);
+  }, [queryClient]);
 
   return {
     config,
     setConfig,
-    isLoading: isLoading || isRefetching,
-    setIsLoading,
-    loadConfig,
+    isLoading,
+    isError,
     isRefetching,
-    isError
+    loadConfig
   };
-}
+};

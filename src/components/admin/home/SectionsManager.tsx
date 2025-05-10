@@ -7,6 +7,7 @@ import { AddSectionDialog, SectionsList, useSectionManager } from './sections';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { useQueryClient } from '@tanstack/react-query';
 
 const SectionsManager: React.FC = () => {
   const {
@@ -27,6 +28,7 @@ const SectionsManager: React.FC = () => {
   } = useSectionManager();
   
   const { saveStatus, setSaveStatus, showSaveSuccess, showSaveError } = useAdminNotification();
+  const queryClient = useQueryClient();
   
   // Forcer un rechargement au montage du composant
   useEffect(() => {
@@ -39,6 +41,18 @@ const SectionsManager: React.FC = () => {
     try {
       await saveChanges();
       showSaveSuccess();
+      
+      // Invalider les requêtes pour forcer un rechargement complet
+      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+      
+      // Déclencher l'événement de mise à jour
+      window.dispatchEvent(new CustomEvent('admin-changes-saved', {
+        detail: { timestamp: new Date().getTime() }
+      }));
+      
+      // Nettoyer le cache local si présent
+      localStorage.removeItem('cachedHomepageConfig');
+      localStorage.removeItem('cachedConfigTimestamp');
     } catch (error) {
       console.error('Error saving sections:', error);
       showSaveError(error);
@@ -48,6 +62,15 @@ const SectionsManager: React.FC = () => {
   const handleReloadClick = () => {
     console.log("SectionsManager - Rechargement manuel des sections");
     setSaveStatus('idle');
+    
+    // Nettoyer le cache local
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
+    // Invalider explicitement les requêtes
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    
+    // Recharger la configuration
     reloadConfig();
   };
   

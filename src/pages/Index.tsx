@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Services from '@/components/Services';
@@ -53,6 +53,7 @@ const templates: Record<HomeTemplateType, React.FC> = {
 const Index = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
   
   // Force un rechargement des données au montage du composant
   useEffect(() => {
@@ -62,15 +63,20 @@ const Index = () => {
     
     // Invalider le cache pour forcer un rafraîchissement complet
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    console.log("Index - Rechargement initial des données...");
     
     // Ajouter un écouteur d'événements pour les changements administratifs
-    const handleAdminChanges = () => {
-      console.log("Changements administratifs détectés, rechargement...");
+    const handleAdminChanges = (e?: CustomEvent) => {
+      console.log("Changements administratifs détectés, rechargement...", e?.detail);
       queryClient.invalidateQueries();
-      window.location.reload();
+      setLastUpdate(Date.now()); // Forcer une mise à jour du composant
+      toast({
+        title: "Site mis à jour",
+        description: "Les modifications administratives ont été appliquées",
+      });
     };
 
-    window.addEventListener('admin-changes-saved', handleAdminChanges);
+    window.addEventListener('admin-changes-saved', handleAdminChanges as EventListener);
     
     // Réactualiser régulièrement (toutes les 30 secondes)
     const intervalId = setInterval(() => {
@@ -79,13 +85,13 @@ const Index = () => {
     }, 30000);
     
     return () => {
-      window.removeEventListener('admin-changes-saved', handleAdminChanges);
+      window.removeEventListener('admin-changes-saved', handleAdminChanges as EventListener);
       clearInterval(intervalId);
     };
-  }, [queryClient]);
+  }, [queryClient, toast]);
   
   const { data: homeConfig, isLoading, error } = useQuery({
-    queryKey: ['homeConfig'],
+    queryKey: ['homeConfig', lastUpdate], // Inclure lastUpdate pour forcer le rechargement
     queryFn: getHomepageConfig,
     staleTime: 0, // Toujours considérer comme périmé pour forcer le rechargement
     refetchOnMount: true, // Recharger à chaque montage
@@ -106,6 +112,7 @@ const Index = () => {
   }, [error, toast]);
 
   console.log("Template actif:", homeConfig?.templateConfig?.activeTemplate);
+  console.log("Sections disponibles:", homeConfig?.sections);
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 

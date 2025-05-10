@@ -2,12 +2,15 @@
 import { useCallback } from 'react';
 import { HomepageConfig, HomeTemplateType } from '@/types/sections';
 import { saveHomepageConfig } from '@/services/mysql';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useTemplateOperations = (
   config: HomepageConfig,
   setConfig: (config: HomepageConfig) => void,
   setSaveStatus: (status: 'idle' | 'saving' | 'success' | 'error') => void
 ) => {
+  const queryClient = useQueryClient();
+  
   const updateTemplateType = useCallback((template: HomeTemplateType) => {
     console.log('Mise à jour du template:', template);
     
@@ -42,6 +45,20 @@ export const useTemplateOperations = (
       if (result) {
         console.log('Sauvegarde réussie');
         setSaveStatus('success');
+        
+        // Nettoyer les caches
+        localStorage.removeItem('cachedHomepageConfig');
+        localStorage.removeItem('cachedConfigTimestamp');
+        
+        // Invalider explicitement toutes les requêtes liées à la config de la page d'accueil
+        queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+        
+        // Force un rechargement de la configuration
+        setTimeout(() => {
+          queryClient.invalidateQueries();
+        }, 500);
+        
+        return true;
       } else {
         console.error('Échec de la sauvegarde');
         setSaveStatus('error');
@@ -52,7 +69,7 @@ export const useTemplateOperations = (
       setSaveStatus('error');
       throw error;
     }
-  }, [config, setSaveStatus]);
+  }, [config, setSaveStatus, queryClient]);
 
   return {
     updateTemplateType,
