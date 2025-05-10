@@ -15,8 +15,11 @@ const UserInfo = ({ user }: UserInfoProps) => {
     <Card>
       <CardHeader className="text-center pb-0">
         <Avatar className="h-20 w-20 mx-auto mb-4">
-          <AvatarImage src={user.avatar} />
-          <AvatarFallback className="text-xl">{user.name.charAt(0)}</AvatarFallback>
+          {user.avatar ? (
+            <AvatarImage src={user.avatar} alt={user.name} />
+          ) : (
+            <AvatarFallback className="text-xl bg-primary/10">{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+          )}
         </Avatar>
         <CardTitle>{user.name}</CardTitle>
         <CardDescription>

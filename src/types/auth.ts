@@ -13,6 +13,7 @@ export interface User {
   biography?: string;
   createdAt: string;
   lastLoginDate?: string;
+  twoFactorEnabled?: boolean;
 }
 
 export interface AuthContextType {

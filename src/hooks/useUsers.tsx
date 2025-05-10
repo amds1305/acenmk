@@ -44,7 +44,7 @@ export const useUsers = () => {
         email: profile.email,
         name: profile.name || profile.email?.split('@')[0] || 'Sans nom',
         role: roleMap[profile.id] || 'user' as UserRole,
-        avatar: profile.avatar_url,
+        avatar: profile.avatar_url || `/placeholder-avatar-${profile.id.charAt(0).toLowerCase()}.png`,
         company: profile.company,
         phone: profile.phone,
         biography: profile.biography,
