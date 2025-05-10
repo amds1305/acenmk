@@ -78,7 +78,7 @@ export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
     path: "/ace-job",
     title: "AceJob",
     description: "Module de gestion des candidatures et CVs",
-    icon: "badge",
+    icon: "graduation-cap",
     showInNav: false,
     order: 50
   },
