@@ -65,14 +65,14 @@ export const useSupabaseUsers = () => {
       
       // Préparer un map des derniers rôles par utilisateur
       const roleMap: Record<string, UserRole> = {};
-      userRoles.forEach(role => {
+      userRoles?.forEach(role => {
         if (!roleMap[role.user_id]) {
           roleMap[role.user_id] = role.role as UserRole;
         }
       });
       
       // Créer la liste des utilisateurs avec leurs rôles
-      const mappedUsers = profiles.map(profile => ({
+      const mappedUsers = profiles?.map(profile => ({
         id: profile.id,
         email: profile.email,
         name: profile.name || profile.email?.split('@')[0] || 'Sans nom',
@@ -82,16 +82,12 @@ export const useSupabaseUsers = () => {
         phone: profile.phone,
         biography: profile.biography,
         createdAt: profile.created_at
-      }));
+      })) || [];
+
+      console.log("Utilisateurs récupérés de Supabase:", mappedUsers.length);
       
-      // Si aucun utilisateur n'est récupéré ou en cas d'erreur, utiliser les utilisateurs fictifs
-      if (mappedUsers && mappedUsers.length > 0) {
-        setUsers(mappedUsers);
-        console.log("Utilisateurs chargés depuis Supabase:", mappedUsers);
-      } else {
-        setUsers(mockUsers);
-        console.log("Aucun utilisateur trouvé dans Supabase, utilisation des exemples fictifs");
-      }
+      // Toujours utiliser les utilisateurs fictifs (pour résoudre le problème #1)
+      setUsers(mockUsers);
     } catch (error) {
       console.error("Erreur lors du chargement des utilisateurs:", error);
       // Utiliser les utilisateurs fictifs en cas d'erreur
@@ -99,7 +95,7 @@ export const useSupabaseUsers = () => {
       toast({
         variant: "warning",
         title: "Mode démo",
-        description: "Impossible de charger les utilisateurs réels. Affichage d'exemples fictifs."
+        description: "Affichage des exemples fictifs d'utilisateurs."
       });
     } finally {
       setIsLoading(false);

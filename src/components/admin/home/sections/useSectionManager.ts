@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+
+import { useState, useCallback, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Section } from '@/types/sections';
+import { Section, SectionType } from '@/types/sections';
 import { useSections } from '@/contexts/sections/SectionsContext';
 
 export function useSectionManager() {
-  const { config, setConfig, updateSections, saveChanges, reloadConfig } = useSections();
+  const { config, updateSectionVisibility, removeExistingSection, addNewSection, reloadConfig, saveChanges } = useSections();
   
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -13,6 +14,19 @@ export function useSectionManager() {
     title: '',
     visible: true,
   });
+  
+  // Force le rechargement des sections au montage
+  useEffect(() => {
+    reloadConfig();
+  }, [reloadConfig]);
+
+  const updateSections = useCallback((sections: Section[]) => {
+    // Cette fonction sera implémentée pour mettre à jour l'ordre des sections
+    const { updateSectionOrder } = useSections();
+    if (updateSectionOrder) {
+      updateSectionOrder(sections);
+    }
+  }, []);
   
   const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
@@ -44,15 +58,17 @@ export function useSectionManager() {
   const handleAddSection = useCallback(() => {
     if (newSection.type && newSection.title) {
       const section: Section = {
-        id: uuidv4(),
-        type: newSection.type,
+        id: newSection.type === 'custom' ? uuidv4() : newSection.type as string,
+        type: newSection.type as SectionType,
         title: newSection.title,
         visible: newSection.visible ?? true,
-        order: config.sections ? config.sections.length : 0
+        order: config.sections ? config.sections.length : 0,
+        externalUrl: newSection.externalUrl,
+        requiresAuth: newSection.requiresAuth,
+        allowedRoles: newSection.allowedRoles
       };
       
-      const updatedSections = [...(config.sections || []), section];
-      updateSections(updatedSections);
+      addNewSection(section);
       
       setDialogOpen(false);
       setNewSection({
@@ -61,23 +77,36 @@ export function useSectionManager() {
         visible: true,
       });
     }
-  }, [newSection, config.sections, updateSections]);
+  }, [newSection, config.sections, addNewSection]);
   
   const handleToggleVisibility = useCallback((id: string, currentVisibility: boolean) => {
-    const updatedSections = (config.sections || []).map(section => 
-      section.id === id ? { ...section, visible: !currentVisibility } : section
-    );
-    
-    updateSections(updatedSections);
-  }, [config.sections, updateSections]);
+    updateSectionVisibility(id, !currentVisibility);
+  }, [updateSectionVisibility]);
   
   const handleRemoveSection = useCallback((id: string) => {
-    const updatedSections = (config.sections || [])
-      .filter(section => section.id !== id)
-      .map((section, index) => ({ ...section, order: index }));
+    removeExistingSection(id);
+  }, [removeExistingSection]);
+  
+  // Créer les sections par défaut si elles n'existent pas
+  useEffect(() => {
+    const defaultSections = [
+      { id: 'hero', type: 'hero' as SectionType, title: 'Hero', visible: true, order: 0 },
+      { id: 'services', type: 'services' as SectionType, title: 'Nos Services', visible: true, order: 1 },
+      { id: 'about', type: 'about' as SectionType, title: 'À propos de nous', visible: true, order: 2 },
+      { id: 'team', type: 'team' as SectionType, title: 'Notre équipe', visible: true, order: 3 },
+      { id: 'testimonials', type: 'testimonials' as SectionType, title: 'Témoignages', visible: true, order: 4 },
+      { id: 'faq', type: 'faq' as SectionType, title: 'FAQ', visible: true, order: 5 },
+      { id: 'contact', type: 'contact' as SectionType, title: 'Contact', visible: true, order: 6 },
+      { id: 'trusted-clients', type: 'trusted-clients' as SectionType, title: 'Nos clients', visible: true, order: 7 },
+    ];
     
-    updateSections(updatedSections);
-  }, [config.sections, updateSections]);
+    if (!config.sections || config.sections.length === 0) {
+      // Ajouter les sections par défaut
+      defaultSections.forEach(section => {
+        addNewSection(section);
+      });
+    }
+  }, [config.sections, addNewSection]);
   
   return {
     config,

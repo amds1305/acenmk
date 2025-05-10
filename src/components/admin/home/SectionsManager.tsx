@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Save, RefreshCw } from 'lucide-react';
@@ -28,6 +28,12 @@ const SectionsManager: React.FC = () => {
   
   const { saveStatus, setSaveStatus, showSaveSuccess, showSaveError } = useAdminNotification();
   
+  // Forcer un rechargement au montage du composant
+  useEffect(() => {
+    console.log("SectionsManager - Rechargement forcé des sections");
+    reloadConfig();
+  }, [reloadConfig]);
+  
   const handleSaveClick = async () => {
     setSaveStatus('saving');
     try {
@@ -40,6 +46,7 @@ const SectionsManager: React.FC = () => {
   };
   
   const handleReloadClick = () => {
+    console.log("SectionsManager - Rechargement manuel des sections");
     setSaveStatus('idle');
     reloadConfig();
   };

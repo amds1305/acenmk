@@ -15,7 +15,7 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { 
     addNewSection,
     removeExistingSection,
-    reorderExistingSections,
+    updateSectionOrder,
     updateSectionVisibility,
     updateExistingSectionData,
     updateExistingSection
@@ -31,7 +31,7 @@ export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     saveStatus,
     addNewSection,
     removeExistingSection,
-    reorderExistingSections,
+    updateSectionOrder,
     updateSectionVisibility,
     updateExistingSectionData,
     updateExistingSection,
