@@ -1,309 +1,253 @@
 
-import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '@/integrations/supabase/client';
-import { 
-  HomepageConfig, 
-  Section, 
-  SectionData, 
-  SectionType,
-  HomeTemplateType
-} from '@/types/sections';
-import { DEFAULT_HOMEPAGE_CONFIG, DEFAULT_SECTIONS, DEFAULT_TEMPLATE_CONFIG } from '../sections/defaultData';
+import { HomepageConfig } from '@/types/sections';
+import { DEFAULT_HOMEPAGE_CONFIG } from '@/services/sections/defaultData';
+import { supabase } from '@/lib/supabase';
 
-// Convertir une section de la base de données vers le format d'application
-const mapDbSectionToAppSection = (dbSection): Section => {
-  return {
-    id: dbSection.id,
-    type: dbSection.type as SectionType,
-    title: dbSection.title,
-    visible: dbSection.visible,
-    order: dbSection.order,
-    ...(dbSection.custom_component && { customComponent: dbSection.custom_component }),
-  };
-};
-
-// Récupérer la configuration complète de la page d'accueil
 export const getHomepageConfig = async (): Promise<HomepageConfig> => {
   try {
+    console.log('Tentative de chargement de la configuration depuis Supabase...');
+    
+    // Vérifier si nous avons une version en cache qui est encore valide
+    const cachedTimestamp = parseInt(localStorage.getItem('cachedConfigTimestamp') || '0');
+    const now = Date.now();
+    const cachedConfig = localStorage.getItem('cachedHomepageConfig');
+    const CACHE_EXPIRATION = 5000; // 5 secondes
+    
+    if (cachedConfig && now - cachedTimestamp < CACHE_EXPIRATION) {
+      console.log('Utilisation de la configuration en cache');
+      return JSON.parse(cachedConfig);
+    }
+    
     // 1. Récupérer les sections
-    const { data: dbSections, error: sectionsError } = await supabase
+    const { data: sections, error: sectionsError } = await supabase
       .from('sections')
       .select('*')
       .order('order', { ascending: true });
 
-    if (sectionsError) throw sectionsError;
-
-    // Si aucune section n'existe, utiliser les sections par défaut
-    const sections = dbSections.length > 0 
-      ? dbSections.map(mapDbSectionToAppSection) 
-      : DEFAULT_SECTIONS;
+    if (sectionsError) {
+      console.error('Erreur récupération sections:', sectionsError);
+      throw sectionsError;
+    }
 
     // 2. Récupérer les données des sections
-    const { data: sectionDataRecords, error: dataError } = await supabase
+    const { data: sectionDataEntries, error: sectionDataError } = await supabase
       .from('section_data')
       .select('*');
 
-    if (dataError) throw dataError;
+    if (sectionDataError) {
+      console.error('Erreur récupération données sections:', sectionDataError);
+      throw sectionDataError;
+    }
 
-    // Transformer les enregistrements en objet sectionData
-    const sectionData: Record<string, SectionData> = {};
-    sectionDataRecords.forEach(record => {
-      sectionData[record.section_id] = record.data;
+    // Transformer les données de section en objet
+    const sectionData = {};
+    sectionDataEntries?.forEach(entry => {
+      if (entry.section_id) {
+        sectionData[entry.section_id] = entry.data;
+      }
     });
 
     // 3. Récupérer la configuration du template
-    const { data: templateConfigData, error: templateError } = await supabase
+    const { data: templateConfig, error: templateError } = await supabase
       .from('template_config')
       .select('*')
-      .limit(1)
-      .single();
+      .eq('id', 'default')
+      .maybeSingle();
 
-    if (templateError && templateError.code !== 'PGRST116') { // PGRST116 = No rows returned
+    if (templateError && templateError.code !== 'PGRST116') {
+      console.error('Erreur récupération template:', templateError);
       throw templateError;
     }
 
-    const templateConfig = templateConfigData 
-      ? { activeTemplate: templateConfigData.active_template as HomeTemplateType }
-      : DEFAULT_TEMPLATE_CONFIG;
+    const config = {
+      sections: sections || [],
+      sectionData: sectionData || {},
+      templateConfig: templateConfig 
+        ? { activeTemplate: templateConfig.active_template } 
+        : DEFAULT_HOMEPAGE_CONFIG.templateConfig
+    };
 
-    return { sections, sectionData, templateConfig };
+    // Mettre en cache la configuration
+    localStorage.setItem('cachedHomepageConfig', JSON.stringify(config));
+    localStorage.setItem('cachedConfigTimestamp', now.toString());
+    
+    return config;
   } catch (error) {
     console.error('Erreur lors de la récupération de la configuration:', error);
+    
+    try {
+      // Tentative de charger depuis le localStorage
+      const sections = JSON.parse(localStorage.getItem('homepageSections') || 'null');
+      const sectionData = JSON.parse(localStorage.getItem('homepageSectionData') || 'null');
+      const templateConfig = JSON.parse(localStorage.getItem('homepageTemplateConfig') || 'null');
+      
+      if (sections) {
+        return {
+          sections,
+          sectionData: sectionData || {},
+          templateConfig: templateConfig || DEFAULT_HOMEPAGE_CONFIG.templateConfig
+        };
+      }
+    } catch (localError) {
+      console.error('Erreur lors du chargement depuis localStorage:', localError);
+    }
+    
     return DEFAULT_HOMEPAGE_CONFIG;
   }
 };
 
-// Sauvegarder la configuration complète de la page d'accueil
-export const saveHomepageConfig = async (config: HomepageConfig): Promise<void> => {
+export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolean> => {
   try {
-    // Démarrer une transaction pour assurer la cohérence des données
-    const { error: transactionError } = await supabase.rpc('begin_transaction');
-    if (transactionError) throw transactionError;
-
-    try {
-      // 1. Mettre à jour ou insérer les sections
-      for (const section of config.sections) {
-        const { error } = await supabase
-          .from('sections')
-          .upsert({
-            id: section.id,
-            type: section.type,
-            title: section.title,
-            visible: section.visible,
-            order: section.order,
-            custom_component: section.customComponent,
-          }, { onConflict: 'id' });
-
-        if (error) throw error;
-      }
-
-      // 2. Mettre à jour ou insérer les données des sections
-      for (const [sectionId, data] of Object.entries(config.sectionData)) {
-        const { error } = await supabase
-          .from('section_data')
-          .upsert({
-            id: uuidv4(),
-            section_id: sectionId,
-            data,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'section_id' });
-
-        if (error) throw error;
-      }
-
-      // 3. Mettre à jour ou insérer la configuration du template
-      if (config.templateConfig) {
-        const { error } = await supabase
-          .from('template_config')
-          .upsert({
-            id: 'default',
-            active_template: config.templateConfig.activeTemplate,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'id' });
-
-        if (error) throw error;
-      }
-
-      // Valider la transaction
-      const { error: commitError } = await supabase.rpc('commit_transaction');
-      if (commitError) throw commitError;
-
-    } catch (error) {
-      // Annuler la transaction en cas d'erreur
-      await supabase.rpc('rollback_transaction');
-      throw error;
+    console.log("Sauvegarde de la configuration:", config);
+    
+    // 1. Sauvegarde des sections
+    for (const section of config.sections) {
+      await supabase
+        .from('sections')
+        .upsert({
+          id: section.id,
+          type: section.type,
+          title: section.title,
+          visible: section.visible,
+          order: section.order,
+          custom_component: section.customComponent
+        }, { onConflict: 'id' });
     }
+    
+    // 2. Sauvegarde des données de section
+    const sectionDataArray = Object.entries(config.sectionData).map(([section_id, data]) => ({
+      section_id,
+      data
+    }));
+    
+    for (const entry of sectionDataArray) {
+      await supabase
+        .from('section_data')
+        .upsert({ 
+          section_id: entry.section_id,
+          data: entry.data
+        }, { onConflict: 'section_id' });
+    }
+    
+    // 3. Sauvegarde de la configuration du template
+    if (config.templateConfig) {
+      await supabase
+        .from('template_config')
+        .upsert({
+          id: 'default',
+          active_template: config.templateConfig.activeTemplate
+        }, { onConflict: 'id' });
+    }
+    
+    // Nettoyer les caches
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
+    // Déclencher un événement de mise à jour
+    window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+    
+    console.log("Configuration sauvegardée avec succès!");
+    return true;
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la configuration:', error);
-    throw error;
+    
+    // Sauvegarde de secours en localStorage
+    try {
+      localStorage.setItem('homepageSections', JSON.stringify(config.sections));
+      localStorage.setItem('homepageSectionData', JSON.stringify(config.sectionData));
+      localStorage.setItem('homepageTemplateConfig', JSON.stringify(config.templateConfig));
+      return true;
+    } catch (localError) {
+      console.error('Erreur lors de la sauvegarde locale:', localError);
+      return false;
+    }
   }
 };
 
-// Fonction pour migrer les données du localStorage vers Supabase
-export const migrateLocalStorageToSupabase = async (): Promise<boolean> => {
+export const addSection = async (section: any): Promise<boolean> => {
   try {
-    // Récupérer les données du localStorage
-    const storedSections = localStorage.getItem('homepageSections');
-    const storedSectionData = localStorage.getItem('homepageSectionData');
-    const storedTemplateConfig = localStorage.getItem('homepageTemplateConfig');
+    const { error } = await supabase
+      .from('sections')
+      .insert([section]);
 
-    // Si aucune donnée n'est disponible, ne rien faire
-    if (!storedSections && !storedSectionData && !storedTemplateConfig) {
-      return false;
-    }
-
-    // Préparer la configuration à partir des données localStorage
-    const sections = storedSections ? JSON.parse(storedSections) : DEFAULT_SECTIONS;
-    const sectionData = storedSectionData ? JSON.parse(storedSectionData) : {};
-    const templateConfig = storedTemplateConfig ? JSON.parse(storedTemplateConfig) : DEFAULT_TEMPLATE_CONFIG;
-
-    // Sauvegarder la configuration dans Supabase
-    await saveHomepageConfig({ sections, sectionData, templateConfig });
-
-    // Migrer les clients en vedette s'ils existent
-    if (sectionData['trusted-clients']) {
-      const trustedClients = sectionData['trusted-clients'].clients || [];
-      
-      // Insérer chaque client dans la table trusted_clients
-      for (const client of trustedClients) {
-        const { error } = await supabase
-          .from('trusted_clients')
-          .upsert({
-            id: client.id,
-            name: client.name,
-            logo_url: client.logoUrl,
-            website_url: client.websiteUrl || null,
-            category: client.category || null,
-          }, { onConflict: 'id' });
-
-        if (error) throw error;
-      }
-    }
-
+    if (error) throw error;
+    
     return true;
   } catch (error) {
-    console.error('Erreur lors de la migration des données:', error);
+    console.error('Erreur lors de l\'ajout de la section:', error);
     return false;
   }
 };
 
-// Ajouter une nouvelle section
-export const addSection = async (config: HomepageConfig, type: SectionType, title: string): Promise<HomepageConfig> => {
-  const id = type === 'custom' ? uuidv4() : type;
-  const maxOrder = Math.max(...config.sections.map(s => s.order), -1);
-  
-  const newSection: Section = {
-    id,
-    type,
-    title,
-    visible: true,
-    order: maxOrder + 1,
-    ...(type === 'custom' && { customComponent: '' }),
-  };
-  
-  const { error } = await supabase
-    .from('sections')
-    .insert({
-      id: newSection.id,
-      type: newSection.type,
-      title: newSection.title,
-      visible: newSection.visible,
-      order: newSection.order,
-      custom_component: newSection.customComponent,
-    });
+export const removeSection = async (id: string): Promise<boolean> => {
+  try {
+    // 1. Supprimer la section
+    const { error: sectionError } = await supabase
+      .from('sections')
+      .delete()
+      .eq('id', id);
 
-  if (error) throw error;
-  
-  return {
-    ...config,
-    sections: [...config.sections, newSection],
-  };
+    if (sectionError) throw sectionError;
+    
+    // 2. Supprimer les données associées à la section
+    const { error: sectionDataError } = await supabase
+      .from('section_data')
+      .delete()
+      .eq('section_id', id);
+    
+    if (sectionDataError) throw sectionDataError;
+    
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la section:', error);
+    return false;
+  }
 };
 
-// Supprimer une section
-export const removeSection = async (config: HomepageConfig, id: string): Promise<HomepageConfig> => {
-  // Si c'est une section standard, on la cache mais on la garde
-  const isStandardSection = DEFAULT_SECTIONS.some(s => s.id === id);
-  
-  if (isStandardSection) {
+export const getTrustedClients = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('trusted_clients')
+      .select('*');
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des clients de confiance:', error);
+    return [];
+  }
+};
+
+export const upsertTrustedClient = async (client: any) => {
+  try {
+    const { data, error } = await supabase
+      .from('trusted_clients')
+      .upsert(client, { onConflict: 'id' })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout/mise à jour du client de confiance:', error);
+    return null;
+  }
+};
+
+export const deleteTrustedClient = async (id: string) => {
+  try {
     const { error } = await supabase
-      .from('sections')
-      .update({ visible: false })
+      .from('trusted_clients')
+      .delete()
       .eq('id', id);
     
     if (error) throw error;
     
-    const updatedSections = config.sections.map(section => 
-      section.id === id ? { ...section, visible: false } : section
-    );
-    
-    return { ...config, sections: updatedSections };
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la suppression du client de confiance:', error);
+    return false;
   }
-  
-  // Sinon, on la supprime complètement
-  const { error: sectionError } = await supabase
-    .from('sections')
-    .delete()
-    .eq('id', id);
-  
-  if (sectionError) throw sectionError;
-  
-  const { error: dataError } = await supabase
-    .from('section_data')
-    .delete()
-    .eq('section_id', id);
-  
-  if (dataError) throw dataError;
-  
-  const updatedSections = config.sections.filter(section => section.id !== id);
-  const { [id]: _, ...remainingSectionData } = config.sectionData;
-  
-  return {
-    sections: updatedSections,
-    sectionData: remainingSectionData,
-    templateConfig: config.templateConfig
-  };
-};
-
-// Services supplémentaires pour les trusted_clients
-export const getTrustedClients = async () => {
-  const { data, error } = await supabase
-    .from('trusted_clients')
-    .select('*');
-
-  if (error) throw error;
-  
-  // Convertir le format de base de données vers le format d'application
-  return data.map(client => ({
-    id: client.id,
-    name: client.name,
-    logoUrl: client.logo_url,
-    websiteUrl: client.website_url,
-    category: client.category,
-  }));
-};
-
-export const upsertTrustedClient = async (client) => {
-  const { error } = await supabase
-    .from('trusted_clients')
-    .upsert({
-      id: client.id,
-      name: client.name,
-      logo_url: client.logoUrl,
-      website_url: client.websiteUrl || null,
-      category: client.category || null,
-    }, { onConflict: 'id' });
-
-  if (error) throw error;
-  return true;
-};
-
-export const deleteTrustedClient = async (id) => {
-  const { error } = await supabase
-    .from('trusted_clients')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw error;
-  return true;
 };

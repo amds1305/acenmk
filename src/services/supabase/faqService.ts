@@ -6,16 +6,15 @@ export interface FAQ {
   question: string;
   answer: string;
   category?: string | null;
-  order_index: number;
   template: string;
+  order_index: number;
   created_at: string;
 }
 
-export async function getFAQs(template: string = 'default'): Promise<FAQ[]> {
+export async function getFaqs(): Promise<FAQ[]> {
   const { data, error } = await supabase
     .from('faqs')
     .select('*')
-    .eq('template', template)
     .order('order_index', { ascending: true });
 
   if (error) {
@@ -26,7 +25,7 @@ export async function getFAQs(template: string = 'default'): Promise<FAQ[]> {
   return data || [];
 }
 
-export async function createFAQ(faq: Omit<FAQ, 'id' | 'created_at'>): Promise<FAQ> {
+export async function createFaq(faq: Omit<FAQ, 'id' | 'created_at'>): Promise<FAQ> {
   const { data, error } = await supabase
     .from('faqs')
     .insert([faq])
@@ -41,7 +40,7 @@ export async function createFAQ(faq: Omit<FAQ, 'id' | 'created_at'>): Promise<FA
   return data;
 }
 
-export async function updateFAQ(id: string, faq: Partial<FAQ>): Promise<FAQ> {
+export async function updateFaq(id: string, faq: Partial<FAQ>): Promise<FAQ> {
   const { data, error } = await supabase
     .from('faqs')
     .update(faq)
@@ -57,7 +56,7 @@ export async function updateFAQ(id: string, faq: Partial<FAQ>): Promise<FAQ> {
   return data;
 }
 
-export async function deleteFAQ(id: string): Promise<void> {
+export async function deleteFaq(id: string): Promise<void> {
   const { error } = await supabase
     .from('faqs')
     .delete()

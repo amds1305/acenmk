@@ -166,8 +166,19 @@ export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolea
   }
 };
 
-// Réexporter tous les autres services
-export * from './getTeamMembers';
-export * from './testimonials';
-export * from './faqs';
-export * from './trustedClients';
+// Instead of importing from local files, directly re-export from the supabase services
+export { 
+  getTeamMembers,
+  getTestimonials, 
+  createTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
+  getFaqs,
+  createFaq,
+  updateFaq,
+  deleteFaq,
+  getTrustedClients,
+  upsertTrustedClient,
+  deleteTrustedClient
+} from '@/services/supabase';
+

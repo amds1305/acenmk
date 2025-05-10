@@ -92,3 +92,4 @@ export const migrateLocalStorageToMySQL = async (): Promise<boolean> => {
     return false;
   }
 };
+
