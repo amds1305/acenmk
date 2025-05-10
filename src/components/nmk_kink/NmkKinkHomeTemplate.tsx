@@ -69,6 +69,7 @@ const NmkKinkHomeTemplate: React.FC = () => {
   }
 
   console.log("KinkTemplate - Configuration chargée:", config);
+  console.log("KinkTemplate - Section de clients:", config?.sectionData?.['trusted-clients']);
 
   // Si aucune section n'est définie ou visible, utiliser les sections par défaut
   const defaultSections = [

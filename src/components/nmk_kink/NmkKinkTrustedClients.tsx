@@ -1,30 +1,25 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/mysql';
 import { TrustedClientsSectionData } from '@/types/sections';
 
 const NmkKinkTrustedClients: React.FC = () => {
   // Récupérer les données des clients depuis la configuration
-  const { data } = useQuery({
-    queryKey: ['trustedClientsData'],
-    queryFn: async () => {
-      const config = getHomepageConfig();
-      
-      if (config.sectionData && config.sectionData['trusted-clients']) {
-        return config.sectionData['trusted-clients'] as TrustedClientsSectionData;
-      }
-      
-      return {
-        title: 'Ils nous font confiance',
-        clients: []
-      };
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+  const { data: config } = useQuery({
+    queryKey: ['homeConfig'],
+    queryFn: getHomepageConfig
   });
+  
+  console.log("NmkKinkTrustedClients - Configuration:", config);
+  
+  const trustedClientsData = config?.sectionData?.['trusted-clients'] as TrustedClientsSectionData | undefined;
+  
+  console.log("NmkKinkTrustedClients - Données des clients:", trustedClientsData);
 
-  // Si aucune donnée n'est disponible, ne rien afficher
-  if (!data || data.clients.length === 0) {
+  // Si aucune donnée n'est disponible ou si la section est masquée, ne rien afficher
+  if (!trustedClientsData || trustedClientsData.showTrustedClients === false || !trustedClientsData.clients?.length) {
+    console.log("NmkKinkTrustedClients - Section masquée ou pas de clients");
     return null;
   }
 
@@ -36,12 +31,12 @@ const NmkKinkTrustedClients: React.FC = () => {
             Nos clients
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight">
-            {data.title || 'Ils nous font confiance'}
+            {trustedClientsData.title || 'Ils nous font confiance'}
           </h2>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
-          {data.clients.map((client) => (
+          {trustedClientsData.clients.map((client) => (
             <div 
               key={client.id} 
               className="flex flex-col items-center justify-center p-4 filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"

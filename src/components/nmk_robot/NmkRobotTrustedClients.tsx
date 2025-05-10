@@ -16,8 +16,12 @@ const NmkRobotTrustedClients = () => {
     showTrustedClients?: boolean;
   } | undefined;
 
+  // Pour le débogage
+  console.log('NmkRobotTrustedClients - données:', trustedClientsData);
+
   // Skip rendering if no data or section is explicitly hidden
   if (!trustedClientsData || trustedClientsData.showTrustedClients === false || !trustedClientsData.clients?.length) {
+    console.log('NmkRobotTrustedClients - ne s\'affiche pas, données manquantes ou section masquée');
     return null;
   }
 
