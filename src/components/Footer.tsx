@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -30,6 +29,11 @@ interface FooterData {
   legalLinks: FooterLink[];
   contactInfo: ContactInfo[];
   socialLinks: SocialLink[];
+  sectionTitles: {
+    services: string;
+    contact: string;
+    legal: string;
+  };
 }
 
 interface FooterStyle {
@@ -85,6 +89,11 @@ const defaultFooterData: FooterData = {
     { name: "Applications mobiles", href: "#services" },
     { name: "Transformation digitale", href: "#services" }
   ],
+  sectionTitles: {
+    services: "Services",
+    contact: "Contact",
+    legal: "Légal"
+  },
   legalLinks: [
     { name: "Mentions légales", href: "/mentions-legales" },
     { name: "Politique de confidentialité", href: "/politique-de-confidentialite" },
@@ -184,7 +193,7 @@ const getSocialIcon = (name: string) => {
 };
 
 // Function to fetch footer data
-const fetchFooterData = async (): Promise<FooterData> => {
+const fetchFooterData = async () => {
   try {
     // Try to get from Supabase
     try {
@@ -216,7 +225,7 @@ const fetchFooterData = async (): Promise<FooterData> => {
 };
 
 // Function to fetch footer styles
-const fetchFooterStyles = async (): Promise<FooterStyle> => {
+const fetchFooterStyles = async () => {
   try {
     // Try to get from Supabase
     try {
@@ -242,8 +251,8 @@ const fetchFooterStyles = async (): Promise<FooterStyle> => {
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [footerData, setFooterData] = useState<FooterData>(defaultFooterData);
-  const [footerStyle, setFooterStyle] = useState<FooterStyle>(defaultFooterStyle);
+  const [footerData, setFooterData] = useState(defaultFooterData);
+  const [footerStyle, setFooterStyle] = useState(defaultFooterStyle);
   
   const { data: dataFromQuery } = useQuery({
     queryKey: ['footerData'],
@@ -263,7 +272,10 @@ const Footer = () => {
   
   useEffect(() => {
     if (dataFromQuery) {
-      setFooterData(dataFromQuery);
+      setFooterData({
+        ...defaultFooterData,
+        ...dataFromQuery
+      });
     }
     
     if (styleFromQuery) {
@@ -273,14 +285,19 @@ const Footer = () => {
     // Listen for admin changes
     const handleAdminChanges = () => {
       console.log("Admin changes detected, refetching footer data...");
-      fetchFooterData().then(data => setFooterData(data));
+      fetchFooterData().then(data => setFooterData({...defaultFooterData, ...data}));
       fetchFooterStyles().then(style => setFooterStyle(style));
     };
     
     // Listen for footer style updates
     const handleStyleUpdates = (e: CustomEvent) => {
       console.log("Footer style updated:", e.detail);
-      setFooterStyle(e.detail);
+      if (e.detail.style) {
+        setFooterStyle(e.detail.style);
+      }
+      if (e.detail.data) {
+        setFooterData({...defaultFooterData, ...e.detail.data});
+      }
     };
     
     window.addEventListener('admin-changes-saved', handleAdminChanges);
@@ -293,7 +310,14 @@ const Footer = () => {
   }, [dataFromQuery, styleFromQuery]);
 
   // Extract the data for easy usage
-  const { companyInfo, serviceLinks, legalLinks, contactInfo, socialLinks } = footerData;
+  const { 
+    companyInfo, 
+    serviceLinks, 
+    legalLinks, 
+    contactInfo, 
+    socialLinks, 
+    sectionTitles = { services: "Services", contact: "Contact", legal: "Légal" }
+  } = footerData;
   
   // Générer les styles CSS basés sur footerStyle
   const companyNameStyle = {
@@ -390,7 +414,9 @@ const Footer = () => {
           {/* Services */}
           {footerStyle.services.isVisible && (
             <div>
-              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>Services</h4>
+              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
+                {sectionTitles.services || "Services"}
+              </h4>
               <ul className="space-y-4">
                 {serviceLinks.map((link, index) => (
                   <li key={index}>
@@ -409,7 +435,9 @@ const Footer = () => {
           
           {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>Contact</h4>
+            <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
+              {sectionTitles.contact || "Contact"}
+            </h4>
             <ul className="space-y-4">
               {contactInfo.map((info, index) => (
                 <li key={index}>
@@ -433,7 +461,9 @@ const Footer = () => {
           {/* Legal */}
           {footerStyle.legalLinks.isVisible && (
             <div>
-              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>Légal</h4>
+              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
+                {sectionTitles.legal || "Légal"}
+              </h4>
               <ul className="space-y-4">
                 {legalLinks.map((link, index) => (
                   <li key={index}>

@@ -9,11 +9,12 @@ import {
   LinksTab, 
   SocialTab, 
   VisibilityTabs, 
-  ButtonTab 
+  ButtonTab,
+  SectionTitlesTab
 } from './components';
 
 const FooterStyleManager = () => {
-  const { footerStyle, loading, handleStyleChange, saveFooterStyle } = useFooterStyle();
+  const { footerStyle, footerData, loading, handleStyleChange, handleDataChange, saveFooterStyle } = useFooterStyle();
 
   if (loading) {
     return <div className="p-4">Chargement des styles...</div>;
@@ -28,9 +29,10 @@ const FooterStyleManager = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="company">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="company">Entreprise</TabsTrigger>
+        <Tabs defaultValue="titles">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="titles">Titres</TabsTrigger>
+            <TabsTrigger value="company">Style Entreprise</TabsTrigger>
             <TabsTrigger value="links">Liens</TabsTrigger>
             <TabsTrigger value="social">Réseaux Sociaux</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
@@ -38,6 +40,15 @@ const FooterStyleManager = () => {
             <TabsTrigger value="button">Bouton Retour</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="titles" className="space-y-4 mt-4">
+            <SectionTitlesTab 
+              footerStyle={footerStyle}
+              footerData={footerData}
+              handleStyleChange={handleStyleChange}
+              handleDataChange={handleDataChange}
+            />
+          </TabsContent>
+          
           <TabsContent value="company" className="space-y-4 mt-4">
             <CompanyNameTab 
               footerStyle={footerStyle}
