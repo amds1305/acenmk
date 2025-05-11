@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -296,4 +295,5 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   );
 };
 
+export { WysiwygEditor };
 export default WysiwygEditor;
