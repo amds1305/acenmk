@@ -2,6 +2,8 @@
 import { supabase } from '@/lib/supabase';
 import { HeaderStyle } from '@/components/admin/header/types';
 import { NavLink } from '@/components/admin/header/navigation/types';
+import { SocialLink } from '@/components/admin/header/social/types';
+import { SearchBarSettings } from '@/components/admin/header/types';
 
 export interface HeaderLogo {
   src: string;
@@ -16,6 +18,8 @@ export interface HeaderConfig {
   userMenu?: UserMenuSettings;
   headerStyle?: HeaderStyle;
   navLinks?: NavLink[];
+  searchBar?: SearchBarSettings;
+  socialLinks?: SocialLink[];
 }
 
 export interface UserMenuSettings {
@@ -68,6 +72,26 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
       console.error('Error fetching navigation links:', navLinksError);
     }
     
+    // Try to get search bar settings
+    const { data: searchBarData, error: searchBarError } = await supabase
+      .from('header_search_bar')
+      .select('*')
+      .single();
+    
+    if (searchBarError && searchBarError.code !== 'PGRST116') {
+      console.error('Error fetching search bar settings:', searchBarError);
+    }
+    
+    // Try to get social links
+    const { data: socialLinksData, error: socialLinksError } = await supabase
+      .from('header_social_links')
+      .select('*')
+      .order('order');
+    
+    if (socialLinksError) {
+      console.error('Error fetching social links:', socialLinksError);
+    }
+    
     return {
       headerLogo: logoData ? {
         src: logoData.src,
@@ -84,7 +108,14 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
         registerButtonLabel: userMenuData.register_button_label
       } : undefined,
       headerStyle: headerStyleData || undefined,
-      navLinks: navLinksData || []
+      navLinks: navLinksData || [],
+      searchBar: searchBarData ? {
+        isEnabled: searchBarData.is_enabled,
+        placeholder: searchBarData.placeholder,
+        position: searchBarData.position,
+        expandOnFocus: searchBarData.expand_on_focus
+      } : undefined,
+      socialLinks: socialLinksData || []
     };
   } catch (error) {
     console.error('Error in getHeaderConfig:', error);
@@ -207,6 +238,77 @@ export const saveNavLinks = async (links: NavLink[]): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Error saving navigation links:', error);
+    return false;
+  }
+};
+
+// Add the missing functions for searchBar and socialLinks
+export const saveSearchBar = async (settings: SearchBarSettings): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('header_search_bar')
+      .upsert({
+        is_enabled: settings.isEnabled,
+        placeholder: settings.placeholder,
+        position: settings.position,
+        expand_on_focus: settings.expandOnFocus
+      });
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving search bar settings:', error);
+    return false;
+  }
+};
+
+export const saveSocialLinks = async (links: SocialLink[]): Promise<boolean> => {
+  try {
+    // First delete all existing links
+    const { error: deleteError } = await supabase
+      .from('header_social_links')
+      .delete()
+      .gt('id', '0');
+    
+    if (deleteError) throw deleteError;
+    
+    // Then insert the updated links
+    if (links.length > 0) {
+      // Convert icon components to string names for storage
+      const formattedLinks = links.map((link, index) => {
+        // Find the icon name by its component reference
+        let iconName = "Twitter"; // Default
+        if (typeof link.icon === 'function') {
+          // This is a bit of a hack, but it works to get the name of the component
+          const iconString = link.icon.toString();
+          const matches = iconString.match(/function\s+([^(]+)/);
+          if (matches && matches[1]) {
+            iconName = matches[1];
+          }
+        } else if (typeof link.icon === 'string') {
+          iconName = link.icon;
+        }
+        
+        return {
+          icon: iconName,
+          href: link.href,
+          aria_label: link.ariaLabel,
+          is_visible: link.isVisible,
+          order: link.order || index
+        };
+      });
+      
+      const { error: insertError } = await supabase
+        .from('header_social_links')
+        .insert(formattedLinks);
+      
+      if (insertError) throw insertError;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving social links:', error);
     return false;
   }
 };

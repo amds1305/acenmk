@@ -31,9 +31,9 @@ export const useUserMenu = (): UseUserMenuReturn => {
     const loadUserMenu = async () => {
       try {
         setIsLoading(true);
-        const { userMenu } = await getHeaderConfig();
-        if (userMenu) {
-          setUserMenuSettings(userMenu);
+        const config = await getHeaderConfig();
+        if (config.userMenu) {
+          setUserMenuSettings(config.userMenu);
         }
       } catch (error) {
         console.error('Erreur lors du chargement du menu utilisateur:', error);
@@ -62,7 +62,14 @@ export const useUserMenu = (): UseUserMenuReturn => {
   const saveSettings = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const success = await saveUserMenu(userMenuSettings);
+      // Make sure we have non-empty values for required fields
+      const settings = {
+        ...userMenuSettings,
+        loginButtonLabel: userMenuSettings.loginButtonLabel || 'Connexion',
+        registerButtonLabel: userMenuSettings.registerButtonLabel || 'Inscription'
+      };
+      
+      const success = await saveUserMenu(settings);
       
       if (success) {
         showSaveSuccess();

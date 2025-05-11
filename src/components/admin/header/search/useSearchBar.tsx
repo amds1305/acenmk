@@ -30,9 +30,9 @@ export const useSearchBar = (): UseSearchBarReturn => {
     const loadSearchBar = async () => {
       try {
         setIsLoading(true);
-        const { searchBar } = await getHeaderConfig();
-        if (searchBar) {
-          setSearchSettings(searchBar);
+        const config = await getHeaderConfig();
+        if (config.searchBar) {
+          setSearchSettings(config.searchBar);
         }
       } catch (error) {
         console.error('Erreur lors du chargement de la barre de recherche:', error);

@@ -33,9 +33,17 @@ export const useSocialLinks = (): UseSocialLinksReturn => {
   useEffect(() => {
     const loadSocialLinks = async () => {
       try {
-        const { socialLinks } = await getHeaderConfig();
-        if (socialLinks && socialLinks.length > 0) {
-          setSocialLinks(socialLinks);
+        const config = await getHeaderConfig();
+        if (config.socialLinks && config.socialLinks.length > 0) {
+          // Convert string icon names to component references
+          const processedLinks = config.socialLinks.map(link => {
+            const iconName = typeof link.icon === 'string' ? link.icon : 'Twitter';
+            return {
+              ...link,
+              icon: availableSocialIcons[iconName] || Twitter
+            };
+          });
+          setSocialLinks(processedLinks);
         }
       } catch (error) {
         console.error('Error loading social links:', error);
