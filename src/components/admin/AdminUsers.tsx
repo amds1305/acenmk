@@ -58,16 +58,18 @@ interface UserData {
   created_at: string;
 }
 
+type UserRole = "super_admin" | "admin" | "client_premium" | "user";
+
 const AdminUsers = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [newRole, setNewRole] = useState<"super_admin" | "admin" | "client_premium" | "user">('user');
+  const [newRole, setNewRole] = useState<UserRole>('user');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [editedRole, setEditedRole] = useState<"super_admin" | "admin" | "client_premium" | "user">('user');
+  const [editedRole, setEditedRole] = useState<UserRole>('user');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -279,7 +281,10 @@ const AdminUsers = () => {
                   <Label htmlFor="role" className="text-right">
                     Rôle
                   </Label>
-                  <Select value={newRole} onValueChange={setNewRole}>
+                  <Select 
+                    value={newRole} 
+                    onValueChange={(value: UserRole) => setNewRole(value)}
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Sélectionner un rôle" />
                     </SelectTrigger>
@@ -375,7 +380,10 @@ const AdminUsers = () => {
                   <Label htmlFor="role" className="text-right">
                     Rôle
                   </Label>
-                  <Select value={editedRole} onValueChange={setEditedRole}>
+                  <Select 
+                    value={editedRole} 
+                    onValueChange={(value: UserRole) => setEditedRole(value)}
+                  >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Sélectionner un rôle" />
                     </SelectTrigger>

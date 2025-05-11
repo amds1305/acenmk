@@ -94,7 +94,7 @@ export const useUserMenu = (): UseUserMenuReturn => {
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde",
         variant: "destructive"
-      });
+        });
       return false;
     } finally {
       setIsLoading(false);
