@@ -1,5 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
+import { HeaderStyle } from '@/components/admin/header/types';
 
 export interface HeaderLogo {
   src: string;
@@ -12,6 +13,7 @@ export interface HeaderLogo {
 export interface HeaderConfig {
   headerLogo?: HeaderLogo;
   userMenu?: UserMenuSettings;
+  headerStyle?: HeaderStyle;
 }
 
 export interface UserMenuSettings {
@@ -43,6 +45,16 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
     if (userMenuError && userMenuError.code !== 'PGRST116') {
       console.error('Error fetching user menu settings:', userMenuError);
     }
+
+    // Try to get header style settings
+    const { data: headerStyleData, error: headerStyleError } = await supabase
+      .from('header_style')
+      .select('*')
+      .single();
+    
+    if (headerStyleError && headerStyleError.code !== 'PGRST116') {
+      console.error('Error fetching header style:', headerStyleError);
+    }
     
     return {
       headerLogo: logoData ? {
@@ -58,7 +70,8 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
         showProfileIcon: userMenuData.show_profile_icon,
         loginButtonLabel: userMenuData.login_button_label,
         registerButtonLabel: userMenuData.register_button_label
-      } : undefined
+      } : undefined,
+      headerStyle: headerStyleData || undefined
     };
   } catch (error) {
     console.error('Error in getHeaderConfig:', error);
@@ -104,6 +117,46 @@ export const saveUserMenu = async (settings: UserMenuSettings): Promise<boolean>
     return true;
   } catch (error) {
     console.error('Error saving user menu settings:', error);
+    return false;
+  }
+};
+
+// Add missing saveHeaderStyle function
+export const saveHeaderStyle = async (style: HeaderStyle): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('header_style')
+      .upsert({
+        background_color: style.backgroundColor,
+        text_color: style.textColor,
+        hover_color: style.hoverColor,
+        active_color: style.activeColor,
+        font_family: style.fontFamily,
+        font_size: style.fontSize,
+        padding: style.padding,
+        sticky: style.sticky,
+        transparent: style.transparent,
+        glassmorphism: style.glassmorphism,
+        border_bottom: style.borderBottom,
+        border_color: style.borderColor,
+        drop_shadow: style.dropShadow,
+        menu_hover_bg_color: style.menuHoverBgColor,
+        menu_active_bg_color: style.menuActiveBgColor,
+        social_icon_color: style.socialIconColor,
+        social_icon_hover_color: style.socialIconHoverColor,
+        social_icon_bg_color: style.socialIconBgColor,
+        social_icon_border_color: style.socialIconBorderColor,
+        utility_icon_color: style.utilityIconColor,
+        utility_icon_hover_color: style.utilityIconHoverColor,
+        utility_icon_bg_color: style.utilityIconBgColor,
+        utility_icon_border_color: style.utilityIconBorderColor
+      });
+    
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving header style:', error);
     return false;
   }
 };
