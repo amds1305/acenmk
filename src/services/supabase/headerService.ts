@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { HeaderStyle } from '@/components/admin/header/types';
+import { NavLink } from '@/components/admin/header/navigation/types';
 
 export interface HeaderLogo {
   src: string;
@@ -14,6 +15,7 @@ export interface HeaderConfig {
   headerLogo?: HeaderLogo;
   userMenu?: UserMenuSettings;
   headerStyle?: HeaderStyle;
+  navLinks?: NavLink[];
 }
 
 export interface UserMenuSettings {
@@ -56,6 +58,16 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
       console.error('Error fetching header style:', headerStyleError);
     }
     
+    // Try to get navigation links
+    const { data: navLinksData, error: navLinksError } = await supabase
+      .from('header_nav_links')
+      .select('*')
+      .order('order_index');
+    
+    if (navLinksError) {
+      console.error('Error fetching navigation links:', navLinksError);
+    }
+    
     return {
       headerLogo: logoData ? {
         src: logoData.src,
@@ -71,7 +83,8 @@ export const getHeaderConfig = async (): Promise<HeaderConfig> => {
         loginButtonLabel: userMenuData.login_button_label,
         registerButtonLabel: userMenuData.register_button_label
       } : undefined,
-      headerStyle: headerStyleData || undefined
+      headerStyle: headerStyleData || undefined,
+      navLinks: navLinksData || []
     };
   } catch (error) {
     console.error('Error in getHeaderConfig:', error);
@@ -121,7 +134,6 @@ export const saveUserMenu = async (settings: UserMenuSettings): Promise<boolean>
   }
 };
 
-// Add missing saveHeaderStyle function
 export const saveHeaderStyle = async (style: HeaderStyle): Promise<boolean> => {
   try {
     const { error } = await supabase
@@ -157,6 +169,44 @@ export const saveHeaderStyle = async (style: HeaderStyle): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Error saving header style:', error);
+    return false;
+  }
+};
+
+export const saveNavLinks = async (links: NavLink[]): Promise<boolean> => {
+  try {
+    // First delete all existing links
+    const { error: deleteError } = await supabase
+      .from('header_nav_links')
+      .delete()
+      .gt('id', '0'); // This will delete all records
+    
+    if (deleteError) throw deleteError;
+    
+    // Then insert the updated links
+    if (links.length > 0) {
+      const formattedLinks = links.map((link, index) => ({
+        name: link.name,
+        href: link.href,
+        icon: link.icon || null,
+        is_external: link.isExternal || false,
+        requires_auth: link.requiresAuth || false,
+        order_index: link.orderIndex || index,
+        is_visible: link.isVisible ?? true,
+        parent_id: link.parentId || null,
+        required_role: link.requiredRole || null
+      }));
+      
+      const { error: insertError } = await supabase
+        .from('header_nav_links')
+        .insert(formattedLinks);
+      
+      if (insertError) throw insertError;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving navigation links:', error);
     return false;
   }
 };

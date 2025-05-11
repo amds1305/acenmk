@@ -54,7 +54,7 @@ import {
 interface UserData {
   id: string;
   email: string;
-  role: string;
+  role: "super_admin" | "admin" | "client_premium" | "user";
   created_at: string;
 }
 
@@ -64,10 +64,10 @@ const AdminUsers = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [newRole, setNewRole] = useState('user');
+  const [newRole, setNewRole] = useState<"super_admin" | "admin" | "client_premium" | "user">('user');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [editedRole, setEditedRole] = useState('user');
+  const [editedRole, setEditedRole] = useState<"super_admin" | "admin" | "client_premium" | "user">('user');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,35 +77,41 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Note: This is a workaround as we don't have direct access to the auth.users table
-      // In a real application, you'd use a Supabase Edge Function or a server endpoint
-      // to access this data with proper admin privileges
-      const { data, error } = await supabase
+      // First, fetch user_roles table data
+      const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id, role, profiles:profiles!user_id(email, created_at)')
-        .order('created_at', { ascending: false });
+        .select('user_id, role');
 
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger la liste des utilisateurs",
-          variant: "destructive"
-        });
-      } else if (data) {
-        const formattedUsers = data.map(item => ({
-          id: item.user_id,
-          email: item.profiles?.email || 'unknown@example.com',
-          role: item.role,
-          created_at: item.profiles?.created_at || new Date().toISOString()
-        }));
-        setUsers(formattedUsers);
+      if (rolesError) {
+        throw rolesError;
       }
+
+      // Then, fetch profiles table data
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email, created_at');
+
+      if (profilesError) {
+        throw profilesError;
+      }
+
+      // Combine the data to create user records
+      const combinedUsers = profilesData.map(profile => {
+        const userRole = rolesData.find(r => r.user_id === profile.id);
+        return {
+          id: profile.id,
+          email: profile.email,
+          role: (userRole?.role || 'user') as "super_admin" | "admin" | "client_premium" | "user",
+          created_at: profile.created_at
+        };
+      });
+
+      setUsers(combinedUsers);
     } catch (error) {
-      console.error('Unexpected error fetching users:', error);
+      console.error('Error fetching users:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur inattendue s'est produite lors du chargement des utilisateurs",
+        description: "Impossible de charger la liste des utilisateurs",
         variant: "destructive"
       });
     } finally {

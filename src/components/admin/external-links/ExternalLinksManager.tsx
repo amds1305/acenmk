@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Save, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Save, Pencil, Trash2, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -16,8 +16,8 @@ interface ExternalLink {
   name: string;
   url: string;
   icon?: string;
-  requiresAuth: boolean;
-  allowedRoles: string[];
+  requires_auth: boolean;
+  allowed_roles: string[];
 }
 
 interface Role {
@@ -35,8 +35,8 @@ const ExternalLinksManager: React.FC = () => {
     name: '',
     url: '',
     icon: '',
-    requiresAuth: false,
-    allowedRoles: []
+    requires_auth: false,
+    allowed_roles: []
   });
   
   // Fetch links and roles on mount
@@ -93,8 +93,8 @@ const ExternalLinksManager: React.FC = () => {
       name: '',
       url: '',
       icon: '',
-      requiresAuth: false,
-      allowedRoles: []
+      requires_auth: false,
+      allowed_roles: []
     });
     setIsEditing(true);
   };
@@ -118,9 +118,9 @@ const ExternalLinksManager: React.FC = () => {
           .update({
             name: currentLink.name,
             url: currentLink.url,
-            icon: currentLink.icon,
-            requires_auth: currentLink.requiresAuth,
-            allowed_roles: currentLink.allowedRoles
+            icon: currentLink.icon || null,
+            requires_auth: currentLink.requires_auth,
+            allowed_roles: currentLink.allowed_roles
           })
           .eq('id', currentLink.id);
         
@@ -138,8 +138,8 @@ const ExternalLinksManager: React.FC = () => {
             name: currentLink.name,
             url: currentLink.url,
             icon: currentLink.icon || null,
-            requires_auth: currentLink.requiresAuth,
-            allowed_roles: currentLink.allowedRoles
+            requires_auth: currentLink.requires_auth,
+            allowed_roles: currentLink.allowed_roles
           });
         
         if (error) throw error;
@@ -191,17 +191,17 @@ const ExternalLinksManager: React.FC = () => {
   // Toggle a role in the allowed roles array
   const toggleRole = (roleId: string) => {
     setCurrentLink(prev => {
-      const roleExists = prev.allowedRoles.includes(roleId);
+      const roleExists = prev.allowed_roles.includes(roleId);
       
       if (roleExists) {
         return {
           ...prev,
-          allowedRoles: prev.allowedRoles.filter(id => id !== roleId)
+          allowed_roles: prev.allowed_roles.filter(id => id !== roleId)
         };
       } else {
         return {
           ...prev,
-          allowedRoles: [...prev.allowedRoles, roleId]
+          allowed_roles: [...prev.allowed_roles, roleId]
         };
       }
     });
@@ -228,11 +228,11 @@ const ExternalLinksManager: React.FC = () => {
                 <div>
                   <h3 className="font-medium">{link.name}</h3>
                   <p className="text-sm text-muted-foreground">{link.url}</p>
-                  {link.requiresAuth && (
+                  {link.requires_auth && (
                     <div className="text-xs mt-1">
                       Requiert authentification
-                      {link.allowedRoles.length > 0 && (
-                        <span> • Rôles: {link.allowedRoles.join(', ')}</span>
+                      {link.allowed_roles.length > 0 && (
+                        <span> • Rôles: {link.allowed_roles.join(', ')}</span>
                       )}
                     </div>
                   )}
@@ -292,13 +292,13 @@ const ExternalLinksManager: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Switch 
                 id="requires-auth" 
-                checked={currentLink.requiresAuth}
-                onCheckedChange={checked => setCurrentLink({...currentLink, requiresAuth: checked})}
+                checked={currentLink.requires_auth}
+                onCheckedChange={checked => setCurrentLink({...currentLink, requires_auth: checked})}
               />
               <Label htmlFor="requires-auth">Requiert une authentification</Label>
             </div>
             
-            {currentLink.requiresAuth && (
+            {currentLink.requires_auth && (
               <div className="space-y-2">
                 <Label>Rôles autorisés</Label>
                 <div className="space-y-2 mt-1">
@@ -306,7 +306,7 @@ const ExternalLinksManager: React.FC = () => {
                     <div key={role.id} className="flex items-center space-x-2">
                       <Switch 
                         id={`role-${role.id}`}
-                        checked={currentLink.allowedRoles.includes(role.id)}
+                        checked={currentLink.allowed_roles.includes(role.id)}
                         onCheckedChange={() => toggleRole(role.id)}
                       />
                       <Label htmlFor={`role-${role.id}`}>{role.name}</Label>
