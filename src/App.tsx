@@ -18,7 +18,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { SectionsProvider } from './contexts/sections/SectionsContext';
 import { Toaster } from './components/ui/toaster';
-import { AdminNotificationProvider } from './hooks/admin-notification/context';
+import { AdminNotificationProvider } from './hooks/admin-notification';
 
 // Autres imports
 import ProtectedRoute from './components/admin/ProtectedRoute';
