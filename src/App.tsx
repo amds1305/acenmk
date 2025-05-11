@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -5,7 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { PermissionsProvider } from './contexts/PermissionsContext';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
-import { AdminNotificationProvider } from '@/hooks/use-admin-notification';
+import { AdminNotificationProvider } from '@/hooks/admin-notification';
 import { Toaster } from '@/components/ui/toaster';
 
 // Eagerly loaded components
