@@ -9,12 +9,6 @@ import {
 } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 
-// Create toast function
-export function toast({ ...props }) {
-  const { toast } = useToast();
-  return toast(props);
-}
-
 export function Toaster() {
   const { toasts } = useToast();
 
@@ -38,3 +32,6 @@ export function Toaster() {
     </ToastProvider>
   );
 }
+
+// Re-export toast function for convenience
+export { toast } from "@/hooks/use-toast";
