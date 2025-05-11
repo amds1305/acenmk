@@ -55,11 +55,15 @@ function App() {
                 <Route path="/admin/faq" element={<ProtectedRoute><AdminFaq /></ProtectedRoute>} />
                 <Route path="/admin/contact" element={<ProtectedRoute><AdminContact /></ProtectedRoute>} />
                 <Route path="/admin/custom-section/:id" element={<ProtectedRoute><AdminCustomSection /></ProtectedRoute>} />
-                <Route path="/admin/hero" element={<AdminHero />} />
-                <Route path="/admin/footer" element={<AdminFooter />} />
+                <Route path="/admin/hero" element={<ProtectedRoute><AdminHero /></ProtectedRoute>} />
+                <Route path="/admin/footer" element={<ProtectedRoute><AdminFooter /></ProtectedRoute>} />
                 
                 {/* Routes légales */}
-                <Route path="/legal/:page" element={<LegalPage />} />
+                <Route path="/legal/:page" element={
+                  <React.Suspense fallback={<div>Chargement...</div>}>
+                    <LegalPage />
+                  </React.Suspense>
+                } />
                 
                 {/* Route 404 */}
                 <Route path="*" element={<NotFound />} />
