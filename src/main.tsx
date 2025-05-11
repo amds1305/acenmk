@@ -7,6 +7,7 @@ import App from './App';
 import './index.css';
 import { queryClient } from './lib/queryClient';
 import { AdminNotificationProvider } from './hooks/admin-notification';
+import { PermissionsProvider } from './contexts/PermissionsContext';
 
 console.log("Démarrage de l'application React...");
 
@@ -67,9 +68,11 @@ const renderApp = () => {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <AdminNotificationProvider>
-              <App />
-            </AdminNotificationProvider>
+            <PermissionsProvider>
+              <AdminNotificationProvider>
+                <App />
+              </AdminNotificationProvider>
+            </PermissionsProvider>
           </BrowserRouter>
         </QueryClientProvider>
       </ErrorBoundary>
