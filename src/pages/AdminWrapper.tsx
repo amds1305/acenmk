@@ -1,18 +1,21 @@
 
 import React from 'react';
-import { Outlet } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout';
 import { SectionsProvider } from '@/contexts/sections/SectionsContext';
 import { PermissionsProvider } from '@/contexts/PermissionsContext';
 import { AdminNotificationProvider } from '@/hooks/admin-notification';
 
-const AdminWrapper = () => {
+interface AdminWrapperProps {
+  children: React.ReactNode;
+}
+
+const AdminWrapper: React.FC<AdminWrapperProps> = ({ children }) => {
   return (
     <AdminNotificationProvider>
       <SectionsProvider>
         <PermissionsProvider>
           <AdminLayout>
-            <Outlet />
+            {children}
           </AdminLayout>
         </PermissionsProvider>
       </SectionsProvider>
