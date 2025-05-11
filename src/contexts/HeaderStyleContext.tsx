@@ -236,8 +236,7 @@ export const HeaderStyleProvider: React.FC<{ children: ReactNode }> = ({ childre
 export const useHeaderStyle = () => {
   const context = useContext(HeaderStyleContext);
   if (context === undefined) {
-    // Correction de l'apostrophe française qui cause l'erreur
-    throw new Error("useHeaderStyle doit être utilisé à l'intérieur d'un HeaderStyleProvider");
+    throw new Error('useHeaderStyle doit être utilisé à l'intérieur d'un HeaderStyleProvider');
   }
   return context;
 };
