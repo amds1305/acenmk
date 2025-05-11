@@ -1,26 +1,17 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { HeaderNavLink } from '../types';
+import { NavLink } from '../../../header/types';
 import { ChevronUp, ChevronDown, GripVertical, Edit, Trash2, Plus, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
-interface NavLinkItemProps {
-  navLink: HeaderNavLink;
-  children?: React.ReactNode;
-  onEdit: (link: HeaderNavLink) => void;
-  onDelete: (id: string) => void;
-  onAddChild: (parentId: string) => void;
-  onToggleVisibility: (id: string, isVisible: boolean) => void;
-  onMove: (id: string, direction: 'up' | 'down') => void;
-}
+import { NavLinkItemProps } from '../types';
 
 export const NavLinkItem: React.FC<NavLinkItemProps> = ({
   navLink,
   children,
+  level = 0,
   onEdit,
   onDelete,
-  onAddChild,
   onToggleVisibility,
   onMove
 }) => {
@@ -52,13 +43,9 @@ export const NavLinkItem: React.FC<NavLinkItemProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onToggleVisibility(navLink.id, Boolean(navLink.is_visible))}
+              onClick={() => onToggleVisibility(navLink.id)}
             >
               {navLink.is_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            </Button>
-            
-            <Button variant="ghost" size="icon" onClick={() => onAddChild(navLink.id)}>
-              <Plus className="h-4 w-4" />
             </Button>
             
             <Button variant="ghost" size="icon" onClick={() => onEdit(navLink)}>

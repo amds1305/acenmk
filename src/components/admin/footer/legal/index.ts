@@ -1,6 +1,5 @@
 
 export * from './types';
-export * from './defaultData';
 export * from './useLegalContent';
 export * from './ContentForm';
 

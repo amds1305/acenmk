@@ -1,14 +1,6 @@
 
-import NavLinkDialog from './NavLinkDialog';
-import NavLinkForm from './NavLinkForm';
-import NavLinkItem from './NavLinkItem';
-import NavLinkList from './NavLinkList';
-import NavLinkSearch from './NavLinkSearch';
-
-export {
-  NavLinkDialog,
-  NavLinkForm,
-  NavLinkItem,
-  NavLinkList,
-  NavLinkSearch
-};
+export { default as NavLinkItem } from './NavLinkItem';
+export { default as NavLinkList } from './NavLinkList';
+export { default as NavLinkForm } from './NavLinkForm';
+export { default as NavLinkDialog } from './NavLinkDialog';
+export { default as NavLinkSearch } from './NavLinkSearch';

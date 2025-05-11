@@ -1,19 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import NavLinkForm from './NavLinkForm';
 import { NavLink } from '../../../header/types';
+import { NavLinkDialogProps } from '../types';
 
-interface NavLinkDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  editingLink: NavLink | null;
-  navLinks: NavLink[];
-  isLoading: boolean;
-  onSave: (link: NavLink) => void;
-}
-
-const NavLinkDialog = ({ 
+const NavLinkDialog: React.FC<NavLinkDialogProps> = ({ 
   isOpen, 
   setIsOpen, 
   editingLink, 
@@ -21,6 +13,53 @@ const NavLinkDialog = ({
   isLoading, 
   onSave 
 }: NavLinkDialogProps) => {
+  const [currentLink, setCurrentLink] = useState<NavLink>({
+    id: '',
+    name: '',
+    href: '',
+    icon: null,
+    parentId: null,
+    order: 0,
+    is_visible: true,
+    requires_auth: false,
+    is_external: false
+  });
+
+  // Update currentLink when editingLink changes
+  React.useEffect(() => {
+    if (editingLink) {
+      setCurrentLink(editingLink);
+    } else {
+      // Reset to default values when adding a new link
+      setCurrentLink({
+        id: '',
+        name: '',
+        href: '',
+        icon: null,
+        parentId: null,
+        order: navLinks.length,
+        is_visible: true,
+        requires_auth: false,
+        is_external: false
+      });
+    }
+  }, [editingLink, navLinks]);
+
+  const updateNavLink = (key: keyof NavLink, value: any) => {
+    setCurrentLink({
+      ...currentLink,
+      [key]: value
+    });
+  };
+
+  const handleSave = () => {
+    onSave(currentLink);
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[500px]">
@@ -36,10 +75,11 @@ const NavLinkDialog = ({
         </DialogHeader>
 
         <NavLinkForm 
-          editingLink={editingLink} 
-          navLinks={navLinks} 
-          isLoading={isLoading} 
-          onSubmit={onSave} 
+          navLink={currentLink}
+          updateNavLink={updateNavLink}
+          existingLinks={navLinks}
+          onSave={handleSave}
+          onCancel={handleCancel}
         />
       </DialogContent>
     </Dialog>

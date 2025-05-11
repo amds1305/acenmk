@@ -2,16 +2,9 @@
 import React from 'react';
 import { NavLink } from '../../../header/types';
 import NavLinkItem from './NavLinkItem';
+import { NavLinkListProps } from '../types';
 
-interface NavLinkListProps {
-  navLinks: NavLink[];
-  onEdit: (link: NavLink) => void;
-  onDelete: (id: string) => void;
-  onMove: (id: string, direction: 'up' | 'down') => void;
-  onToggleVisibility: (id: string) => void;
-}
-
-const NavLinkList = ({
+const NavLinkList: React.FC<NavLinkListProps> = ({
   navLinks,
   onEdit,
   onDelete,
@@ -30,7 +23,7 @@ const NavLinkList = ({
       return (
         <NavLinkItem
           key={link.id}
-          link={link}
+          navLink={link}
           level={level}
           onEdit={onEdit}
           onDelete={onDelete}

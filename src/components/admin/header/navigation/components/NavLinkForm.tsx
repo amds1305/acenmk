@@ -1,21 +1,15 @@
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { HeaderNavLink } from '../types';
+import { NavLink } from '../../../header/types';
+import { NavLinkFormProps } from '../types';
 
 // Define icon type as string only
 type IconName = string;
-
-interface NavLinkFormProps {
-  navLink: HeaderNavLink;
-  updateNavLink: (key: keyof HeaderNavLink, value: any) => void;
-  existingLinks: HeaderNavLink[];
-  onSave: () => void;
-  onCancel: () => void;
-}
 
 // Mock icons as strings (not React components)
 const availableIcons: IconName[] = [
@@ -38,11 +32,11 @@ export const NavLinkForm: React.FC<NavLinkFormProps> = ({
   );
 
   // Check if a link is an ancestor of another
-  function hasAncestor(links: HeaderNavLink[], linkId: string, ancestorId: string): boolean {
+  function hasAncestor(links: NavLink[], linkId: string, ancestorId: string): boolean {
     const link = links.find(l => l.id === linkId);
-    if (!link || !link.parent_id) return false;
-    if (link.parent_id === ancestorId) return true;
-    return hasAncestor(links, link.parent_id, ancestorId);
+    if (!link || !link.parentId) return false;
+    if (link.parentId === ancestorId) return true;
+    return hasAncestor(links, link.parentId, ancestorId);
   }
 
   return (
@@ -90,8 +84,8 @@ export const NavLinkForm: React.FC<NavLinkFormProps> = ({
         <div>
           <Label htmlFor="link-parent">Lien parent (optionnel)</Label>
           <Select 
-            value={navLink.parent_id || ''} 
-            onValueChange={(value) => updateNavLink('parent_id', value || null)}
+            value={navLink.parentId || ''} 
+            onValueChange={(value) => updateNavLink('parentId', value || null)}
           >
             <SelectTrigger id="link-parent">
               <SelectValue placeholder="Lien principal" />
