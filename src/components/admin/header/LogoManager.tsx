@@ -218,7 +218,7 @@ export const LogoManager = () => {
           </div>
         )}
 
-        <Button onClick={handleSaveLogo} disabled={isSaving}>
+        <Button onClick={() => handleSaveLogo()} disabled={isSaving}>
           {isSaving ? (
             <>
               <Save className="mr-2 h-4 w-4 animate-spin" />

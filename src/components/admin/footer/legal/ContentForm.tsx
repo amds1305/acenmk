@@ -56,3 +56,5 @@ export const ContentForm: React.FC<ContentFormProps> = ({ contentKey, content, u
     </div>
   );
 };
+
+export default ContentForm;

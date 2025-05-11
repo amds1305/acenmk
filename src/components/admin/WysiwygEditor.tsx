@@ -20,5 +20,5 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ content, onChange,
   );
 };
 
-// Add default export
+// Make sure we have both a named and default export
 export default WysiwygEditor;
