@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -76,9 +77,13 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
+      // Note: This is a workaround as we don't have direct access to the auth.users table
+      // In a real application, you'd use a Supabase Edge Function or a server endpoint
+      // to access this data with proper admin privileges
       const { data, error } = await supabase
-        .from('users')
-        .select('id, email, role, created_at');
+        .from('user_roles')
+        .select('user_id, role, profiles:profiles!user_id(email, created_at)')
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching users:', error);
@@ -87,8 +92,14 @@ const AdminUsers = () => {
           description: "Impossible de charger la liste des utilisateurs",
           variant: "destructive"
         });
-      } else {
-        setUsers(data || []);
+      } else if (data) {
+        const formattedUsers = data.map(item => ({
+          id: item.user_id,
+          email: item.profiles?.email || 'unknown@example.com',
+          role: item.role,
+          created_at: item.profiles?.created_at || new Date().toISOString()
+        }));
+        setUsers(formattedUsers);
       }
     } catch (error) {
       console.error('Unexpected error fetching users:', error);
@@ -104,6 +115,8 @@ const AdminUsers = () => {
 
   const createUser = async () => {
     try {
+      // In a real application, this might need to be done through a Supabase Edge Function
+      // with admin privileges
       const { data: newUser, error } = await supabase.auth.signUp({
         email: newEmail,
         password: newPassword,
@@ -148,9 +161,9 @@ const AdminUsers = () => {
 
     try {
       const { error } = await supabase
-        .from('users')
+        .from('user_roles')
         .update({ role: editedRole })
-        .eq('id', selectedUser.id);
+        .eq('user_id', selectedUser.id);
 
       if (error) {
         console.error('Error updating user role:', error);
@@ -181,7 +194,13 @@ const AdminUsers = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      // Note: Deleting a user requires admin privileges
+      // In a real application, this would be done through a secure server endpoint
+      // Here we're just removing the user from our user_roles table
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Error deleting user:', error);
@@ -226,7 +245,7 @@ const AdminUsers = () => {
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex justify-end">
-          <Dialog>
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
             <DialogTrigger asChild>
               <Button><UserPlus className="mr-2 h-4 w-4" /> Ajouter un utilisateur</Button>
             </DialogTrigger>
@@ -295,7 +314,7 @@ const AdminUsers = () => {
                       {user.role === 'admin' ? (
                         <Badge>Administrateur</Badge>
                       ) : (
-                        <Badge className="bg-green-500 hover:bg-green-600">Utilisateur</Badge>
+                        <Badge variant="secondary">Utilisateur</Badge>
                       )}
                     </TableCell>
                     <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>

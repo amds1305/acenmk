@@ -2,19 +2,24 @@
 import React from 'react';
 
 export interface WysiwygEditorProps {
-  value: string;
+  content: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-// Dummy implementation - replace with your actual editor component
-export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange }) => {
+// Export as both named and default export to maintain compatibility
+export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ content, onChange, placeholder }) => {
   return (
     <div className="p-4">
       <textarea 
         className="w-full h-[400px] p-4 border rounded-md"
-        value={value}
+        value={content}
         onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
       />
     </div>
   );
 };
+
+// Add default export
+export default WysiwygEditor;

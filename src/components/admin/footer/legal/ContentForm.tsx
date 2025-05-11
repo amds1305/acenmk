@@ -36,7 +36,7 @@ export const ContentForm: React.FC<ContentFormProps> = ({ contentKey, content, u
         <Label htmlFor={`${contentKey}-content`}>Contenu</Label>
         <div className="min-h-[400px] border rounded-md">
           <WysiwygEditor
-            value={content.content}
+            content={content.content}
             onChange={(value) => updateContent(contentKey, 'content', value)}
           />
         </div>

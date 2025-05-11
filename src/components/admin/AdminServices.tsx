@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getServices, saveService, updateService, deleteService, updateServicesOrder, ServiceItem } from '@/services/supabase/servicesService';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Service } from '@/types/service';
 
 // Les icônes disponibles
 const AVAILABLE_ICONS = [
@@ -22,13 +23,14 @@ const AdminServices = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [editingService, setEditingService] = useState<null | {
     id?: string;
     title: string;
     description: string;
     icon: string;
     order_index?: number;
+    created_at?: string;
     isNew?: boolean;
   }>(null);
   const [serviceToDelete, setServiceToDelete] = useState<null | { id: string, title: string }>(null);
@@ -107,7 +109,8 @@ const AdminServices = () => {
           title: editingService.title,
           description: editingService.description,
           icon: editingService.icon,
-          order_index: maxOrder + 1
+          order_index: maxOrder + 1,
+          created_at: new Date().toISOString()
         };
         
         // Sauvegarder dans Supabase
@@ -115,7 +118,7 @@ const AdminServices = () => {
         
         if (newId) {
           // Ajouter à l'état local
-          setServices([...services, { ...newService, id: newId }]);
+          setServices([...services, { ...newService, id: newId } as Service]);
           toast({
             title: "Service ajouté",
             description: "Le nouveau service a été ajouté avec succès."
@@ -133,15 +136,16 @@ const AdminServices = () => {
           title: editingService.title,
           description: editingService.description,
           icon: editingService.icon,
-          order_index: editingService.order_index || 0
+          order_index: editingService.order_index || 0,
+          created_at: editingService.created_at || new Date().toISOString()
         };
         
-        const success = await updateService(updatedService);
+        const success = await updateService(updatedService as Service);
         
         if (success) {
           // Mettre à jour l'état local
           const newServices = services.map(s => 
-            s.id === updatedService.id ? updatedService : s
+            s.id === updatedService.id ? updatedService as Service : s
           );
           setServices(newServices);
           
@@ -244,7 +248,16 @@ const AdminServices = () => {
         if (error) throw error;
         
         if (data && data.data) {
-          setSectionSettings(data.data);
+          // Ensure we parse the data correctly
+          const settingsData = data.data as any;
+          if (typeof settingsData === 'object' && 
+              settingsData.title && 
+              settingsData.subtitle) {
+            setSectionSettings({
+              title: settingsData.title,
+              subtitle: settingsData.subtitle
+            });
+          }
         }
       } catch (error) {
         console.error("Erreur lors du chargement des paramètres:", error);
@@ -253,6 +266,19 @@ const AdminServices = () => {
     
     loadSectionSettings();
   }, []);
+
+  const handleAddService = () => {
+    const newService = {
+      id: '',
+      icon: 'Code',
+      title: 'Nouveau Service',
+      description: 'Description du nouveau service',
+      order_index: services.length,
+      created_at: new Date().toISOString(),
+      isNew: true
+    };
+    setEditingService(newService);
+  };
 
   return (
     <div className="space-y-6">
@@ -303,7 +329,7 @@ const AdminServices = () => {
 
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Liste des services</h2>
-        <Button onClick={() => handleEdit({ id: '', icon: 'Code', title: '', description: '', isNew: true })}>
+        <Button onClick={handleAddService}>
           <Plus className="mr-2 h-4 w-4" />
           Ajouter un service
         </Button>
