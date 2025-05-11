@@ -8,11 +8,15 @@ import { AdminNotificationProvider } from '@/hooks/use-admin-notification';
 
 const AdminWrapper = () => {
   return (
-    <SectionsProvider>
-      <AdminLayout>
-        <Outlet />
-      </AdminLayout>
-    </SectionsProvider>
+    <AdminNotificationProvider>
+      <SectionsProvider>
+        <PermissionsProvider>
+          <AdminLayout>
+            <Outlet />
+          </AdminLayout>
+        </PermissionsProvider>
+      </SectionsProvider>
+    </AdminNotificationProvider>
   );
 };
 

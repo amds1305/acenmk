@@ -18,19 +18,37 @@ export interface UseHeaderStyleReturn {
 
 export const useHeaderStyle = (): UseHeaderStyleReturn => {
   const { toast } = useToast();
-  // Use the hook safely with optional chaining
+  // Use the hook safely with optional chaining and fallback
   const adminNotification = useAdminNotification();
   
   // Use the context hook to get the actual implementation
   const {
     headerStyle,
     updateStyle,
-    saveChanges,
+    saveChanges: contextSaveChanges,
     loadPreset,
     resetToDefaults,
     isLoading,
     availablePresets
   } = useContextHeaderStyle();
+  
+  // Wrap saveChanges to use adminNotification if available
+  const saveChanges = async () => {
+    try {
+      const result = await contextSaveChanges();
+      
+      if (result) {
+        adminNotification.showSaveSuccess();
+      } else {
+        adminNotification.showSaveError();
+      }
+      
+      return result;
+    } catch (error) {
+      adminNotification.showSaveError(error);
+      return false;
+    }
+  };
 
   return {
     headerStyle,

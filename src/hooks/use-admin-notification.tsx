@@ -51,9 +51,6 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
   
   const showNotification = (type: NotificationType, title: string, message: string) => {
     const variant = type === 'error' ? 'destructive' : 'default';
-    const icon = type === 'success' ? <Check className="h-4 w-4" /> 
-              : type === 'error' ? <AlertCircle className="h-4 w-4" />
-              : <Info className="h-4 w-4" />;
     
     toast({
       title,
@@ -108,8 +105,16 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
   );
 };
 
+// Add a console message to help debugging if the hook is used outside the provider
 export const useAdminNotification = (): AdminNotificationContextType => {
   const context = useContext(AdminNotificationContext);
-  // Now context will never be undefined, so we can remove the error
+  
+  // Return the default context even if not wrapped in provider
+  // This prevents crashes but logs a warning
+  if (context === undefined) {
+    console.warn('useAdminNotification est appelé en dehors d\'un AdminNotificationProvider');
+    return defaultContext;
+  }
+  
   return context;
 };

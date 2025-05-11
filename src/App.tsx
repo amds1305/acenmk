@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -53,8 +52,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <PermissionsProvider>
-            <AdminNotificationProvider>
+          <AdminNotificationProvider>
+            <PermissionsProvider>
               <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -99,8 +98,8 @@ function App() {
                 </Routes>
                 <Toaster />
               </Suspense>
-            </AdminNotificationProvider>
-          </PermissionsProvider>
+            </PermissionsProvider>
+          </AdminNotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
