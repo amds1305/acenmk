@@ -19,17 +19,13 @@ const AdminHome = () => {
   // Force a reload of the configuration when the component mounts
   useEffect(() => {
     console.log('AdminHome: reloading configuration');
-    const loadConfig = async () => {
-      await reloadConfig();
-      
-      // Invalidate the cache for various queries
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['faqs'] });
-      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
-    };
+    reloadConfig();
     
-    loadConfig();
+    // Invalidate the cache for various queries
+    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
+    queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+    queryClient.invalidateQueries({ queryKey: ['faqs'] });
+    queryClient.invalidateQueries({ queryKey: ['testimonials'] });
   }, [reloadConfig, queryClient]);
   
   // Create a properly typed heroData object with default values
@@ -46,21 +42,20 @@ const AdminHome = () => {
     updateExistingSectionData('hero', updatedHeroData);
   };
 
-  const handleSave = async () => {
-    try {
-      await saveChanges();
+  const handleSave = () => {
+    saveChanges().then(() => {
       toast({
         title: "Configuration sauvegardée",
         description: "Les modifications ont été enregistrées avec succès.",
       });
-    } catch (error) {
+    }).catch((error) => {
       console.error('Error saving config:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde.",
       });
-    }
+    });
   };
 
   // Log out the sections for debugging

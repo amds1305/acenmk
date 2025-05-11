@@ -1,38 +1,19 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { UserPlus, Copy, Mail, User, Lock, Edit, Trash2 } from 'lucide-react';
-import { Label } from "@/components/ui/label"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/hooks/use-toast"
-import { useToast } from "@/hooks/use-toast"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,368 +21,373 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MoreHorizontal } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Search, 
+  Plus, 
+  MoreHorizontal, 
+  Edit2, 
+  Trash2, 
+  Shield, 
+  Mail, 
+  User as UserIcon,
+  RefreshCw, 
+  Download,
+  Filter 
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { User, UserRole } from '@/types/auth';
+import { MOCK_ADMIN_USER, MOCK_USER } from '@/data/mockUsers';
+import UserProfileDialog from './users/UserProfileDialog';
+import SendMessageDialog from './users/SendMessageDialog';
 
-interface UserData {
-  id: string;
-  email: string;
-  role: "super_admin" | "admin" | "client_premium" | "user";
-  created_at: string;
-}
-
-type UserRole = "super_admin" | "admin" | "client_premium" | "user";
+const mockUsers = [
+  MOCK_ADMIN_USER,
+  MOCK_USER,
+  {
+    id: 'user3',
+    email: 'premium@example.com',
+    name: 'Client Premium',
+    role: 'client_premium',
+    company: 'Premium Corp',
+    phone: '+33 6 12 34 56 78',
+    avatar: 'https://i.pravatar.cc/150?u=premium@example.com',
+    createdAt: new Date(Date.now() - 7884000000).toISOString(), // 3 months ago
+  } as User,
+  {
+    id: 'user4',
+    email: 'new@example.com',
+    name: 'Nouveau Client',
+    role: 'user',
+    company: 'New Company',
+    createdAt: new Date(Date.now() - 604800000).toISOString(), // 1 week ago
+  } as User,
+  {
+    id: 'user5',
+    email: 'super@example.com',
+    name: 'Super Admin',
+    role: 'super_admin',
+    company: 'Admin Solutions',
+    phone: '+33 7 98 76 54 32',
+    avatar: 'https://i.pravatar.cc/150?u=super@example.com',
+    createdAt: new Date(Date.now() - 63072000000).toISOString(), // 2 years ago
+  } as User,
+];
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newEmail, setNewEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newRole, setNewRole] = useState<UserRole>('user');
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [editedRole, setEditedRole] = useState<UserRole>('user');
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.company && user.company.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesRole = selectedRole ? user.role === selectedRole : true;
+    
+    return matchesSearch && matchesRole;
+  });
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      // First, fetch user_roles table data
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) {
-        throw rolesError;
-      }
-
-      // Then, fetch profiles table data
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, created_at');
-
-      if (profilesError) {
-        throw profilesError;
-      }
-
-      // Combine the data to create user records
-      const combinedUsers = profilesData.map(profile => {
-        const userRole = rolesData.find(r => r.user_id === profile.id);
-        return {
-          id: profile.id,
-          email: profile.email,
-          role: (userRole?.role || 'user') as "super_admin" | "admin" | "client_premium" | "user",
-          created_at: profile.created_at
-        };
-      });
-
-      setUsers(combinedUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger la liste des utilisateurs",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const getRoleBadgeVariant = (role: UserRole) => {
+    switch(role) {
+      case 'super_admin': return 'destructive';
+      case 'admin': return 'default';
+      case 'client_premium': return 'orange';
+      default: return 'secondary';
+    }
+  };
+  
+  const getRoleLabel = (role: UserRole) => {
+    switch(role) {
+      case 'super_admin': return 'Super Admin';
+      case 'admin': return 'Administrateur';
+      case 'client_premium': return 'Client Premium';
+      case 'user': return 'Client';
+      default: return role;
     }
   };
 
-  const createUser = async () => {
-    try {
-      // In a real application, this might need to be done through a Supabase Edge Function
-      // with admin privileges
-      const { data: newUser, error } = await supabase.auth.signUp({
-        email: newEmail,
-        password: newPassword,
-        options: {
-          data: {
-            role: newRole,
-          },
-        },
-      });
-
-      if (error) {
-        console.error('Error creating user:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de créer l'utilisateur",
-          variant: "destructive"
-        });
-      } else {
-        console.log('User created successfully:', newUser);
-        toast({
-          title: "Succès",
-          description: "Utilisateur créé avec succès"
-        });
-        fetchUsers();
-        setIsCreateModalOpen(false);
-        setNewEmail('');
-        setNewPassword('');
-        setNewRole('user');
-      }
-    } catch (error) {
-      console.error('Unexpected error creating user:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite lors de la création de l'utilisateur",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const updateUserRole = async () => {
-    if (!selectedUser) return;
-
-    try {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: editedRole })
-        .eq('user_id', selectedUser.id);
-
-      if (error) {
-        console.error('Error updating user role:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de mettre à jour le rôle de l'utilisateur",
-          variant: "destructive"
-        });
-      } else {
-        console.log('User role updated successfully');
-        toast({
-          title: "Succès",
-          description: "Rôle de l'utilisateur mis à jour avec succès"
-        });
-        fetchUsers();
-        setIsEditModalOpen(false);
-        setSelectedUser(null);
-      }
-    } catch (error) {
-      console.error('Unexpected error updating user role:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite lors de la mise à jour du rôle de l'utilisateur",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const deleteUser = async (userId: string) => {
-    try {
-      // Note: Deleting a user requires admin privileges
-      // In a real application, this would be done through a secure server endpoint
-      // Here we're just removing the user from our user_roles table
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error deleting user:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer l'utilisateur",
-          variant: "destructive"
-        });
-      } else {
-        console.log('User deleted successfully');
-        toast({
-          title: "Succès",
-          description: "Utilisateur supprimé avec succès"
-        });
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error('Unexpected error deleting user:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite lors de la suppression de l'utilisateur",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const copyUserId = (userId: string) => {
-    navigator.clipboard.writeText(userId);
+  const handleDeleteUser = (userId: string) => {
+    setUsers(users.filter(user => user.id !== userId));
     toast({
-      title: "ID copié",
-      description: "L'ID de l'utilisateur a été copié dans le presse-papiers"
+      title: "Utilisateur supprimé",
+      description: "L'utilisateur a été supprimé avec succès."
+    });
+  };
+
+  const handleChangeRole = (userId: string, newRole: UserRole) => {
+    setUsers(users.map(user => 
+      user.id === userId ? { ...user, role: newRole } : user
+    ));
+    toast({
+      title: "Rôle mis à jour",
+      description: "Le rôle de l'utilisateur a été modifié avec succès."
+    });
+  };
+
+  const handleViewProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(false);
+    setIsProfileOpen(true);
+  };
+
+  const handleEditProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(true);
+    setIsProfileOpen(true);
+  };
+
+  const handleSendMessage = (user: User) => {
+    setSelectedUser(user);
+    setIsMessageDialogOpen(true);
+  };
+
+  const handleUpdateProfile = async (updatedUser: Partial<User>) => {
+    setUsers(users.map(user => 
+      user.id === selectedUser?.id 
+        ? { ...user, ...updatedUser }
+        : user
+    ));
+  };
+
+  const handleExportUsers = () => {
+    toast({
+      title: "Export lancé",
+      description: "La liste des utilisateurs est en cours d'export."
+    });
+  };
+
+  const handleRefreshUsers = () => {
+    toast({
+      title: "Liste actualisée",
+      description: "La liste des utilisateurs a été actualisée."
     });
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Gestion des utilisateurs</CardTitle>
-        <CardDescription>
-          Créez, modifiez et gérez les utilisateurs de la plateforme
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex justify-end">
-          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger asChild>
-              <Button><UserPlus className="mr-2 h-4 w-4" /> Ajouter un utilisateur</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
-                <DialogDescription>
-                  Ajoutez un nouvel utilisateur à la base de données.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email" className="text-right">
-                    Email
-                  </Label>
-                  <Input id="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="password" className="text-right">
-                    Mot de passe
-                  </Label>
-                  <Input type="password" id="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="role" className="text-right">
-                    Rôle
-                  </Label>
-                  <Select 
-                    value={newRole} 
-                    onValueChange={(value: UserRole) => setNewRole(value)}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Sélectionner un rôle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Utilisateur</SelectItem>
-                      <SelectItem value="admin">Administrateur</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button onClick={createUser}>
-                Créer l'utilisateur
+    <>
+      <h1 className="text-2xl font-bold mb-6">Gestion des utilisateurs</h1>
+      
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle>Utilisateurs</CardTitle>
+              <CardDescription>
+                Gérez les comptes utilisateurs et leurs permissions.
+              </CardDescription>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" size="sm" onClick={handleRefreshUsers}>
+                <RefreshCw className="h-4 w-4 mr-1" /> Actualiser
               </Button>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {loading ? (
-          <div>Chargement des utilisateurs...</div>
-        ) : (
-          <div className="rounded-md border">
+              <Button variant="outline" size="sm" onClick={handleExportUsers}>
+                <Download className="h-4 w-4 mr-1" /> Exporter
+              </Button>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-1" /> Ajouter
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input 
+                placeholder="Rechercher par nom, email, entreprise..." 
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full md:w-auto">
+                  <Filter className="h-4 w-4 mr-2" />
+                  {selectedRole ? getRoleLabel(selectedRole as UserRole) : "Tous les rôles"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Filtrer par rôle</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSelectedRole(null)}>
+                  Tous les rôles
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedRole('super_admin')}>
+                  Super Admin
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedRole('admin')}>
+                  Administrateur
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedRole('client_premium')}>
+                  Client Premium
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedRole('user')}>
+                  Client
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">ID</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Rôle</TableHead>
-                  <TableHead>Date de création</TableHead>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Utilisateur</TableHead>
+                  <TableHead className="hidden md:table-cell">Role</TableHead>
+                  <TableHead className="hidden md:table-cell">Date d'inscription</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.id}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      {user.role === 'admin' ? (
-                        <Badge>Administrateur</Badge>
-                      ) : (
-                        <Badge variant="secondary">Utilisateur</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Ouvrir le menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => copyUserId(user.id)}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copier l'ID
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
-                            setSelectedUser(user);
-                            setEditedRole(user.role);
-                            setIsEditModalOpen(true);
-                          }}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Modifier le rôle
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => deleteUser(user.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={user.avatar} />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            {user.company && (
+                              <p className="text-xs text-muted-foreground hidden sm:block">{user.company}</p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant={getRoleBadgeVariant(user.role)} className="font-normal">
+                          {getRoleLabel(user.role)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {new Date(user.createdAt).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleViewProfile(user)}>
+                              <UserIcon className="h-4 w-4 mr-2" />
+                              Voir le profil
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditProfile(user)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSendMessage(user)}>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Envoyer un message
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuLabel>Changer le rôle</DropdownMenuLabel>
+                            <DropdownMenuItem 
+                              onClick={() => handleChangeRole(user.id, 'user')}
+                              disabled={user.role === 'user'}
+                            >
+                              Client
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleChangeRole(user.id, 'client_premium')}
+                              disabled={user.role === 'client_premium'}
+                            >
+                              Client Premium
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleChangeRole(user.id, 'admin')}
+                              disabled={user.role === 'admin'}
+                            >
+                              Administrateur
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleChangeRole(user.id, 'super_admin')}
+                              disabled={user.role === 'super_admin'}
+                            >
+                              Super Admin
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                      Aucun utilisateur trouvé
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
-        )}
+          
+          <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+            <div>
+              Affichage de {filteredUsers.length} sur {users.length} utilisateurs
+            </div>
+            <div className="flex items-center">
+              <Shield className="h-4 w-4 mr-1" />
+              <span className="text-xs">Les super-administrateurs ont un accès complet au système</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Edit User Role Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Modifier le rôle de l'utilisateur</DialogTitle>
-              <DialogDescription>
-                Sélectionnez le nouveau rôle pour cet utilisateur.
-              </DialogDescription>
-            </DialogHeader>
-            {selectedUser && (
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="role" className="text-right">
-                    Rôle
-                  </Label>
-                  <Select 
-                    value={editedRole} 
-                    onValueChange={(value: UserRole) => setEditedRole(value)}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Sélectionner un rôle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Utilisateur</SelectItem>
-                      <SelectItem value="admin">Administrateur</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-            <Button onClick={updateUserRole}>
-              Mettre à jour le rôle
-            </Button>
-          </DialogContent>
-        </Dialog>
-      </CardContent>
-    </Card>
+      <UserProfileDialog
+        user={selectedUser}
+        isOpen={isProfileOpen}
+        onClose={() => {
+          setIsProfileOpen(false);
+          setSelectedUser(null);
+          setIsEditingProfile(false);
+        }}
+        onSave={handleUpdateProfile}
+        isEditing={isEditingProfile}
+      />
+
+      <SendMessageDialog
+        user={selectedUser}
+        isOpen={isMessageDialogOpen}
+        onClose={() => {
+          setIsMessageDialogOpen(false);
+          setSelectedUser(null);
+        }}
+      />
+    </>
   );
 };
 

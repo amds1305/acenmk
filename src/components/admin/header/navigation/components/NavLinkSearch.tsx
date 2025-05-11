@@ -1,27 +1,35 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { NavLinkSearchProps } from '../types';
 
-const NavLinkSearch: React.FC<NavLinkSearchProps> = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
-  
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = event.target.value;
-    setQuery(newQuery);
-    onSearch(newQuery);
-  };
-  
+interface NavLinkSearchProps {
+  onSearch: (query: string) => void;
+}
+
+const NavLinkSearch = ({ onSearch }: NavLinkSearchProps) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onSearch(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery, onSearch]);
+
   return (
-    <div className="relative">
-      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="relative mb-4">
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
-        type="search"
-        placeholder="Rechercher des liens..."
-        value={query}
-        onChange={handleSearch}
-        className="pl-8"
+        type="text"
+        placeholder="Rechercher un lien par nom ou URL..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="pl-10"
       />
     </div>
   );

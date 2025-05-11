@@ -1,13 +1,13 @@
 
-import { NavLink } from '../types';
+import { NavLink } from '../../header/types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Get default navigation links
 export const getDefaultNavLinks = (): NavLink[] => [
-  { id: uuidv4(), name: 'Accueil', href: '/', order: 1, isVisible: true, parentId: null, icon: 'Home', requiresAuth: false, isExternal: false },
-  { id: uuidv4(), name: 'Services', href: '/#services', order: 2, isVisible: true, parentId: null, icon: null, requiresAuth: false, isExternal: false },
-  { id: uuidv4(), name: 'Portfolio', href: '/portfolio', order: 3, isVisible: true, parentId: null, icon: null, requiresAuth: false, isExternal: false },
-  { id: uuidv4(), name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null, icon: null, requiresAuth: false, isExternal: false },
+  { id: uuidv4(), name: '', href: '/', order: 1, isVisible: true, parentId: null, icon: 'Home' },
+  { id: uuidv4(), name: 'Services', href: '/#services', order: 2, isVisible: true, parentId: null },
+  { id: uuidv4(), name: 'Portfolio', href: '/portfolio', order: 3, isVisible: true, parentId: null },
+  { id: uuidv4(), name: 'Contact', href: '/#contact', order: 5, isVisible: true, parentId: null },
 ];
 
 // Check if a link has children

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, For
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { WysiwygEditor } from './WysiwygEditor';
+import WysiwygEditor from './WysiwygEditor';
 
 // Mock data pour un article individuel
 const MOCK_BLOG_POST = {

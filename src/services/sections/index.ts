@@ -1,45 +1,40 @@
 
-// src/services/sections/index.ts
-import { HomepageConfig, Section, SectionData } from './types';
+// Re-exporter les fonctions du service Supabase
+// Cela permet aux composants existants de continuer à fonctionner sans modifications
+import { 
+  getHomepageConfig, 
+  saveHomepageConfig,
+  addSection,
+  removeSection,
+  migrateLocalStorageToSupabase,
+  getTrustedClients,
+  upsertTrustedClient,
+  deleteTrustedClient
+} from '@/services/supabase/sectionsService';
 
-// Initialize with default empty config
-const defaultConfig: HomepageConfig = {
-  sections: [],
-  sectionData: {},
-};
+// Export des types
+export * from './types';
 
-let cachedConfig: HomepageConfig = { ...defaultConfig };
+// Export des opérations de sections
+export * from './sectionOperations';
 
-// Synchronously get the homepage config from cache
-export const getHomepageConfig = (): HomepageConfig => {
-  return cachedConfig;
-};
+// Export du service de stockage (compatibilité)
+export * from './storageService';
 
-// Asynchronously load the homepage config
-export const loadHomepageConfig = async (): Promise<HomepageConfig> => {
-  try {
-    // Here you'd fetch from your API or local storage
-    // For now we'll just use the cached config
-    return cachedConfig;
-  } catch (error) {
-    console.error('Error loading homepage config:', error);
-    return defaultConfig;
-  }
-};
+// Export des données par défaut
+export * from './defaultData';
 
-// Update the cached config
-export const updateHomepageConfig = (config: HomepageConfig): void => {
-  cachedConfig = { ...config };
-};
+// Re-export explicite du DEFAULT_TEMPLATE_CONFIG depuis defaultData
+export { DEFAULT_TEMPLATE_CONFIG, DEFAULT_HOMEPAGE_CONFIG } from './defaultData';
 
-// Save the homepage config
-export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolean> => {
-  try {
-    // Here you'd save to your API or local storage
-    cachedConfig = { ...config };
-    return true;
-  } catch (error) {
-    console.error('Error saving homepage config:', error);
-    return false;
-  }
+// Re-exporter les fonctions du service Supabase
+export { 
+  getHomepageConfig, 
+  saveHomepageConfig, 
+  addSection, 
+  removeSection,
+  migrateLocalStorageToSupabase,
+  getTrustedClients,
+  upsertTrustedClient,
+  deleteTrustedClient
 };

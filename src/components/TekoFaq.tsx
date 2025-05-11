@@ -5,13 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getFAQs } from '@/services/supabase/faqService';
 
-// Define proper types for FAQ items
-interface FaqItem {
-  id?: string;
-  question: string;
-  answer: string;
-}
-
 const TekoFaq: React.FC = () => {
   const { data: faqs, isLoading, error } = useQuery({
     queryKey: ['faqs', 'teko'],
@@ -21,24 +14,20 @@ const TekoFaq: React.FC = () => {
   });
   
   // Données par défaut si aucune donnée n'est trouvée
-  const defaultFaqs: FaqItem[] = [
+  const defaultFaqs = [
     {
-      id: "teko-1",
       question: "Quels types de projets réalisez-vous ?",
       answer: "Nous réalisons divers projets numériques : sites web, applications mobiles, solutions e-commerce, intranets, systèmes de gestion, interfaces IoT, solutions cloud, etc."
     },
     {
-      id: "teko-2",
       question: "Quelle est votre méthodologie de travail ?",
       answer: "Nous suivons une approche agile centrée sur l'utilisateur. Chaque projet commence par une phase de découverte, suivie par la conception, le développement itératif avec des retours réguliers du client, puis les tests et le déploiement."
     },
     {
-      id: "teko-3",
       question: "Comment assurez-vous la sécurité des projets ?",
       answer: "La sécurité est notre priorité absolue. Nous appliquons les meilleures pratiques de l'industrie : audits réguliers, tests de pénétration, chiffrement des données, authentification forte et formation continue de nos équipes."
     },
     {
-      id: "teko-4",
       question: "Proposez-vous un support après la mise en ligne ?",
       answer: "Absolument ! Nous proposons plusieurs formules de maintenance et support technique, du simple monitoring à la maintenance évolutive complète. Nos SLA garantissent des interventions rapides en cas de besoin."
     }
@@ -77,17 +66,12 @@ const TekoFaq: React.FC = () => {
         </div>
         
         <div className="max-w-4xl mx-auto space-y-6">
-          {displayFaqs.map((faq, index) => {
-            // Generate a stable ID if one doesn't exist
-            const faqId = faq.id || `teko-faq-${index}`;
-            
-            return (
-              <div key={faqId} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm text-center">
-                <h3 className="text-xl font-bold mb-3 text-[#0a0c10]">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            );
-          })}
+          {displayFaqs.map((faq, index) => (
+            <div key={faq.id || index} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm text-center">
+              <h3 className="text-xl font-bold mb-3 text-[#0a0c10]">{faq.question}</h3>
+              <p className="text-gray-600">{faq.answer}</p>
+            </div>
+          ))}
         </div>
         
         <div className="max-w-2xl mt-12 text-center mx-auto">

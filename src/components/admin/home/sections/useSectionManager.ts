@@ -4,15 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Section, SectionType } from '@/types/sections';
 import { useSections } from '@/contexts/sections/SectionsContext';
 
-export interface NewSectionForm {
-  type: SectionType;
-  title: string;
-  visible?: boolean;
-  externalUrl?: string;
-  requiresAuth?: boolean;
-  allowedRoles?: string[];
-}
-
 export function useSectionManager() {
   const { 
     config, 
@@ -26,7 +17,7 @@ export function useSectionManager() {
   
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newSection, setNewSection] = useState<NewSectionForm>({
+  const [newSection, setNewSection] = useState<Partial<Section>>({
     type: 'hero',
     title: '',
     visible: true,

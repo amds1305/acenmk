@@ -2,35 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { LegalContent, LegalContents, contentSlugs } from './types';
-
-// Initialize with default values
-const defaultLegalContents: LegalContents = {
-  legalNotice: {
-    title: "Mentions légales",
-    content: "<h1>Mentions légales</h1><p>Ajoutez ici vos mentions légales...</p>",
-    metaDescription: "Mentions légales de notre entreprise",
-    isPublished: true
-  },
-  privacyPolicy: {
-    title: "Politique de confidentialité",
-    content: "<h1>Politique de confidentialité</h1><p>Ajoutez ici votre politique de confidentialité...</p>",
-    metaDescription: "Notre politique de confidentialité concernant vos données personnelles",
-    isPublished: true
-  },
-  termsOfUse: {
-    title: "Conditions d'utilisation",
-    content: "<h1>Conditions d'utilisation</h1><p>Ajoutez ici vos conditions d'utilisation...</p>",
-    metaDescription: "Conditions d'utilisation de nos services",
-    isPublished: true
-  },
-  cookiesPolicy: {
-    title: "Politique des cookies",
-    content: "<h1>Politique des cookies</h1><p>Ajoutez ici votre politique des cookies...</p>",
-    metaDescription: "Notre politique concernant l'utilisation des cookies",
-    isPublished: true
-  }
-};
+import { LegalContents } from './types';
+import { defaultLegalContents } from './defaultData';
+import { contentSlugs } from './types';
 
 export const useLegalContent = () => {
   const { toast } = useToast();
@@ -38,7 +12,7 @@ export const useLegalContent = () => {
   const [contents, setContents] = useState<LegalContents>(defaultLegalContents);
   const [activeContent, setActiveContent] = useState<keyof LegalContents>('legalNotice');
 
-  // Charger les contenus depuis la base de données
+  // Load legal contents from database
   useEffect(() => {
     const loadLegalContents = async () => {
       try {
@@ -54,9 +28,8 @@ export const useLegalContent = () => {
             console.error("Erreur lors du chargement des contenus légaux:", error);
           }
           // Utiliser les contenus par défaut si aucun contenu n'est trouvé
-        } else if (data && data.data) {
-          // Type assertion to ensure the data is of LegalContents type
-          setContents({ ...defaultLegalContents, ...data.data as any });
+        } else if (data) {
+          setContents(data.data as LegalContents);
         }
       } catch (error) {
         console.error("Erreur:", error);
@@ -68,7 +41,7 @@ export const useLegalContent = () => {
     loadLegalContents();
   }, []);
 
-  // Mettre à jour un contenu
+  // Update a specific content field
   const updateContent = (section: keyof LegalContents, field: keyof LegalContent, value: string | boolean) => {
     setContents(prev => ({
       ...prev,
@@ -79,15 +52,14 @@ export const useLegalContent = () => {
     }));
   };
 
-  // Sauvegarder les contenus
+  // Save all contents
   const saveContents = async () => {
     try {
-      // Serialize the contents for Supabase
       const { error } = await supabase
         .from('section_data')
         .upsert({
           section_id: 'legal-contents',
-          data: contents as any,
+          data: contents,
           updated_at: new Date().toISOString()
         }, { onConflict: 'section_id' });
 
@@ -98,7 +70,7 @@ export const useLegalContent = () => {
         description: "Les contenus légaux ont été mis à jour avec succès"
       });
 
-      // Créer ou mettre à jour les pages pour chaque contenu légal
+      // Create or update legal pages for each content
       await createOrUpdateLegalPages();
       
     } catch (error) {
@@ -111,15 +83,14 @@ export const useLegalContent = () => {
     }
   };
 
-  // Créer ou mettre à jour les pages pour chaque contenu légal
+  // Create or update pages for each legal content
   const createOrUpdateLegalPages = async () => {
     try {
-      // Pour chaque contenu légal
-      for (const [key, slug] of Object.entries(contentSlugs)) {
-        const legalKey = key as keyof LegalContents;
-        const content = contents[legalKey];
+      // For each legal content
+      for (const [key, slug] of Object.entries(contentSlugs) as [keyof LegalContents, string][]) {
+        const content = contents[key];
         
-        // Vérifier si la page existe déjà
+        // Check if page already exists
         const { data: existingPage } = await supabase
           .from('pages')
           .select('id')
@@ -127,7 +98,7 @@ export const useLegalContent = () => {
           .single();
 
         if (existingPage) {
-          // Mettre à jour la page existante
+          // Update existing page
           await supabase
             .from('pages')
             .update({
@@ -139,7 +110,7 @@ export const useLegalContent = () => {
             })
             .eq('id', existingPage.id);
         } else {
-          // Créer une nouvelle page
+          // Create new page
           await supabase
             .from('pages')
             .insert({
@@ -167,7 +138,7 @@ export const useLegalContent = () => {
       });
     }
   };
-  
+
   return {
     loading,
     contents,
@@ -177,5 +148,3 @@ export const useLegalContent = () => {
     saveContents
   };
 };
-
-export default useLegalContent;

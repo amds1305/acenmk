@@ -1,135 +1,149 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
+import { saveLogo, getHeaderConfig } from '@/services/supabase/headerService';
 import { Logo } from '../types';
-import { supabase } from '@/lib/supabase';
-import { saveHeaderLogo, getHeaderConfig } from '@/services/supabase/headerService';
-import { v4 as uuidv4 } from 'uuid';
 
-export const useLogo = () => {
+export interface UseLogoReturn {
+  logo: Logo;
+  setLogo: (logo: Logo) => void;
+  selectedFile: File | null;
+  setSelectedFile: (file: File | null) => void;
+  handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleUpload: () => Promise<void>;
+  triggerFileInput: () => void;
+  updateLogoProperty: <K extends keyof Logo>(property: K, value: Logo[K]) => void;
+  saveLogoChanges: () => Promise<boolean>;
+  isLoading: boolean;
+}
+
+export const useLogo = (): UseLogoReturn => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { showSaveSuccess, showSaveError } = useAdminNotification();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // État initial du logo
   const [logo, setLogo] = useState<Logo>({
-    src: '',
-    alt: '',
-    width: 0,
-    height: 0,
-    position: 'left'
+    src: '/placeholder.svg',
+    alt: 'Logo Acenümerik',
+    width: 150,
+    height: 40,
+    position: 'left',
   });
 
-  useEffect(() => {
-    fetchLogo();
-  }, []);
+  // Pour l'upload de fichier
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null);
 
-  const fetchLogo = async () => {
-    setIsLoading(true);
-    try {
-      const headerConfig = await getHeaderConfig();
-      
-      if (headerConfig.headerLogo) {
-        setLogo({
-          src: headerConfig.headerLogo.src || '',
-          alt: headerConfig.headerLogo.alt || '',
-          width: headerConfig.headerLogo.width || 0,
-          height: headerConfig.headerLogo.height || 0,
-          position: headerConfig.headerLogo.position || 'left'
+  // Charger le logo depuis la base de données
+  useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        setIsLoading(true);
+        const { logo } = await getHeaderConfig();
+        if (logo) {
+          setLogo(logo);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du logo:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le logo",
+          variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching logo:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les données du logo',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
+    };
+    
+    loadLogo();
+  }, [toast]);
+
+  // Gérer la sélection de fichier
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      
+      // Prévisualisation du logo
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogo({
+          ...logo,
+          src: e.target?.result as string,
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const updateLogoProperty = <K extends keyof Logo>(property: K, value: Logo[K]) => {
-    setLogo(prev => ({
-      ...prev,
-      [property]: value
-    }));
+  // Simuler un upload de fichier
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un fichier",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Ici, vous implémenteriez l'upload réel vers votre serveur
+    // Pour l'instant, nous utilisons juste le Data URL comme si l'upload était réussi
+    
+    toast({
+      title: "Succès",
+      description: "Logo téléchargé avec succès"
+    });
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Déclencheur pour ouvrir la boîte de dialogue de sélection de fichier
+  const triggerFileInput = () => {
+    if (fileInputRef) {
+      fileInputRef.click();
+    }
+  };
 
+  // Mettre à jour les propriétés du logo
+  const updateLogoProperty = <K extends keyof Logo>(property: K, value: Logo[K]) => {
+    setLogo({
+      ...logo,
+      [property]: value
+    });
+  };
+
+  // Sauvegarder les modifications du logo
+  const saveLogoChanges = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `logos/${fileName}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('assets')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL
-      const { data } = supabase.storage
-        .from('assets')
-        .getPublicUrl(filePath);
-
-      if (data) {
-        setLogo(prev => ({
-          ...prev,
-          src: data.publicUrl
-        }));
-
-        toast({
-          title: 'Succès',
-          description: 'Le logo a été téléchargé avec succès',
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading logo:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de télécharger le logo',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveLogoChanges = async () => {
-    setIsLoading(true);
-    try {
-      // Make sure we have the required properties with default values if they're missing
-      const logoToSave = {
-        src: logo.src,
-        alt: logo.alt || '',
-        width: logo.width || 0,
-        height: logo.height || 0,
-        position: logo.position || 'left'
-      };
-      
-      const success = await saveHeaderLogo(logoToSave);
+      const success = await saveLogo(logo);
       
       if (success) {
+        showSaveSuccess();
         toast({
-          title: 'Succès',
-          description: 'Les modifications du logo ont été enregistrées',
+          title: "Succès",
+          description: "Logo mis à jour avec succès"
         });
+        return true;
       } else {
-        throw new Error('Failed to save logo');
+        showSaveError();
+        toast({
+          title: "Erreur",
+          description: "Impossible de sauvegarder le logo",
+          variant: "destructive"
+        });
+        return false;
       }
     } catch (error) {
-      console.error('Error saving logo:', error);
+      console.error('Erreur lors de la sauvegarde du logo:', error);
+      showSaveError();
       toast({
-        title: 'Erreur',
-        description: 'Impossible d\'enregistrer les modifications du logo',
-        variant: 'destructive'
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde",
+        variant: "destructive"
       });
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -137,9 +151,14 @@ export const useLogo = () => {
 
   return {
     logo,
-    isLoading,
+    setLogo,
+    selectedFile,
+    setSelectedFile,
     handleFileChange,
+    handleUpload,
+    triggerFileInput,
     updateLogoProperty,
-    saveLogoChanges
+    saveLogoChanges,
+    isLoading
   };
 };

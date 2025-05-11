@@ -1,14 +1,25 @@
 
+import { saveNavLinks, getHeaderConfig } from '@/services/supabase/headerService';
 import { NavLink } from '../../header/types';
 
-// Mock implementation - in a real app, this would call the actual API
+// Load navigation links from the database
 export const loadNavLinks = async (): Promise<NavLink[]> => {
-  // For now, return an empty array until properly implemented
-  return [];
+  try {
+    const { navLinks: links } = await getHeaderConfig();
+    return links && links.length > 0 ? links : [];
+  } catch (error) {
+    console.error('Error loading navigation links:', error);
+    throw error;
+  }
 };
 
-// Mock implementation - in a real app, this would call the actual API
+// Save navigation links to the database
 export const saveNavLinksToDatabase = async (links: NavLink[]): Promise<boolean> => {
-  // For now, just return success
-  return true;
+  try {
+    const success = await saveNavLinks(links);
+    return success;
+  } catch (error) {
+    console.error('Error saving navigation links:', error);
+    throw error;
+  }
 };

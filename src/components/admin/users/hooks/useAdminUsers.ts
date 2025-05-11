@@ -1,265 +1,211 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { User, UserRole } from '@/types/auth';
+import { useSupabaseUsers } from './useSupabaseUsers';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
-import { saveAs } from 'file-saver';
-
-export type UserRole = 'super_admin' | 'admin' | 'user' | 'client_premium';
-
-export interface UserData {
-  id: string;
-  email: string;
-  role: UserRole;
-  created_at: string;
-  name?: string;
-  avatar_url?: string;
-  company?: string;
-  phone?: string;
-}
 
 export const useAdminUsers = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { users, isLoading, fetchUsers, setUsers } = useSupabaseUsers();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
-  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const fetchUsers = async () => {
-    setIsLoading(true);
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.company && user.company.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesRole = selectedRole ? user.role === selectedRole : true;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  const handleDeleteUser = async (userId: string) => {
     try {
-      // We need to join two tables to get both roles and profiles
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select(`
-          user_id,
-          role,
-          profiles!user_id(
-            email,
-            name,
-            created_at,
-            avatar_url,
-            company,
-            phone
-          )
-        `)
-        .order('created_at', { referencedTable: 'profiles', ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger la liste des utilisateurs",
-          variant: "destructive"
-        });
-      } else if (data) {
-        const formattedUsers = data.map(item => ({
-          id: item.user_id,
-          email: item.profiles?.email || 'unknown@example.com',
-          role: item.role as UserRole,
-          created_at: item.profiles?.created_at || new Date().toISOString(),
-          name: item.profiles?.name,
-          avatar_url: item.profiles?.avatar_url,
-          company: item.profiles?.company,
-          phone: item.profiles?.phone
-        }));
-        setUsers(formattedUsers);
-        setFilteredUsers(formattedUsers);
-      }
-    } catch (error) {
-      console.error('Unexpected error fetching users:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite lors du chargement des utilisateurs",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [toast]);
-
-  useEffect(() => {
-    let result = [...users];
-    
-    // Filter by search term
-    if (searchTerm) {
-      const lowercasedSearch = searchTerm.toLowerCase();
-      result = result.filter(user => 
-        user.email.toLowerCase().includes(lowercasedSearch) ||
-        (user.name && user.name.toLowerCase().includes(lowercasedSearch)) ||
-        (user.company && user.company.toLowerCase().includes(lowercasedSearch))
-      );
-    }
-    
-    // Filter by role
-    if (selectedRole !== 'all') {
-      result = result.filter(user => user.role === selectedRole);
-    }
-    
-    setFilteredUsers(result);
-  }, [users, searchTerm, selectedRole]);
-
-  const handleViewProfile = (user: UserData) => {
-    setSelectedUser(user);
-    setIsProfileOpen(true);
-    setIsEditingProfile(false);
-  };
-
-  const handleEditProfile = (user: UserData) => {
-    setSelectedUser(user);
-    setIsProfileOpen(true);
-    setIsEditingProfile(true);
-  };
-
-  const handleSendMessage = (user: UserData) => {
-    setSelectedUser(user);
-    setIsMessageDialogOpen(true);
-  };
-
-  const handleUpdateProfile = async (updatedData: Partial<UserData>) => {
-    if (!selectedUser) return;
-    
-    try {
-      const { error: profileError } = await supabase
+      // Supprimer l'utilisateur dans Supabase
+      const { error: deleteError } = await supabase
         .from('profiles')
-        .update({
-          name: updatedData.name,
-          company: updatedData.company,
-          phone: updatedData.phone,
-          // Do not update email or id
-        })
-        .eq('id', selectedUser.id);
-
-      if (profileError) {
-        throw profileError;
-      }
+        .delete()
+        .eq('id', userId);
       
-      // Update role if it has changed
-      if (updatedData.role && updatedData.role !== selectedUser.role) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role: updatedData.role as UserRole })
-          .eq('user_id', selectedUser.id);
-          
-        if (roleError) {
-          throw roleError;
-        }
-      }
+      if (deleteError) throw deleteError;
+      
+      // Mettre à jour l'état local
+      setUsers(users.filter(user => user.id !== userId));
       
       toast({
-        title: "Profil mis à jour",
-        description: "Les informations de l'utilisateur ont été mises à jour avec succès"
+        title: "Utilisateur supprimé",
+        description: "L'utilisateur a été supprimé avec succès."
       });
-      
-      // Refresh user list
-      fetchUsers();
-      
-      // Close dialog
-      setIsProfileOpen(false);
-      setSelectedUser(null);
-      setIsEditingProfile(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Erreur lors de la suppression de l'utilisateur:", error);
       toast({
+        variant: "destructive",
         title: "Erreur",
-        description: "Impossible de mettre à jour le profil de l'utilisateur",
-        variant: "destructive"
+        description: "Impossible de supprimer l'utilisateur."
       });
     }
   };
 
   const handleChangeRole = async (userId: string, newRole: UserRole) => {
     try {
-      const { error } = await supabase
+      // Vérifier si l'utilisateur a déjà un rôle
+      const { data: existingRoles } = await supabase
         .from('user_roles')
-        .update({ role: newRole })
+        .select('*')
         .eq('user_id', userId);
 
-      if (error) throw error;
+      if (existingRoles && existingRoles.length > 0) {
+        // Mettre à jour le rôle existant
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('user_id', userId);
+          
+        if (error) throw error;
+      } else {
+        // Créer un nouveau rôle
+        const { error } = await supabase
+          .from('user_roles')
+          .insert([{ user_id: userId, role: newRole }]);
+          
+        if (error) throw error;
+      }
+      
+      // Mettre à jour l'état local
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, role: newRole } : user
+      ));
       
       toast({
         title: "Rôle mis à jour",
-        description: "Le rôle de l'utilisateur a été mis à jour avec succès"
+        description: "Le rôle de l'utilisateur a été modifié avec succès."
       });
-      
-      fetchUsers();
     } catch (error) {
-      console.error('Error updating user role:', error);
+      console.error("Erreur lors de la modification du rôle:", error);
       toast({
+        variant: "destructive",
         title: "Erreur",
-        description: "Impossible de mettre à jour le rôle de l'utilisateur",
-        variant: "destructive"
+        description: "Impossible de modifier le rôle de l'utilisateur."
       });
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      // This will cascade delete from profiles and user_roles due to foreign key constraints
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+  const handleViewProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(false);
+    setIsProfileOpen(true);
+  };
 
+  const handleEditProfile = (user: User) => {
+    setSelectedUser(user);
+    setIsEditingProfile(true);
+    setIsProfileOpen(true);
+  };
+
+  const handleUpdateProfile = async (updatedUser: Partial<User>) => {
+    try {
+      if (!selectedUser) return;
+      
+      // Mettre à jour le profil dans Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: updatedUser.name,
+          email: updatedUser.email,
+          company: updatedUser.company,
+          phone: updatedUser.phone,
+          biography: updatedUser.biography,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedUser.id);
+        
       if (error) throw error;
       
-      toast({
-        title: "Utilisateur supprimé",
-        description: "L'utilisateur a été supprimé avec succès"
-      });
+      // Si le rôle est modifié, mettre à jour dans la table user_roles
+      if (updatedUser.role && updatedUser.role !== selectedUser.role) {
+        const { data: existingRoles } = await supabase
+          .from('user_roles')
+          .select('*')
+          .eq('user_id', selectedUser.id);
+
+        if (existingRoles && existingRoles.length > 0) {
+          // Mettre à jour le rôle existant
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .update({ role: updatedUser.role })
+            .eq('user_id', selectedUser.id);
+            
+          if (roleError) throw roleError;
+        } else {
+          // Créer un nouveau rôle
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert([{ user_id: selectedUser.id, role: updatedUser.role }]);
+            
+          if (roleError) throw roleError;
+        }
+      }
       
-      fetchUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
+      // Mettre à jour l'état local
+      setUsers(users.map(user => 
+        user.id === selectedUser.id 
+          ? { ...user, ...updatedUser }
+          : user
+      ));
+      
       toast({
+        title: "Profil mis à jour",
+        description: "Le profil a été modifié avec succès."
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du profil:", error);
+      toast({
+        variant: "destructive",
         title: "Erreur",
-        description: "Impossible de supprimer l'utilisateur",
-        variant: "destructive"
+        description: "Impossible de mettre à jour le profil."
       });
     }
+  };
+
+  const handleSendMessage = (user: User) => {
+    setSelectedUser(user);
+    setIsMessageDialogOpen(true);
   };
 
   const handleExportUsers = () => {
-    try {
-      const exportData = filteredUsers.map(user => ({
-        ID: user.id,
-        Email: user.email,
-        Name: user.name || '',
-        Role: user.role,
-        Company: user.company || '',
-        Phone: user.phone || '',
-        Created: new Date(user.created_at).toLocaleDateString()
-      }));
-      
-      const json = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      saveAs(blob, `users-export-${new Date().toISOString().slice(0, 10)}.json`);
-      
-      toast({
-        title: "Export réussi",
-        description: "La liste des utilisateurs a été exportée avec succès"
-      });
-    } catch (error) {
-      console.error('Error exporting users:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'exporter la liste des utilisateurs",
-        variant: "destructive"
-      });
-    }
+    // Convertir les utilisateurs en CSV
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "ID,Nom,Email,Rôle,Entreprise,Date d'inscription\n" +
+      users.map(user => 
+        `${user.id},${user.name},${user.email},${user.role},${user.company || ''},${new Date(user.createdAt).toLocaleDateString('fr-FR')}`
+      ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "utilisateurs.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export terminé",
+      description: "La liste des utilisateurs a été exportée."
+    });
   };
 
   const handleRefreshUsers = () => {
     fetchUsers();
     toast({
       title: "Liste actualisée",
-      description: "La liste des utilisateurs a été actualisée"
+      description: "La liste des utilisateurs a été actualisée."
     });
   };
 

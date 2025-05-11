@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -204,8 +205,7 @@ const fetchFooterData = async () => {
         .single();
         
       if (!error && data && data.data) {
-        // Use type assertion to handle conversion from Json
-        return { ...defaultFooterData, ...(data.data as any) } as FooterData;
+        return data.data as FooterData;
       }
     } catch (supabaseError) {
       console.error("Supabase error:", supabaseError);
@@ -238,7 +238,7 @@ const fetchFooterStyles = async () => {
         
       if (!error && data && data.data) {
         // Merge with default styles to ensure all properties exist
-        return { ...defaultFooterStyle, ...(data.data as any) } as FooterStyle;
+        return { ...defaultFooterStyle, ...data.data } as FooterStyle;
       }
     } catch (supabaseError) {
       console.error("Supabase error fetching styles:", supabaseError);
@@ -274,17 +274,16 @@ const Footer = () => {
   
   useEffect(() => {
     if (dataFromQuery) {
-      // Use type assertion to ensure proper typing
       setFooterData({
         ...defaultFooterData,
-        ...(dataFromQuery as any)
+        ...dataFromQuery
       });
     }
     
     if (styleFromQuery) {
       setFooterStyle({
         ...defaultFooterStyle,
-        ...(styleFromQuery as any)
+        ...styleFromQuery
       });
     }
     

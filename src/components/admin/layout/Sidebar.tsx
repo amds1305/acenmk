@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import adminNavItems from './navigation-items';
+import { getNavItems } from './navigation-items';
 
 interface SidebarProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ expanded, toggleSidebar }) => {
   const location = useLocation();
-  const navItems = adminNavItems;
+  const navItems = getNavItems();
   
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);

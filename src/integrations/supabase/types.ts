@@ -168,39 +168,6 @@ export type Database = {
         }
         Relationships: []
       }
-      external_links: {
-        Row: {
-          allowed_roles: string[] | null
-          created_at: string | null
-          icon: string | null
-          id: string
-          name: string
-          requires_auth: boolean | null
-          updated_at: string | null
-          url: string
-        }
-        Insert: {
-          allowed_roles?: string[] | null
-          created_at?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          requires_auth?: boolean | null
-          updated_at?: string | null
-          url: string
-        }
-        Update: {
-          allowed_roles?: string[] | null
-          created_at?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          requires_auth?: boolean | null
-          updated_at?: string | null
-          url?: string
-        }
-        Relationships: []
-      }
       faqs: {
         Row: {
           answer: string

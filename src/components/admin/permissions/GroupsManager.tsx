@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types/auth';
+import { supabase } from '@/lib/supabase';
 
 // Type pour les groupes d'utilisateurs
 interface UserGroup {
@@ -105,9 +106,34 @@ const GroupsManager: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // In testing mode, load mock groups
-      console.log("Mode test activé, chargement des groupes fictifs");
-      setGroups(mockGroups);
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // En mode test, utiliser les groupes fictifs
+        console.log("Mode test activé, chargement des groupes fictifs");
+        setGroups(mockGroups);
+        setIsLoading(false);
+        return;
+      }
+
+      // Dans une implémentation réelle, récupérer les groupes depuis Supabase
+      const { data, error } = await supabase
+        .from('user_groups')
+        .select('*');
+        
+      if (error) throw error;
+      
+      // Mapping des données pour correspondre à notre structure
+      const mappedGroups = data.map(group => ({
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        memberCount: group.member_count || 0,
+        permissions: group.permissions,
+        createdAt: group.created_at
+      }));
+      
+      setGroups(mappedGroups);
       
     } catch (error) {
       console.error("Erreur lors de la récupération des groupes:", error);
@@ -135,23 +161,53 @@ const GroupsManager: React.FC = () => {
     }
 
     try {
-      // Mode test - simuler l'ajout
-      const newId = `group${groups.length + 1}`;
-      const createdGroup: UserGroup = {
-        id: newId,
-        name: newGroup.name,
-        description: newGroup.description || '',
-        memberCount: 0,
-        permissions: selectedPermissions,
-        createdAt: new Date().toISOString()
-      };
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
       
-      setGroups([...groups, createdGroup]);
+      if (isTestMode) {
+        // Mode test - simuler l'ajout
+        const newId = `group${groups.length + 1}`;
+        const createdGroup: UserGroup = {
+          id: newId,
+          name: newGroup.name,
+          description: newGroup.description || '',
+          memberCount: 0,
+          permissions: selectedPermissions,
+          createdAt: new Date().toISOString()
+        };
+        
+        setGroups([...groups, createdGroup]);
+        
+        toast({
+          title: "Groupe ajouté",
+          description: "Le groupe a été créé avec succès."
+        });
+        
+        // Réinitialiser le formulaire
+        setNewGroup({ name: '', description: '' });
+        setSelectedPermissions([]);
+        setIsAddDialogOpen(false);
+        return;
+      }
+
+      // Implémentation réelle avec Supabase
+      const { data, error } = await supabase
+        .from('user_groups')
+        .insert({
+          name: newGroup.name,
+          description: newGroup.description,
+          permissions: selectedPermissions
+        })
+        .select();
+        
+      if (error) throw error;
       
       toast({
         title: "Groupe ajouté",
         description: "Le groupe a été créé avec succès."
       });
+      
+      // Actualiser la liste des groupes
+      fetchGroups();
       
       // Réinitialiser le formulaire
       setNewGroup({ name: '', description: '' });
@@ -179,20 +235,46 @@ const GroupsManager: React.FC = () => {
     }
 
     try {
-      // Mode test - simuler la mise à jour
-      const updatedGroups = groups.map(group => 
-        group.id === editingGroup.id 
-          ? { ...group, name: editingGroup.name, description: editingGroup.description, permissions: selectedPermissions } 
-          : group
-      );
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
       
-      setGroups(updatedGroups);
+      if (isTestMode) {
+        // Mode test - simuler la mise à jour
+        const updatedGroups = groups.map(group => 
+          group.id === editingGroup.id 
+            ? { ...group, name: editingGroup.name, description: editingGroup.description, permissions: selectedPermissions } 
+            : group
+        );
+        
+        setGroups(updatedGroups);
+        
+        toast({
+          title: "Groupe mis à jour",
+          description: "Le groupe a été modifié avec succès."
+        });
+        
+        setIsEditDialogOpen(false);
+        return;
+      }
+
+      // Implémentation réelle avec Supabase
+      const { error } = await supabase
+        .from('user_groups')
+        .update({
+          name: editingGroup.name,
+          description: editingGroup.description,
+          permissions: selectedPermissions
+        })
+        .eq('id', editingGroup.id);
+        
+      if (error) throw error;
       
       toast({
         title: "Groupe mis à jour",
         description: "Le groupe a été modifié avec succès."
       });
       
+      // Actualiser la liste des groupes
+      fetchGroups();
       setIsEditDialogOpen(false);
       
     } catch (error) {
@@ -209,14 +291,36 @@ const GroupsManager: React.FC = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce groupe ?")) return;
 
     try {
-      // Mode test - simuler la suppression
-      const filteredGroups = groups.filter(group => group.id !== groupId);
-      setGroups(filteredGroups);
+      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
+      
+      if (isTestMode) {
+        // Mode test - simuler la suppression
+        const filteredGroups = groups.filter(group => group.id !== groupId);
+        setGroups(filteredGroups);
+        
+        toast({
+          title: "Groupe supprimé",
+          description: "Le groupe a été supprimé avec succès."
+        });
+        
+        return;
+      }
+
+      // Implémentation réelle avec Supabase
+      const { error } = await supabase
+        .from('user_groups')
+        .delete()
+        .eq('id', groupId);
+        
+      if (error) throw error;
       
       toast({
         title: "Groupe supprimé",
         description: "Le groupe a été supprimé avec succès."
       });
+      
+      // Actualiser la liste des groupes
+      fetchGroups();
       
     } catch (error) {
       console.error("Erreur lors de la suppression du groupe:", error);

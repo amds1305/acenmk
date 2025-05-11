@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Pen, Trash2 } from 'lucide-react';
 import { SocialLinkListProps } from './types';
-import { LucideIcon } from 'lucide-react';
 
 const SocialLinkList = ({ 
   socialLinks, 
@@ -19,9 +18,7 @@ const SocialLinkList = ({
         <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
           <div className="flex items-center gap-2">
             <div className={`${!link.isVisible ? "opacity-50" : ""}`}>
-              {typeof link.icon === 'string' 
-                ? <span>{link.icon}</span> // Render string icon name
-                : renderSocialIcon(link.icon as LucideIcon)} // Render LucideIcon
+              {renderSocialIcon(link.icon)}
             </div>
             <div>
               <p className={`font-medium ${!link.isVisible ? "text-gray-400 dark:text-gray-500" : ""}`}>

@@ -31,9 +31,9 @@ export const useUserMenu = (): UseUserMenuReturn => {
     const loadUserMenu = async () => {
       try {
         setIsLoading(true);
-        const config = await getHeaderConfig();
-        if (config.userMenu) {
-          setUserMenuSettings(config.userMenu);
+        const { userMenu } = await getHeaderConfig();
+        if (userMenu) {
+          setUserMenuSettings(userMenu);
         }
       } catch (error) {
         console.error('Erreur lors du chargement du menu utilisateur:', error);
@@ -62,14 +62,7 @@ export const useUserMenu = (): UseUserMenuReturn => {
   const saveSettings = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      // Make sure we have non-empty values for required fields
-      const settings = {
-        ...userMenuSettings,
-        loginButtonLabel: userMenuSettings.loginButtonLabel || 'Connexion',
-        registerButtonLabel: userMenuSettings.registerButtonLabel || 'Inscription'
-      };
-      
-      const success = await saveUserMenu(settings);
+      const success = await saveUserMenu(userMenuSettings);
       
       if (success) {
         showSaveSuccess();
@@ -94,7 +87,7 @@ export const useUserMenu = (): UseUserMenuReturn => {
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde",
         variant: "destructive"
-        });
+      });
       return false;
     } finally {
       setIsLoading(false);

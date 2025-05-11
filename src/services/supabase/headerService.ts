@@ -1,314 +1,637 @@
-
 import { supabase } from '@/lib/supabase';
-import { HeaderStyle } from '@/components/admin/header/types';
-import { NavLink } from '@/components/admin/header/navigation/types';
-import { SocialLink } from '@/components/admin/header/social/types';
-import { SearchBarSettings } from '@/components/admin/header/types';
+import { Logo, NavLink, SocialLink, SearchBarSettings, ActionButton, UserMenuSettings, HeaderStyle } from '@/components/admin/header/types';
+import { LucideIcon } from 'lucide-react';
 
-export interface HeaderLogo {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-  position: 'left' | 'center';
-}
-
+// Type pour la réponse complète de configuration d'en-tête
 export interface HeaderConfig {
-  headerLogo?: HeaderLogo;
+  logo?: Logo;
+  navLinks?: NavLink[];
+  socialLinks?: SocialLink[];
+  searchBar?: SearchBarSettings;
+  actionButtons?: ActionButton[];
   userMenu?: UserMenuSettings;
   headerStyle?: HeaderStyle;
-  navLinks?: NavLink[];
-  searchBar?: SearchBarSettings;
-  socialLinks?: SocialLink[];
 }
 
-export interface UserMenuSettings {
-  showLoginButton: boolean;
-  showRegisterButton: boolean;
-  showProfileIcon: boolean;
-  loginButtonLabel: string;
-  registerButtonLabel: string;
-}
-
-export const getHeaderConfig = async (): Promise<HeaderConfig> => {
+// Récupérer toute la configuration d'en-tête
+export async function getHeaderConfig(): Promise<HeaderConfig> {
   try {
-    // Try to get logo
+    // Récupérer le logo
     const { data: logoData, error: logoError } = await supabase
       .from('header_logo')
       .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
-    
+
     if (logoError && logoError.code !== 'PGRST116') {
-      console.error('Error fetching header logo:', logoError);
-    }
-    
-    // Try to get user menu settings
-    const { data: userMenuData, error: userMenuError } = await supabase
-      .from('header_user_menu')
-      .select('*')
-      .single();
-    
-    if (userMenuError && userMenuError.code !== 'PGRST116') {
-      console.error('Error fetching user menu settings:', userMenuError);
+      console.error('Erreur lors de la récupération du logo:', logoError);
     }
 
-    // Try to get header style settings
-    const { data: headerStyleData, error: headerStyleError } = await supabase
-      .from('header_style')
-      .select('*')
-      .single();
-    
-    if (headerStyleError && headerStyleError.code !== 'PGRST116') {
-      console.error('Error fetching header style:', headerStyleError);
-    }
-    
-    // Try to get navigation links
+    // Récupérer les liens de navigation
     const { data: navLinksData, error: navLinksError } = await supabase
       .from('header_nav_links')
       .select('*')
-      .order('order_index');
-    
+      .order('order_index', { ascending: true });
+
     if (navLinksError) {
-      console.error('Error fetching navigation links:', navLinksError);
+      console.error('Erreur lors de la récupération des liens de navigation:', navLinksError);
     }
-    
-    // Try to get search bar settings
-    const { data: searchBarData, error: searchBarError } = await supabase
-      .from('header_search_bar')
-      .select('*')
-      .single();
-    
-    if (searchBarError && searchBarError.code !== 'PGRST116') {
-      console.error('Error fetching search bar settings:', searchBarError);
-    }
-    
-    // Try to get social links
+
+    // Récupérer les liens sociaux
     const { data: socialLinksData, error: socialLinksError } = await supabase
       .from('header_social_links')
       .select('*')
-      .order('order');
-    
+      .order('display_order', { ascending: true });
+
     if (socialLinksError) {
-      console.error('Error fetching social links:', socialLinksError);
+      console.error('Erreur lors de la récupération des liens sociaux:', socialLinksError);
     }
-    
+
+    // Récupérer la configuration de la barre de recherche
+    const { data: searchBarData, error: searchBarError } = await supabase
+      .from('header_search_bar')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (searchBarError && searchBarError.code !== 'PGRST116') {
+      console.error('Erreur lors de la récupération de la barre de recherche:', searchBarError);
+    }
+
+    // Récupérer les boutons d'action
+    const { data: actionButtonsData, error: actionButtonsError } = await supabase
+      .from('header_action_buttons')
+      .select('*')
+      .order('order_index', { ascending: true });
+
+    if (actionButtonsError) {
+      console.error('Erreur lors de la récupération des boutons d\'action:', actionButtonsError);
+    }
+
+    // Récupérer la configuration du menu utilisateur
+    const { data: userMenuData, error: userMenuError } = await supabase
+      .from('header_user_menu')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (userMenuError && userMenuError.code !== 'PGRST116') {
+      console.error('Erreur lors de la récupération du menu utilisateur:', userMenuError);
+    }
+
+    // Récupérer le style de l'en-tête
+    const { data: headerStyleData, error: headerStyleError } = await supabase
+      .from('header_style')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (headerStyleError && headerStyleError.code !== 'PGRST116') {
+      console.error('Erreur lors de la récupération du style d\'en-tête:', headerStyleError);
+    }
+
+    // Créer les objets à partir des données récupérées
+    const logo = logoData ? {
+      src: logoData.src,
+      alt: logoData.alt,
+      width: logoData.width,
+      height: logoData.height,
+      position: logoData.position
+    } as Logo : undefined;
+
+    // Transformer les données de navigation en objets NavLink
+    const navLinks = navLinksData ? navLinksData.map(link => ({
+      id: link.id,
+      name: link.name,
+      href: link.href,
+      icon: link.icon,
+      isExternal: link.is_external,
+      requiresAuth: link.requires_auth,
+      requiredRole: link.required_role,
+      order: link.order_index,
+      isVisible: link.is_visible,
+      parentId: link.parent_id
+    })) : [];
+
+    // Transformer les données des liens sociaux en objets SocialLink avec les icônes Lucide
+    const socialLinks = socialLinksData ? socialLinksData.map(link => {
+      // Nous stockons juste le nom de l'icône dans la base de données, il faut la convertir en composant
+      return {
+        icon: link.icon_name, // Nous gérerons la conversion dans les composants qui utilisent ces données
+        href: link.href,
+        ariaLabel: link.aria_label,
+        isVisible: link.is_visible,
+        order: link.display_order
+      };
+    }) : [];
+
+    // Créer l'objet de configuration de la barre de recherche
+    const searchBar = searchBarData ? {
+      isEnabled: searchBarData.is_enabled,
+      placeholder: searchBarData.placeholder,
+      position: searchBarData.position,
+      expandOnFocus: searchBarData.expand_on_focus
+    } as SearchBarSettings : undefined;
+
+    // Transformer les données des boutons d'action en objets ActionButton
+    const actionButtons = actionButtonsData ? actionButtonsData.map(button => ({
+      id: button.id,
+      label: button.label,
+      href: button.href,
+      icon: button.icon,
+      variant: button.variant,
+      isVisible: button.is_visible,
+      requiresAuth: button.requires_auth,
+      requiredRole: button.required_role,
+      order: button.order_index
+    })) : [];
+
+    // Créer l'objet de configuration du menu utilisateur
+    const userMenu = userMenuData ? {
+      showLoginButton: userMenuData.show_login_button,
+      showRegisterButton: userMenuData.show_register_button,
+      showProfileIcon: userMenuData.show_profile_icon,
+      loginButtonLabel: userMenuData.login_button_label,
+      registerButtonLabel: userMenuData.register_button_label
+    } as UserMenuSettings : undefined;
+
+    // Créer l'objet de style de l'en-tête
+    const headerStyle = headerStyleData ? {
+      backgroundColor: headerStyleData.background_color,
+      textColor: headerStyleData.text_color,
+      hoverColor: headerStyleData.hover_color,
+      activeColor: headerStyleData.active_color,
+      fontFamily: headerStyleData.font_family,
+      fontSize: headerStyleData.font_size,
+      padding: headerStyleData.padding,
+      sticky: headerStyleData.sticky,
+      transparent: headerStyleData.transparent,
+      glassmorphism: headerStyleData.glassmorphism,
+      borderBottom: headerStyleData.border_bottom,
+      borderColor: headerStyleData.border_color,
+      dropShadow: headerStyleData.drop_shadow,
+      showThemeSelector: true,
+      
+      // Utiliser les nouvelles colonnes de la base de données
+      menuHoverBgColor: headerStyleData.menu_hover_bg_color,
+      menuActiveBgColor: headerStyleData.menu_active_bg_color,
+      socialIconColor: headerStyleData.social_icon_color,
+      socialIconHoverColor: headerStyleData.social_icon_hover_color,
+      socialIconBgColor: headerStyleData.social_icon_bg_color,
+      socialIconBorderColor: headerStyleData.social_icon_border_color,
+      utilityIconColor: headerStyleData.utility_icon_color,
+      utilityIconHoverColor: headerStyleData.utility_icon_hover_color,
+      utilityIconBgColor: headerStyleData.utility_icon_bg_color,
+      utilityIconBorderColor: headerStyleData.utility_icon_border_color
+    } as HeaderStyle : undefined;
+
+    // Récupérer l'option showThemeSelector de la table header_config
+    const { data: configData } = await supabase
+      .from('header_config')
+      .select('show_theme_selector')
+      .eq('id', 'default')
+      .single();
+
+    if (configData && headerStyle) {
+      headerStyle.showThemeSelector = configData.show_theme_selector;
+    }
+
     return {
-      headerLogo: logoData ? {
-        src: logoData.src,
-        alt: logoData.alt,
-        width: logoData.width,
-        height: logoData.height,
-        position: logoData.position as 'left' | 'center',
-      } : undefined,
-      userMenu: userMenuData ? {
-        showLoginButton: userMenuData.show_login_button,
-        showRegisterButton: userMenuData.show_register_button,
-        showProfileIcon: userMenuData.show_profile_icon,
-        loginButtonLabel: userMenuData.login_button_label,
-        registerButtonLabel: userMenuData.register_button_label
-      } : undefined,
-      headerStyle: headerStyleData || undefined,
-      navLinks: navLinksData || [],
-      searchBar: searchBarData ? {
-        isEnabled: searchBarData.is_enabled,
-        placeholder: searchBarData.placeholder,
-        position: searchBarData.position,
-        expandOnFocus: searchBarData.expand_on_focus
-      } : undefined,
-      socialLinks: socialLinksData || []
+      logo,
+      navLinks,
+      socialLinks,
+      searchBar,
+      actionButtons,
+      userMenu,
+      headerStyle
     };
   } catch (error) {
-    console.error('Error in getHeaderConfig:', error);
+    console.error('Erreur lors de la récupération de la configuration d\'en-tête:', error);
     return {};
   }
-};
+}
 
-export const saveHeaderLogo = async (logo: HeaderLogo): Promise<boolean> => {
+// Sauvegarder le logo
+export async function saveLogo(logo: Logo): Promise<boolean> {
   try {
-    const { error } = await supabase
+    // Vérifier s'il y a déjà un logo dans la base de données
+    const { data: existingLogo } = await supabase
       .from('header_logo')
-      .upsert({
-        src: logo.src,
-        alt: logo.alt,
-        width: logo.width,
-        height: logo.height,
-        position: logo.position
-      });
-    
-    if (error) throw error;
-    
+      .select('id')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existingLogo) {
+      // Mettre à jour le logo existant
+      const { error } = await supabase
+        .from('header_logo')
+        .update({
+          src: logo.src,
+          alt: logo.alt,
+          width: logo.width,
+          height: logo.height,
+          position: logo.position
+        })
+        .eq('id', existingLogo.id);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour du logo:', error);
+        return false;
+      }
+    } else {
+      // Insérer un nouveau logo
+      const { error } = await supabase
+        .from('header_logo')
+        .insert({
+          src: logo.src,
+          alt: logo.alt,
+          width: logo.width,
+          height: logo.height,
+          position: logo.position
+        });
+
+      if (error) {
+        console.error('Erreur lors de l\'insertion du logo:', error);
+        return false;
+      }
+    }
+
     return true;
   } catch (error) {
-    console.error('Error saving header logo:', error);
+    console.error('Erreur lors de la sauvegarde du logo:', error);
     return false;
   }
-};
+}
 
-export const saveUserMenu = async (settings: UserMenuSettings): Promise<boolean> => {
+// Sauvegarder les liens de navigation
+export async function saveNavLinks(navLinks: NavLink[]): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('header_user_menu')
-      .upsert({
-        show_login_button: settings.showLoginButton,
-        show_register_button: settings.showRegisterButton,
-        show_profile_icon: settings.showProfileIcon,
-        login_button_label: settings.loginButtonLabel,
-        register_button_label: settings.registerButtonLabel
-      });
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving user menu settings:', error);
-    return false;
-  }
-};
-
-export const saveHeaderStyle = async (style: HeaderStyle): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from('header_style')
-      .upsert({
-        background_color: style.backgroundColor,
-        text_color: style.textColor,
-        hover_color: style.hoverColor,
-        active_color: style.activeColor,
-        font_family: style.fontFamily,
-        font_size: style.fontSize,
-        padding: style.padding,
-        sticky: style.sticky,
-        transparent: style.transparent,
-        glassmorphism: style.glassmorphism,
-        border_bottom: style.borderBottom,
-        border_color: style.borderColor,
-        drop_shadow: style.dropShadow,
-        menu_hover_bg_color: style.menuHoverBgColor,
-        menu_active_bg_color: style.menuActiveBgColor,
-        social_icon_color: style.socialIconColor,
-        social_icon_hover_color: style.socialIconHoverColor,
-        social_icon_bg_color: style.socialIconBgColor,
-        social_icon_border_color: style.socialIconBorderColor,
-        utility_icon_color: style.utilityIconColor,
-        utility_icon_hover_color: style.utilityIconHoverColor,
-        utility_icon_bg_color: style.utilityIconBgColor,
-        utility_icon_border_color: style.utilityIconBorderColor
-      });
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving header style:', error);
-    return false;
-  }
-};
-
-export const saveNavLinks = async (links: NavLink[]): Promise<boolean> => {
-  try {
-    // First delete all existing links
+    // Supprimer tous les liens existants
     const { error: deleteError } = await supabase
       .from('header_nav_links')
       .delete()
-      .gt('id', '0'); // This will delete all records
-    
-    if (deleteError) throw deleteError;
-    
-    // Then insert the updated links
-    if (links.length > 0) {
-      const formattedLinks = links.map((link, index) => ({
+      .gt('id', '0'); // condition pour supprimer tous les enregistrements
+
+    if (deleteError) {
+      console.error('Erreur lors de la suppression des liens de navigation:', deleteError);
+      return false;
+    }
+
+    // Si nous avons des liens à insérer
+    if (navLinks.length > 0) {
+      // Préparer les données pour l'insertion
+      const insertData = navLinks.map(link => ({
+        id: link.id,
         name: link.name,
         href: link.href,
-        icon: link.icon || null,
+        icon: link.icon ? typeof link.icon === 'string' ? link.icon : undefined : undefined,
         is_external: link.isExternal || false,
         requires_auth: link.requiresAuth || false,
-        order_index: link.orderIndex || index,
-        is_visible: link.isVisible ?? true,
-        parent_id: link.parentId || null,
-        required_role: link.requiredRole || null
+        required_role: link.requiredRole,
+        order_index: link.order,
+        is_visible: link.isVisible,
+        parent_id: link.parentId
       }));
-      
+
+      // Insérer les nouveaux liens
       const { error: insertError } = await supabase
         .from('header_nav_links')
-        .insert(formattedLinks);
-      
-      if (insertError) throw insertError;
+        .insert(insertData);
+
+      if (insertError) {
+        console.error('Erreur lors de l\'insertion des liens de navigation:', insertError);
+        return false;
+      }
     }
-    
+
     return true;
   } catch (error) {
-    console.error('Error saving navigation links:', error);
+    console.error('Erreur lors de la sauvegarde des liens de navigation:', error);
     return false;
   }
-};
+}
 
-// Add the missing functions for searchBar and socialLinks
-export const saveSearchBar = async (settings: SearchBarSettings): Promise<boolean> => {
+// Sauvegarder les liens sociaux
+export async function saveSocialLinks(socialLinks: SocialLink[]): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('header_search_bar')
-      .upsert({
-        is_enabled: settings.isEnabled,
-        placeholder: settings.placeholder,
-        position: settings.position,
-        expand_on_focus: settings.expandOnFocus
-      });
-    
-    if (error) throw error;
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving search bar settings:', error);
-    return false;
-  }
-};
-
-export const saveSocialLinks = async (links: SocialLink[]): Promise<boolean> => {
-  try {
-    // First delete all existing links
+    // Supprimer tous les liens sociaux existants
     const { error: deleteError } = await supabase
       .from('header_social_links')
       .delete()
       .gt('id', '0');
-    
-    if (deleteError) throw deleteError;
-    
-    // Then insert the updated links
-    if (links.length > 0) {
-      // Convert icon components to string names for storage
-      const formattedLinks = links.map((link, index) => {
-        // Find the icon name by its component reference
-        let iconName = "Twitter"; // Default
-        if (typeof link.icon === 'function') {
-          // This is a bit of a hack, but it works to get the name of the component
-          const iconString = link.icon.toString();
-          const matches = iconString.match(/function\s+([^(]+)/);
-          if (matches && matches[1]) {
-            iconName = matches[1];
-          }
-        } else if (typeof link.icon === 'string') {
+
+    if (deleteError) {
+      console.error('Erreur lors de la suppression des liens sociaux:', deleteError);
+      return false;
+    }
+
+    // Si nous avons des liens à insérer
+    if (socialLinks.length > 0) {
+      // Préparer les données pour l'insertion
+      const insertData = socialLinks.map(link => {
+        // Obtenir le nom de l'icône à partir du composant
+        let iconName = '';
+        if (typeof link.icon === 'string') {
           iconName = link.icon;
+        } else if (link.icon) {
+          // Trouver le nom du composant dans le nom de la fonction
+          iconName = link.icon.name || 'Twitter';
         }
-        
+
         return {
-          icon: iconName,
+          icon_name: iconName,
           href: link.href,
           aria_label: link.ariaLabel,
           is_visible: link.isVisible,
-          order: link.order || index
+          display_order: link.order
         };
       });
-      
+
+      // Insérer les nouveaux liens
       const { error: insertError } = await supabase
         .from('header_social_links')
-        .insert(formattedLinks);
-      
-      if (insertError) throw insertError;
+        .insert(insertData);
+
+      if (insertError) {
+        console.error('Erreur lors de l\'insertion des liens sociaux:', insertError);
+        return false;
+      }
     }
-    
+
     return true;
   } catch (error) {
-    console.error('Error saving social links:', error);
+    console.error('Erreur lors de la sauvegarde des liens sociaux:', error);
     return false;
   }
-};
+}
+
+// Sauvegarder la configuration de la barre de recherche
+export async function saveSearchBar(searchBar: SearchBarSettings): Promise<boolean> {
+  try {
+    // Vérifier s'il y a déjà une configuration dans la base de données
+    const { data: existingConfig } = await supabase
+      .from('header_search_bar')
+      .select('id')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existingConfig) {
+      // Mettre à jour la configuration existante
+      const { error } = await supabase
+        .from('header_search_bar')
+        .update({
+          is_enabled: searchBar.isEnabled,
+          placeholder: searchBar.placeholder,
+          position: searchBar.position,
+          expand_on_focus: searchBar.expandOnFocus
+        })
+        .eq('id', existingConfig.id);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour de la barre de recherche:', error);
+        return false;
+      }
+    } else {
+      // Insérer une nouvelle configuration
+      const { error } = await supabase
+        .from('header_search_bar')
+        .insert({
+          is_enabled: searchBar.isEnabled,
+          placeholder: searchBar.placeholder,
+          position: searchBar.position,
+          expand_on_focus: searchBar.expandOnFocus
+        });
+
+      if (error) {
+        console.error('Erreur lors de l\'insertion de la barre de recherche:', error);
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la barre de recherche:', error);
+    return false;
+  }
+}
+
+// Sauvegarder les boutons d'action
+export async function saveActionButtons(buttons: ActionButton[]): Promise<boolean> {
+  try {
+    // Supprimer tous les boutons existants
+    const { error: deleteError } = await supabase
+      .from('header_action_buttons')
+      .delete()
+      .gt('id', '0');
+
+    if (deleteError) {
+      console.error('Erreur lors de la suppression des boutons d\'action:', deleteError);
+      return false;
+    }
+
+    // Si nous avons des boutons à insérer
+    if (buttons.length > 0) {
+      // Préparer les données pour l'insertion
+      const insertData = buttons.map(button => ({
+        id: button.id,
+        label: button.label,
+        href: button.href,
+        icon: button.icon ? typeof button.icon === 'string' ? button.icon : undefined : undefined,
+        variant: button.variant,
+        is_visible: button.isVisible,
+        requires_auth: button.requiresAuth || false,
+        required_role: button.requiredRole,
+        order_index: button.order
+      }));
+
+      // Insérer les nouveaux boutons
+      const { error: insertError } = await supabase
+        .from('header_action_buttons')
+        .insert(insertData);
+
+      if (insertError) {
+        console.error('Erreur lors de l\'insertion des boutons d\'action:', insertError);
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des boutons d\'action:', error);
+    return false;
+  }
+}
+
+// Sauvegarder la configuration du menu utilisateur
+export async function saveUserMenu(userMenu: UserMenuSettings): Promise<boolean> {
+  try {
+    // Vérifier s'il y a déjà une configuration dans la base de données
+    const { data: existingConfig } = await supabase
+      .from('header_user_menu')
+      .select('id')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existingConfig) {
+      // Mettre à jour la configuration existante
+      const { error } = await supabase
+        .from('header_user_menu')
+        .update({
+          show_login_button: userMenu.showLoginButton,
+          show_register_button: userMenu.showRegisterButton,
+          show_profile_icon: userMenu.showProfileIcon,
+          login_button_label: userMenu.loginButtonLabel,
+          register_button_label: userMenu.registerButtonLabel
+        })
+        .eq('id', existingConfig.id);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour du menu utilisateur:', error);
+        return false;
+      }
+    } else {
+      // Insérer une nouvelle configuration
+      const { error } = await supabase
+        .from('header_user_menu')
+        .insert({
+          show_login_button: userMenu.showLoginButton,
+          show_register_button: userMenu.showRegisterButton,
+          show_profile_icon: userMenu.showProfileIcon,
+          login_button_label: userMenu.loginButtonLabel,
+          register_button_label: userMenu.registerButtonLabel
+        });
+
+      if (error) {
+        console.error('Erreur lors de l\'insertion du menu utilisateur:', error);
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du menu utilisateur:', error);
+    return false;
+  }
+}
+
+// Sauvegarder le style de l'en-tête
+export async function saveHeaderStyle(style: HeaderStyle): Promise<boolean> {
+  try {
+    // Vérifier s'il y a déjà un style dans la base de données
+    const { data: existingStyle } = await supabase
+      .from('header_style')
+      .select('id')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existingStyle) {
+      // Mettre à jour le style existant
+      const { error } = await supabase
+        .from('header_style')
+        .update({
+          background_color: style.backgroundColor,
+          text_color: style.textColor,
+          hover_color: style.hoverColor,
+          active_color: style.activeColor,
+          font_family: style.fontFamily,
+          font_size: style.fontSize,
+          padding: style.padding,
+          sticky: style.sticky,
+          transparent: style.transparent,
+          glassmorphism: style.glassmorphism,
+          border_bottom: style.borderBottom,
+          border_color: style.borderColor,
+          drop_shadow: style.dropShadow,
+          
+          // Mettre à jour les nouvelles colonnes
+          menu_hover_bg_color: style.menuHoverBgColor,
+          menu_active_bg_color: style.menuActiveBgColor,
+          social_icon_color: style.socialIconColor,
+          social_icon_hover_color: style.socialIconHoverColor,
+          social_icon_bg_color: style.socialIconBgColor,
+          social_icon_border_color: style.socialIconBorderColor,
+          utility_icon_color: style.utilityIconColor,
+          utility_icon_hover_color: style.utilityIconHoverColor,
+          utility_icon_bg_color: style.utilityIconBgColor,
+          utility_icon_border_color: style.utilityIconBorderColor
+        })
+        .eq('id', existingStyle.id);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour du style de l\'en-tête:', error);
+        return false;
+      }
+    } else {
+      // Insérer un nouveau style
+      const { error } = await supabase
+        .from('header_style')
+        .insert({
+          background_color: style.backgroundColor,
+          text_color: style.textColor,
+          hover_color: style.hoverColor,
+          active_color: style.activeColor,
+          font_family: style.fontFamily,
+          font_size: style.fontSize,
+          padding: style.padding,
+          sticky: style.sticky,
+          transparent: style.transparent,
+          glassmorphism: style.glassmorphism,
+          border_bottom: style.borderBottom,
+          border_color: style.borderColor,
+          drop_shadow: style.dropShadow,
+          
+          // Insérer les nouvelles colonnes
+          menu_hover_bg_color: style.menuHoverBgColor,
+          menu_active_bg_color: style.menuActiveBgColor,
+          social_icon_color: style.socialIconColor,
+          social_icon_hover_color: style.socialIconHoverColor,
+          social_icon_bg_color: style.socialIconBgColor,
+          social_icon_border_color: style.socialIconBorderColor,
+          utility_icon_color: style.utilityIconColor,
+          utility_icon_hover_color: style.utilityIconHoverColor,
+          utility_icon_bg_color: style.utilityIconBgColor,
+          utility_icon_border_color: style.utilityIconBorderColor
+        });
+
+      if (error) {
+        console.error('Erreur lors de l\'insertion du style de l\'en-tête:', error);
+        return false;
+      }
+    }
+
+    // Mettre à jour l'option showThemeSelector dans la table header_config
+    const { error: configError } = await supabase
+      .from('header_config')
+      .update({ show_theme_selector: style.showThemeSelector })
+      .eq('id', 'default');
+
+    if (configError) {
+      console.error('Erreur lors de la mise à jour de l\'option showThemeSelector:', configError);
+      // On ne considère pas cela comme une erreur fatale
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du style de l\'en-tête:', error);
+    return false;
+  }
+}
+
+// Fonction utilitaire pour convertir les noms d'icônes en composants Lucide
+export function getIconComponentByName(iconName: string): LucideIcon | undefined {
+  try {
+    // Cette fonction sera implémentée dans le composant qui utilise ces données
+    return undefined;
+  } catch (error) {
+    console.error('Erreur lors de la conversion du nom d\'icône en composant:', error);
+    return undefined;
+  }
+}
