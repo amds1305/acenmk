@@ -10,7 +10,7 @@ import MobileMenu from './header/MobileMenu';
 import { useHeader } from './header/useHeader';
 import ThemeSelector from './header/ThemeSelector';
 import UserMenu from './header/UserMenu';
-import { HeaderProvider } from '@/contexts/HeaderContext';
+import { HeaderStyleProvider } from '@/contexts/HeaderStyleContext';
 
 // Configuration par défaut du header - À terme, cela pourrait être chargé depuis une API
 const defaultHeaderConfig = {
@@ -78,9 +78,9 @@ const HeaderContent = () => {
 
 const Header = () => {
   return (
-    <HeaderProvider>
+    <HeaderStyleProvider>
       <HeaderContent />
-    </HeaderProvider>
+    </HeaderStyleProvider>
   );
 };
 

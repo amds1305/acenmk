@@ -1,68 +1,62 @@
+
 import { LucideIcon } from 'lucide-react';
 
-// Types pour le gestionnaire de logo
 export interface Logo {
   src: string;
   alt: string;
-  width: number;
-  height: number;
-  position: 'left' | 'center' | 'right';
+  width?: number;
+  height?: number;
+  position?: 'left' | 'center';
 }
 
-// Types pour les liens de navigation
 export interface NavLink {
+  id?: string;
   name: string;
   href: string;
-  icon?: LucideIcon;
+  icon?: string | React.FC; 
   isExternal?: boolean;
   requiresAuth?: boolean;
   requiredRole?: string;
-  order: number;
-  isVisible: boolean;
+  order?: number;
+  isVisible?: boolean;
   parentId?: string | null;
-  id: string;
 }
 
-// Types pour les liens sociaux
 export interface SocialLink {
-  icon: LucideIcon;
+  icon: LucideIcon | string;
   href: string;
   ariaLabel: string;
-  isVisible: boolean;
-  order: number;
+  isVisible?: boolean;
+  order?: number;
 }
 
-// Types pour la barre de recherche
 export interface SearchBarSettings {
   isEnabled: boolean;
   placeholder: string;
-  position: 'left' | 'center' | 'right';
+  position: 'right' | 'center' | 'left';
   expandOnFocus: boolean;
 }
 
-// Types pour les boutons d'action
 export interface ActionButton {
-  id: string;
+  id?: string;
   label: string;
   href: string;
-  icon?: LucideIcon;
-  variant: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  isVisible: boolean;
+  icon?: string | React.FC;
+  variant?: string;
+  isVisible?: boolean;
   requiresAuth?: boolean;
   requiredRole?: string;
-  order: number;
+  order?: number;
 }
 
-// Types pour l'espace membre
 export interface UserMenuSettings {
   showLoginButton: boolean;
   showRegisterButton: boolean;
   showProfileIcon: boolean;
-  loginButtonLabel: string;
-  registerButtonLabel: string;
+  loginButtonLabel?: string;
+  registerButtonLabel?: string;
 }
 
-// Types pour le style visuel du header
 export interface HeaderStyle {
   backgroundColor: string;
   textColor: string;
@@ -79,19 +73,39 @@ export interface HeaderStyle {
   dropShadow: boolean;
   showThemeSelector: boolean;
   
-  // Nouvelles propriétés pour une personnalisation plus fine
-  menuHoverBgColor: string;  // Couleur de fond au survol des éléments du menu
-  menuActiveBgColor: string; // Couleur de fond des éléments actifs du menu
+  // Styles pour les éléments de menu
+  menuHoverBgColor: string;
+  menuActiveBgColor: string;
+  menuTransition?: string;
+  menuBorderRadius?: string;
   
-  // Personnalisation des icônes
-  socialIconColor: string;       // Couleur des icônes de réseaux sociaux
-  socialIconHoverColor: string;  // Couleur des icônes de réseaux sociaux au survol
-  socialIconBgColor: string;     // Couleur de fond des icônes de réseaux sociaux
-  socialIconBorderColor: string; // Couleur de bordure des icônes de réseaux sociaux
+  // Styles pour les icônes sociales
+  socialIconColor: string;
+  socialIconHoverColor: string;
+  socialIconBgColor: string;
+  socialIconBorderColor: string;
+  socialIconSize?: string;
+  socialIconSpacing?: string;
   
-  // Personnalisation de l'icône de recherche et thème
-  utilityIconColor: string;       // Couleur des icônes utilitaires (recherche, thème)
-  utilityIconHoverColor: string;  // Couleur des icônes utilitaires au survol
-  utilityIconBgColor: string;     // Couleur de fond des icônes utilitaires
-  utilityIconBorderColor: string; // Couleur de bordure des icônes utilitaires
+  // Styles pour les icônes d'utilité
+  utilityIconColor: string;
+  utilityIconHoverColor: string;
+  utilityIconBgColor: string;
+  utilityIconBorderColor: string;
+  utilityIconSize?: string;
+  
+  // Styles pour les états de header
+  scrolledBgColor?: string;
+  scrolledTextColor?: string;
+  scrolledBorderColor?: string;
+  scrolledShadow?: string;
+  
+  // États d'animation
+  transitionDuration?: string;
+  transitionTiming?: string;
+  
+  // Typographie avancée
+  fontWeight?: string;
+  letterSpacing?: string;
+  textTransform?: string;
 }

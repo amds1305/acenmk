@@ -1,7 +1,9 @@
+
 import { useEffect, useState } from 'react';
 import { NavLink, SocialLink } from './types';
 import { getHeaderConfig } from '@/services/supabase/headerService';
 import { Mail, Twitter, Instagram, Facebook, Linkedin, Github } from 'lucide-react';
+import { useHeaderStyle } from '@/contexts/HeaderStyleContext';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -10,6 +12,7 @@ export const useHeader = () => {
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [headerConfig, setHeaderConfig] = useState<any>({}); // Type 'any' will be replaced
+  const { headerStyle } = useHeaderStyle();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,6 +59,17 @@ export const useHeader = () => {
     };
 
     fetchHeaderConfig();
+
+    // Écouter les événements de mise à jour des styles
+    const handleHeaderStyleUpdated = () => {
+      fetchHeaderConfig();
+    };
+
+    window.addEventListener('header-style-updated', handleHeaderStyleUpdated);
+    
+    return () => {
+      window.removeEventListener('header-style-updated', handleHeaderStyleUpdated);
+    };
   }, []);
 
   // Exemple de liens de navigation par défaut avec un pictogramme pour l'accueil
@@ -95,7 +109,11 @@ export const useHeader = () => {
     searchOpen,
     navLinks,
     socialLinks,
-    headerConfig,
+    headerConfig: {
+      ...headerConfig,
+      showThemeSelector: headerStyle?.showThemeSelector ?? true
+    },
+    headerStyle,
     toggleMobileMenu,
     closeMobileMenu,
     toggleSearch
