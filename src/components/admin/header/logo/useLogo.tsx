@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
-import { saveLogo, getHeaderConfig } from '@/services/supabase/headerService';
+import { getHeaderConfig, saveHeaderLogo } from '@/services/supabase/headerService';
 import { Logo } from '../types';
 
 export interface UseLogoReturn {
@@ -23,7 +23,7 @@ export const useLogo = (): UseLogoReturn => {
   const { showSaveSuccess, showSaveError } = useAdminNotification();
   const [isLoading, setIsLoading] = useState(false);
   
-  // État initial du logo
+  // Initial logo state
   const [logo, setLogo] = useState<Logo>({
     src: '/placeholder.svg',
     alt: 'Logo Acenümerik',
@@ -32,21 +32,21 @@ export const useLogo = (): UseLogoReturn => {
     position: 'left',
   });
 
-  // Pour l'upload de fichier
+  // For file upload
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null);
 
-  // Charger le logo depuis la base de données
+  // Load logo from database
   useEffect(() => {
     const loadLogo = async () => {
       try {
         setIsLoading(true);
-        const { logo } = await getHeaderConfig();
-        if (logo) {
-          setLogo(logo);
+        const config = await getHeaderConfig();
+        if (config.headerLogo) {
+          setLogo(config.headerLogo);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement du logo:', error);
+        console.error('Error loading logo:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger le logo",
@@ -60,13 +60,13 @@ export const useLogo = (): UseLogoReturn => {
     loadLogo();
   }, [toast]);
 
-  // Gérer la sélection de fichier
+  // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setSelectedFile(file);
       
-      // Prévisualisation du logo
+      // Logo preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setLogo({
@@ -78,7 +78,7 @@ export const useLogo = (): UseLogoReturn => {
     }
   };
 
-  // Simuler un upload de fichier
+  // Simulate file upload
   const handleUpload = async () => {
     if (!selectedFile) {
       toast({
@@ -89,8 +89,8 @@ export const useLogo = (): UseLogoReturn => {
       return;
     }
 
-    // Ici, vous implémenteriez l'upload réel vers votre serveur
-    // Pour l'instant, nous utilisons juste le Data URL comme si l'upload était réussi
+    // Here, you would implement the actual upload to your server
+    // For now, we're using the Data URL as if the upload was successful
     
     toast({
       title: "Succès",
@@ -98,14 +98,14 @@ export const useLogo = (): UseLogoReturn => {
     });
   };
 
-  // Déclencheur pour ouvrir la boîte de dialogue de sélection de fichier
+  // Trigger to open file selection dialog
   const triggerFileInput = () => {
     if (fileInputRef) {
       fileInputRef.click();
     }
   };
 
-  // Mettre à jour les propriétés du logo
+  // Update logo properties
   const updateLogoProperty = <K extends keyof Logo>(property: K, value: Logo[K]) => {
     setLogo({
       ...logo,
@@ -113,11 +113,11 @@ export const useLogo = (): UseLogoReturn => {
     });
   };
 
-  // Sauvegarder les modifications du logo
+  // Save logo changes
   const saveLogoChanges = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const success = await saveLogo(logo);
+      const success = await saveHeaderLogo(logo);
       
       if (success) {
         showSaveSuccess();
@@ -136,7 +136,7 @@ export const useLogo = (): UseLogoReturn => {
         return false;
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde du logo:', error);
+      console.error('Error saving logo:', error);
       showSaveError();
       toast({
         title: "Erreur",

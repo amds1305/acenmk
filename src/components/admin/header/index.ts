@@ -13,6 +13,9 @@ import { useUserMenu } from './user-menu/useUserMenu';
 import { useHeaderStyle } from './style/useHeaderStyle';
 import { useSocialLinks } from './social/useSocialLinks';
 import { useNavLinks } from './navigation/useNavLinks';
+import { LogoForm } from './logo/LogoForm';
+import { LogoUploader } from './logo/LogoUploader';
+import { LogoPreview } from './logo/LogoPreview';
 
 export { 
   AdminHeader, 
@@ -28,5 +31,8 @@ export {
   useUserMenu,
   useHeaderStyle,
   useSocialLinks,
-  useNavLinks
+  useNavLinks,
+  LogoForm,
+  LogoUploader,
+  LogoPreview
 };
