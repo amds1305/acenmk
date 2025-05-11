@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
@@ -28,7 +27,9 @@ export const useFooterStyle = () => {
           // Utiliser les styles par défaut si aucun style n'est trouvé
         } else if (styleData) {
           // Make sure we merge with default styles to ensure all properties exist
-          setFooterStyle({ ...defaultFooterStyle, ...styleData.data });
+          // Use recursive merge to handle nested properties
+          const mergedStyles = mergeWithDefaults(defaultFooterStyle, styleData.data);
+          setFooterStyle(mergedStyles);
         }
 
         // Charger les données du footer
@@ -55,56 +56,79 @@ export const useFooterStyle = () => {
     loadFooterStyle();
   }, []);
 
+  // Helper function to deep merge objects ensuring all default values are preserved
+  const mergeWithDefaults = (defaultObj: any, customObj: any) => {
+    if (!customObj) return {...defaultObj};
+    
+    const result = {...defaultObj};
+    
+    for (const key in customObj) {
+      if (typeof customObj[key] === 'object' && customObj[key] !== null && key in defaultObj) {
+        // If this is a nested object and exists in default, recursively merge
+        result[key] = mergeWithDefaults(defaultObj[key], customObj[key]);
+      } else {
+        // Otherwise just copy the value
+        result[key] = customObj[key];
+      }
+    }
+    
+    return result;
+  };
+
   const handleStyleChange = <K extends keyof FooterStyle>(
     section: K,
     property: keyof FooterStyle[K],
     value: any
   ) => {
     setFooterStyle(prev => {
-      // Ensure the section exists
-      const updatedSection = prev[section] ? { ...prev[section] } : {};
+      // Ensure the section exists by creating a deep copy
+      const newState = {...prev};
       
-      return {
-        ...prev,
-        [section]: {
-          ...updatedSection,
-          [property]: value
-        }
+      // If the section doesn't exist, initialize it from default
+      if (!newState[section]) {
+        newState[section] = {...defaultFooterStyle[section]};
+      }
+      
+      // Now safely update the property
+      newState[section] = {
+        ...newState[section],
+        [property]: value
       };
+      
+      return newState;
     });
   };
 
   const handleDataChange = (section: string, property: string, value: any) => {
     setFooterData(prev => {
+      const newData = prev ? {...prev} : {};
+      
       // Si cette section n'existe pas, la créer
-      if (!prev || !prev[section]) {
-        return {
-          ...prev,
-          [section]: {
-            [property]: value
-          }
-        };
+      if (!newData[section]) {
+        newData[section] = {};
       }
       
-      // Sinon, mettre à jour la propriété dans la section existante
-      return {
-        ...prev,
-        [section]: {
-          ...prev[section],
-          [property]: value
-        }
+      // Mettre à jour la propriété dans la section existante
+      newData[section] = {
+        ...newData[section],
+        [property]: value
       };
+      
+      return newData;
     });
   };
 
   const saveFooterStyle = async () => {
     try {
+      // Ensure all required fields exist before saving
+      const completeFooterStyle = mergeWithDefaults(defaultFooterStyle, footerStyle);
+      
       // Sauvegarder les styles
       const { error: styleError } = await supabase
         .from('section_data')
         .upsert({
           section_id: 'footer-style',
-          data: footerStyle,
+          data: completeFooterStyle,
           updated_at: new Date().toISOString()
         }, { onConflict: 'section_id' });
 
@@ -130,7 +154,7 @@ export const useFooterStyle = () => {
 
       // Trigger event to update the footer in real-time
       window.dispatchEvent(new CustomEvent('footer-style-updated', { 
-        detail: { style: footerStyle, data: footerData }
+        detail: { style: completeFooterStyle, data: footerData }
       }));
       
     } catch (error) {

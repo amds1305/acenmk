@@ -20,19 +20,35 @@ const VisibilityTabs = ({ footerStyle, handleStyleChange, type }: VisibilityTabs
     ? "Activez ou désactivez l'affichage de la section des services dans le pied de page."
     : "Activez ou désactivez l'affichage des liens légaux dans le pied de page.";
 
-  // Ensure the object exists before trying to access its properties
-  if (!footerStyle[type]) {
-    console.error(`footerStyle[${type}] is undefined, initializing with default values`);
-    return null; // Return null or a loading indicator until the style is properly loaded
+  // Make sure footerStyle and footerStyle[type] exists
+  if (!footerStyle || !footerStyle[type]) {
+    console.error(`footerStyle[${type}] is undefined, rendering with default values`);
+    // Return a component with safe default values instead of null
+    return (
+      <div className="space-y-4 mt-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-medium">{title}</h3>
+          <div className="flex items-center space-x-2">
+            <Switch 
+              checked={false}
+              onCheckedChange={(checked) => handleStyleChange(type, 'isVisible', checked)}
+            />
+            <Label>Visibles</Label>
+          </div>
+        </div>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+    );
   }
 
+  // Now we can safely access the properties since we've verified they exist
   return (
     <div className="space-y-4 mt-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">{title}</h3>
         <div className="flex items-center space-x-2">
           <Switch 
-            checked={footerStyle[type]?.isVisible || false} 
+            checked={!!footerStyle[type].isVisible} 
             onCheckedChange={(checked) => handleStyleChange(type, 'isVisible', checked)}
           />
           <Label>Visibles</Label>

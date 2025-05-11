@@ -8,7 +8,7 @@ import { LegalContent } from './types';
 
 interface ContentFormProps {
   contentKey: string;
-  content: LegalContent;
+  content: LegalContent | undefined;
   updateContent: (section: any, field: keyof LegalContent, value: string | boolean) => void;
 }
 
