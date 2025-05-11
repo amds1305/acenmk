@@ -36,7 +36,7 @@ const FooterStyleManager = () => {
             <TabsTrigger value="links">Liens</TabsTrigger>
             <TabsTrigger value="social">Réseaux Sociaux</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="legal">Légal</TabsTrigger>
+            <TabsTrigger value="legalLinks">Légal</TabsTrigger>
             <TabsTrigger value="button">Bouton Retour</TabsTrigger>
           </TabsList>
 
@@ -78,11 +78,11 @@ const FooterStyleManager = () => {
             />
           </TabsContent>
           
-          <TabsContent value="legal">
+          <TabsContent value="legalLinks">
             <VisibilityTabs 
               footerStyle={footerStyle}
               handleStyleChange={handleStyleChange}
-              type="legal"
+              type="legalLinks"
             />
           </TabsContent>
           

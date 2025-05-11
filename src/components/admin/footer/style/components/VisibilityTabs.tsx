@@ -11,7 +11,7 @@ interface VisibilityTabsProps {
     property: keyof FooterStyle[K],
     value: any
   ) => void;
-  type: 'services' | 'legal';
+  type: 'services' | 'legalLinks';
 }
 
 const VisibilityTabs = ({ footerStyle, handleStyleChange, type }: VisibilityTabsProps) => {
@@ -20,13 +20,19 @@ const VisibilityTabs = ({ footerStyle, handleStyleChange, type }: VisibilityTabs
     ? "Activez ou désactivez l'affichage de la section des services dans le pied de page."
     : "Activez ou désactivez l'affichage des liens légaux dans le pied de page.";
 
+  // Ensure the object exists before trying to access its properties
+  if (!footerStyle[type]) {
+    console.error(`footerStyle[${type}] is undefined, initializing with default values`);
+    return null; // Return null or a loading indicator until the style is properly loaded
+  }
+
   return (
     <div className="space-y-4 mt-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">{title}</h3>
         <div className="flex items-center space-x-2">
           <Switch 
-            checked={footerStyle[type].isVisible} 
+            checked={footerStyle[type]?.isVisible || false} 
             onCheckedChange={(checked) => handleStyleChange(type, 'isVisible', checked)}
           />
           <Label>Visibles</Label>

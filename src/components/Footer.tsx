@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -236,7 +237,8 @@ const fetchFooterStyles = async () => {
         .single();
         
       if (!error && data && data.data) {
-        return data.data as FooterStyle;
+        // Merge with default styles to ensure all properties exist
+        return { ...defaultFooterStyle, ...data.data } as FooterStyle;
       }
     } catch (supabaseError) {
       console.error("Supabase error fetching styles:", supabaseError);
@@ -279,21 +281,24 @@ const Footer = () => {
     }
     
     if (styleFromQuery) {
-      setFooterStyle(styleFromQuery);
+      setFooterStyle({
+        ...defaultFooterStyle,
+        ...styleFromQuery
+      });
     }
     
     // Listen for admin changes
     const handleAdminChanges = () => {
       console.log("Admin changes detected, refetching footer data...");
       fetchFooterData().then(data => setFooterData({...defaultFooterData, ...data}));
-      fetchFooterStyles().then(style => setFooterStyle(style));
+      fetchFooterStyles().then(style => setFooterStyle({...defaultFooterStyle, ...style}));
     };
     
     // Listen for footer style updates
     const handleStyleUpdates = (e: CustomEvent) => {
       console.log("Footer style updated:", e.detail);
       if (e.detail.style) {
-        setFooterStyle(e.detail.style);
+        setFooterStyle({...defaultFooterStyle, ...e.detail.style});
       }
       if (e.detail.data) {
         setFooterData({...defaultFooterData, ...e.detail.data});
@@ -309,50 +314,50 @@ const Footer = () => {
     };
   }, [dataFromQuery, styleFromQuery]);
 
-  // Extract the data for easy usage
+  // Extract the data for easy usage with safe defaults
   const { 
-    companyInfo, 
-    serviceLinks, 
-    legalLinks, 
-    contactInfo, 
-    socialLinks, 
+    companyInfo = { name: "VISIONTECH", description: "" }, 
+    serviceLinks = [], 
+    legalLinks = [], 
+    contactInfo = [], 
+    socialLinks = [], 
     sectionTitles = { services: "Services", contact: "Contact", legal: "Légal" }
-  } = footerData;
+  } = footerData || defaultFooterData;
   
-  // Générer les styles CSS basés sur footerStyle
+  // Generate CSS styles from footerStyle with safe defaults
   const companyNameStyle = {
-    color: footerStyle.companyName.color,
-    fontSize: footerStyle.companyName.fontSize,
-    fontWeight: footerStyle.companyName.fontWeight,
-    display: footerStyle.companyName.isVisible ? 'block' : 'none'
+    color: footerStyle?.companyName?.color || "#FFFFFF",
+    fontSize: footerStyle?.companyName?.fontSize || "1.5rem",
+    fontWeight: footerStyle?.companyName?.fontWeight || "700",
+    display: footerStyle?.companyName?.isVisible !== false ? 'block' : 'none'
   };
   
   const sectionTitleStyle = {
-    color: footerStyle.sectionTitles.color,
-    fontSize: footerStyle.sectionTitles.fontSize,
-    fontWeight: footerStyle.sectionTitles.fontWeight,
-    display: footerStyle.sectionTitles.isVisible ? 'block' : 'none'
+    color: footerStyle?.sectionTitles?.color || "#FFFFFF",
+    fontSize: footerStyle?.sectionTitles?.fontSize || "1.25rem",
+    fontWeight: footerStyle?.sectionTitles?.fontWeight || "600",
+    display: footerStyle?.sectionTitles?.isVisible !== false ? 'block' : 'none'
   };
   
   const linkStyle = {
-    color: footerStyle.links.color,
+    color: footerStyle?.links?.color || "#9CA3AF",
     transition: 'color 0.2s ease'
   };
   
-  // Créer des classes CSS personnalisées pour le hover
+  // Create custom CSS styles for hover effects
   useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.innerHTML = `
       .footer-link:hover {
-        color: ${footerStyle.links.hoverColor} !important;
+        color: ${footerStyle?.links?.hoverColor || "#FFFFFF"} !important;
       }
       .footer-social:hover {
-        color: ${footerStyle.social.iconHoverColor} !important;
-        background-color: ${footerStyle.social.iconBgHoverColor} !important;
+        color: ${footerStyle?.social?.iconHoverColor || "#FFFFFF"} !important;
+        background-color: ${footerStyle?.social?.iconBgHoverColor || "rgba(255, 255, 255, 0.2)"} !important;
       }
       .footer-back-to-top:hover {
-        color: ${footerStyle.backToTopButton.hoverTextColor} !important;
-        background-color: ${footerStyle.backToTopButton.hoverBgColor} !important;
+        color: ${footerStyle?.backToTopButton?.hoverTextColor || "#FFFFFF"} !important;
+        background-color: ${footerStyle?.backToTopButton?.hoverBgColor || "rgba(255, 255, 255, 0.2)"} !important;
       }
     `;
     document.head.appendChild(styleElement);
@@ -362,21 +367,26 @@ const Footer = () => {
     };
   }, [footerStyle]);
 
-  // Styles pour les icônes sociales
+  // Styles for social icons with safe defaults
   const socialIconStyle = {
-    color: footerStyle.social.iconColor,
-    backgroundColor: footerStyle.social.iconBgColor,
+    color: footerStyle?.social?.iconColor || "#9CA3AF",
+    backgroundColor: footerStyle?.social?.iconBgColor || "rgba(255, 255, 255, 0.1)",
     transition: 'color 0.2s ease, background-color 0.2s ease'
   };
   
-  // Style pour le bouton "Retour en haut"
+  // Style for the "Back to top" button with safe defaults
   const backToTopButtonStyle = {
-    color: footerStyle.backToTopButton.textColor,
-    backgroundColor: footerStyle.backToTopButton.bgColor,
-    borderColor: footerStyle.backToTopButton.borderColor,
-    display: footerStyle.backToTopButton.isVisible ? 'inline-flex' : 'none',
+    color: footerStyle?.backToTopButton?.textColor || "#FFFFFF",
+    backgroundColor: footerStyle?.backToTopButton?.bgColor || "rgba(255, 255, 255, 0.1)",
+    borderColor: footerStyle?.backToTopButton?.borderColor || "transparent",
+    display: footerStyle?.backToTopButton?.isVisible !== false ? 'inline-flex' : 'none',
     transition: 'color 0.2s ease, background-color 0.2s ease'
   };
+  
+  // Check if the services and legal links sections should be visible
+  const showServices = footerStyle?.services?.isVisible !== false;
+  const showLegalLinks = footerStyle?.legalLinks?.isVisible !== false;
+  const showSocialLinks = footerStyle?.social?.isVisible !== false;
   
   return (
     <footer className="bg-gray-900 text-white">
@@ -384,18 +394,18 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Company Info */}
           <div>
-            {footerStyle.companyName.isVisible && (
+            {footerStyle?.companyName?.isVisible !== false && (
               <a href="#hero" className="text-xl font-bold tracking-tight" style={companyNameStyle}>
-                <span className="text-primary">{companyInfo.name.split(' ')[0] || 'VISION'}</span> 
-                <span className="text-white">{companyInfo.name.split(' ')[1] || 'TECH'}</span>
+                <span className="text-primary">{companyInfo?.name?.split(' ')[0] || 'VISION'}</span> 
+                <span className="text-white">{companyInfo?.name?.split(' ')[1] || 'TECH'}</span>
               </a>
             )}
             <p className="text-gray-400 mt-4 mb-6 max-w-xs">
-              {companyInfo.description}
+              {companyInfo?.description}
             </p>
-            {footerStyle.social.isVisible && (
+            {showSocialLinks && (
               <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
+                {(socialLinks || []).map((social, index) => (
                   <a 
                     key={index}
                     href={social.href} 
@@ -412,13 +422,13 @@ const Footer = () => {
           </div>
           
           {/* Services */}
-          {footerStyle.services.isVisible && (
+          {showServices && (
             <div>
               <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-                {sectionTitles.services || "Services"}
+                {sectionTitles?.services || "Services"}
               </h4>
               <ul className="space-y-4">
-                {serviceLinks.map((link, index) => (
+                {(serviceLinks || []).map((link, index) => (
                   <li key={index}>
                     <a 
                       href={link.href} 
@@ -436,10 +446,10 @@ const Footer = () => {
           {/* Contact Info */}
           <div>
             <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-              {sectionTitles.contact || "Contact"}
+              {sectionTitles?.contact || "Contact"}
             </h4>
             <ul className="space-y-4">
-              {contactInfo.map((info, index) => (
+              {(contactInfo || []).map((info, index) => (
                 <li key={index}>
                   <a 
                     href={info.href}
@@ -459,13 +469,13 @@ const Footer = () => {
           </div>
           
           {/* Legal */}
-          {footerStyle.legalLinks.isVisible && (
+          {showLegalLinks && (
             <div>
               <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-                {sectionTitles.legal || "Légal"}
+                {sectionTitles?.legal || "Légal"}
               </h4>
               <ul className="space-y-4">
-                {legalLinks.map((link, index) => (
+                {(legalLinks || []).map((link, index) => (
                   <li key={index}>
                     <a 
                       href={link.href} 
@@ -485,7 +495,7 @@ const Footer = () => {
         
         <div className="border-t border-white/10 pt-8 mt-12 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © {currentYear} {companyInfo.name}. Tous droits réservés.
+            © {currentYear} {companyInfo?.name || "VISIONTECH"}. Tous droits réservés.
           </p>
           <div className="mt-4 md:mt-0">
             <a 

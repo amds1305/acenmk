@@ -17,13 +17,21 @@ export const ContentForm: React.FC<ContentFormProps> = ({
   content,
   updateContent
 }) => {
+  // Make sure content exists and has valid values with safe default fallbacks
+  const safeContent = {
+    title: content?.title || '',
+    content: content?.content || '',
+    metaDescription: content?.metaDescription || '',
+    isPublished: content?.isPublished !== false
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor={`${contentKey}-title`}>Titre de la page</Label>
         <Input
           id={`${contentKey}-title`}
-          value={content.title}
+          value={safeContent.title}
           onChange={(e) => updateContent(contentKey, 'title', e.target.value)}
         />
       </div>
@@ -32,7 +40,7 @@ export const ContentForm: React.FC<ContentFormProps> = ({
         <Label htmlFor={`${contentKey}-metaDescription`}>Description Meta (SEO)</Label>
         <Input
           id={`${contentKey}-metaDescription`}
-          value={content.metaDescription || ''}
+          value={safeContent.metaDescription}
           onChange={(e) => updateContent(contentKey, 'metaDescription', e.target.value)}
         />
       </div>
@@ -41,7 +49,7 @@ export const ContentForm: React.FC<ContentFormProps> = ({
         <Label htmlFor={`${contentKey}-content`}>Contenu</Label>
         <div className="min-h-[400px] border rounded-md">
           <WysiwygEditor
-            value={content.content}
+            value={safeContent.content}
             onChange={(value) => updateContent(contentKey, 'content', value)}
           />
         </div>
@@ -50,7 +58,7 @@ export const ContentForm: React.FC<ContentFormProps> = ({
       <div className="flex items-center space-x-2">
         <Checkbox
           id={`${contentKey}-published`}
-          checked={content.isPublished}
+          checked={safeContent.isPublished}
           onCheckedChange={(checked) => 
             updateContent(contentKey, 'isPublished', checked === true)
           }

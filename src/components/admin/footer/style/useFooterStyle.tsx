@@ -27,7 +27,8 @@ export const useFooterStyle = () => {
           }
           // Utiliser les styles par défaut si aucun style n'est trouvé
         } else if (styleData) {
-          setFooterStyle(styleData.data as FooterStyle);
+          // Make sure we merge with default styles to ensure all properties exist
+          setFooterStyle({ ...defaultFooterStyle, ...styleData.data });
         }
 
         // Charger les données du footer
@@ -59,13 +60,18 @@ export const useFooterStyle = () => {
     property: keyof FooterStyle[K],
     value: any
   ) => {
-    setFooterStyle(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [property]: value
-      }
-    }));
+    setFooterStyle(prev => {
+      // Ensure the section exists
+      const updatedSection = prev[section] ? { ...prev[section] } : {};
+      
+      return {
+        ...prev,
+        [section]: {
+          ...updatedSection,
+          [property]: value
+        }
+      };
+    });
   };
 
   const handleDataChange = (section: string, property: string, value: any) => {
