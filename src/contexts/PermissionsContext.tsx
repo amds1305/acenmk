@@ -8,7 +8,7 @@ import {
 } from '@/types/permissions';
 import { UserRole } from '@/types/auth';
 import { useToast } from '@/hooks/use-toast';
-import { getRouteMetadata, extractAppRoutes, getAllRoutes } from '@/lib/routes';
+import { getRouteMetadata, extractAppRoutes, getAllRoutes } from '@/lib/routes/index';
 import { DEFAULT_ACCESS_CONFIG } from '@/config/accessControl';
 import { supabase } from '@/lib/supabase';
 
