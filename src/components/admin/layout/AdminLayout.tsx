@@ -26,7 +26,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </Button>
       </div>
       
-      {/* Sidebar */}
+      {/* Sidebar - Always visible on desktop, toggleable on mobile */}
       <Sidebar expanded={expanded} toggleSidebar={toggleSidebar} />
       
       {/* Main content */}

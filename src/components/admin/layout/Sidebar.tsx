@@ -22,8 +22,10 @@ const Sidebar: React.FC<SidebarProps> = ({ expanded, toggleSidebar }) => {
     <div 
       className={`
         fixed md:sticky top-0 z-30 
-        ${expanded ? 'left-0' : '-left-full md:left-0'} 
-        w-64 h-screen transition-all duration-200 ease-in-out 
+        transition-all duration-200 ease-in-out 
+        md:translate-x-0 
+        ${expanded ? 'translate-x-0' : '-translate-x-full'}
+        w-64 h-screen 
         bg-card border-r shadow-sm 
         flex flex-col
       `}

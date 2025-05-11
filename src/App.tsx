@@ -12,6 +12,8 @@ import AdminContact from './pages/AdminContact';
 import AdminCustomSection from './pages/AdminCustomSection';
 import AdminHeroPage from './pages/AdminHero';
 import AdminFooter from './pages/AdminFooter';
+import AdminHeader from './pages/AdminHeader';
+import AdminWrapper from './pages/AdminWrapper';
 
 // Providers
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -26,6 +28,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
+import Admin from './pages/Admin';
 
 // Page des mentions légales
 const LegalPage = React.lazy(() => import('./pages/LegalPage'));
@@ -43,17 +46,25 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
-            {/* Routes admin */}
-            <Route path="/admin" element={<ProtectedRoute><AdminHome /></ProtectedRoute>} />
-            <Route path="/admin/services" element={<ProtectedRoute><AdminServices /></ProtectedRoute>} />
-            <Route path="/admin/about" element={<ProtectedRoute><AdminAbout /></ProtectedRoute>} />
-            <Route path="/admin/team" element={<ProtectedRoute><AdminTeam /></ProtectedRoute>} />
-            <Route path="/admin/testimonials" element={<ProtectedRoute><AdminTestimonials /></ProtectedRoute>} />
-            <Route path="/admin/faq" element={<ProtectedRoute><AdminFaq /></ProtectedRoute>} />
-            <Route path="/admin/contact" element={<ProtectedRoute><AdminContact /></ProtectedRoute>} />
-            <Route path="/admin/custom-section/:id" element={<ProtectedRoute><AdminCustomSection /></ProtectedRoute>} />
-            <Route path="/admin/hero" element={<ProtectedRoute><AdminHeroPage /></ProtectedRoute>} />
-            <Route path="/admin/footer" element={<ProtectedRoute><AdminFooter /></ProtectedRoute>} />
+            {/* Routes admin avec AdminWrapper comme layout parent */}
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminWrapper />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Admin />} />
+              <Route path="home" element={<AdminHome />} />
+              <Route path="services" element={<AdminServices />} />
+              <Route path="about" element={<AdminAbout />} />
+              <Route path="team" element={<AdminTeam />} />
+              <Route path="testimonials" element={<AdminTestimonials />} />
+              <Route path="faq" element={<AdminFaq />} />
+              <Route path="contact" element={<AdminContact />} />
+              <Route path="custom-section/:id" element={<AdminCustomSection />} />
+              <Route path="hero" element={<AdminHeroPage />} />
+              <Route path="footer" element={<AdminFooter />} />
+              <Route path="header" element={<AdminHeader />} />
+            </Route>
             
             {/* Routes légales */}
             <Route path="/legal/:page" element={

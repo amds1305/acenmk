@@ -8,6 +8,7 @@ import AdminFaqPage from "@/pages/AdminFaq";
 import AdminServicesPage from "@/pages/AdminServices";
 import AdminTeamPage from "@/pages/AdminTeam";
 import AdminFooterPage from "@/pages/AdminFooter";
+import AdminHeaderPage from "@/pages/AdminHeader";
 import AdminUsersPage from "@/pages/AdminUsers";
 import AdminTestimonialsPage from "@/pages/AdminTestimonials";
 import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
@@ -20,7 +21,7 @@ export const routes: RouteObject[] = [
     element: <AdminWrapper />,
     children: [
       {
-        path: "",
+        index: true,
         element: <AdminPage />,
       },
       {
@@ -30,6 +31,10 @@ export const routes: RouteObject[] = [
       {
         path: "hero",
         element: <AdminHeroPage />,
+      },
+      {
+        path: "header",
+        element: <AdminHeaderPage />,
       },
       {
         path: "about",
