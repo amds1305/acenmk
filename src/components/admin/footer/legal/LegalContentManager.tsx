@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ContentForm } from './ContentForm';
 import { useLegalContent } from './useLegalContent';
+import { useAdminNotification } from '@/hooks/admin-notification';
 
 const LegalContentManager: React.FC = () => {
   const {
@@ -15,10 +16,16 @@ const LegalContentManager: React.FC = () => {
     updateContent,
     saveContents
   } = useLegalContent();
+  
+  const adminNotification = useAdminNotification();
 
   if (loading) {
     return <div className="p-4">Chargement des contenus légaux...</div>;
   }
+
+  const handleSave = () => {
+    saveContents();
+  };
 
   return (
     <Card>
@@ -32,7 +39,7 @@ const LegalContentManager: React.FC = () => {
         <Tabs 
           defaultValue="legalNotice"
           value={activeContent}
-          onValueChange={(value) => setActiveContent(value as keyof LegalContents)}
+          onValueChange={(value) => setActiveContent(value as keyof typeof contents)}
         >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="legalNotice">Mentions légales</TabsTrigger>
@@ -42,7 +49,7 @@ const LegalContentManager: React.FC = () => {
           </TabsList>
 
           {Object.keys(contents).map((contentKey) => {
-            const key = contentKey as keyof LegalContents;
+            const key = contentKey as keyof typeof contents;
             
             return (
               <TabsContent key={contentKey} value={contentKey} className="space-y-4 mt-4">
@@ -57,7 +64,7 @@ const LegalContentManager: React.FC = () => {
         </Tabs>
 
         <div className="mt-6 flex justify-end">
-          <Button onClick={saveContents}>Enregistrer les contenus</Button>
+          <Button onClick={handleSave}>Enregistrer les contenus</Button>
         </div>
       </CardContent>
     </Card>

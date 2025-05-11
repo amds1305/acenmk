@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async';
 
 const LegalPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [pageContent, setPageContent] = useState<{ title: string; content: string } | null>(null);
+  const [pageContent, setPageContent] = useState<{ title: string; content: string; meta_description?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +34,7 @@ const LegalPage = () => {
         } else {
           setError('Page non trouvée');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Erreur:', err);
         setError('Une erreur est survenue lors du chargement de la page');
       } finally {

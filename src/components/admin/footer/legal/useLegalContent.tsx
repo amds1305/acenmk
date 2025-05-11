@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { LegalContents } from './types';
+import { LegalContents, LegalContent } from './types';
 import { defaultLegalContents } from './defaultData';
 import { contentSlugs } from './types';
+import { useAdminNotification } from '@/hooks/admin-notification';
 
 export const useLegalContent = () => {
   const { toast } = useToast();
+  const adminNotification = useAdminNotification();
   const [loading, setLoading] = useState(true);
   const [contents, setContents] = useState<LegalContents>(defaultLegalContents);
   const [activeContent, setActiveContent] = useState<keyof LegalContents>('legalNotice');
@@ -55,6 +57,8 @@ export const useLegalContent = () => {
   // Save all contents
   const saveContents = async () => {
     try {
+      adminNotification?.showProcessing();
+      
       const { error } = await supabase
         .from('section_data')
         .upsert({
@@ -65,16 +69,17 @@ export const useLegalContent = () => {
 
       if (error) throw error;
 
+      // Create or update pages for each content
+      await createOrUpdateLegalPages();
+      
+      adminNotification?.showSaveSuccess();
       toast({
         title: "Contenus sauvegardés",
         description: "Les contenus légaux ont été mis à jour avec succès"
       });
-
-      // Create or update legal pages for each content
-      await createOrUpdateLegalPages();
-      
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la sauvegarde:", error);
+      adminNotification?.showSaveError(error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde des contenus",
@@ -124,18 +129,9 @@ export const useLegalContent = () => {
             });
         }
       }
-
-      toast({
-        title: "Pages mises à jour",
-        description: "Les pages légales ont été créées ou mises à jour"
-      });
     } catch (error) {
       console.error("Erreur lors de la création/mise à jour des pages:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour des pages légales",
-        variant: "destructive"
-      });
+      throw error;
     }
   };
 

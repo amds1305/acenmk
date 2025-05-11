@@ -12,13 +12,19 @@ import {
   ButtonTab,
   SectionTitlesTab
 } from './components';
+import { useAdminNotification } from '@/hooks/admin-notification';
 
 const FooterStyleManager = () => {
   const { footerStyle, footerData, loading, handleStyleChange, handleDataChange, saveFooterStyle } = useFooterStyle();
+  const adminNotification = useAdminNotification();
 
   if (loading) {
     return <div className="p-4">Chargement des styles...</div>;
   }
+
+  const handleSave = () => {
+    saveFooterStyle();
+  };
 
   return (
     <Card>
@@ -95,7 +101,7 @@ const FooterStyleManager = () => {
         </Tabs>
 
         <div className="mt-6 flex justify-end">
-          <Button onClick={saveFooterStyle}>Enregistrer les styles</Button>
+          <Button onClick={handleSave}>Enregistrer les styles</Button>
         </div>
       </CardContent>
     </Card>

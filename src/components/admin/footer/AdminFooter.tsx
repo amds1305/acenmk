@@ -3,13 +3,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { FooterStyleManager } from './';
-import { LegalContentManager } from './';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { FooterStyleManager } from './style';
+import { LegalContentManager } from './legal';
 
 const AdminFooter = () => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("styles");
 
   return (

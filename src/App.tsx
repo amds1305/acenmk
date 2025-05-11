@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -67,6 +66,9 @@ function App() {
                   <Route path="/careers" element={<Careers />} />
                   <Route path="/faq" element={<Faq />} />
                   <Route path="/ace-job" element={<AceJob />} />
+                  
+                  {/* Routes pour les pages légales */}
+                  <Route path="/:slug" element={<LegalPageRoute />} />
                   
                   {/* Routes d'administration */}
                   <Route path="/admin/login" element={<AdminLogin />} />

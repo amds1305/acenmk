@@ -7,7 +7,16 @@ export const useAdminNotification = () => {
   
   if (context === undefined) {
     console.warn("useAdminNotification doit être utilisé à l'intérieur d'un AdminNotificationProvider");
-    return null;
+    return {
+      showNotification: () => {},
+      showSaveSuccess: () => {},
+      showSaveError: () => {},
+      showProcessing: () => {},
+      isProcessing: false,
+      saveStatus: "idle",
+      setSaveStatus: () => {},
+      resetSaveStatus: () => {},
+    };
   }
   
   return context;

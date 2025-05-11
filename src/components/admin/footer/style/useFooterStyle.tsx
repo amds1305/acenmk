@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { FooterStyle, defaultFooterStyle } from './types';
+import { useAdminNotification } from '@/hooks/admin-notification';
 
 export const useFooterStyle = () => {
   const { toast } = useToast();
+  const adminNotification = useAdminNotification();
   const [footerStyle, setFooterStyle] = useState<FooterStyle>(defaultFooterStyle);
   const [footerData, setFooterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -120,6 +123,8 @@ export const useFooterStyle = () => {
 
   const saveFooterStyle = async () => {
     try {
+      adminNotification?.showProcessing();
+      
       // Ensure all required fields exist before saving
       const completeFooterStyle = mergeWithDefaults(defaultFooterStyle, footerStyle);
       
@@ -147,6 +152,7 @@ export const useFooterStyle = () => {
         if (dataError) throw dataError;
       }
 
+      adminNotification?.showSaveSuccess();
       toast({
         title: "Styles sauvegardés",
         description: "Les styles et données du pied de page ont été mis à jour avec succès"
@@ -157,8 +163,9 @@ export const useFooterStyle = () => {
         detail: { style: completeFooterStyle, data: footerData }
       }));
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la sauvegarde:", error);
+      adminNotification?.showSaveError(error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde des styles",
