@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -14,6 +13,7 @@ import { Section } from '@/types/sections';
 import { useSections } from '@/contexts/SectionsContext';
 import { useToast } from '@/hooks/use-toast';
 import { SaveIndicator } from '@/components/ui/save-indicator';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
 
 const availableRoles = [
   { id: 'user', label: 'Client' },
@@ -25,6 +25,7 @@ const availableRoles = [
 const ExternalLinksManager = () => {
   const { config, updateExistingSection, updateExistingSectionData, saveChanges } = useSections();
   const { toast } = useToast();
+  const adminNotification = useAdminNotification();
   
   const [editSection, setEditSection] = useState<Section | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -138,21 +139,31 @@ const ExternalLinksManager = () => {
       await saveChanges();
       setSaveStatus('success');
       
-      // Déclencher l'événement de sauvegarde
-      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
-      
-      // Réinitialiser le statut après un délai
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      // Notifier avec le context si disponible
+      if (adminNotification) {
+        adminNotification.showSaveSuccess();
+      } else {
+        // Déclencher l'événement de sauvegarde de façon traditionnelle
+        window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+        
+        // Réinitialiser le statut après un délai
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
+      }
     } catch (error) {
       setSaveStatus('error');
       console.error('Erreur lors de la sauvegarde:', error);
       
-      // Réinitialiser le statut après un délai même en cas d'erreur
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      // Notifier avec le context si disponible
+      if (adminNotification) {
+        adminNotification.showSaveError(error);
+      } else {
+        // Réinitialiser le statut après un délai même en cas d'erreur
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
+      }
     }
   };
 

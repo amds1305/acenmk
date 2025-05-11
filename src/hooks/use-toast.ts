@@ -1,10 +1,11 @@
 
 import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast";
 import {
-  useToast as useToastUI
-} from "@/components/ui/use-toast";
+  useToast as useToastUI,
+  toast as toastFunction
+} from "@radix-ui/react-toast";
 
 export type { Toast, ToastActionElement, ToastProps };
 
 export const useToast = useToastUI;
-export { toast } from "@/components/ui/use-toast";
+export const toast = toastFunction;

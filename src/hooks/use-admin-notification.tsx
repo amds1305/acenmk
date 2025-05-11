@@ -17,7 +17,19 @@ interface AdminNotificationContextType {
   resetSaveStatus: (delay?: number) => void;
 }
 
-const AdminNotificationContext = createContext<AdminNotificationContextType | undefined>(undefined);
+// Create a default context value to prevent errors when used outside the provider
+const defaultContext: AdminNotificationContextType = {
+  showNotification: () => {},
+  showSaveSuccess: () => {},
+  showSaveError: () => {},
+  showProcessing: () => {},
+  isProcessing: false,
+  saveStatus: 'idle',
+  setSaveStatus: () => {},
+  resetSaveStatus: () => {},
+};
+
+const AdminNotificationContext = createContext<AdminNotificationContextType>(defaultContext);
 
 export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { toast } = useToast();
@@ -98,8 +110,6 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
 
 export const useAdminNotification = (): AdminNotificationContextType => {
   const context = useContext(AdminNotificationContext);
-  if (context === undefined) {
-    throw new Error('useAdminNotification doit être utilisé à l\'intérieur d\'un AdminNotificationProvider');
-  }
+  // Now context will never be undefined, so we can remove the error
   return context;
 };

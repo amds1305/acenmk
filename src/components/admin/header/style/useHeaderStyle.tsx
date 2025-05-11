@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminNotification } from '@/hooks/use-admin-notification';
@@ -17,7 +18,8 @@ export interface UseHeaderStyleReturn {
 
 export const useHeaderStyle = (): UseHeaderStyleReturn => {
   const { toast } = useToast();
-  const { showSaveSuccess, showSaveError } = useAdminNotification();
+  // Use the hook safely with optional chaining
+  const adminNotification = useAdminNotification();
   
   // Use the context hook to get the actual implementation
   const {
