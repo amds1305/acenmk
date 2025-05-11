@@ -38,6 +38,7 @@ export const ContentForm: React.FC<ContentFormProps> = ({ contentKey, content, u
           <WysiwygEditor
             content={content.content}
             onChange={(value) => updateContent(contentKey, 'content', value)}
+            placeholder="Entrez le contenu ici..."
           />
         </div>
       </div>

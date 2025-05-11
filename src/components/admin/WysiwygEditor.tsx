@@ -7,7 +7,6 @@ export interface WysiwygEditorProps {
   placeholder?: string;
 }
 
-// Export as both named and default export to maintain compatibility
 export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ content, onChange, placeholder }) => {
   return (
     <div className="p-4">

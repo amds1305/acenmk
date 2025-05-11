@@ -14,6 +14,13 @@ export interface LegalContents {
   [key: string]: LegalContent;
 }
 
+export const contentSlugs = {
+  legalNotice: 'legal-notice',
+  privacyPolicy: 'privacy-policy',
+  termsOfUse: 'terms-of-use',
+  cookiesPolicy: 'cookies-policy'
+};
+
 export const defaultLegalContents: LegalContents = {
   legalNotice: {
     title: "Mentions légales",
