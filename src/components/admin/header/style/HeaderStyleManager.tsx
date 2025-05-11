@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -122,5 +121,10 @@ const HeaderStyleManager = () => {
     </CardContent>
   );
 };
+
+// Importation nécessaire
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 
 export default HeaderStyleManager;

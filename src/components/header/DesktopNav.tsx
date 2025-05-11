@@ -44,6 +44,10 @@ const DesktopNav = ({
     color: headerStyle?.textColor,
     fontFamily: headerStyle?.fontFamily,
     fontSize: headerStyle?.fontSize,
+    fontWeight: headerStyle?.fontWeight,
+    letterSpacing: headerStyle?.letterSpacing,
+    textTransform: headerStyle?.textTransform as any,
+    transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
   
   const navItemHoverStyle = {
@@ -54,18 +58,25 @@ const DesktopNav = ({
   const navItemActiveStyle = {
     color: headerStyle?.activeColor,
     backgroundColor: headerStyle?.menuActiveBgColor,
+    fontWeight: headerStyle?.fontWeight,
+    borderRadius: headerStyle?.menuBorderRadius,
   };
   
   const socialIconStyle = {
     color: headerStyle?.socialIconColor,
     backgroundColor: headerStyle?.socialIconBgColor,
     borderColor: headerStyle?.socialIconBorderColor,
+    fontSize: headerStyle?.socialIconSize,
+    marginRight: headerStyle?.socialIconSpacing,
+    transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
   
   const utilityIconStyle = {
     color: headerStyle?.utilityIconColor,
     backgroundColor: headerStyle?.utilityIconBgColor,
     borderColor: headerStyle?.utilityIconBorderColor,
+    fontSize: headerStyle?.utilityIconSize,
+    transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
   
   return (
@@ -86,7 +97,12 @@ const DesktopNav = ({
                   ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
                   : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5"
               )}
-              style={isActive(link.href) ? { ...navItemStyle, ...navItemActiveStyle } : navItemStyle}
+              style={{
+                ...navItemStyle,
+                ...(isActive(link.href) ? navItemActiveStyle : {}),
+                transition: headerStyle?.menuTransition || 'all 0.3s ease',
+                borderRadius: headerStyle?.menuBorderRadius || '0.375rem',
+              }}
             >
               {IconComponent ? (
                 <IconComponent size={18} className="mx-auto" />
@@ -98,7 +114,8 @@ const DesktopNav = ({
                 isActive(link.href) ? "w-8" : "w-0 group-hover:w-8"
               )} 
               style={{
-                backgroundColor: isActive(link.href) ? headerStyle?.activeColor : headerStyle?.hoverColor
+                backgroundColor: isActive(link.href) ? headerStyle?.activeColor : headerStyle?.hoverColor,
+                transition: `width ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
               }}
               />
             </a>
@@ -126,7 +143,7 @@ const DesktopNav = ({
                 e.currentTarget.style.color = headerStyle?.socialIconColor;
               }}
             >
-              <link.icon size={18} />
+              <link.icon size={parseInt(headerStyle?.socialIconSize || '18px')} />
             </a>
           ))}
         </div>
@@ -148,7 +165,7 @@ const DesktopNav = ({
             e.currentTarget.style.color = headerStyle?.utilityIconColor;
           }}
         >
-          <Search size={18} />
+          <Search size={parseInt(headerStyle?.utilityIconSize || '18px')} />
           <span className="sr-only">Rechercher</span>
         </Button>
       </div>

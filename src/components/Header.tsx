@@ -10,6 +10,7 @@ import MobileMenu from './header/MobileMenu';
 import { useHeader } from './header/useHeader';
 import ThemeSelector from './header/ThemeSelector';
 import UserMenu from './header/UserMenu';
+import { HeaderProvider } from '@/contexts/HeaderContext';
 import { HeaderStyleProvider } from '@/contexts/HeaderStyleContext';
 
 // Configuration par défaut du header - À terme, cela pourrait être chargé depuis une API
@@ -19,8 +20,27 @@ const defaultHeaderConfig = {
 };
 
 const HeaderContent = () => {
-  const { isScrolled, mobileMenuOpen, searchOpen, toggleMobileMenu, toggleSearch, navLinks, socialLinks, closeMobileMenu, headerConfig = defaultHeaderConfig } = useHeader();
+  const { 
+    isScrolled, 
+    mobileMenuOpen, 
+    searchOpen, 
+    toggleMobileMenu, 
+    toggleSearch, 
+    navLinks, 
+    socialLinks, 
+    closeMobileMenu, 
+    headerConfig = defaultHeaderConfig, 
+    headerStyle 
+  } = useHeader();
   const { theme, toggleTheme } = useTheme();
+  
+  // Appliquer les styles personnalisés au header lors du défilement
+  const scrolledHeaderStyle = isScrolled ? {
+    backgroundColor: headerStyle?.scrolledBgColor || 'rgba(255, 255, 255, 0.8)',
+    color: headerStyle?.scrolledTextColor || '#333333',
+    borderColor: headerStyle?.scrolledBorderColor || '#e5e7eb',
+    boxShadow: headerStyle?.scrolledShadow || '0 2px 4px rgba(0, 0, 0, 0.05)',
+  } : {};
   
   return (
     <header 
@@ -29,8 +49,12 @@ const HeaderContent = () => {
         isScrolled ? 'header-glass border-b border-gray-200 dark:border-gray-800 backdrop-blur-md' : 'bg-transparent',
         searchOpen && 'h-32'
       )}
+      style={{
+        transition: `all ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
+        ...scrolledHeaderStyle
+      }}
     >
-      <div className="header-container h-16">
+      <div className="header-container h-16" style={{ padding: headerStyle?.padding }}>
         <Logo />
         
         {/* Desktop Navigation and Social Links */}
@@ -78,9 +102,11 @@ const HeaderContent = () => {
 
 const Header = () => {
   return (
-    <HeaderStyleProvider>
-      <HeaderContent />
-    </HeaderStyleProvider>
+    <HeaderProvider>
+      <HeaderStyleProvider>
+        <HeaderContent />
+      </HeaderStyleProvider>
+    </HeaderProvider>
   );
 };
 

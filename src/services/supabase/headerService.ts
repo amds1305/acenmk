@@ -176,7 +176,7 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
       dropShadow: headerStyleData.drop_shadow,
       showThemeSelector: true,
       
-      // Utiliser les nouvelles colonnes de la base de données
+      // Propriétés de style basiques
       menuHoverBgColor: headerStyleData.menu_hover_bg_color,
       menuActiveBgColor: headerStyleData.menu_active_bg_color,
       socialIconColor: headerStyleData.social_icon_color,
@@ -186,7 +186,29 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
       utilityIconColor: headerStyleData.utility_icon_color,
       utilityIconHoverColor: headerStyleData.utility_icon_hover_color,
       utilityIconBgColor: headerStyleData.utility_icon_bg_color,
-      utilityIconBorderColor: headerStyleData.utility_icon_border_color
+      utilityIconBorderColor: headerStyleData.utility_icon_border_color,
+      
+      // Nouvelles propriétés typographiques avancées
+      fontWeight: headerStyleData.font_weight || '500',
+      letterSpacing: headerStyleData.letter_spacing || 'normal',
+      textTransform: headerStyleData.text_transform || 'none',
+      
+      // Nouvelles propriétés d'animation
+      transitionDuration: headerStyleData.transition_duration || '0.3s',
+      transitionTiming: headerStyleData.transition_timing || 'ease',
+      
+      // Nouvelles propriétés de style avancées
+      menuTransition: headerStyleData.menu_transition || 'all 0.3s ease',
+      menuBorderRadius: headerStyleData.menu_border_radius || '0.375rem',
+      socialIconSize: headerStyleData.social_icon_size || '18px',
+      socialIconSpacing: headerStyleData.social_icon_spacing || '0.75rem',
+      utilityIconSize: headerStyleData.utility_icon_size || '18px',
+      
+      // Nouvelles propriétés d'état lors du défilement
+      scrolledBgColor: headerStyleData.scrolled_bg_color || 'rgba(255, 255, 255, 0.8)',
+      scrolledTextColor: headerStyleData.scrolled_text_color || '#333333',
+      scrolledBorderColor: headerStyleData.scrolled_border_color || '#e5e7eb',
+      scrolledShadow: headerStyleData.scrolled_shadow || '0 2px 4px rgba(0, 0, 0, 0.05)'
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config

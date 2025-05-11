@@ -60,13 +60,13 @@ export interface HeaderStyle {
   dropShadow: boolean;
   showThemeSelector: boolean;
   
-  // Styles for menu elements
+  // Styles pour menu elements
   menuHoverBgColor: string;
   menuActiveBgColor: string;
   menuTransition: string;
   menuBorderRadius: string;
   
-  // Styles for social icons
+  // Styles pour social icons
   socialIconColor: string;
   socialIconHoverColor: string;
   socialIconBgColor: string;
@@ -74,7 +74,7 @@ export interface HeaderStyle {
   socialIconSize: string;
   socialIconSpacing: string;
   
-  // Styles for utility icons
+  // Styles pour utility icons
   utilityIconColor: string;
   utilityIconHoverColor: string;
   utilityIconBgColor: string;
@@ -95,4 +95,16 @@ export interface HeaderStyle {
   fontWeight: string;
   letterSpacing: string;
   textTransform: string;
+}
+
+export interface ActionButton {
+  id: string;
+  label: string;
+  href: string;
+  icon?: string | LucideIcon;
+  variant: string;
+  isVisible: boolean;
+  requiresAuth?: boolean;
+  requiredRole?: string;
+  order: number;
 }

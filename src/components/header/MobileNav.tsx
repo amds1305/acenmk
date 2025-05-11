@@ -28,6 +28,8 @@ const MobileNav: React.FC<MobileNavProps> = ({
     color: headerStyle?.utilityIconColor,
     backgroundColor: headerStyle?.utilityIconBgColor,
     borderColor: headerStyle?.utilityIconBorderColor,
+    fontSize: headerStyle?.utilityIconSize,
+    transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
   
   return (

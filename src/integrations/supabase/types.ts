@@ -453,24 +453,38 @@ export type Database = {
           drop_shadow: boolean | null
           font_family: string
           font_size: string
+          font_weight: string | null
           glassmorphism: boolean | null
           hover_color: string
           id: string
+          letter_spacing: string | null
           menu_active_bg_color: string | null
+          menu_border_radius: string | null
           menu_hover_bg_color: string | null
+          menu_transition: string | null
           padding: string
+          scrolled_bg_color: string | null
+          scrolled_border_color: string | null
+          scrolled_shadow: string | null
+          scrolled_text_color: string | null
           social_icon_bg_color: string | null
           social_icon_border_color: string | null
           social_icon_color: string | null
           social_icon_hover_color: string | null
+          social_icon_size: string | null
+          social_icon_spacing: string | null
           sticky: boolean | null
           text_color: string
+          text_transform: string | null
+          transition_duration: string | null
+          transition_timing: string | null
           transparent: boolean | null
           updated_at: string
           utility_icon_bg_color: string | null
           utility_icon_border_color: string | null
           utility_icon_color: string | null
           utility_icon_hover_color: string | null
+          utility_icon_size: string | null
         }
         Insert: {
           active_color: string
@@ -481,24 +495,38 @@ export type Database = {
           drop_shadow?: boolean | null
           font_family: string
           font_size: string
+          font_weight?: string | null
           glassmorphism?: boolean | null
           hover_color: string
           id?: string
+          letter_spacing?: string | null
           menu_active_bg_color?: string | null
+          menu_border_radius?: string | null
           menu_hover_bg_color?: string | null
+          menu_transition?: string | null
           padding: string
+          scrolled_bg_color?: string | null
+          scrolled_border_color?: string | null
+          scrolled_shadow?: string | null
+          scrolled_text_color?: string | null
           social_icon_bg_color?: string | null
           social_icon_border_color?: string | null
           social_icon_color?: string | null
           social_icon_hover_color?: string | null
+          social_icon_size?: string | null
+          social_icon_spacing?: string | null
           sticky?: boolean | null
           text_color: string
+          text_transform?: string | null
+          transition_duration?: string | null
+          transition_timing?: string | null
           transparent?: boolean | null
           updated_at?: string
           utility_icon_bg_color?: string | null
           utility_icon_border_color?: string | null
           utility_icon_color?: string | null
           utility_icon_hover_color?: string | null
+          utility_icon_size?: string | null
         }
         Update: {
           active_color?: string
@@ -509,24 +537,38 @@ export type Database = {
           drop_shadow?: boolean | null
           font_family?: string
           font_size?: string
+          font_weight?: string | null
           glassmorphism?: boolean | null
           hover_color?: string
           id?: string
+          letter_spacing?: string | null
           menu_active_bg_color?: string | null
+          menu_border_radius?: string | null
           menu_hover_bg_color?: string | null
+          menu_transition?: string | null
           padding?: string
+          scrolled_bg_color?: string | null
+          scrolled_border_color?: string | null
+          scrolled_shadow?: string | null
+          scrolled_text_color?: string | null
           social_icon_bg_color?: string | null
           social_icon_border_color?: string | null
           social_icon_color?: string | null
           social_icon_hover_color?: string | null
+          social_icon_size?: string | null
+          social_icon_spacing?: string | null
           sticky?: boolean | null
           text_color?: string
+          text_transform?: string | null
+          transition_duration?: string | null
+          transition_timing?: string | null
           transparent?: boolean | null
           updated_at?: string
           utility_icon_bg_color?: string | null
           utility_icon_border_color?: string | null
           utility_icon_color?: string | null
           utility_icon_hover_color?: string | null
+          utility_icon_size?: string | null
         }
         Relationships: []
       }

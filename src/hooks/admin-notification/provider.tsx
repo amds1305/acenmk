@@ -1,87 +1,63 @@
 
-import React, { useState, useEffect } from 'react';
-import { useToast } from '../use-toast';
-import { AdminNotificationContext, defaultContext } from './context';
-import { NotificationType, SaveStatus } from './types';
+import React, { useState, useCallback } from "react";
+import { AdminNotificationContext, defaultContext } from "./context";
+import { NotificationType, SaveStatus } from "./types";
+import { useToast } from "@/hooks/use-toast";
 
-export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Utiliser le try-catch pour éviter les erreurs si useToast n'est pas disponible
-  let toastHook;
-  try {
-    toastHook = useToast();
-  } catch (e) {
-    console.warn('useToast is not available in AdminNotificationProvider, notifications will be disabled');
-    toastHook = { toast: () => {} };
-  }
-  
-  const { toast } = toastHook;
+interface AdminNotificationProviderProps {
+  children: React.ReactNode;
+}
+
+export const AdminNotificationProvider: React.FC<AdminNotificationProviderProps> = ({ children }) => {
+  const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-  
-  // Écouter les événements de modification
-  useEffect(() => {
-    const handleChangesSaved = () => {
-      showSaveSuccess();
-    };
-    
-    window.addEventListener('admin-changes-saved', handleChangesSaved);
-    
-    return () => {
-      window.removeEventListener('admin-changes-saved', handleChangesSaved);
-    };
-  }, []);
-  
-  const showNotification = (type: NotificationType, title: string, message: string) => {
-    const variant = type === 'error' ? 'destructive' : 'default';
-    
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+
+  const showNotification = useCallback((type: NotificationType, title: string, message: string) => {
     toast({
       title,
       description: message,
-      variant,
+      variant: type === "error" ? "destructive" : "default",
     });
-    
-    // Afficher une notification dans la console également pour le débogage
-    console.log(`[Admin] ${type}: ${title} - ${message}`);
-  };
-  
-  const resetSaveStatus = (delay = 3000) => {
-    setTimeout(() => {
-      setSaveStatus('idle');
-    }, delay);
-  };
-  
-  const showSaveSuccess = () => {
-    setIsProcessing(false);
-    setSaveStatus('success');
-    showNotification('success', 'Modification enregistrée', 'Les changements ont été appliqués avec succès.');
-    resetSaveStatus();
-  };
-  
-  const showSaveError = (error?: any) => {
-    setIsProcessing(false);
-    setSaveStatus('error');
-    showNotification('error', 'Erreur', 'Une erreur est survenue lors de l\'enregistrement des modifications.');
-    console.error('Erreur de sauvegarde:', error);
-    resetSaveStatus();
-  };
-  
-  const showProcessing = () => {
+  }, [toast]);
+
+  const showSaveSuccess = useCallback(() => {
+    setSaveStatus("success");
+    showNotification("success", "Modifications enregistrées", "Vos modifications ont été enregistrées avec succès.");
+  }, [showNotification]);
+
+  const showSaveError = useCallback((error?: any) => {
+    setSaveStatus("error");
+    const errorMessage = error ? `Erreur: ${error.message || JSON.stringify(error)}` : "Une erreur est survenue lors de l'enregistrement.";
+    showNotification("error", "Erreur lors de l'enregistrement", errorMessage);
+  }, [showNotification]);
+
+  const showProcessing = useCallback(() => {
     setIsProcessing(true);
-    setSaveStatus('saving');
-    showNotification('info', 'Traitement en cours', 'Vos modifications sont en cours de traitement...');
-  };
-  
+    setSaveStatus("saving");
+  }, []);
+
+  const resetSaveStatus = useCallback((delay: number = 3000) => {
+    if (saveStatus !== "idle") {
+      setTimeout(() => {
+        setSaveStatus("idle");
+      }, delay);
+    }
+  }, [saveStatus]);
+
   return (
-    <AdminNotificationContext.Provider value={{
-      showNotification,
-      showSaveSuccess,
-      showSaveError,
-      showProcessing,
-      isProcessing,
-      saveStatus,
-      setSaveStatus,
-      resetSaveStatus
-    }}>
+    <AdminNotificationContext.Provider
+      value={{
+        showNotification,
+        showSaveSuccess,
+        showSaveError,
+        showProcessing,
+        isProcessing,
+        saveStatus,
+        setSaveStatus,
+        resetSaveStatus,
+      }}
+    >
       {children}
     </AdminNotificationContext.Provider>
   );
