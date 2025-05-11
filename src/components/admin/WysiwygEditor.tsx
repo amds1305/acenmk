@@ -1,6 +1,22 @@
 
-import React from 'react';
-import ReactQuill from 'react-quill';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Import dynamique de ReactQuill pour éviter les problèmes de SSR
+const ReactQuill = dynamic(
+  () => import('react-quill').then(mod => mod.default),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[300px] border rounded-md p-4 bg-gray-50">
+        <Skeleton className="h-full w-full" />
+      </div>
+    )
+  }
+);
+
+// Import du CSS de Quill
 import 'react-quill/dist/quill.snow.css';
 
 interface WysiwygEditorProps {
@@ -9,6 +25,14 @@ interface WysiwygEditorProps {
 }
 
 export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange }) => {
+  // État local pour gérer le chargement de l'éditeur
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -26,6 +50,23 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange })
     'list', 'bullet', 'indent',
     'link'
   ];
+
+  // Si le composant n'est pas monté, afficher un placeholder
+  if (!mounted) {
+    return (
+      <div className="min-h-[300px] border rounded-md p-4 bg-gray-50">
+        <div className="animate-pulse flex space-x-4">
+          <div className="flex-1 space-y-4 py-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ReactQuill 
