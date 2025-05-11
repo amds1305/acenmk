@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // Navigation items for admin sidebar
-export const adminNavItems: (NavItem | { divider?: boolean })[] = [
+const adminNavItems: (NavItem | { divider?: boolean })[] = [
   {
     path: '/admin',
     label: 'Tableau de bord',
@@ -69,7 +69,7 @@ export const adminNavItems: (NavItem | { divider?: boolean })[] = [
   },
 ];
 
-// Function to filter navigation items based on access
+// Function to filter navigation items based on access - exported but not used in Sidebar now
 export const filterNavItems = (items: (NavItem | { divider?: boolean })[], 
   hasAccess: (path: string) => boolean): (NavItem | { divider?: boolean })[] => {
   return items.filter(item => {

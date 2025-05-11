@@ -108,7 +108,7 @@ const SectionsManager: React.FC = () => {
         )}
         
         <AddSectionDialog
-          isOpen={dialogOpen}
+          open={dialogOpen}
           setIsOpen={setDialogOpen}
           newSection={newSection}
           setNewSection={setNewSection}

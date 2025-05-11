@@ -20,9 +20,9 @@ const NavLinkDialog: React.FC<NavLinkDialogProps> = ({
     icon: null,
     parentId: null,
     order: 0,
-    is_visible: true,
-    requires_auth: false,
-    is_external: false
+    isVisible: true,
+    requiresAuth: false,
+    isExternal: false
   });
 
   // Update currentLink when editingLink changes
@@ -38,9 +38,9 @@ const NavLinkDialog: React.FC<NavLinkDialogProps> = ({
         icon: null,
         parentId: null,
         order: navLinks.length,
-        is_visible: true,
-        requires_auth: false,
-        is_external: false
+        isVisible: true,
+        requiresAuth: false,
+        isExternal: false
       });
     }
   }, [editingLink, navLinks]);

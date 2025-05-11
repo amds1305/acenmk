@@ -61,7 +61,7 @@ const availableTemplates: Template[] = [
 export function TemplateSelector() {
   const { toast } = useToast();
   const { config, updateTemplateType, saveChanges } = useSections();
-  const [selectedTemplate, setSelectedTemplate] = useState<string>(config.template || 'business');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(config.templateType || 'business');
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -185,6 +185,6 @@ export function TemplateSelector() {
       </CardContent>
     </Card>
   );
-}
+};
 
 export default TemplateSelector;

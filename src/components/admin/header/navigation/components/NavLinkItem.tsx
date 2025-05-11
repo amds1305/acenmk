@@ -15,7 +15,7 @@ export const NavLinkItem: React.FC<NavLinkItemProps> = ({
   onToggleVisibility,
   onMove
 }) => {
-  // Use icon names as string instead of React components
+  // Show the icon name as string
   const getIconDescription = (iconName: string | null) => {
     return iconName ? `Icône: ${iconName}` : 'Sans icône';
   };
@@ -37,15 +37,15 @@ export const NavLinkItem: React.FC<NavLinkItemProps> = ({
           </div>
           
           <div className="flex items-center space-x-1">
-            {navLink.requires_auth && <Badge variant="secondary">Auth</Badge>}
-            {navLink.is_external && <Badge variant="outline">Externe</Badge>}
+            {navLink.requiresAuth && <Badge variant="secondary">Auth</Badge>}
+            {navLink.isExternal && <Badge variant="outline">Externe</Badge>}
             
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onToggleVisibility(navLink.id)}
             >
-              {navLink.is_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              {navLink.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </Button>
             
             <Button variant="ghost" size="icon" onClick={() => onEdit(navLink)}>

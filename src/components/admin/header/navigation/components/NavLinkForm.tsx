@@ -8,11 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { NavLink } from '../../../header/types';
 import { NavLinkFormProps } from '../types';
 
-// Define icon type as string only
-type IconName = string;
-
-// Mock icons as strings (not React components)
-const availableIcons: IconName[] = [
+// Define icon names as strings
+const availableIcons: string[] = [
   'Home', 'Info', 'Mail', 'Phone', 'Settings', 'User', 'Users',
   'FileText', 'ShoppingCart', 'Calendar', 'Star', 'Heart',
   'Link', 'ExternalLink', 'Globe', 'Map', 'BookOpen'
@@ -65,7 +62,7 @@ export const NavLinkForm: React.FC<NavLinkFormProps> = ({
           <Label htmlFor="link-icon">Icône (optionnel)</Label>
           <Select 
             value={navLink.icon || ''} 
-            onValueChange={(value: string) => updateNavLink('icon', value)}
+            onValueChange={(value: string) => updateNavLink('icon', value || null)}
           >
             <SelectTrigger id="link-icon">
               <SelectValue placeholder="Sélectionner une icône" />
@@ -105,8 +102,8 @@ export const NavLinkForm: React.FC<NavLinkFormProps> = ({
       <div className="flex items-center space-x-2">
         <Switch 
           id="link-auth" 
-          checked={navLink.requires_auth}
-          onCheckedChange={checked => updateNavLink('requires_auth', checked)}
+          checked={navLink.requiresAuth}
+          onCheckedChange={checked => updateNavLink('requiresAuth', checked)}
         />
         <Label htmlFor="link-auth">Authentification requise</Label>
       </div>
@@ -114,8 +111,8 @@ export const NavLinkForm: React.FC<NavLinkFormProps> = ({
       <div className="flex items-center space-x-2">
         <Switch 
           id="link-external" 
-          checked={navLink.is_external}
-          onCheckedChange={checked => updateNavLink('is_external', checked)}
+          checked={navLink.isExternal}
+          onCheckedChange={checked => updateNavLink('isExternal', checked)}
         />
         <Label htmlFor="link-external">Lien externe</Label>
       </div>
