@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ContentForm } from './ContentForm';
 import { useLegalContent } from './useLegalContent';
+import { LegalContents } from './types';
 
 const LegalContentManager: React.FC = () => {
   const {

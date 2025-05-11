@@ -1,336 +1,432 @@
-
-import React, { useState } from 'react';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ExternalLink, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
-import { Section } from '@/types/sections';
-import { useSections } from '@/contexts/SectionsContext';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { SaveIndicator } from '@/components/ui/save-indicator';
+import { supabase } from '@/lib/supabase';
+import { useSections } from '@/contexts/sections/SectionsContext';
+import { ExternalLinkSectionData, Section } from '@/types/sections';
+import { Trash2, Plus, ExternalLink } from 'lucide-react';
+import { useAdminNotification } from '@/hooks/use-admin-notification';
 
-const availableRoles = [
-  { id: 'user', label: 'Client' },
-  { id: 'client_premium', label: 'Client Premium' },
-  { id: 'admin', label: 'Admin' },
-  { id: 'super_admin', label: 'Super Admin' },
-];
+interface ExternalLink {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  icon?: string;
+  openInNewTab: boolean;
+  requiresAuth: boolean;
+  allowedRoles: string[];
+}
 
-const ExternalLinksManager = () => {
-  const { config, updateExistingSection, updateExistingSectionData, saveChanges } = useSections();
+const ExternalLinksManager: React.FC = () => {
   const { toast } = useToast();
+  const { showSaveSuccess, showSaveError } = useAdminNotification();
+  const { config, addNewSection, updateExistingSection, removeExistingSection } = useSections();
   
-  const [editSection, setEditSection] = useState<Section | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
-
-  // Filtrer uniquement les sections de type 'external-link'
-  const externalLinks = config.sections.filter(section => section.type === 'external-link');
-
-  // Formulaire d'édition
-  const [editForm, setEditForm] = useState({
-    title: '',
-    externalUrl: '',
-    requiresAuth: false,
-    allowedRoles: [] as string[]
-  });
-
-  // Ouvrir le dialogue d'édition
-  const handleEdit = (section: Section) => {
-    const sectionData = config.sectionData[section.id] || {};
-    setEditSection(section);
-    setEditForm({
-      title: section.title,
-      externalUrl: section.externalUrl || '',
-      requiresAuth: section.requiresAuth || false,
-      allowedRoles: section.allowedRoles || []
-    });
-    setDialogOpen(true);
-  };
-
-  // Gérer la mise à jour d'une section
-  const handleUpdateSection = async () => {
-    if (!editSection) return;
+  const [links, setLinks] = useState<ExternalLink[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // État pour le formulaire d'ajout/édition
+  const [editingLink, setEditingLink] = useState<ExternalLink | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Charger les liens externes existants
+  useEffect(() => {
+    const loadExternalLinks = () => {
+      const externalLinkSections = config.sections.filter(section => section.type === 'external-link');
+      
+      const loadedLinks = externalLinkSections.map(section => {
+        const sectionData = config.sectionData[section.id] as ExternalLinkSectionData;
+        return {
+          id: section.id,
+          title: section.title,
+          url: sectionData?.url || '',
+          description: sectionData?.description || '',
+          icon: sectionData?.icon || '',
+          openInNewTab: sectionData?.openInNewTab !== false,
+          requiresAuth: section.requiresAuth || false,
+          allowedRoles: section.allowedRoles || []
+        };
+      });
+      
+      setLinks(loadedLinks);
+    };
     
-    try {
-      // Mettre à jour la section
-      await updateExistingSection(editSection.id, {
-        title: editForm.title,
-        externalUrl: editForm.externalUrl,
-        requiresAuth: editForm.requiresAuth,
-        allowedRoles: editForm.allowedRoles
-      });
-      
-      // Mettre à jour les données de la section
-      await updateExistingSectionData(editSection.id, {
-        url: editForm.externalUrl,
-        title: editForm.title,
-        requiresAuth: editForm.requiresAuth,
-        allowedRoles: editForm.allowedRoles
-      });
-      
-      // Fermer le dialogue
-      setDialogOpen(false);
-      
-      toast({
-        title: "Succès",
-        description: "Le lien externe a été mis à jour"
-      });
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du lien:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour le lien externe",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Gérer la bascule de visibilité
-  const handleToggleVisibility = async (section: Section) => {
-    try {
-      await updateExistingSection(section.id, {
-        visible: !section.visible
-      });
-      
-      toast({
-        title: "Succès",
-        description: `Le lien est maintenant ${!section.visible ? 'visible' : 'masqué'}`
-      });
-    } catch (error) {
-      console.error('Erreur lors de la modification de la visibilité:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de modifier la visibilité",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Gérer la sélection d'un rôle
-  const handleRoleToggle = (roleId: string) => {
-    setEditForm(prev => {
-      const isSelected = prev.allowedRoles.includes(roleId);
-      if (isSelected) {
-        return {
-          ...prev,
-          allowedRoles: prev.allowedRoles.filter(id => id !== roleId)
-        };
-      } else {
-        return {
-          ...prev,
-          allowedRoles: [...prev.allowedRoles, roleId]
-        };
+    loadExternalLinks();
+  }, [config]);
+  
+  // Charger les rôles disponibles
+  useEffect(() => {
+    const loadRoles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('roles')
+          .select('name')
+          .order('name');
+          
+        if (error) throw error;
+        
+        if (data) {
+          setRoles(data.map(role => role.name));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des rôles:', error);
       }
-    });
-  };
-
-  // Sauvegarder toutes les modifications
-  const handleSaveAll = async () => {
+    };
+    
+    loadRoles();
+  }, []);
+  
+  // Ajouter un nouveau lien externe
+  const addNewExternalLink = (newLink: Omit<ExternalLink, 'id'>) => {
     try {
-      setSaveStatus('saving');
-      await saveChanges();
-      setSaveStatus('success');
+      setIsLoading(true);
       
-      // Déclencher l'événement de sauvegarde
-      window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+      // Générer un ID unique
+      const linkId = `external-link-${Date.now()}`;
       
-      // Réinitialiser le statut après un délai
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      // Créer une nouvelle section
+      const newSection: Section = {
+        id: linkId,
+        type: 'external-link',
+        title: newLink.title,
+        visible: true,
+        order: config.sections.length + 1,
+        externalUrl: newLink.url,
+        requiresAuth: newLink.requiresAuth,
+        allowedRoles: newLink.allowedRoles
+      };
+      
+      // Créer les données de section
+      const sectionData: ExternalLinkSectionData = {
+        url: newLink.url,
+        title: newLink.title,
+        description: newLink.description || '',
+        icon: newLink.icon || '',
+        openInNewTab: newLink.openInNewTab,
+        requiresAuth: newLink.requiresAuth,
+        allowedRoles: newLink.allowedRoles
+      };
+      
+      // Ajouter la section
+      addNewSection(newSection);
+      
+      // Mettre à jour l'état local
+      setLinks(prev => [...prev, { ...newLink, id: linkId }]);
+      
+      toast({
+        title: "Lien externe ajouté",
+        description: "Le lien externe a été ajouté avec succès."
+      });
+      
+      showSaveSuccess();
     } catch (error) {
-      setSaveStatus('error');
-      console.error('Erreur lors de la sauvegarde:', error);
-      
-      // Réinitialiser le statut après un délai même en cas d'erreur
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      console.error('Erreur lors de l\'ajout du lien externe:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout du lien externe."
+      });
+      showSaveError();
+    } finally {
+      setIsLoading(false);
     }
   };
-
+  
+  // Mettre à jour un lien externe existant
+  const updateExternalLink = (linkToUpdate: ExternalLink) => {
+    try {
+      setIsLoading(true);
+      
+      // Mettre à jour la section
+      const updatedSection: Section = {
+        id: linkToUpdate.id,
+        type: 'external-link',
+        title: linkToUpdate.title,
+        visible: true,
+        order: config.sections.find(s => s.id === linkToUpdate.id)?.order || 0,
+        externalUrl: linkToUpdate.url,
+        requiresAuth: linkToUpdate.requiresAuth,
+        allowedRoles: linkToUpdate.allowedRoles
+      };
+      
+      // Mettre à jour les données de section
+      const sectionData: ExternalLinkSectionData = {
+        url: linkToUpdate.url,
+        title: linkToUpdate.title,
+        description: linkToUpdate.description || '',
+        icon: linkToUpdate.icon || '',
+        openInNewTab: linkToUpdate.openInNewTab,
+        requiresAuth: linkToUpdate.requiresAuth,
+        allowedRoles: linkToUpdate.allowedRoles
+      };
+      
+      // Mettre à jour la section
+      updateExistingSection(updatedSection);
+      
+      // Mettre à jour l'état local
+      setLinks(prev => prev.map(link => 
+        link.id === linkToUpdate.id ? linkToUpdate : link
+      ));
+      
+      toast({
+        title: "Lien externe mis à jour",
+        description: "Le lien externe a été mis à jour avec succès."
+      });
+      
+      showSaveSuccess();
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du lien externe:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du lien externe."
+      });
+      showSaveError();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Supprimer un lien externe
+  const deleteExternalLink = (linkId: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Supprimer la section
+      removeExistingSection(linkId);
+      
+      // Mettre à jour l'état local
+      setLinks(prev => prev.filter(link => link.id !== linkId));
+      
+      toast({
+        title: "Lien externe supprimé",
+        description: "Le lien externe a été supprimé avec succès."
+      });
+      
+      showSaveSuccess();
+    } catch (error) {
+      console.error('Erreur lors de la suppression du lien externe:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du lien externe."
+      });
+      showSaveError();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Gérer la soumission du formulaire
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!editingLink) return;
+    
+    if (isEditing) {
+      updateExternalLink(editingLink);
+    } else {
+      addNewExternalLink(editingLink);
+    }
+    
+    // Réinitialiser le formulaire
+    setEditingLink(null);
+    setIsEditing(false);
+  };
+  
+  // Initialiser le formulaire pour l'ajout
+  const handleAddNew = () => {
+    setEditingLink({
+      id: '',
+      title: '',
+      url: '',
+      description: '',
+      icon: '',
+      openInNewTab: true,
+      requiresAuth: false,
+      allowedRoles: []
+    });
+    setIsEditing(false);
+  };
+  
+  // Initialiser le formulaire pour l'édition
+  const handleEdit = (link: ExternalLink) => {
+    setEditingLink({ ...link });
+    setIsEditing(true);
+  };
+  
+  // Annuler l'édition
+  const handleCancel = () => {
+    setEditingLink(null);
+    setIsEditing(false);
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Liens externes</h2>
-          <p className="text-sm text-muted-foreground">
-            Gérez les liens vers des applications web externes avec contrôle d'accès
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <SaveIndicator status={saveStatus} />
-          <Button onClick={handleSaveAll} disabled={saveStatus === 'saving'}>
-            Enregistrer tout
-          </Button>
-        </div>
-      </div>
-      
       <Card>
         <CardHeader>
-          <CardTitle>Liste des liens externes</CardTitle>
+          <CardTitle>Liens externes</CardTitle>
           <CardDescription>
-            Ces liens peuvent être configurés pour être accessibles uniquement par certains rôles d'utilisateurs
+            Gérez les liens externes qui apparaîtront dans la navigation de votre site.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {externalLinks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <ExternalLink className="mx-auto h-8 w-8 mb-2 opacity-50" />
-              <p>Aucun lien externe configuré</p>
-              <p className="text-sm mt-2">
-                Ajoutez des liens externes depuis le gestionnaire de sections
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Titre</TableHead>
-                  <TableHead>URL</TableHead>
-                  <TableHead>Accès</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {externalLinks.map((link) => (
-                  <TableRow key={link.id}>
-                    <TableCell className="font-medium">{link.title}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      <a 
-                        href={link.externalUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        {link.externalUrl}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </TableCell>
-                    <TableCell>
-                      {link.requiresAuth ? (
-                        <div className="space-y-1">
-                          <Badge variant="outline" className="bg-amber-100 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300">
-                            Authentification requise
-                          </Badge>
-                          {(link.allowedRoles && link.allowedRoles.length > 0) ? (
-                            <div className="flex flex-wrap gap-1">
-                              {link.allowedRoles.map(role => (
-                                <Badge key={role} variant="secondary" className="text-xs">
-                                  {availableRoles.find(r => r.id === role)?.label || role}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <Badge variant="outline" className="text-xs">
-                              Tous les utilisateurs connectés
-                            </Badge>
-                          )}
-                        </div>
-                      ) : (
-                        <Badge variant="outline" className="bg-green-100 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300">
-                          Public
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {link.visible ? (
-                        <Badge className="bg-green-500">Visible</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-muted-foreground">Masqué</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleToggleVisibility(link)}>
-                          {link.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(link)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
+          <div className="space-y-4">
+            {links.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                Aucun lien externe n'a été ajouté.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {links.map(link => (
+                  <div key={link.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{link.title}</div>
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        {link.url}
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-      
-      {/* Dialogue d'édition */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier le lien externe</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Titre du lien</Label>
-              <Input 
-                id="title" 
-                value={editForm.title}
-                onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="externalUrl">URL externe</Label>
-              <Input 
-                id="externalUrl" 
-                value={editForm.externalUrl}
-                onChange={(e) => setEditForm({...editForm, externalUrl: e.target.value})}
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="requiresAuth"
-                checked={editForm.requiresAuth}
-                onCheckedChange={(checked) => 
-                  setEditForm({...editForm, requiresAuth: checked})
-                }
-              />
-              <Label htmlFor="requiresAuth">Nécessite une authentification</Label>
-            </div>
-            
-            {editForm.requiresAuth && (
-              <div className="space-y-2">
-                <Label>Rôles autorisés</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {availableRoles.map(role => (
-                    <div key={role.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`role-edit-${role.id}`}
-                        checked={editForm.allowedRoles.includes(role.id)}
-                        onCheckedChange={() => handleRoleToggle(role.id)}
-                      />
-                      <Label htmlFor={`role-edit-${role.id}`}>{role.label}</Label>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEdit(link)}
+                      >
+                        Modifier
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => deleteExternalLink(link.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
+            
+            {!editingLink && (
+              <Button onClick={handleAddNew} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un lien externe
+              </Button>
+            )}
+            
+            {editingLink && (
+              <form onSubmit={handleSubmit} className="space-y-4 border rounded-lg p-4">
+                <h3 className="text-lg font-medium">
+                  {isEditing ? 'Modifier le lien externe' : 'Ajouter un lien externe'}
+                </h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="title">Titre</Label>
+                  <Input 
+                    id="title" 
+                    value={editingLink.title} 
+                    onChange={e => setEditingLink({...editingLink, title: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input 
+                    id="url" 
+                    type="url"
+                    value={editingLink.url} 
+                    onChange={e => setEditingLink({...editingLink, url: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description (optionnelle)</Label>
+                  <Textarea 
+                    id="description" 
+                    value={editingLink.description || ''} 
+                    onChange={e => setEditingLink({...editingLink, description: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="icon">Icône (optionnelle)</Label>
+                  <Input 
+                    id="icon" 
+                    value={editingLink.icon || ''} 
+                    onChange={e => setEditingLink({...editingLink, icon: e.target.value})}
+                    placeholder="Nom de l'icône Lucide (ex: ExternalLink)"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="openInNewTab" 
+                    checked={editingLink.openInNewTab}
+                    onCheckedChange={checked => setEditingLink({...editingLink, openInNewTab: checked as boolean})}
+                  />
+                  <Label htmlFor="openInNewTab">Ouvrir dans un nouvel onglet</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="requiresAuth" 
+                    checked={editingLink.requiresAuth}
+                    onCheckedChange={checked => setEditingLink({...editingLink, requiresAuth: checked as boolean})}
+                  />
+                  <Label htmlFor="requiresAuth">Nécessite une authentification</Label>
+                </div>
+                
+                {editingLink.requiresAuth && (
+                  <div className="space-y-2">
+                    <Label htmlFor="roles">Rôles autorisés</Label>
+                    <Select 
+                      value={editingLink.allowedRoles.join(',')}
+                      onValueChange={value => {
+                        const selectedRoles = value ? value.split(',') : [];
+                        setEditingLink({...editingLink, allowedRoles: selectedRoles});
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez les rôles" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map(role => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500">
+                      Si aucun rôle n'est sélectionné, tous les utilisateurs authentifiés auront accès.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={handleCancel}>
+                    Annuler
+                  </Button>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Chargement...' : isEditing ? 'Mettre à jour' : 'Ajouter'}
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={handleUpdateSection}>
-              Mettre à jour
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 };

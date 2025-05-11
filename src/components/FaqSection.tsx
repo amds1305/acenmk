@@ -11,6 +11,13 @@ import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getFAQs } from '@/services/supabase/faqService';
 
+// Define proper types for FAQ items
+interface FaqItem {
+  id?: string;
+  question: string;
+  answer: string;
+}
+
 const FaqSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -24,29 +31,35 @@ const FaqSection = () => {
 
   console.log("FaqSection - Données FAQ reçues:", faqs);
 
-  // Données par défaut si aucune donnée n'est trouvée
-  const defaultFaqItems = [
+  // Données par défaut avec des IDs ajoutés
+  const defaultFaqItems: FaqItem[] = [
     {
+      id: "default-1",
       question: "Quels services proposez-vous exactement ?",
       answer: "Nous offrons une gamme complète de services numériques incluant le développement d'applications web et mobiles sur mesure, la conception UX/UI, l'infrastructure cloud, la transformation digitale et l'intégration de solutions d'intelligence artificielle. Chaque solution est personnalisée selon les besoins spécifiques de votre entreprise."
     },
     {
+      id: "default-2",
       question: "Combien coûte un projet typique ?",
       answer: "Les coûts varient considérablement en fonction de la complexité, de l'envergure et des fonctionnalités requises. Nous proposons une tarification transparente avec des devis détaillés après une analyse approfondie de vos besoins. Contactez-nous pour une consultation gratuite et un devis personnalisé."
     },
     {
+      id: "default-3",
       question: "Quelle est la durée moyenne d'un projet ?",
       answer: "La durée d'un projet dépend de sa complexité et de son envergure. Un site web simple peut prendre 2-4 semaines, tandis qu'une application complexe peut nécessiter 3-6 mois ou plus. Nous établissons toujours un calendrier détaillé au début du projet et vous tenons informé de l'avancement à chaque étape."
     },
     {
+      id: "default-4",
       question: "Proposez-vous un support après le lancement du projet ?",
       answer: "Absolument. Nous offrons divers plans de maintenance et de support continu pour assurer le bon fonctionnement de votre solution. Ces plans incluent les mises à jour de sécurité, l'optimisation des performances, le support technique et l'évolution fonctionnelle selon vos besoins."
     },
     {
+      id: "default-5",
       question: "Comment assurez-vous la qualité de vos développements ?",
       answer: "Notre processus de développement comprend plusieurs phases de tests rigoureux : tests unitaires, tests d'intégration, tests de performance et tests d'acceptation utilisateur. Nous utilisons également des méthodes de développement agiles qui permettent des ajustements continus basés sur vos retours."
     },
     {
+      id: "default-6",
       question: "Avez-vous de l'expérience dans notre secteur d'activité ?",
       answer: "Notre équipe a travaillé avec des clients de nombreux secteurs, notamment la finance, la santé, l'éducation, le commerce de détail et l'industrie. Nous adaptons notre approche à chaque secteur et ses défis spécifiques. N'hésitez pas à nous demander des références ou études de cas pertinentes pour votre domaine."
     }
@@ -62,7 +75,7 @@ const FaqSection = () => {
   ];
 
   // Mapping des questions par catégorie
-  const categoryMapping = {
+  const categoryMapping: Record<string, number[]> = {
     "services": [0, 5],
     "pricing": [1],
     "process": [2, 4],
@@ -140,33 +153,38 @@ const FaqSection = () => {
             value={expandedItems}
             className="w-full space-y-4"
           >
-            {filteredFaqItems.map((item, index) => (
-              <AccordionItem 
-                key={item.id || `item-${index}`} 
-                value={item.id || `item-${index}`}
-                className={cn(
-                  "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all",
-                  expandedItems.includes(item.id || `item-${index}`) 
-                    ? "bg-white dark:bg-gray-800 shadow-md" 
-                    : "bg-gray-50 dark:bg-gray-800/50"
-                )}
-              >
-                <AccordionTrigger 
-                  onClick={() => toggleItem(item.id || `item-${index}`)}
-                  className="text-left font-semibold py-4 px-6 hover:text-primary dark:text-white dark:hover:text-primary transition-colors flex items-center justify-between"
-                >
-                  <span>{item.question}</span>
-                  {expandedItems.includes(item.id || `item-${index}`) ? (
-                    <MinusCircle className="h-5 w-5 text-primary shrink-0" />
-                  ) : (
-                    <PlusCircle className="h-5 w-5 text-gray-400 shrink-0" />
+            {filteredFaqItems.map((item, index) => {
+              // Generate a stable ID if one doesn't exist
+              const itemId = item.id || `item-${index}`;
+              
+              return (
+                <AccordionItem 
+                  key={itemId} 
+                  value={itemId}
+                  className={cn(
+                    "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all",
+                    expandedItems.includes(itemId) 
+                      ? "bg-white dark:bg-gray-800 shadow-md" 
+                      : "bg-gray-50 dark:bg-gray-800/50"
                   )}
-                </AccordionTrigger>
-                <AccordionContent className="text-gray-600 dark:text-gray-300 px-6 pt-0 pb-4">
-                  <div className="pt-2 pb-1">{item.answer}</div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+                >
+                  <AccordionTrigger 
+                    onClick={() => toggleItem(itemId)}
+                    className="text-left font-semibold py-4 px-6 hover:text-primary dark:text-white dark:hover:text-primary transition-colors flex items-center justify-between"
+                  >
+                    <span>{item.question}</span>
+                    {expandedItems.includes(itemId) ? (
+                      <MinusCircle className="h-5 w-5 text-primary shrink-0" />
+                    ) : (
+                      <PlusCircle className="h-5 w-5 text-gray-400 shrink-0" />
+                    )}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600 dark:text-gray-300 px-6 pt-0 pb-4">
+                    <div className="pt-2 pb-1">{item.answer}</div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
           </Accordion>
         </div>
         
