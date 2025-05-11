@@ -10,7 +10,7 @@ import AdminTestimonials from './pages/AdminTestimonials';
 import AdminFaq from './pages/AdminFaq';
 import AdminContact from './pages/AdminContact';
 import AdminCustomSection from './pages/AdminCustomSection';
-import AdminHero from './pages/AdminHero';
+import AdminHeroPage from './pages/AdminHero';
 import AdminFooter from './pages/AdminFooter';
 
 // Providers
@@ -55,7 +55,7 @@ function App() {
                 <Route path="/admin/faq" element={<ProtectedRoute><AdminFaq /></ProtectedRoute>} />
                 <Route path="/admin/contact" element={<ProtectedRoute><AdminContact /></ProtectedRoute>} />
                 <Route path="/admin/custom-section/:id" element={<ProtectedRoute><AdminCustomSection /></ProtectedRoute>} />
-                <Route path="/admin/hero" element={<ProtectedRoute><AdminHero /></ProtectedRoute>} />
+                <Route path="/admin/hero" element={<ProtectedRoute><AdminHeroPage /></ProtectedRoute>} />
                 <Route path="/admin/footer" element={<ProtectedRoute><AdminFooter /></ProtectedRoute>} />
                 
                 {/* Routes légales */}
