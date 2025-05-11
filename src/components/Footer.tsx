@@ -471,6 +471,8 @@ const Footer = () => {
                       href={link.href} 
                       className="footer-link transition-colors"
                       style={linkStyle}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {link.name}
                     </a>

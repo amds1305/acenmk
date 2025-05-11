@@ -2,16 +2,21 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { WysiwygEditor } from '@/components/admin/WysiwygEditor';
-import { LegalContent, LegalContents } from './types';
+import { LegalContent } from './types';
 
 interface ContentFormProps {
-  contentKey: keyof LegalContents;
+  contentKey: string;
   content: LegalContent;
-  updateContent: (section: keyof LegalContents, field: keyof LegalContent, value: string | boolean) => void;
+  updateContent: (section: any, field: keyof LegalContent, value: string | boolean) => void;
 }
 
-export const ContentForm = ({ contentKey, content, updateContent }: ContentFormProps) => {
+export const ContentForm: React.FC<ContentFormProps> = ({
+  contentKey,
+  content,
+  updateContent
+}) => {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -36,23 +41,24 @@ export const ContentForm = ({ contentKey, content, updateContent }: ContentFormP
         <Label htmlFor={`${contentKey}-content`}>Contenu</Label>
         <div className="min-h-[400px] border rounded-md">
           <WysiwygEditor
-            content={content.content}
+            value={content.content}
             onChange={(value) => updateContent(contentKey, 'content', value)}
-            placeholder="Commencez à éditer votre contenu..."
           />
         </div>
       </div>
       
       <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
+        <Checkbox
           id={`${contentKey}-published`}
           checked={content.isPublished}
-          onChange={(e) => updateContent(contentKey, 'isPublished', e.target.checked)}
-          className="rounded border-gray-300"
+          onCheckedChange={(checked) => 
+            updateContent(contentKey, 'isPublished', checked === true)
+          }
         />
         <Label htmlFor={`${contentKey}-published`}>Publier cette page</Label>
       </div>
     </div>
   );
 };
+
+export default ContentForm;
