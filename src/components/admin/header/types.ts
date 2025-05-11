@@ -1,60 +1,47 @@
 
 import { LucideIcon } from 'lucide-react';
 
+export interface NavLink {
+  id: string;
+  name: string;
+  href: string;
+  icon?: string | LucideIcon;
+  isVisible: boolean;
+  requiresAuth: boolean;
+  isExternal: boolean;
+  children?: NavLink[];
+  order: number;
+}
+
 export interface Logo {
   src: string;
   alt: string;
-  width?: number;
-  height?: number;
-  position?: 'left' | 'center';
-}
-
-export interface NavLink {
-  id?: string;
-  name: string;
-  href: string;
-  icon?: string | React.FC; 
-  isExternal?: boolean;
-  requiresAuth?: boolean;
-  requiredRole?: string;
-  order?: number;
-  isVisible?: boolean;
-  parentId?: string | null;
+  width: number;
+  height: number;
+  position: 'left' | 'center' | 'right';
 }
 
 export interface SocialLink {
-  icon: LucideIcon | string;
+  id: string;
+  icon: string | LucideIcon;
   href: string;
   ariaLabel: string;
-  isVisible?: boolean;
-  order?: number;
+  isVisible: boolean;
 }
 
 export interface SearchBarSettings {
   isEnabled: boolean;
   placeholder: string;
-  position: 'right' | 'center' | 'left';
+  position: 'left' | 'center' | 'right';
   expandOnFocus: boolean;
-}
-
-export interface ActionButton {
-  id?: string;
-  label: string;
-  href: string;
-  icon?: string | React.FC;
-  variant?: string;
-  isVisible?: boolean;
-  requiresAuth?: boolean;
-  requiredRole?: string;
-  order?: number;
 }
 
 export interface UserMenuSettings {
   showLoginButton: boolean;
   showRegisterButton: boolean;
   showProfileIcon: boolean;
-  loginButtonLabel?: string;
-  registerButtonLabel?: string;
+  loginButtonLabel: string;
+  registerButtonLabel: string;
 }
 
 export interface HeaderStyle {
@@ -73,39 +60,39 @@ export interface HeaderStyle {
   dropShadow: boolean;
   showThemeSelector: boolean;
   
-  // Styles pour les éléments de menu
+  // Styles for menu elements
   menuHoverBgColor: string;
   menuActiveBgColor: string;
-  menuTransition?: string;
-  menuBorderRadius?: string;
+  menuTransition: string;
+  menuBorderRadius: string;
   
-  // Styles pour les icônes sociales
+  // Styles for social icons
   socialIconColor: string;
   socialIconHoverColor: string;
   socialIconBgColor: string;
   socialIconBorderColor: string;
-  socialIconSize?: string;
-  socialIconSpacing?: string;
+  socialIconSize: string;
+  socialIconSpacing: string;
   
-  // Styles pour les icônes d'utilité
+  // Styles for utility icons
   utilityIconColor: string;
   utilityIconHoverColor: string;
   utilityIconBgColor: string;
   utilityIconBorderColor: string;
-  utilityIconSize?: string;
+  utilityIconSize: string;
   
-  // Styles pour les états de header
-  scrolledBgColor?: string;
-  scrolledTextColor?: string;
-  scrolledBorderColor?: string;
-  scrolledShadow?: string;
+  // Header states
+  scrolledBgColor: string;
+  scrolledTextColor: string;
+  scrolledBorderColor: string;
+  scrolledShadow: string;
   
-  // États d'animation
-  transitionDuration?: string;
-  transitionTiming?: string;
+  // Animation states
+  transitionDuration: string;
+  transitionTiming: string;
   
-  // Typographie avancée
-  fontWeight?: string;
-  letterSpacing?: string;
-  textTransform?: string;
+  // Typography
+  fontWeight: string;
+  letterSpacing: string;
+  textTransform: string;
 }

@@ -10,7 +10,11 @@ const SectionsContext = createContext<SectionsContextProps | undefined>(undefine
 
 export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { config, setConfig, isLoading, loadConfig, isRefetching, isError } = useSectionsState();
-  const { saveStatus, setSaveStatus } = useAdminNotification();
+  
+  // Use optional chaining to prevent errors if the hook is used outside of AdminNotificationProvider
+  const adminNotification = useAdminNotification();
+  const saveStatus = adminNotification?.saveStatus || 'idle';
+  const setSaveStatus = adminNotification?.setSaveStatus || (() => {});
   
   const { 
     addNewSection,
