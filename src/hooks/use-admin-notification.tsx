@@ -32,7 +32,16 @@ const defaultContext: AdminNotificationContextType = {
 const AdminNotificationContext = createContext<AdminNotificationContextType>(defaultContext);
 
 export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { toast } = useToast();
+  // Utiliser le try-catch pour éviter les erreurs si useToast n'est pas disponible
+  let toastHook;
+  try {
+    toastHook = useToast();
+  } catch (e) {
+    console.warn('useToast is not available in AdminNotificationProvider, notifications will be disabled');
+    toastHook = { toast: () => {} };
+  }
+  
+  const { toast } = toastHook;
   const [isProcessing, setIsProcessing] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   
@@ -105,12 +114,12 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
   );
 };
 
-// Add a console message to help debugging if the hook is used outside the provider
+// Amélioré pour être plus robuste quand utilisé hors du provider
 export const useAdminNotification = (): AdminNotificationContextType => {
   const context = useContext(AdminNotificationContext);
   
-  // Return the default context even if not wrapped in provider
-  // This prevents crashes but logs a warning
+  // Renvoyer le contexte par défaut si non disponible
+  // Cela empêche le crash mais garde un avertissement
   if (context === undefined) {
     console.warn('useAdminNotification est appelé en dehors d\'un AdminNotificationProvider');
     return defaultContext;

@@ -18,7 +18,7 @@ export interface UseHeaderStyleReturn {
 
 export const useHeaderStyle = (): UseHeaderStyleReturn => {
   const { toast } = useToast();
-  // Use the hook safely with optional chaining and fallback
+  // Utilisation sécurisée du hook, avec un fallback qui ne cause pas d'erreur
   const adminNotification = useAdminNotification();
   
   // Use the context hook to get the actual implementation
@@ -38,14 +38,14 @@ export const useHeaderStyle = (): UseHeaderStyleReturn => {
       const result = await contextSaveChanges();
       
       if (result) {
-        adminNotification.showSaveSuccess();
+        adminNotification?.showSaveSuccess?.();
       } else {
-        adminNotification.showSaveError();
+        adminNotification?.showSaveError?.();
       }
       
       return result;
     } catch (error) {
-      adminNotification.showSaveError(error);
+      adminNotification?.showSaveError?.(error);
       return false;
     }
   };
