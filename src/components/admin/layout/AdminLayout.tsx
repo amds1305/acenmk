@@ -4,7 +4,6 @@ import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminLayoutProps } from './types';
 import Sidebar from './Sidebar';
-import UserProfileMenu from './UserProfileMenu';
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [expanded, setExpanded] = React.useState(false);
@@ -29,11 +28,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       
       {/* Sidebar */}
       <Sidebar expanded={expanded} toggleSidebar={toggleSidebar} />
-      
-      {/* User Profile Menu - for mobile */}
-      <div className={`${expanded ? 'block' : 'hidden'} md:hidden`}>
-        <UserProfileMenu />
-      </div>
       
       {/* Main content */}
       <div className="flex-1 w-full">

@@ -145,7 +145,7 @@ const AdminHeroEditor = () => {
         </CardHeader>
         
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="style">
             <TabsList className="mb-6">
               <TabsTrigger value="style">Style</TabsTrigger>
               <TabsTrigger value="blocks">Blocs</TabsTrigger>
