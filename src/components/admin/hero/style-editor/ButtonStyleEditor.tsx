@@ -3,16 +3,6 @@ import React from 'react';
 import { HeroVersion } from '../types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue
-} from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Check, ChevronDown } from 'lucide-react';
 
 interface ButtonStyleEditorProps {
   version: HeroVersion;
@@ -139,7 +129,7 @@ const ButtonStyleEditor = ({ version, onUpdateVersion }: ButtonStyleEditorProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="primary-border-radius">Rayon des coins</Label>
             <Input 
@@ -152,7 +142,7 @@ const ButtonStyleEditor = ({ version, onUpdateVersion }: ButtonStyleEditorProps)
         </div>
       </div>
 
-      <div className="space-y-4 pt-4 border-t border-gray-200">
+      <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
         <div className="font-medium text-lg">Bouton Secondaire</div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -234,7 +224,7 @@ const ButtonStyleEditor = ({ version, onUpdateVersion }: ButtonStyleEditorProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="secondary-border-radius">Rayon des coins</Label>
             <Input 
