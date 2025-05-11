@@ -1,6 +1,85 @@
+import { RouteObject } from "react-router-dom";
+import AdminPage from "@/pages/Admin";
+import AdminHomePage from "@/pages/AdminHome";
+import AdminHeroPage from "@/pages/AdminHero";
+import AdminAboutPage from "@/pages/AdminAbout";
+import AdminFaqPage from "@/pages/AdminFaq";
+import AdminServicesPage from "@/pages/AdminServices";
+import AdminTeamPage from "@/pages/AdminTeam";
+import AdminFooterPage from "@/pages/AdminFooter";
+import AdminUsersPage from "@/pages/AdminUsers";
+import AdminTestimonialsPage from "@/pages/AdminTestimonials";
+import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
+import AdminWrapper from "@/pages/AdminWrapper";
+import LegalPageRoute from "@/pages/LegalPage";
 
-// Re-export everything from the routes modules
-export * from './routes/types';
-export * from './routes/publicRoutes';
-export * from './routes/adminRoutes';
-export * from './routes/routeUtils';
+export const routes: RouteObject[] = [
+  {
+    path: "/admin",
+    element: <AdminWrapper />,
+    children: [
+      {
+        path: "",
+        element: <AdminPage />,
+      },
+      {
+        path: "home",
+        element: <AdminHomePage />,
+      },
+      {
+        path: "hero",
+        element: <AdminHeroPage />,
+      },
+      {
+        path: "about",
+        element: <AdminAboutPage />,
+      },
+      {
+        path: "services",
+        element: <AdminServicesPage />,
+      },
+      {
+        path: "team",
+        element: <AdminTeamPage />,
+      },
+      {
+        path: "testimonials",
+        element: <AdminTestimonialsPage />,
+      },
+      {
+        path: "footer",
+        element: <AdminFooterPage />,
+      },
+      {
+        path: "users",
+        element: <AdminUsersPage />,
+      },
+      {
+        path: "faq",
+        element: <AdminFaqPage />,
+      },
+      {
+        path: "trusted-clients",
+        element: <AdminTrustedClientsPage />,
+      },
+    ],
+  },
+  {
+    path: "/mentions-legales",
+    element: <LegalPageRoute />,
+  },
+  {
+    path: "/politique-de-confidentialite",
+    element: <LegalPageRoute />,
+  },
+  {
+    path: "/conditions-utilisation",
+    element: <LegalPageRoute />,
+  },
+  {
+    path: "/politique-cookies",
+    element: <LegalPageRoute />,
+  },
+];
+
+export default routes;
