@@ -8,7 +8,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { HeroVersion } from './types';
-import { TextStyleEditor, BackgroundStyleEditor, SpacingStyleEditor } from './style-editor';
+import { TextStyleEditor, BackgroundStyleEditor, SpacingStyleEditor, ButtonStyleEditor } from './style-editor';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -99,9 +99,10 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
         </div>
 
         <Tabs defaultValue="text">
-          <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="text">Texte</TabsTrigger>
             <TabsTrigger value="background">Arrière-plan</TabsTrigger>
+            <TabsTrigger value="buttons">Boutons</TabsTrigger>
             <TabsTrigger value="spacing">Espacement</TabsTrigger>
           </TabsList>
           
@@ -111,6 +112,10 @@ const StyleEditor = ({ version, onUpdateVersion }: StyleEditorProps) => {
           
           <TabsContent value="background" className="pt-4">
             <BackgroundStyleEditor version={version} onUpdateVersion={onUpdateVersion} />
+          </TabsContent>
+          
+          <TabsContent value="buttons" className="pt-4">
+            <ButtonStyleEditor version={version} onUpdateVersion={onUpdateVersion} />
           </TabsContent>
           
           <TabsContent value="spacing" className="pt-4">

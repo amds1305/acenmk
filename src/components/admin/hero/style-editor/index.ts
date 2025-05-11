@@ -1,12 +1,5 @@
 
-import TextStyleEditor from './TextStyleEditor';
-import BackgroundStyleEditor from './BackgroundStyleEditor';
-import SpacingStyleEditor from './SpacingStyleEditor';
-import ButtonStyleEditor from './ButtonStyleEditor';
-
-export {
-  TextStyleEditor,
-  BackgroundStyleEditor,
-  SpacingStyleEditor,
-  ButtonStyleEditor
-};
+export { default as TextStyleEditor } from './TextStyleEditor';
+export { default as BackgroundStyleEditor } from './BackgroundStyleEditor';
+export { default as SpacingStyleEditor } from './SpacingStyleEditor';
+export { default as ButtonStyleEditor } from './ButtonStyleEditor';

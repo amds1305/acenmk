@@ -10,11 +10,27 @@ interface SpacingStyleEditorProps {
 }
 
 const SpacingStyleEditor = ({ version, onUpdateVersion }: SpacingStyleEditorProps) => {
-  // Update spacing
-  const updateSpacing = (property: 'marginTop' | 'marginBottom' | 'padding', value: string) => {
+  // Update margin top
+  const updateMarginTop = (value: string) => {
     onUpdateVersion({
       ...version,
-      [property]: value,
+      marginTop: value,
+    });
+  };
+
+  // Update margin bottom
+  const updateMarginBottom = (value: string) => {
+    onUpdateVersion({
+      ...version,
+      marginBottom: value,
+    });
+  };
+
+  // Update padding
+  const updatePadding = (value: string) => {
+    onUpdateVersion({
+      ...version,
+      padding: value,
     });
   };
 
@@ -22,38 +38,38 @@ const SpacingStyleEditor = ({ version, onUpdateVersion }: SpacingStyleEditorProp
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="marginTop">Marge supérieure</Label>
-        <Input 
-          id="marginTop"
-          value={version.marginTop} 
-          onChange={(e) => updateSpacing('marginTop', e.target.value)}
-          placeholder="0px"
-        />
-        <p className="text-xs text-muted-foreground">
-          Exemple: 0px, 1rem, 20px, etc.
-        </p>
+        <div className="flex items-center gap-2">
+          <Input 
+            id="marginTop"
+            value={version.marginTop || '0'} 
+            onChange={(e) => updateMarginTop(e.target.value)}
+            placeholder="0px, 1rem, 10vh, etc."
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
         <Label htmlFor="marginBottom">Marge inférieure</Label>
-        <Input 
-          id="marginBottom"
-          value={version.marginBottom} 
-          onChange={(e) => updateSpacing('marginBottom', e.target.value)}
-          placeholder="0px"
-        />
+        <div className="flex items-center gap-2">
+          <Input 
+            id="marginBottom"
+            value={version.marginBottom || '0'} 
+            onChange={(e) => updateMarginBottom(e.target.value)}
+            placeholder="0px, 1rem, 10vh, etc."
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="padding">Padding (interne)</Label>
-        <Input 
-          id="padding"
-          value={version.padding} 
-          onChange={(e) => updateSpacing('padding', e.target.value)}
-          placeholder="2rem"
-        />
-        <p className="text-xs text-muted-foreground">
-          Exemple: 1rem, 2rem, 20px 40px (haut/bas gauche/droite), etc.
-        </p>
+        <Label htmlFor="padding">Rembourrage intérieur</Label>
+        <div className="flex items-center gap-2">
+          <Input 
+            id="padding"
+            value={version.padding || '2rem'} 
+            onChange={(e) => updatePadding(e.target.value)}
+            placeholder="2rem, 20px 10px, etc."
+          />
+        </div>
       </div>
     </div>
   );
