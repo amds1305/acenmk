@@ -1,5 +1,5 @@
 
-import { supabase } from './supabase';
+import { supabase } from '@/lib/supabase';
 
 /**
  * Récupère le contenu légal par type
