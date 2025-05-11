@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { Logo, NavLink, SocialLink, SearchBarSettings, ActionButton, UserMenuSettings, HeaderStyle } from '@/components/admin/header/types';
 import { LucideIcon } from 'lucide-react';
@@ -212,14 +213,27 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config
-    const { data: configData } = await supabase
-      .from('header_config')
-      .select('show_theme_selector')
-      .eq('id', 'default')
-      .single();
+    // Corriger la requête problématique en utilisant une autre approche :
+    let showThemeSelector = true; // Valeur par défaut
+    try {
+      const { data: configData, error } = await supabase
+        .from('header_config')
+        .select('*')
+        .eq('id', 'default')
+        .single();
 
-    if (configData && headerStyle) {
-      headerStyle.showThemeSelector = configData.show_theme_selector;
+      if (error) {
+        console.error('Erreur lors de la récupération de la configuration d\'en-tête:', error);
+      } else if (configData) {
+        showThemeSelector = configData.show_theme_selector !== false;
+      }
+    } catch (configError) {
+      console.error('Erreur inattendue lors de la récupération de la configuration d\'en-tête:', configError);
+    }
+
+    // Mettre à jour headerStyle avec la bonne valeur de showThemeSelector
+    if (headerStyle) {
+      headerStyle.showThemeSelector = showThemeSelector;
     }
 
     return {
