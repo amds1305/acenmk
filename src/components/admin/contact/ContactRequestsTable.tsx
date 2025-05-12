@@ -110,7 +110,7 @@ const ContactRequestsTable: React.FC = () => {
             <TableHead className="hidden md:table-cell">Service</TableHead>
             <TableHead className="hidden md:table-cell">Origine</TableHead>
             <TableHead className="w-[100px]">Statut</TableHead>
-            <TableHead className="w-[70px]"></TableHead>
+            <TableHead className="w-[70px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -200,7 +200,7 @@ const ContactRequestsTable: React.FC = () => {
                         toast({
                           title: "Détails",
                           description: "Fonctionnalité à venir",
-                        })
+                        });
                       }}>
                         <FileText className="mr-2 h-4 w-4" />
                         Voir détails
