@@ -1,14 +1,5 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -17,237 +8,253 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Search, Filter, MoreHorizontal } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { MoreHorizontal, Eye, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Lead } from '@/types/lead';
 import LeadDetailDialog from './LeadDetailDialog';
 import LeadEditDialog from './LeadEditDialog';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import { useToast } from '@/hooks/use-toast';
+import { fetchLeads, updateLeadStatus } from '@/services/leadTraceService';
 
-// Mock data for leads
-const mockLeads = [
-  {
-    id: '1',
-    name: 'Jean Dupont',
-    email: 'jean.dupont@example.com',
-    phone: '+33 6 12 34 56 78',
-    company: 'Dupont SAS',
-    website: 'www.dupontsas.fr',
-    service: 'Développement web',
-    source: 'Formulaire de contact',
-    description: 'Besoin d\'un site e-commerce pour vendre nos produits',
-    status: 'new',
-    tags: ['e-commerce', 'urgent'],
-    assignedTo: 'Sophie Martin',
-    created_at: '2025-05-01T10:30:00Z',
-    updated_at: '2025-05-01T10:30:00Z',
-  },
-  {
-    id: '2',
-    name: 'Marie Lambert',
-    email: 'marie.lambert@example.com',
-    phone: '+33 7 65 43 21 09',
-    company: 'Lambert & Co',
-    website: 'www.lambertco.fr',
-    service: 'Design UX/UI',
-    source: 'LinkedIn',
-    description: 'Refonte de notre application mobile',
-    status: 'in-progress',
-    tags: ['app', 'design'],
-    assignedTo: 'Thomas Bernard',
-    created_at: '2025-04-28T14:20:00Z',
-    updated_at: '2025-05-02T09:15:00Z',
-  },
-  {
-    id: '3',
-    name: 'Paul Moreau',
-    email: 'paul.moreau@example.com',
-    phone: '+33 6 98 76 54 32',
-    company: 'Moreau Tech',
-    website: 'www.moreautech.com',
-    service: 'Conseil informatique',
-    source: 'Recommandation',
-    description: 'Migration vers le cloud et optimisation de l\'infrastructure',
-    status: 'processed',
-    tags: ['cloud', 'infrastructure'],
-    assignedTo: 'Sophie Martin',
-    created_at: '2025-04-20T11:45:00Z',
-    updated_at: '2025-05-03T16:30:00Z',
-  }
-];
+// Mapping des statuts
+const statusConfig = {
+  'new': { label: 'Nouveau', variant: 'default', bg: 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400' },
+  'in-progress': { label: 'En cours', variant: 'secondary', bg: 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400' },
+  'processed': { label: 'Traité', variant: 'secondary', bg: 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400' },
+  'archived': { label: 'Archivé', variant: 'outline', bg: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400' },
+};
 
 const LeadList: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const filteredLeads = mockLeads.filter(lead => {
-    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          lead.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (lead.company && lead.company.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  // Charger les leads
+  useEffect(() => {
+    loadLeads();
+  }, []);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'new':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Nouveau</Badge>;
-      case 'in-progress':
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">En cours</Badge>;
-      case 'processed':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Traité</Badge>;
-      case 'archived':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Archivé</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
+  const loadLeads = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLeads();
+      setLeads(data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des leads:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les leads',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleViewDetails = (lead: any) => {
-    setSelectedLead(lead);
-    setIsDetailOpen(true);
+  // Gérer le changement de statut
+  const handleStatusChange = async (lead: Lead, newStatus: string) => {
+    try {
+      setUpdatingStatus(lead.id);
+      const success = await updateLeadStatus(lead.id, newStatus);
+      
+      if (success) {
+        // Mettre à jour l'état local
+        setLeads(leads.map(l => l.id === lead.id ? { ...l, status: newStatus as any } : l));
+        
+        toast({
+          title: 'Statut mis à jour',
+          description: `Le lead est maintenant "${statusConfig[newStatus as keyof typeof statusConfig]?.label}"`,
+        });
+      } else {
+        throw new Error('Échec de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour le statut',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
   };
 
-  const handleEdit = (lead: any) => {
-    setSelectedLead(lead);
-    setIsEditOpen(true);
-  };
-
-  const handleDelete = (lead: any) => {
-    setSelectedLead(lead);
-    setIsDeleteOpen(true);
-  };
-
-  const confirmDelete = () => {
-    console.log('Deleting lead:', selectedLead.id);
+  // Gérer la suppression d'un lead
+  const handleDelete = async (lead: Lead) => {
+    // Dans une version future, implémenter la suppression réelle
+    toast({
+      title: 'Fonctionnalité à venir',
+      description: 'La suppression des leads sera disponible dans une future mise à jour',
+    });
     setIsDeleteOpen(false);
-    // In a real app, this would call an API to delete the lead
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrer par statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              <SelectItem value="new">Nouveaux</SelectItem>
-              <SelectItem value="in-progress">En cours</SelectItem>
-              <SelectItem value="processed">Traités</SelectItem>
-              <SelectItem value="archived">Archivés</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium">Liste des leads</h3>
+        <Button variant="outline" size="sm" onClick={loadLeads} disabled={isLoading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Actualiser
+        </Button>
       </div>
-      
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[180px]">Nom</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="hidden md:table-cell">Entreprise</TableHead>
-              <TableHead className="hidden md:table-cell">Statut</TableHead>
-              <TableHead className="hidden md:table-cell">Date</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead>Contact</TableHead>
+              <TableHead className="hidden md:table-cell">Source</TableHead>
+              <TableHead className="hidden md:table-cell">Service</TableHead>
+              <TableHead className="hidden lg:table-cell">Date</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredLeads.length > 0 ? (
-              filteredLeads.map((lead) => (
-                <TableRow key={lead.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleViewDetails(lead)}>
-                  <TableCell className="font-medium">{lead.name}</TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell className="hidden md:table-cell">{lead.company || '-'}</TableCell>
-                  <TableCell className="hidden md:table-cell">{getStatusBadge(lead.status)}</TableCell>
-                  <TableCell className="hidden md:table-cell">{new Date(lead.created_at).toLocaleDateString()}</TableCell>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-10">
+                  <RefreshCw className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                  <div className="mt-2 text-sm text-muted-foreground">Chargement des leads...</div>
+                </TableCell>
+              </TableRow>
+            ) : leads.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-10">
+                  <div className="text-muted-foreground">Aucun lead trouvé</div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              leads.map((lead) => (
+                <TableRow key={lead.id}>
                   <TableCell>
-                    <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewDetails(lead)}>
-                            Voir détails
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEdit(lead)}>
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-red-600"
-                            onClick={() => handleDelete(lead)}
-                          >
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <div>
+                      <div className="font-medium">{lead.name}</div>
+                      <div className="text-sm text-muted-foreground">{lead.email}</div>
+                      {lead.company && (
+                        <div className="text-xs text-muted-foreground">{lead.company}</div>
+                      )}
                     </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{lead.source || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">{lead.service || '-'}</TableCell>
+                  <TableCell className="hidden lg:table-cell whitespace-nowrap">
+                    {lead.created_at ? format(new Date(lead.created_at), 'dd MMM yyyy', { locale: fr }) : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className={`${statusConfig[lead.status]?.bg} text-xs font-medium h-6 gap-1 ${updatingStatus === lead.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={updatingStatus === lead.id}
+                        >
+                          {updatingStatus === lead.id && <RefreshCw className="h-3 w-3 animate-spin" />}
+                          {statusConfig[lead.status]?.label || lead.status}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'new')}>Nouveau</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'in-progress')}>En cours</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'processed')}>Traité</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'archived')}>Archivé</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedLead(lead);
+                            setIsDetailOpen(true);
+                          }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          Détails
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedLead(lead);
+                            setIsEditOpen(true);
+                          }}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => {
+                            setSelectedLead(lead);
+                            setIsDeleteOpen(true);
+                          }}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  Aucun résultat trouvé.
-                </TableCell>
-              </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      
+
+      {/* Modal de détails */}
       {selectedLead && (
         <>
-          <LeadDetailDialog 
-            lead={selectedLead} 
-            open={isDetailOpen} 
-            onOpenChange={setIsDetailOpen}
-            onEdit={() => {
-              setIsDetailOpen(false);
-              setIsEditOpen(true);
-            }}
+          <LeadDetailDialog
+            lead={selectedLead}
+            open={isDetailOpen}
+            onClose={() => setIsDetailOpen(false)}
           />
-          
           <LeadEditDialog
             lead={selectedLead}
             open={isEditOpen}
-            onOpenChange={setIsEditOpen}
+            onClose={() => setIsEditOpen(false)}
+            onSave={(updatedLead) => {
+              setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+              setIsEditOpen(false);
+              toast({
+                title: 'Lead mis à jour',
+                description: 'Les modifications ont été enregistrées avec succès',
+              });
+            }}
           />
-          
           <DeleteConfirmDialog
             open={isDeleteOpen}
-            onOpenChange={setIsDeleteOpen}
-            onConfirm={confirmDelete}
-            title="Supprimer ce lead"
-            description="Êtes-vous sûr de vouloir supprimer ce lead ? Cette action est irréversible."
+            onClose={() => setIsDeleteOpen(false)}
+            onConfirm={() => handleDelete(selectedLead)}
+            title="Supprimer ce lead?"
+            description="Cette action est irréversible. Toutes les données associées à ce lead seront définitivement supprimées."
           />
         </>
       )}

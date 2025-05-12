@@ -12,6 +12,8 @@ export interface ContactRequest {
   description: string;
   consentement: boolean;
   created_at: string;
+  converted_to_lead?: boolean;
+  lead_id?: string;
 }
 
 export interface ContactEmailSettings {

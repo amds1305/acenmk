@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { 
@@ -9,8 +9,13 @@ import {
   ProjectDetails,
   TermsAndSubmit
 } from './contact';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const NmkKinkContact: React.FC = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -27,11 +32,58 @@ const NmkKinkContact: React.FC = () => {
     },
   });
 
-  function onSubmit(data: ContactFormValues) {
-    console.log(data);
-    // Normally you would send the data to a server here
-    alert("Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.");
-    form.reset();
+  async function onSubmit(data: ContactFormValues) {
+    try {
+      setIsSubmitting(true);
+      
+      // Mapper les données du formulaire au format de la table contact_requests
+      const contactData = {
+        prenom: data.firstName,
+        nom: data.lastName,
+        email: data.email,
+        telephone: data.phone,
+        entreprise: data.businessName,
+        site_web: data.website,
+        service_requis: data.service,
+        origine: data.referralSource,
+        description: data.projectDescription,
+        consentement: data.termsAccepted
+      };
+      
+      // Envoyer les données à Supabase
+      const { error } = await supabase
+        .from('contact_requests')
+        .insert(contactData);
+      
+      if (error) throw error;
+      
+      // Fonctionnalité Edge Function existante (si disponible)
+      // Tentative d'envoi via l'Edge Function
+      try {
+        await supabase.functions.invoke('contact-form', {
+          body: contactData
+        });
+      } catch (functionError) {
+        console.log('Edge function non disponible ou erreur:', functionError);
+        // On continue même si l'edge function échoue, car les données sont déjà en base
+      }
+      
+      toast({
+        title: "Message envoyé!",
+        description: "Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.",
+      });
+      
+      form.reset();
+    } catch (error: any) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'envoi du formulaire. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -62,7 +114,7 @@ const NmkKinkContact: React.FC = () => {
                 <ProjectDetails />
 
                 {/* Terms and Submit Button */}
-                <TermsAndSubmit />
+                <TermsAndSubmit isSubmitting={isSubmitting} />
               </form>
             </FormProvider>
           </div>
