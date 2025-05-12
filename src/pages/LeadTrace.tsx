@@ -1,13 +1,18 @@
 
 import React from 'react';
 import { Lead } from '@/components/lead-trace';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const LeadTracePage = () => {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">LeadTrace</h1>
-      <Lead />
-    </div>
+    <>
+      <Header />
+      <main className="min-h-screen pt-16">
+        <Lead />
+      </main>
+      <Footer />
+    </>
   );
 };
 
