@@ -16,6 +16,9 @@ import {
   Building2,
   Newspaper,
   GraduationCap,
+  TrendingUp,
+  ShieldCheck,
+  Paperclip,
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -86,6 +89,16 @@ export const getNavItems = () => [
     path: '/admin/users',
     label: 'Utilisateurs',
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/roles',
+    label: 'Rôles & Permissions',
+    icon: <ShieldCheck className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/external-links',
+    label: 'Liens externes',
+    icon: <Paperclip className="h-5 w-5" />,
   },
   {
     path: '/admin/footer',

@@ -81,5 +81,15 @@ export const adminRouteMetadata: Record<string, RouteMetadata> = {
     showInNav: true,
     order: 525,
     category: 'admin'
+  },
+  '/admin/ace-job': {
+    path: '/admin/ace-job',
+    title: 'AceJob',
+    description: 'Gestion du module de recrutement AceJob',
+    icon: 'graduation-cap',
+    parentPath: '/admin',
+    showInNav: true,
+    order: 522,
+    category: 'admin'
   }
 };

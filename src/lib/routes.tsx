@@ -16,6 +16,7 @@ import AdminContactPage from "@/pages/AdminContact";
 import AdminAceJobPage from "@/pages/AdminAceJob";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
+import AceJobPage from "@/pages/AceJob";
 
 export const routes: RouteObject[] = [
   {
