@@ -21,8 +21,13 @@ import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
 import AdminLeadTracePage from "@/pages/AdminLeadTrace";
 import LeadTracePage from "@/pages/LeadTrace";
+import Index from "@/pages/Index"; // Import de la page d'accueil
 
 export const routes: RouteObject[] = [
+  {
+    path: "/",
+    element: <Index />,
+  },
   {
     path: "/admin",
     element: <AdminWrapper />,
