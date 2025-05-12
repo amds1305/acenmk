@@ -12,6 +12,7 @@ import AdminHeaderPage from "@/pages/AdminHeader";
 import AdminUsersPage from "@/pages/AdminUsers";
 import AdminTestimonialsPage from "@/pages/AdminTestimonials";
 import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
+import AdminContactPage from "@/pages/AdminContact";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 
@@ -67,6 +68,10 @@ export const routes: RouteObject[] = [
       {
         path: "trusted-clients",
         element: <AdminTrustedClientsPage />,
+      },
+      {
+        path: "contact",
+        element: <AdminContactPage />,
       },
     ],
   },

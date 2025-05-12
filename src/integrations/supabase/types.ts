@@ -135,6 +135,81 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_email_settings: {
+        Row: {
+          bcc: string[] | null
+          cc: string[] | null
+          created_at: string
+          destinataires: string[]
+          id: string
+          objet: string
+          updated_at: string
+        }
+        Insert: {
+          bcc?: string[] | null
+          cc?: string[] | null
+          created_at?: string
+          destinataires?: string[]
+          id?: string
+          objet?: string
+          updated_at?: string
+        }
+        Update: {
+          bcc?: string[] | null
+          cc?: string[] | null
+          created_at?: string
+          destinataires?: string[]
+          id?: string
+          objet?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_requests: {
+        Row: {
+          consentement: boolean
+          created_at: string
+          description: string
+          email: string
+          entreprise: string | null
+          id: string
+          nom: string
+          origine: string | null
+          prenom: string
+          service_requis: string | null
+          site_web: string | null
+          telephone: string | null
+        }
+        Insert: {
+          consentement?: boolean
+          created_at?: string
+          description: string
+          email: string
+          entreprise?: string | null
+          id?: string
+          nom: string
+          origine?: string | null
+          prenom: string
+          service_requis?: string | null
+          site_web?: string | null
+          telephone?: string | null
+        }
+        Update: {
+          consentement?: boolean
+          created_at?: string
+          description?: string
+          email?: string
+          entreprise?: string | null
+          id?: string
+          nom?: string
+          origine?: string | null
+          prenom?: string
+          service_requis?: string | null
+          site_web?: string | null
+          telephone?: string | null
+        }
+        Relationships: []
+      }
       cvs: {
         Row: {
           content: Json
