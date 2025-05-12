@@ -19,6 +19,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/mysql';
 import { useToast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
+import PageLoader from '@/components/common/PageLoader';
+import ConfigFallback from '@/components/common/ConfigFallback';
+import TestRenderComponent from '@/components/common/TestRenderComponent';
+import SectionRenderer from '@/components/sections/SectionRenderer';
+import useIntersectionAnimation from '@/hooks/useIntersectionAnimation';
 
 export interface SectionVisibility {
   hero: boolean;
@@ -55,6 +60,9 @@ const Index = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+  
+  // Setup the intersection observer for animations
+  useIntersectionAnimation();
   
   // Force un rechargement des données au montage du composant
   useEffect(() => {
@@ -118,6 +126,18 @@ const Index = () => {
     }
   }, [error, toast]);
 
+  // Affichage d'un fallback pendant le chargement
+  if (isLoading) {
+    console.log('📊 [Index] Affichage du loader - en attente des données');
+    return <PageLoader />;
+  }
+
+  // Nouveau fallback: si homeConfig est vide
+  if (!homeConfig || !homeConfig.sections || homeConfig.sections.length === 0) {
+    console.warn('⚠️ [Index] Aucune configuration chargée, affichage du fallback');
+    return <ConfigFallback />;
+  }
+
   console.log("📊 [Index] Template actif:", homeConfig?.templateConfig?.activeTemplate);
   console.log("📊 [Index] Sections disponibles:", homeConfig?.sections);
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
@@ -128,70 +148,6 @@ const Index = () => {
     ?.sort((a, b) => a.order - b.order) || [];
     
   console.log('📊 [Index] Sections à afficher:', sectionsToDisplay);
-
-  useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-fade-in-up, .animate-slide-in-right, .animate-blur-in');
-    animatedElements.forEach((el) => observer.observe(el));
-
-    return () => {
-      if (animatedElements) {
-        animatedElements.forEach((el) => observer.unobserve(el));
-      }
-    };
-  }, [sectionsToDisplay]);
-
-  // Affichage d'un fallback pendant le chargement
-  if (isLoading) {
-    console.log('📊 [Index] Affichage du loader - en attente des données');
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">Chargement de votre site...</p>
-      </div>
-    );
-  }
-
-  // Nouveau fallback: si homeConfig est vide
-  if (!homeConfig || !homeConfig.sections || homeConfig.sections.length === 0) {
-    console.warn('⚠️ [Index] Aucune configuration chargée, affichage du fallback');
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-          <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-            <h1 className="text-2xl font-bold text-red-500 mb-4">⚠️ Aucune configuration chargée</h1>
-            <p className="mb-4">La configuration de la page d'accueil n'a pas pu être chargée correctement.</p>
-            <h2 className="text-xl mb-2">Test de rendu</h2>
-            <div className="p-4 border border-dashed border-gray-300 dark:border-gray-600 rounded">
-              <p>Si vous voyez ce message, le rendu React fonctionne correctement.</p>
-            </div>
-            <button 
-              onClick={() => window.location.reload()}
-              className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Recharger la page
-            </button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   // Utilisation d'un template personnalisé si configuré
   if (activeTemplate !== 'default' && TemplateComponent) {
@@ -218,14 +174,6 @@ const Index = () => {
   ];
 
   console.log('📊 [Index] Sections à rendre finalement:', displaySections);
-  
-  // Ajouter un test de rendu au cas où quelque chose bloquerait ailleurs
-  const TestRenderComponent = () => (
-    <div className="p-4 my-8 bg-yellow-100 dark:bg-yellow-900 border border-yellow-500 rounded text-center">
-      <h1 className="text-xl font-bold">Test de rendu</h1>
-      <p>Cette section est affichée pour vérifier que le rendu fonctionne.</p>
-    </div>
-  );
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -235,31 +183,10 @@ const Index = () => {
         <TestRenderComponent />
         
         {/* Sections dynamiques */}
-        {displaySections.map((section) => {
-          const SectionComponent = sectionComponents[section.type];
-          
-          if (!SectionComponent) {
-            console.warn(`📊 [Index] Section component not found for type: ${section.type}`);
-            return (
-              <div key={section.id} className="p-4 my-2 bg-red-100 dark:bg-red-900 border border-red-500 rounded text-center">
-                <p className="text-red-600 dark:text-red-300">⚠️ Composant non trouvé: {section.type}</p>
-              </div>
-            );
-          }
-          
-          try {
-            console.log(`📊 [Index] Rendu de la section ${section.id} (${section.type})`);
-            return <SectionComponent key={section.id} />;
-          } catch (err) {
-            console.error(`📊 [Index] Erreur lors du rendu de la section ${section.type}:`, err);
-            return (
-              <div key={section.id} className="p-4 my-2 bg-red-100 dark:bg-red-900 border border-red-500 rounded text-center">
-                <p className="text-red-600 dark:text-red-300">⚠️ Erreur de rendu: {section.type}</p>
-                <pre className="text-sm overflow-auto">{err instanceof Error ? err.message : 'Erreur inconnue'}</pre>
-              </div>
-            );
-          }
-        })}
+        <SectionRenderer 
+          sections={displaySections}
+          sectionComponents={sectionComponents}
+        />
         <Pricing />
       </main>
       <Footer />
