@@ -1,53 +1,54 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import LeadList from '@/components/admin/lead-trace/components/LeadList';
-import LeadStats from '@/components/admin/lead-trace/components/LeadStats';
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-const LeadTraceManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('leads');
+const LeadTraceManager = () => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isLoading, isAuthenticated, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="container mx-auto py-8 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h2 className="text-2xl font-semibold">Gestion des leads</h2>
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+          <h2 className="text-xl font-medium mb-4">Leads récents</h2>
+          <p className="text-muted-foreground">
+            Module en cours de développement. Bientôt disponible.
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+          <h2 className="text-xl font-medium mb-4">Statistiques</h2>
+          <p className="text-muted-foreground">
+            Module en cours de développement. Bientôt disponible.
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
+          <h2 className="text-xl font-medium mb-4">Actions</h2>
+          <p className="text-muted-foreground">
+            Module en cours de développement. Bientôt disponible.
+          </p>
+        </div>
       </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 mb-4">
-          <TabsTrigger value="leads">Leads</TabsTrigger>
-          <TabsTrigger value="stats">Statistiques</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="leads" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Liste des leads</CardTitle>
-              <CardDescription>
-                Gérez vos contacts et leurs statuts
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <LeadList />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="stats" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Statistiques</CardTitle>
-              <CardDescription>
-                Visualisez vos données de conversion et performance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <LeadStats />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
