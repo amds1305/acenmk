@@ -168,11 +168,13 @@ export type Database = {
       contact_requests: {
         Row: {
           consentement: boolean
+          converted_to_lead: boolean | null
           created_at: string
           description: string
           email: string
           entreprise: string | null
           id: string
+          lead_id: string | null
           nom: string
           origine: string | null
           prenom: string
@@ -182,11 +184,13 @@ export type Database = {
         }
         Insert: {
           consentement?: boolean
+          converted_to_lead?: boolean | null
           created_at?: string
           description: string
           email: string
           entreprise?: string | null
           id?: string
+          lead_id?: string | null
           nom: string
           origine?: string | null
           prenom: string
@@ -196,11 +200,13 @@ export type Database = {
         }
         Update: {
           consentement?: boolean
+          converted_to_lead?: boolean | null
           created_at?: string
           description?: string
           email?: string
           entreprise?: string | null
           id?: string
+          lead_id?: string | null
           nom?: string
           origine?: string | null
           prenom?: string
@@ -208,7 +214,15 @@ export type Database = {
           site_web?: string | null
           telephone?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contact_requests_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cvs: {
         Row: {
@@ -719,6 +733,95 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      lead_interactions: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lead_id: string | null
+          type: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          type: string
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          type?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          assignedto: string | null
+          company: string | null
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          service: string | null
+          source: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          assignedto?: string | null
+          company?: string | null
+          created_at?: string
+          description: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          service?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          assignedto?: string | null
+          company?: string | null
+          created_at?: string
+          description?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          service?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }

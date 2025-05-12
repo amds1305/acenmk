@@ -1,28 +1,82 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Edit, Mail, Phone, Globe, Clock, Building, FileText, Tag } from 'lucide-react';
+import {
+  Edit,
+  Mail,
+  Phone,
+  Globe,
+  Clock,
+  Building,
+  FileText,
+  Tag,
+  MoreHorizontal,
+  Check,
+  Loader2
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { Lead } from '@/types/lead';
 import LeadInteractionsList from './LeadInteractionsList';
 import LeadAddInteraction from './LeadAddInteraction';
 import LeadTasksList from './LeadTasksList';
+import { updateLeadStatus } from '@/services/leadTraceService';
+import { useToast } from '@/hooks/use-toast';
 
 interface LeadDetailDialogProps {
   lead: Lead;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   onEdit: () => void;
+  onLeadUpdated: (updatedLead: Lead) => void;
 }
 
 const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
   lead,
   open,
-  onOpenChange,
+  onClose,
   onEdit,
+  onLeadUpdated
 }) => {
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      setUpdatingStatus(newStatus);
+      const success = await updateLeadStatus(lead.id, newStatus);
+      
+      if (success) {
+        const updatedLead = { ...lead, status: newStatus as any };
+        onLeadUpdated(updatedLead);
+        
+        toast({
+          title: 'Statut mis à jour',
+          description: `Le lead est maintenant "${getStatusLabel(newStatus)}"`,
+        });
+      } else {
+        throw new Error('Échec de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour le statut',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'new':
@@ -37,15 +91,81 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
         return <Badge>{status}</Badge>;
     }
   };
+  
+  const getStatusLabel = (status: string): string => {
+    switch (status) {
+      case 'new': return 'Nouveau';
+      case 'in-progress': return 'En cours';
+      case 'processed': return 'Traité';
+      case 'archived': return 'Archivé';
+      default: return status;
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Détails du lead</span>
             <div className="flex items-center gap-2">
-              {getStatusBadge(lead.status)}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="flex items-center gap-1"
+                    disabled={!!updatingStatus}
+                  >
+                    {updatingStatus ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        Mise à jour...
+                      </>
+                    ) : (
+                      <>
+                        {getStatusBadge(lead.status)}
+                        <MoreHorizontal className="h-4 w-4 ml-1" />
+                      </>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={() => handleStatusChange('new')}
+                    disabled={lead.status === 'new'}
+                    className="flex items-center gap-1"
+                  >
+                    {lead.status === 'new' && <Check className="h-4 w-4" />}
+                    Nouveau
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleStatusChange('in-progress')}
+                    disabled={lead.status === 'in-progress'}
+                    className="flex items-center gap-1"
+                  >
+                    {lead.status === 'in-progress' && <Check className="h-4 w-4" />}
+                    En cours
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleStatusChange('processed')}
+                    disabled={lead.status === 'processed'}
+                    className="flex items-center gap-1"
+                  >
+                    {lead.status === 'processed' && <Check className="h-4 w-4" />}
+                    Traité
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => handleStatusChange('archived')}
+                    disabled={lead.status === 'archived'}
+                    className="flex items-center gap-1"
+                  >
+                    {lead.status === 'archived' && <Check className="h-4 w-4" />}
+                    Archivé
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button size="sm" variant="outline" onClick={onEdit}>
                 <Edit className="h-4 w-4 mr-1" />
                 Modifier
@@ -125,8 +245,8 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
                   <span>Tags:</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {lead.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">
+                  {lead.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline">
                       {tag}
                     </Badge>
                   ))}

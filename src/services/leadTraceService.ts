@@ -71,6 +71,29 @@ export const fetchLeads = async (): Promise<Lead[]> => {
 };
 
 /**
+ * Récupère un lead spécifique par son ID
+ */
+export const fetchLeadById = async (leadId: string): Promise<Lead | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('id', leadId)
+      .single();
+
+    if (error) {
+      console.error(`Erreur lors de la récupération du lead ${leadId}:`, error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération du lead ${leadId}:`, error);
+    return null;
+  }
+};
+
+/**
  * Récupère les interactions d'un lead
  */
 export const fetchLeadInteractions = async (leadId: string): Promise<any[]> => {
@@ -116,6 +139,34 @@ export const updateLeadStatus = async (leadId: string, status: string): Promise<
 };
 
 /**
+ * Met à jour les informations d'un lead
+ */
+export const updateLead = async (leadId: string, leadData: Partial<Lead>): Promise<boolean> => {
+  try {
+    // Ajouter la date de mise à jour
+    const dataToUpdate = {
+      ...leadData,
+      updated_at: new Date().toISOString()
+    };
+    
+    const { error } = await supabase
+      .from('leads')
+      .update(dataToUpdate)
+      .eq('id', leadId);
+
+    if (error) {
+      console.error('Erreur lors de la mise à jour du lead:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du lead:', error);
+    return false;
+  }
+};
+
+/**
  * Ajoute une interaction à un lead
  */
 export const addLeadInteraction = async (leadId: string, type: string, content: string, userName: string): Promise<boolean> => {
@@ -137,6 +188,29 @@ export const addLeadInteraction = async (leadId: string, type: string, content: 
     return true;
   } catch (error) {
     console.error("Erreur lors de l'ajout d'une interaction:", error);
+    return false;
+  }
+};
+
+/**
+ * Supprime un lead et ses interactions associées
+ */
+export const deleteLead = async (leadId: string): Promise<boolean> => {
+  try {
+    // Les interactions seront automatiquement supprimées grâce à la contrainte ON DELETE CASCADE
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', leadId);
+
+    if (error) {
+      console.error('Erreur lors de la suppression du lead:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la suppression du lead:', error);
     return false;
   }
 };

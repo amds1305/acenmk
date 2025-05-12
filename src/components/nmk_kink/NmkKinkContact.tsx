@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const NmkKinkContact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<ContactFormValues>({
@@ -68,6 +69,7 @@ const NmkKinkContact: React.FC = () => {
         // On continue même si l'edge function échoue, car les données sont déjà en base
       }
       
+      setIsSuccess(true);
       toast({
         title: "Message envoyé!",
         description: "Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.",
@@ -114,7 +116,7 @@ const NmkKinkContact: React.FC = () => {
                 <ProjectDetails />
 
                 {/* Terms and Submit Button */}
-                <TermsAndSubmit isSubmitting={isSubmitting} />
+                <TermsAndSubmit isSubmitting={isSubmitting} isSuccess={isSuccess} />
               </form>
             </FormProvider>
           </div>

@@ -1,119 +1,117 @@
 
-import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Phone, Calendar, Mail } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { RefreshCw, MessageSquare, Phone, Mail, Calendar, FileText } from 'lucide-react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { fetchLeadInteractions } from '@/services/leadTraceService';
+import { LeadInteraction } from '@/types/lead';
 
 interface LeadInteractionsListProps {
   leadId: string;
 }
 
-// Mock interactions data
-const mockInteractions = [
-  {
-    id: '1',
-    lead_id: '1',
-    user_id: 'user1',
-    user_name: 'Sophie Tremblay',
-    type: 'email',
-    content: 'Email envoyé pour confirmer la réception de la demande',
-    created_at: '2025-05-02T14:30:00Z',
-  },
-  {
-    id: '2',
-    lead_id: '1',
-    user_id: 'user1',
-    user_name: 'Sophie Tremblay',
-    type: 'call',
-    content: 'Appel pour discuter des besoins spécifiques du projet de site e-commerce',
-    created_at: '2025-05-03T10:15:00Z',
-  },
-  {
-    id: '3',
-    lead_id: '1',
-    user_id: 'user2',
-    user_name: 'Thomas Bernard',
-    type: 'note',
-    content: 'Client très intéressé par nos services, besoin d\'un devis détaillé',
-    created_at: '2025-05-03T16:45:00Z',
-  },
-];
+// Configurations des icônes par type d'interaction
+const interactionIcons: Record<string, React.ReactNode> = {
+  'note': <FileText className="h-4 w-4" />,
+  'call': <Phone className="h-4 w-4" />,
+  'email': <Mail className="h-4 w-4" />,
+  'meeting': <Calendar className="h-4 w-4" />,
+  'message': <MessageSquare className="h-4 w-4" />,
+};
+
+// Configurations des couleurs par type d'interaction
+const interactionColors: Record<string, string> = {
+  'note': 'bg-blue-50 text-blue-600',
+  'call': 'bg-green-50 text-green-600',
+  'email': 'bg-purple-50 text-purple-600',
+  'meeting': 'bg-amber-50 text-amber-600',
+  'message': 'bg-gray-50 text-gray-600',
+};
 
 const LeadInteractionsList: React.FC<LeadInteractionsListProps> = ({ leadId }) => {
-  // In a real application, this would fetch interactions from the API based on leadId
-  const interactions = mockInteractions.filter(interaction => interaction.lead_id === leadId);
+  const [interactions, setInteractions] = useState<LeadInteraction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadInteractions();
+  }, [leadId]);
+
+  const loadInteractions = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchLeadInteractions(leadId);
+      setInteractions(data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des interactions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getInteractionIcon = (type: string) => {
+    return interactionIcons[type] || <FileText className="h-4 w-4" />;
+  };
+
+  const getInteractionColor = (type: string) => {
+    return interactionColors[type] || 'bg-gray-50 text-gray-600';
+  };
+
+  const getInteractionLabel = (type: string) => {
     switch (type) {
-      case 'email':
-        return <Mail className="h-5 w-5" />;
-      case 'call':
-        return <Phone className="h-5 w-5" />;
-      case 'meeting':
-        return <Calendar className="h-5 w-5" />;
-      case 'note':
-      default:
-        return <MessageSquare className="h-5 w-5" />;
+      case 'note': return 'Note';
+      case 'call': return 'Appel';
+      case 'email': return 'Email';
+      case 'meeting': return 'Rendez-vous';
+      case 'message': return 'Message';
+      default: return type.charAt(0).toUpperCase() + type.slice(1);
     }
   };
 
-  const getInteractionBadge = (type: string) => {
-    switch (type) {
-      case 'email':
-        return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-0">Email</Badge>;
-      case 'call':
-        return <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0">Appel</Badge>;
-      case 'meeting':
-        return <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-0">Réunion</Badge>;
-      case 'note':
-        return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-0">Note</Badge>;
-      default:
-        return <Badge>{type}</Badge>;
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (interactions.length === 0) {
+    return (
+      <div className="text-center py-8 border border-dashed rounded-lg">
+        <p className="text-muted-foreground">Aucune interaction enregistrée</p>
+      </div>
+    );
+  }
 
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>Historique des interactions</CardTitle>
-        <CardDescription>
-          Consultez les interactions récentes avec ce contact
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {interactions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            Aucune interaction enregistrée pour ce lead
-          </div>
-        ) : (
-          <div className="space-y-6 relative pl-6 border-l border-border">
-            {interactions.map((interaction) => (
-              <div key={interaction.id} className="relative">
-                <div className="absolute -left-[21px] mt-1.5 h-4 w-4 rounded-full bg-primary"></div>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium flex items-center gap-2">
-                      {getInteractionBadge(interaction.type)}
-                      <span>{interaction.user_name}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(interaction.created_at).toLocaleDateString()} - {new Date(interaction.created_at).toLocaleTimeString()}
-                    </div>
-                  </div>
-                  <div className="mt-1">{interaction.content}</div>
+    <div className="space-y-4">
+      {interactions.map((interaction) => (
+        <Card key={interaction.id} className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex">
+              <div className={`p-4 ${getInteractionColor(interaction.type)}`}>
+                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+                  {getInteractionIcon(interaction.type)}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              <div className="p-4 flex-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="font-medium">{getInteractionLabel(interaction.type)}</span>
+                    <span className="text-sm text-muted-foreground ml-2">par {interaction.user_name}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(interaction.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm">{interaction.content}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

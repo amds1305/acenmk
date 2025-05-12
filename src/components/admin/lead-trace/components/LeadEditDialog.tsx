@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -30,11 +30,14 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Lead } from '@/types/lead';
+import { updateLead } from '@/services/leadTraceService';
+import { Loader2 } from 'lucide-react';
 
 interface LeadEditDialogProps {
   lead: Lead;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+  onSave: (updatedLead: Lead) => void;
 }
 
 const formSchema = z.object({
@@ -48,14 +51,20 @@ const formSchema = z.object({
   description: z.string().min(1, 'La description est requise'),
   status: z.enum(['new', 'in-progress', 'processed', 'archived']),
   assignedTo: z.string().optional(),
+  tags: z.string().optional(),
 });
 
 const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
   lead,
   open,
-  onOpenChange,
+  onClose,
+  onSave,
 }) => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Convertir les tags array en string pour le formulaire
+  const tagsString = lead.tags ? lead.tags.join(', ') : '';
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,24 +79,58 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
       description: lead.description,
       status: lead.status,
       assignedTo: lead.assignedTo ?? '',
+      tags: tagsString,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log('Updated lead:', values);
-    
-    // Simulate API call
-    setTimeout(() => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      
+      // Convertir la chaîne de tags en tableau
+      const tagsArray = values.tags ? 
+        values.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : 
+        [];
+      
+      // Préparer les données à mettre à jour
+      const updatedLeadData: Partial<Lead> = {
+        ...values,
+        tags: tagsArray,
+      };
+      
+      // Envoyer la mise à jour à la base de données
+      const success = await updateLead(lead.id, updatedLeadData);
+      
+      if (success) {
+        // Créer un objet Lead complet pour la mise à jour de l'interface
+        const updatedLead: Lead = {
+          ...lead,
+          ...updatedLeadData,
+        };
+        
+        toast({
+          title: 'Lead mis à jour',
+          description: 'Les modifications ont été enregistrées avec succès',
+        });
+        
+        onSave(updatedLead);
+      } else {
+        throw new Error('Échec de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du lead:', error);
       toast({
-        title: 'Lead mis à jour',
-        description: 'Les modifications ont été enregistrées',
+        title: 'Erreur',
+        description: 'Une erreur s\'est produite lors de la mise à jour du lead',
+        variant: 'destructive',
       });
-      onOpenChange(false);
-    }, 500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Modifier le lead</DialogTitle>
@@ -217,6 +260,20 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags (séparés par des virgules)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="web, urgent, priorité" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             
             <FormField
@@ -234,10 +291,27 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
             />
             
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
                 Annuler
               </Button>
-              <Button type="submit">Enregistrer les modifications</Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  'Enregistrer les modifications'
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

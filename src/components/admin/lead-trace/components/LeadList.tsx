@@ -25,7 +25,7 @@ import LeadDetailDialog from './LeadDetailDialog';
 import LeadEditDialog from './LeadEditDialog';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
-import { fetchLeads, updateLeadStatus } from '@/services/leadTraceService';
+import { fetchLeads, updateLeadStatus, deleteLead } from '@/services/leadTraceService';
 
 // Mapping des statuts
 const statusConfig = {
@@ -98,12 +98,36 @@ const LeadList: React.FC = () => {
 
   // Gérer la suppression d'un lead
   const handleDelete = async (lead: Lead) => {
-    // Dans une version future, implémenter la suppression réelle
-    toast({
-      title: 'Fonctionnalité à venir',
-      description: 'La suppression des leads sera disponible dans une future mise à jour',
-    });
-    setIsDeleteOpen(false);
+    try {
+      const success = await deleteLead(lead.id);
+      
+      if (success) {
+        // Mettre à jour l'état local
+        setLeads(leads.filter(l => l.id !== lead.id));
+        
+        toast({
+          title: 'Lead supprimé',
+          description: 'Le lead a été supprimé avec succès',
+        });
+        
+        setIsDeleteOpen(false);
+      } else {
+        throw new Error('Échec de la suppression');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du lead:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de supprimer le lead',
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // Mettre à jour un lead après modification
+  const handleLeadUpdated = (updatedLead: Lead) => {
+    setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+    setSelectedLead(updatedLead);
   };
 
   return (
@@ -168,16 +192,42 @@ const LeadList: React.FC = () => {
                           className={`${statusConfig[lead.status]?.bg} text-xs font-medium h-6 gap-1 ${updatingStatus === lead.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                           disabled={updatingStatus === lead.id}
                         >
-                          {updatingStatus === lead.id && <RefreshCw className="h-3 w-3 animate-spin" />}
-                          {statusConfig[lead.status]?.label || lead.status}
+                          {updatingStatus === lead.id ? (
+                            <>
+                              <RefreshCw className="h-3 w-3 animate-spin" />
+                              Mise à jour...
+                            </>
+                          ) : (
+                            statusConfig[lead.status]?.label || lead.status
+                          )}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'new')}>Nouveau</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'in-progress')}>En cours</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'processed')}>Traité</DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleStatusChange(lead, 'new')}
+                          disabled={lead.status === 'new'}
+                        >
+                          Nouveau
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleStatusChange(lead, 'in-progress')}
+                          disabled={lead.status === 'in-progress'}
+                        >
+                          En cours
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleStatusChange(lead, 'processed')}
+                          disabled={lead.status === 'processed'}
+                        >
+                          Traité
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStatusChange(lead, 'archived')}>Archivé</DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleStatusChange(lead, 'archived')}
+                          disabled={lead.status === 'archived'}
+                        >
+                          Archivé
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -228,25 +278,26 @@ const LeadList: React.FC = () => {
         </Table>
       </div>
 
-      {/* Modal de détails */}
+      {/* Modals */}
       {selectedLead && (
         <>
           <LeadDetailDialog
             lead={selectedLead}
             open={isDetailOpen}
             onClose={() => setIsDetailOpen(false)}
+            onEdit={() => {
+              setIsDetailOpen(false);
+              setIsEditOpen(true);
+            }}
+            onLeadUpdated={handleLeadUpdated}
           />
           <LeadEditDialog
             lead={selectedLead}
             open={isEditOpen}
             onClose={() => setIsEditOpen(false)}
             onSave={(updatedLead) => {
-              setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+              handleLeadUpdated(updatedLead);
               setIsEditOpen(false);
-              toast({
-                title: 'Lead mis à jour',
-                description: 'Les modifications ont été enregistrées avec succès',
-              });
             }}
           />
           <DeleteConfirmDialog
