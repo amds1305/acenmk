@@ -46,18 +46,19 @@ const EmailSettingsForm: React.FC = () => {
         const { data, error } = await supabase
           .from('contact_email_settings')
           .select('*')
-          .limit(1)
-          .single();
+          .limit(1);
 
         if (error) throw error;
         
-        if (data) {
-          setSettingsId(data.id);
+        if (data && data.length > 0) {
+          // Utiliser le premier résultat au lieu de .single()
+          const settings = data[0];
+          setSettingsId(settings.id);
           form.reset({
-            destinataires: data.destinataires.join(', '),
-            cc: data.cc ? data.cc.join(', ') : '',
-            bcc: data.bcc ? data.bcc.join(', ') : '',
-            objet: data.objet,
+            destinataires: Array.isArray(settings.destinataires) ? settings.destinataires.join(', ') : '',
+            cc: Array.isArray(settings.cc) ? settings.cc.join(', ') : '',
+            bcc: Array.isArray(settings.bcc) ? settings.bcc.join(', ') : '',
+            objet: settings.objet || '',
           });
         }
       } catch (error: any) {

@@ -25,7 +25,7 @@ import { isAdminRole } from '@/utils/roleUtils';
 const internalModules = [
   {
     name: 'AceJob',
-    path: '/ace-job',  // Correction du chemin vers /ace-job
+    path: '/ace-job',
     icon: <GraduationCap className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }

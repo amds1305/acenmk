@@ -15,6 +15,7 @@ import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
 import AdminContactPage from "@/pages/AdminContact";
 import AdminAceJobPage from "@/pages/AdminAceJob";
 import AdminRolesPermissions from "@/pages/AdminRolesPermissions";
+import AdminExternalLinks from "@/pages/AdminExternalLinks";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
@@ -83,6 +84,10 @@ export const routes: RouteObject[] = [
       {
         path: "roles",
         element: <AdminRolesPermissions />,
+      },
+      {
+        path: "external-links",
+        element: <AdminExternalLinks />,
       },
     ],
   },
