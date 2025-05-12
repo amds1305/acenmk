@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Building2,
   Newspaper,
+  GraduationCap,
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -67,6 +68,11 @@ export const getNavItems = () => [
     path: '/admin/trusted-clients',
     label: 'Clients',
     icon: <Building2 className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/ace-job',
+    label: 'AceJob',
+    icon: <GraduationCap className="h-5 w-5" />,
   },
   {
     path: '/admin/contact',

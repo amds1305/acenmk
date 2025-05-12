@@ -42,7 +42,7 @@ const AceJob = () => {
   };
   
   return (
-    <ProtectedModule requiredRoles={requiredRoles} path="/acejob">
+    <ProtectedModule requiredRoles={requiredRoles} path="/ace-job">
       <div className="min-h-screen flex flex-col">
         <Header />
         <div className="flex-1 pt-20 bg-gray-50 dark:bg-gray-900">

@@ -13,6 +13,7 @@ import AdminUsersPage from "@/pages/AdminUsers";
 import AdminTestimonialsPage from "@/pages/AdminTestimonials";
 import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
 import AdminContactPage from "@/pages/AdminContact";
+import AdminAceJobPage from "@/pages/AdminAceJob";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 
@@ -73,6 +74,10 @@ export const routes: RouteObject[] = [
         path: "contact",
         element: <AdminContactPage />,
       },
+      {
+        path: "ace-job",
+        element: <AdminAceJobPage />,
+      },
     ],
   },
   {
@@ -90,6 +95,10 @@ export const routes: RouteObject[] = [
   {
     path: "/politique-cookies",
     element: <LegalPageRoute />,
+  },
+  {
+    path: "/ace-job",
+    element: <AceJobPage />,
   },
 ];
 

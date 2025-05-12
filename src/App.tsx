@@ -13,7 +13,9 @@ import AdminCustomSection from './pages/AdminCustomSection';
 import AdminHeroPage from './pages/AdminHero';
 import AdminFooter from './pages/AdminFooter';
 import AdminHeader from './pages/AdminHeader';
+import AdminAceJob from './pages/AdminAceJob';
 import AdminWrapper from './pages/AdminWrapper';
+import AceJob from './pages/AceJob';
 
 // Providers
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -45,6 +47,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/ace-job" element={<AceJob />} />
             
             {/* Routes admin avec AdminWrapper comme layout parent */}
             <Route path="/admin" element={
@@ -64,6 +67,7 @@ function App() {
               <Route path="hero" element={<AdminHeroPage />} />
               <Route path="footer" element={<AdminFooter />} />
               <Route path="header" element={<AdminHeader />} />
+              <Route path="ace-job" element={<AdminAceJob />} />
             </Route>
             
             {/* Routes légales */}
