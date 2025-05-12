@@ -19,6 +19,8 @@ import AdminExternalLinks from "@/pages/AdminExternalLinks";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
+import AdminLeadTracePage from "@/pages/AdminLeadTrace";
+import LeadTracePage from "@/pages/LeadTrace";
 
 export const routes: RouteObject[] = [
   {
@@ -89,6 +91,10 @@ export const routes: RouteObject[] = [
         path: "external-links",
         element: <AdminExternalLinks />,
       },
+      {
+        path: "lead-trace",
+        element: <AdminLeadTracePage />,
+      },
     ],
   },
   {
@@ -110,6 +116,10 @@ export const routes: RouteObject[] = [
   {
     path: "/ace-job",
     element: <AceJobPage />,
+  },
+  {
+    path: "/lead-trace",
+    element: <LeadTracePage />,
   },
 ];
 

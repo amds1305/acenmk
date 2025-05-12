@@ -28,6 +28,12 @@ const internalModules = [
     path: '/ace-job',
     icon: <GraduationCap className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
+  },
+  {
+    name: 'LeadTrace',
+    path: '/lead-trace',
+    icon: <Briefcase className="h-4 w-4" />,
+    requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }
   // Possibilité d'ajouter d'autres modules internes facilement ici
 ];

@@ -19,6 +19,7 @@ import {
   TrendingUp,
   ShieldCheck,
   Paperclip,
+  Briefcase,
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -76,6 +77,11 @@ export const getNavItems = () => [
     path: '/admin/ace-job',
     label: 'AceJob',
     icon: <GraduationCap className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/lead-trace',
+    label: 'LeadTrace',
+    icon: <Briefcase className="h-5 w-5" />,
   },
   {
     path: '/admin/contact',

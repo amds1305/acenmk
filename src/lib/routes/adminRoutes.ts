@@ -91,5 +91,15 @@ export const adminRouteMetadata: Record<string, RouteMetadata> = {
     showInNav: true,
     order: 522,
     category: 'admin'
+  },
+  '/admin/lead-trace': {
+    path: '/admin/lead-trace',
+    title: 'LeadTrace',
+    description: 'Gestion des leads et des contacts commerciaux',
+    icon: 'briefcase',
+    parentPath: '/admin',
+    showInNav: true,
+    order: 523,
+    category: 'admin'
   }
 };
