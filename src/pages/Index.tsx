@@ -132,20 +132,33 @@ const Index = () => {
     return <PageLoader />;
   }
 
-  // Nouveau fallback: si homeConfig est vide
-  if (!homeConfig || !homeConfig.sections || homeConfig.sections.length === 0) {
-    console.warn('⚠️ [Index] Aucune configuration chargée, affichage du fallback');
+  // Nouveau fallback: si homeConfig est entièrement indéfini (erreur complète)
+  if (!homeConfig) {
+    console.warn('⚠️ [Index] Configuration entièrement absente, affichage du fallback');
     return <ConfigFallback />;
   }
 
   console.log("📊 [Index] Template actif:", homeConfig?.templateConfig?.activeTemplate);
-  console.log("📊 [Index] Sections disponibles:", homeConfig?.sections);
+  
+  // Sections par défaut à utiliser si nécessaire
+  const defaultSections = [
+    { id: 'hero-default', type: 'hero', order: 1, visible: true, title: 'Hero' },
+    { id: 'services-default', type: 'services', order: 2, visible: true, title: 'Services' },
+    { id: 'about-default', type: 'about', order: 3, visible: true, title: 'À propos' },
+    { id: 'team-default', type: 'team', order: 4, visible: true, title: 'Équipe' },
+    { id: 'testimonials-default', type: 'testimonials', order: 5, visible: true, title: 'Témoignages' },
+    { id: 'faq-default', type: 'faq', order: 6, visible: true, title: 'FAQ' },
+    { id: 'contact-default', type: 'contact', order: 7, visible: true, title: 'Contact' },
+  ];
+  
+  // Utiliser le template actif si configuré
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 
-  const sectionsToDisplay = homeConfig?.sections
-    ?.filter(section => section.visible)
-    ?.sort((a, b) => a.order - b.order) || [];
+  // Si aucune section n'est définie ou disponible, utiliser les sections par défaut
+  const sectionsToDisplay = homeConfig.sections?.length > 0 
+    ? homeConfig.sections.filter(section => section.visible)?.sort((a, b) => a.order - b.order) 
+    : defaultSections;
     
   console.log('📊 [Index] Sections à afficher:', sectionsToDisplay);
 
@@ -163,18 +176,6 @@ const Index = () => {
     );
   }
 
-  const displaySections = sectionsToDisplay.length > 0 ? sectionsToDisplay : [
-    { id: 'hero-default', type: 'hero', order: 1 },
-    { id: 'services-default', type: 'services', order: 2 },
-    { id: 'about-default', type: 'about', order: 3 },
-    { id: 'team-default', type: 'team', order: 4 },
-    { id: 'testimonials-default', type: 'testimonials', order: 5 },
-    { id: 'faq-default', type: 'faq', order: 6 },
-    { id: 'contact-default', type: 'contact', order: 7 },
-  ];
-
-  console.log('📊 [Index] Sections à rendre finalement:', displaySections);
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -184,7 +185,7 @@ const Index = () => {
         
         {/* Sections dynamiques */}
         <SectionRenderer 
-          sections={displaySections}
+          sections={sectionsToDisplay}
           sectionComponents={sectionComponents}
         />
         <Pricing />
