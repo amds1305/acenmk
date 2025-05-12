@@ -14,6 +14,7 @@ import AdminHeroPage from './pages/AdminHero';
 import AdminFooter from './pages/AdminFooter';
 import AdminHeader from './pages/AdminHeader';
 import AdminAceJob from './pages/AdminAceJob';
+import AdminRolesPermissions from './pages/AdminRolesPermissions';
 import AdminWrapper from './pages/AdminWrapper';
 import AceJob from './pages/AceJob';
 
@@ -68,6 +69,7 @@ function App() {
               <Route path="footer" element={<AdminFooter />} />
               <Route path="header" element={<AdminHeader />} />
               <Route path="ace-job" element={<AdminAceJob />} />
+              <Route path="roles" element={<AdminRolesPermissions />} />
             </Route>
             
             {/* Routes légales */}

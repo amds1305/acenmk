@@ -14,6 +14,7 @@ import AdminTestimonialsPage from "@/pages/AdminTestimonials";
 import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
 import AdminContactPage from "@/pages/AdminContact";
 import AdminAceJobPage from "@/pages/AdminAceJob";
+import AdminRolesPermissions from "@/pages/AdminRolesPermissions";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
@@ -78,6 +79,10 @@ export const routes: RouteObject[] = [
       {
         path: "ace-job",
         element: <AdminAceJobPage />,
+      },
+      {
+        path: "roles",
+        element: <AdminRolesPermissions />,
       },
     ],
   },
