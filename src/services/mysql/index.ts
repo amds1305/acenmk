@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 
 // Fonction pour récupérer la configuration de la page d'accueil
 export const getHomepageConfig = async (): Promise<HomepageConfig> => {
+  console.log("[API] Appel à getHomepageConfig...");
   try {
     console.log('Tentative de chargement de la configuration depuis Supabase...');
     
@@ -20,6 +21,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     }
     
     // 1. Récupérer les sections
+    console.log('Récupération des sections depuis Supabase...');
     const { data: sections, error: sectionsError } = await supabase
       .from('sections')
       .select('*')
@@ -31,6 +33,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     }
 
     // 2. Récupérer les données des sections
+    console.log('Récupération des données de sections depuis Supabase...');
     const { data: sectionDataEntries, error: sectionDataError } = await supabase
       .from('section_data')
       .select('*');
@@ -49,6 +52,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     });
 
     // 3. Récupérer la configuration du template
+    console.log('Récupération de la configuration du template depuis Supabase...');
     const { data: templateConfig, error: templateError } = await supabase
       .from('template_config')
       .select('*')
@@ -72,17 +76,20 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     localStorage.setItem('cachedHomepageConfig', JSON.stringify(config));
     localStorage.setItem('cachedConfigTimestamp', now.toString());
     
+    console.log('Configuration chargée avec succès:', config);
     return config;
   } catch (error) {
     console.error('Erreur lors de la récupération de la configuration:', error);
     
     try {
       // Tentative de charger depuis le localStorage
+      console.log('Tentative de chargement depuis localStorage après erreur...');
       const sections = JSON.parse(localStorage.getItem('homepageSections') || 'null');
       const sectionData = JSON.parse(localStorage.getItem('homepageSectionData') || 'null');
       const templateConfig = JSON.parse(localStorage.getItem('homepageTemplateConfig') || 'null');
       
       if (sections) {
+        console.log('Configuration récupérée depuis localStorage');
         return {
           sections,
           sectionData: sectionData || {},
@@ -93,6 +100,7 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
       console.error('Erreur lors du chargement depuis localStorage:', localError);
     }
     
+    console.log('Utilisation de la configuration par défaut après échec de chargement');
     return DEFAULT_HOMEPAGE_CONFIG;
   }
 };
