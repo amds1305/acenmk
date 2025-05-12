@@ -27,7 +27,7 @@ const formSchema = z.object({
   description: z.string().min(10, 'La description doit contenir au moins 10 caractères'),
 });
 
-const Lead = () => {
+const Lead: React.FC = () => {
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
