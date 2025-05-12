@@ -1,12 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -16,284 +18,175 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Search, Filter, MoreHorizontal } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
-  Search, 
-  Plus, 
-  MoreHorizontal, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Download,
-  Filter,
-  Users,
-  Tag
-} from 'lucide-react';
 import LeadDetailDialog from './LeadDetailDialog';
 import LeadEditDialog from './LeadEditDialog';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
-import { useToast } from '@/hooks/use-toast';
-import { Lead, LeadFilter } from '@/types/lead';
 
-// Simulate lead data for the initial UI
-const mockLeads: Lead[] = [
+// Mock data for leads
+const mockLeads = [
   {
     id: '1',
     name: 'Jean Dupont',
     email: 'jean.dupont@example.com',
     phone: '+33 6 12 34 56 78',
-    company: 'Entreprise ABC',
-    website: 'www.entrepriseabc.fr',
-    service: 'web-development',
-    source: 'search-engine',
-    description: 'Besoin d\'un nouveau site web e-commerce',
+    company: 'Dupont SAS',
+    website: 'www.dupontsas.fr',
+    service: 'Développement web',
+    source: 'Formulaire de contact',
+    description: 'Besoin d\'un site e-commerce pour vendre nos produits',
     status: 'new',
-    tags: ['urgent', 'ecommerce'],
+    tags: ['e-commerce', 'urgent'],
+    assignedTo: 'Sophie Martin',
     created_at: '2025-05-01T10:30:00Z',
     updated_at: '2025-05-01T10:30:00Z',
   },
   {
     id: '2',
-    name: 'Marie Martin',
-    email: 'marie.martin@example.com',
-    phone: '+33 6 23 45 67 89',
-    company: 'Société XYZ',
-    website: 'www.societe-xyz.fr',
-    service: 'mobile-app',
-    source: 'recommendation',
-    description: 'Développement d\'une application mobile pour notre service client',
+    name: 'Marie Lambert',
+    email: 'marie.lambert@example.com',
+    phone: '+33 7 65 43 21 09',
+    company: 'Lambert & Co',
+    website: 'www.lambertco.fr',
+    service: 'Design UX/UI',
+    source: 'LinkedIn',
+    description: 'Refonte de notre application mobile',
     status: 'in-progress',
-    tags: ['mobile', 'premium'],
-    assignedTo: 'Sophie Tremblay',
-    created_at: '2025-04-28T14:15:00Z',
-    updated_at: '2025-05-02T09:45:00Z',
+    tags: ['app', 'design'],
+    assignedTo: 'Thomas Bernard',
+    created_at: '2025-04-28T14:20:00Z',
+    updated_at: '2025-05-02T09:15:00Z',
   },
   {
     id: '3',
-    name: 'Pierre Lefebvre',
-    email: 'pierre.lefebvre@example.com',
-    phone: '+33 7 34 56 78 90',
-    company: 'Startup Tech',
-    service: 'consulting',
-    source: 'social-media',
-    description: 'Besoin de conseil sur notre infrastructure cloud',
+    name: 'Paul Moreau',
+    email: 'paul.moreau@example.com',
+    phone: '+33 6 98 76 54 32',
+    company: 'Moreau Tech',
+    website: 'www.moreautech.com',
+    service: 'Conseil informatique',
+    source: 'Recommandation',
+    description: 'Migration vers le cloud et optimisation de l\'infrastructure',
     status: 'processed',
-    tags: ['cloud', 'consulting'],
-    assignedTo: 'Thomas Bernard',
-    created_at: '2025-04-20T11:20:00Z',
+    tags: ['cloud', 'infrastructure'],
+    assignedTo: 'Sophie Martin',
+    created_at: '2025-04-20T11:45:00Z',
     updated_at: '2025-05-03T16:30:00Z',
-  },
+  }
 ];
 
-const LeadList = () => {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
-  const [isLoading, setIsLoading] = useState(false);
+const LeadList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<LeadFilter>({});
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedLead, setSelectedLead] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { toast } = useToast();
 
-  // In a real application, this would fetch data from the API
-  useEffect(() => {
-    // setIsLoading(true);
-    // fetchLeads(filters).then((data) => {
-    //   setLeads(data);
-    //   setIsLoading(false);
-    // });
-  }, [filters]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setFilters({ ...filters, search: e.target.value });
-  };
-
-  const handleStatusFilter = (status: string) => {
-    setFilters({ ...filters, status });
-  };
-
-  const handleViewLead = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsDetailOpen(true);
-  };
-
-  const handleEditLead = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsEditOpen(true);
-  };
-
-  const handleDeleteLead = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsDeleteOpen(true);
-  };
-
-  const confirmDeleteLead = () => {
-    // In a real application, this would call the API to delete the lead
-    if (selectedLead) {
-      setLeads(leads.filter(lead => lead.id !== selectedLead.id));
-      toast({
-        title: 'Lead supprimé',
-        description: `Le lead ${selectedLead.name} a été supprimé avec succès.`,
-      });
-      setIsDeleteOpen(false);
-    }
-  };
-
-  const exportLeads = () => {
-    // In a real application, this would generate a CSV or Excel file
-    toast({
-      title: 'Export en cours',
-      description: 'Vos données sont en cours d\'exportation...',
-    });
-  };
+  const filteredLeads = mockLeads.filter(lead => {
+    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          lead.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (lead.company && lead.company.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'new':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">Nouveau</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Nouveau</Badge>;
       case 'in-progress':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">En cours</Badge>;
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">En cours</Badge>;
       case 'processed':
-        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Traité</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Traité</Badge>;
       case 'archived':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">Archivé</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Archivé</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
   };
 
+  const handleViewDetails = (lead: any) => {
+    setSelectedLead(lead);
+    setIsDetailOpen(true);
+  };
+
+  const handleEdit = (lead: any) => {
+    setSelectedLead(lead);
+    setIsEditOpen(true);
+  };
+
+  const handleDelete = (lead: any) => {
+    setSelectedLead(lead);
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    console.log('Deleting lead:', selectedLead.id);
+    setIsDeleteOpen(false);
+    // In a real app, this would call an API to delete the lead
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Liste des leads</CardTitle>
-            <CardDescription>Gérez vos prospects et contacts</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={exportLeads}>
-              <Download className="mr-2 h-4 w-4" />
-              Exporter
-            </Button>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nouveau lead
-            </Button>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-4 mb-6 md:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher des leads..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Select onValueChange={handleStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="new">Nouveaux</SelectItem>
-                  <SelectItem value="in-progress">En cours</SelectItem>
-                  <SelectItem value="processed">Traités</SelectItem>
-                  <SelectItem value="archived">Archivés</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            
-            <Button variant="outline" className="gap-2">
-              <Tag className="h-4 w-4" />
-              Tags
-            </Button>
-            
-            <Button variant="outline" className="gap-2">
-              <Users className="h-4 w-4" />
-              Assignés à
-            </Button>
-          </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrer par statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les statuts</SelectItem>
+              <SelectItem value="new">Nouveaux</SelectItem>
+              <SelectItem value="in-progress">En cours</SelectItem>
+              <SelectItem value="processed">Traités</SelectItem>
+              <SelectItem value="archived">Archivés</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nom / Email</TableHead>
-                <TableHead className="hidden md:table-cell">Entreprise</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="hidden lg:table-cell">Tags</TableHead>
-                <TableHead className="hidden lg:table-cell">Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10">
-                    <div className="flex justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                    <div className="mt-2 text-sm text-muted-foreground">Chargement des leads...</div>
-                  </TableCell>
-                </TableRow>
-              ) : leads.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10">
-                    <div className="text-muted-foreground">Aucun lead trouvé</div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                leads.map(lead => (
-                  <TableRow key={lead.id}>
-                    <TableCell>
-                      <div className="font-medium">{lead.name}</div>
-                      <div className="text-sm text-muted-foreground">{lead.email}</div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {lead.company || '-'}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(lead.status)}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <div className="flex flex-wrap gap-1">
-                        {lead.tags.map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-muted-foreground">
-                      {new Date(lead.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
+      </div>
+      
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[180px]">Nom</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead className="hidden md:table-cell">Entreprise</TableHead>
+              <TableHead className="hidden md:table-cell">Statut</TableHead>
+              <TableHead className="hidden md:table-cell">Date</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredLeads.length > 0 ? (
+              filteredLeads.map((lead) => (
+                <TableRow key={lead.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleViewDetails(lead)}>
+                  <TableCell className="font-medium">{lead.name}</TableCell>
+                  <TableCell>{lead.email}</TableCell>
+                  <TableCell className="hidden md:table-cell">{lead.company || '-'}</TableCell>
+                  <TableCell className="hidden md:table-cell">{getStatusBadge(lead.status)}</TableCell>
+                  <TableCell className="hidden md:table-cell">{new Date(lead.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -302,61 +195,63 @@ const LeadList = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleViewLead(lead)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Voir les détails
+                          <DropdownMenuItem onClick={() => handleViewDetails(lead)}>
+                            Voir détails
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditLead(lead)}>
-                            <Edit className="mr-2 h-4 w-4" />
+                          <DropdownMenuItem onClick={() => handleEdit(lead)}>
                             Modifier
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteLead(lead)}
                             className="text-red-600"
+                            onClick={() => handleDelete(lead)}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
                             Supprimer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-
-      {/* Dialogs */}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  Aucun résultat trouvé.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      
       {selectedLead && (
         <>
           <LeadDetailDialog 
-            lead={selectedLead}
-            open={isDetailOpen}
+            lead={selectedLead} 
+            open={isDetailOpen} 
             onOpenChange={setIsDetailOpen}
+            onEdit={() => {
+              setIsDetailOpen(false);
+              setIsEditOpen(true);
+            }}
           />
           
           <LeadEditDialog
             lead={selectedLead}
             open={isEditOpen}
             onOpenChange={setIsEditOpen}
-            onLeadUpdated={(updatedLead) => {
-              setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
-            }}
           />
           
           <DeleteConfirmDialog
             open={isDeleteOpen}
             onOpenChange={setIsDeleteOpen}
-            onConfirm={confirmDeleteLead}
-            title="Supprimer le lead"
-            description={`Êtes-vous sûr de vouloir supprimer le lead "${selectedLead.name}" ? Cette action est irréversible.`}
+            onConfirm={confirmDelete}
+            title="Supprimer ce lead"
+            description="Êtes-vous sûr de vouloir supprimer ce lead ? Cette action est irréversible."
           />
         </>
       )}
-    </Card>
+    </div>
   );
 };
 

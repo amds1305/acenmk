@@ -1,17 +1,22 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -19,251 +24,195 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
 
-const SettingsManager = () => {
+const formSchema = z.object({
+  notificationsEnabled: z.boolean().default(true),
+  notificationEmail: z.string().email('Email invalide'),
+  leadExpiryDays: z.string().min(1, 'Ce champ est requis'),
+  defaultStatus: z.string().min(1, 'Ce champ est requis'),
+  showArchivedLeads: z.boolean().default(false),
+  enableExport: z.boolean().default(true),
+});
+
+const SettingsManager: React.FC = () => {
   const { toast } = useToast();
   
-  const handleSaveSettings = () => {
-    toast({
-      title: 'Paramètres enregistrés',
-      description: 'Les paramètres ont été mis à jour avec succès.',
-    });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      notificationsEnabled: true,
+      notificationEmail: 'admin@example.com',
+      leadExpiryDays: '90',
+      defaultStatus: 'new',
+      showArchivedLeads: false,
+      enableExport: true,
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log('Settings form values:', values);
+    
+    // Simulate API request
+    setTimeout(() => {
+      toast({
+        title: 'Paramètres sauvegardés',
+        description: 'Les paramètres ont été mis à jour avec succès.',
+      });
+    }, 500);
   };
 
   return (
-    <Tabs defaultValue="general">
-      <TabsList className="grid grid-cols-3 w-full md:w-auto">
-        <TabsTrigger value="general">Général</TabsTrigger>
-        <TabsTrigger value="fields">Champs personnalisés</TabsTrigger>
-        <TabsTrigger value="permissions">Permissions</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="general" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Paramètres généraux</CardTitle>
-            <CardDescription>
-              Configurez les paramètres généraux du module LeadTrace
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Nom de l'entreprise</Label>
-                <Input id="companyName" defaultValue="ACE Company" />
-              </div>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium">Notifications</h3>
+            
+            <FormField
+              control={form.control}
+              name="notificationsEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Notifications par email
+                    </FormLabel>
+                    <FormDescription>
+                      Recevez des notifications par email pour les nouveaux leads
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="notificationEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Adresse email de notification</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Les notifications de nouveaux leads seront envoyées à cette adresse
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <Separator />
+          
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium">Paramètres généraux</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="leadExpiryDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Délai d'expiration des leads (jours)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="1" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Les leads seront automatiquement archivés après ce délai
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              <div className="space-y-2">
-                <Label htmlFor="emailContact">Email de contact principal</Label>
-                <Input id="emailContact" type="email" defaultValue="contact@example.com" />
-              </div>
+              <FormField
+                control={form.control}
+                name="defaultStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Statut par défaut</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un statut" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="new">Nouveau</SelectItem>
+                        <SelectItem value="in-progress">En cours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Statut attribué aux nouveaux leads
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="leadAssignment">Attribution automatique des leads</Label>
-                <Select defaultValue="round-robin">
-                  <SelectTrigger id="leadAssignment">
-                    <SelectValue placeholder="Méthode d'attribution" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manual">Attribution manuelle</SelectItem>
-                    <SelectItem value="round-robin">Rotation (round-robin)</SelectItem>
-                    <SelectItem value="load-balancing">Équilibrage de charge</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="defaultStatus">Statut par défaut</Label>
-                <Select defaultValue="new">
-                  <SelectTrigger id="defaultStatus">
-                    <SelectValue placeholder="Statut par défaut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">Nouveau</SelectItem>
-                    <SelectItem value="in-progress">En cours</SelectItem>
-                    <SelectItem value="processed">Traité</SelectItem>
-                    <SelectItem value="archived">Archivé</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="showArchivedLeads"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Afficher les leads archivés
+                    </FormLabel>
+                    <FormDescription>
+                      Inclure les leads archivés dans la liste principale
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Intégration avec le CRM</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Envoyer automatiquement les leads qualifiés vers le CRM
+            <FormField
+              control={form.control}
+              name="enableExport"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Activer l'export de données
+                    </FormLabel>
+                    <FormDescription>
+                      Permettre l'export des données au format CSV
+                    </FormDescription>
                   </div>
-                </div>
-                <Switch />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Historisation complète</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Enregistrer toutes les interactions et modifications
-                  </div>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Mode RGPD strict</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Activer des contrôles supplémentaires pour la conformité RGPD
-                  </div>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleSaveSettings}>
-              Enregistrer les paramètres
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Intégrations</CardTitle>
-            <CardDescription>
-              Connectez LeadTrace à d'autres services
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start space-x-4 p-4 border rounded-md">
-              <div>
-                <div className="font-medium">Email Marketing</div>
-                <p className="text-sm text-muted-foreground">Intégration avec votre système d'emailing</p>
-              </div>
-              <div className="ml-auto">
-                <Button variant="outline">Configurer</Button>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4 p-4 border rounded-md">
-              <div>
-                <div className="font-medium">CRM</div>
-                <p className="text-sm text-muted-foreground">Connectez-vous à votre CRM existant</p>
-              </div>
-              <div className="ml-auto">
-                <Button variant="outline">Configurer</Button>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4 p-4 border rounded-md">
-              <div>
-                <div className="font-medium">Calendrier</div>
-                <p className="text-sm text-muted-foreground">Synchronisation avec Google Calendar ou Outlook</p>
-              </div>
-              <div className="ml-auto">
-                <Button variant="outline">Configurer</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="fields" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Champs personnalisés</CardTitle>
-            <CardDescription>
-              Configurez des champs personnalisés pour vos leads
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-4">
-                <div className="flex-1 grid grid-cols-5 gap-2">
-                  <div className="col-span-2 font-medium">Nom du champ</div>
-                  <div className="font-medium">Type</div>
-                  <div className="font-medium">Obligatoire</div>
-                  <div className="font-medium text-right">Actions</div>
-                </div>
-              </div>
-              
-              {[
-                { id: 1, name: "Budget", type: "number", required: true },
-                { id: 2, name: "Taille de l'entreprise", type: "select", required: false },
-                { id: 3, name: "Date souhaitée de début", type: "date", required: false },
-              ].map((field) => (
-                <div key={field.id} className="flex items-center justify-between border-b pb-4">
-                  <div className="flex-1 grid grid-cols-5 gap-2 items-center">
-                    <div className="col-span-2">{field.name}</div>
-                    <div>{field.type}</div>
-                    <div>{field.required ? "Oui" : "Non"}</div>
-                    <div className="text-right">
-                      <Button variant="ghost" size="sm">Éditer</Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">Supprimer</Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              <Button variant="outline" className="mt-2">
-                Ajouter un champ personnalisé
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="permissions" className="space-y-4 mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Permissions et accès</CardTitle>
-            <CardDescription>
-              Configurez qui peut accéder au module LeadTrace et avec quelles permissions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b pb-4">
-                <div className="flex-1 grid grid-cols-4 gap-2">
-                  <div className="font-medium">Rôle</div>
-                  <div className="font-medium">Voir</div>
-                  <div className="font-medium">Éditer</div>
-                  <div className="font-medium">Supprimer</div>
-                </div>
-              </div>
-              
-              {[
-                { role: "Administrateur", view: true, edit: true, delete: true },
-                { role: "Commercial", view: true, edit: true, delete: false },
-                { role: "Support", view: true, edit: false, delete: false },
-              ].map((role, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-4">
-                  <div className="flex-1 grid grid-cols-4 gap-2 items-center">
-                    <div>{role.role}</div>
-                    <div><Switch checked={role.view} /></div>
-                    <div><Switch checked={role.edit} /></div>
-                    <div><Switch checked={role.delete} /></div>
-                  </div>
-                </div>
-              ))}
-              
-              <Button variant="outline" className="mt-2">
-                Ajouter un rôle
-              </Button>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleSaveSettings}>
-              Enregistrer les permissions
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-    </Tabs>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <Separator />
+          
+          <div className="flex justify-end">
+            <Button type="submit">Enregistrer les paramètres</Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 

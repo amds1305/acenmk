@@ -1,153 +1,168 @@
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { InboxIcon, TrendingUpIcon, ClockIcon, CheckCircleIcon } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Mock data for charts
-const conversionData = [
-  { name: 'Jan', conversion: 13 },
-  { name: 'Feb', conversion: 20 },
-  { name: 'Mar', conversion: 17 },
-  { name: 'Avr', conversion: 25 },
-  { name: 'Mai', conversion: 30 },
+// Mock data for stats
+const mockStats = {
+  total: 126,
+  newLeads: 23,
+  inProgressLeads: 45,
+  processedLeads: 52,
+  archivedLeads: 6,
+  conversionRate: 41.2,
+  responseTime: 3.5,
+};
+
+// Mock data for chart
+const mockChartData = [
+  { month: 'Jan', nouveaux: 12, convertis: 5 },
+  { month: 'Fév', nouveaux: 19, convertis: 8 },
+  { month: 'Mar', nouveaux: 15, convertis: 7 },
+  { month: 'Avr', nouveaux: 21, convertis: 10 },
+  { month: 'Mai', nouveaux: 28, convertis: 12 },
+  { month: 'Juin', nouveaux: 18, convertis: 9 },
 ];
 
-const responseTimeData = [
-  { name: 'Jan', time: 8 },
-  { name: 'Feb', time: 7 },
-  { name: 'Mar', time: 5 },
-  { name: 'Avr', time: 4 },
-  { name: 'Mai', time: 3 },
-];
-
-const leadSourceData = [
-  { name: 'Formulaire', value: 42 },
-  { name: 'Réseaux sociaux', value: 28 },
-  { name: 'Google', value: 18 },
-  { name: 'Recommandation', value: 12 },
-];
-
-const LeadStats = () => {
+const LeadStats: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Aperçu des leads</CardTitle>
-          <CardDescription>
-            Statistiques générales sur vos leads
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col items-center p-4 border rounded-lg">
-              <InboxIcon className="h-8 w-8 text-blue-500 mb-2" />
-              <div className="text-2xl font-bold">128</div>
-              <div className="text-sm text-muted-foreground">Leads totaux</div>
+    <div className="space-y-6">
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Leads totaux</CardDescription>
+            <CardTitle className="text-3xl">{mockStats.total}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex items-center space-x-2">
+              <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+              <p className="text-xs text-muted-foreground">Augmentation de 12% ce mois</p>
             </div>
-            <div className="flex flex-col items-center p-4 border rounded-lg">
-              <TrendingUpIcon className="h-8 w-8 text-green-500 mb-2" />
-              <div className="text-2xl font-bold">24%</div>
-              <div className="text-sm text-muted-foreground">Taux de conversion</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Taux de conversion</CardDescription>
+            <CardTitle className="text-3xl">{mockStats.conversionRate}%</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Progress value={mockStats.conversionRate} className="h-2" />
+            <p className="text-xs text-muted-foreground mt-2">Objectif: 45%</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Temps de réponse moyen</CardDescription>
+            <CardTitle className="text-3xl">{mockStats.responseTime}h</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex items-center space-x-2">
+              <div className="h-2 w-2 rounded-full bg-green-500"></div>
+              <p className="text-xs text-muted-foreground">Amélioration de 0.5h</p>
             </div>
-            <div className="flex flex-col items-center p-4 border rounded-lg">
-              <ClockIcon className="h-8 w-8 text-orange-500 mb-2" />
-              <div className="text-2xl font-bold">3h</div>
-              <div className="text-sm text-muted-foreground">Temps de réponse</div>
-            </div>
-            <div className="flex flex-col items-center p-4 border rounded-lg">
-              <CheckCircleIcon className="h-8 w-8 text-purple-500 mb-2" />
-              <div className="text-2xl font-bold">31</div>
-              <div className="text-sm text-muted-foreground">Leads convertis</div>
-            </div>
-          </div>
-          
-          <div className="mt-6">
-            <div className="text-sm font-medium mb-2">Répartition des leads</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Leads en attente</CardDescription>
+            <CardTitle className="text-3xl">{mockStats.newLeads + mockStats.inProgressLeads}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
             <div className="flex items-center justify-between">
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: '35%' }}></div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                  <p className="text-xs">Nouveaux: {mockStats.newLeads}</p>
+                </div>
               </div>
-              <span className="text-sm text-muted-foreground ml-2">35%</span>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                  <p className="text-xs">En cours: {mockStats.inProgressLeads}</p>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <div>Nouveaux (45)</div>
-              <div>En cours (38)</div>
-              <div>Traités (25)</div>
-              <div>Archivés (20)</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
       
+      {/* Chart */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Taux de conversion</CardTitle>
-          <CardDescription>
-            Évolution mensuelle du taux de conversion
-          </CardDescription>
+        <CardHeader>
+          <CardTitle>Évolution des leads</CardTitle>
+          <CardDescription>Nouveaux leads et leads convertis par mois</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[250px]">
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={conversionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+              <BarChart data={mockChartData}>
+                <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="conversion" fill="#3b82f6" name="Taux de conversion (%)" />
+                <Bar dataKey="nouveaux" name="Nouveaux leads" fill="#3b82f6" />
+                <Bar dataKey="convertis" name="Leads convertis" fill="#10b981" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
       
+      {/* Status breakdown */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Temps de réponse</CardTitle>
-          <CardDescription>
-            Temps de réponse moyen (en heures)
-          </CardDescription>
+        <CardHeader>
+          <CardTitle>Répartition par statut</CardTitle>
+          <CardDescription>Distribution des leads selon leur statut actuel</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={responseTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="time" fill="#10b981" name="Temps de réponse (h)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle>Sources des leads</CardTitle>
-          <CardDescription>
-            Répartition par source d'acquisition
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={leadSourceData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#8b5cf6" name="Nombre de leads" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="h-4 w-4 rounded-full bg-blue-500 mr-2"></div>
+                  <span>Nouveaux</span>
+                </div>
+                <span>{mockStats.newLeads} ({Math.round(mockStats.newLeads / mockStats.total * 100)}%)</span>
+              </div>
+              <Progress value={mockStats.newLeads / mockStats.total * 100} className="h-2 mt-2" />
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="h-4 w-4 rounded-full bg-amber-500 mr-2"></div>
+                  <span>En cours</span>
+                </div>
+                <span>{mockStats.inProgressLeads} ({Math.round(mockStats.inProgressLeads / mockStats.total * 100)}%)</span>
+              </div>
+              <Progress value={mockStats.inProgressLeads / mockStats.total * 100} className="h-2 mt-2" />
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="h-4 w-4 rounded-full bg-green-500 mr-2"></div>
+                  <span>Traités</span>
+                </div>
+                <span>{mockStats.processedLeads} ({Math.round(mockStats.processedLeads / mockStats.total * 100)}%)</span>
+              </div>
+              <Progress value={mockStats.processedLeads / mockStats.total * 100} className="h-2 mt-2" />
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="h-4 w-4 rounded-full bg-gray-400 mr-2"></div>
+                  <span>Archivés</span>
+                </div>
+                <span>{mockStats.archivedLeads} ({Math.round(mockStats.archivedLeads / mockStats.total * 100)}%)</span>
+              </div>
+              <Progress value={mockStats.archivedLeads / mockStats.total * 100} className="h-2 mt-2" />
+            </div>
           </div>
         </CardContent>
       </Card>

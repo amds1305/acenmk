@@ -3,16 +3,16 @@ import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -28,10 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Lead } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
+import { Lead } from '@/types/lead';
 
-// Schema for form validation
+interface LeadEditDialogProps {
+  lead: Lead;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 const formSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
   email: z.string().email('Email invalide'),
@@ -45,18 +50,10 @@ const formSchema = z.object({
   assignedTo: z.string().optional(),
 });
 
-interface LeadEditDialogProps {
-  lead: Lead;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onLeadUpdated: (lead: Lead) => void;
-}
-
-const LeadEditDialog: React.FC<LeadEditDialogProps> = ({ 
-  lead, 
-  open, 
+const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
+  lead,
+  open,
   onOpenChange,
-  onLeadUpdated 
 }) => {
   const { toast } = useToast();
   
@@ -65,31 +62,25 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
     defaultValues: {
       name: lead.name,
       email: lead.email,
-      phone: lead.phone || '',
-      company: lead.company || '',
-      website: lead.website || '',
-      service: lead.service || '',
-      source: lead.source || '',
+      phone: lead.phone ?? '',
+      company: lead.company ?? '',
+      website: lead.website ?? '',
+      service: lead.service ?? '',
+      source: lead.source ?? '',
       description: lead.description,
       status: lead.status,
-      assignedTo: lead.assignedTo || '',
+      assignedTo: lead.assignedTo ?? '',
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // In a real application, this would call the API to update the lead
-    const updatedLead = {
-      ...lead,
-      ...values,
-      updated_at: new Date().toISOString(),
-    };
+    console.log('Updated lead:', values);
     
     // Simulate API call
     setTimeout(() => {
-      onLeadUpdated(updatedLead);
       toast({
         title: 'Lead mis à jour',
-        description: 'Les informations du lead ont été mises à jour avec succès.',
+        description: 'Les modifications ont été enregistrées',
       });
       onOpenChange(false);
     }, 500);
@@ -97,11 +88,11 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Modifier le lead</DialogTitle>
         </DialogHeader>
-
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -110,7 +101,7 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nom</FormLabel>
+                    <FormLabel>Nom complet</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -126,7 +117,7 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" />
+                      <Input type="email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,21 +171,10 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                 name="service"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Service requis</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un service" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="web-development">Développement Web</SelectItem>
-                        <SelectItem value="mobile-app">Application Mobile</SelectItem>
-                        <SelectItem value="ui-ux">Design UI/UX</SelectItem>
-                        <SelectItem value="consulting">Conseil</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Service</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -206,20 +186,9 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Source</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une source" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="search-engine">Moteur de recherche</SelectItem>
-                        <SelectItem value="social-media">Réseaux sociaux</SelectItem>
-                        <SelectItem value="recommendation">Recommandation</SelectItem>
-                        <SelectItem value="advertisement">Publicité</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -231,7 +200,7 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Statut</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un statut" />
@@ -248,20 +217,6 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                   </FormItem>
                 )}
               />
-              
-              <FormField
-                control={form.control}
-                name="assignedTo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assigné à</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
             
             <FormField
@@ -271,18 +226,18 @@ const LeadEditDialog: React.FC<LeadEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea rows={4} {...field} />
+                    <Textarea rows={5} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
+            
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annuler
               </Button>
-              <Button type="submit">Enregistrer</Button>
+              <Button type="submit">Enregistrer les modifications</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -1,63 +1,38 @@
 
-import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Phone,
-  Mail,
-  Globe,
-  Building,
-  Calendar,
-  Tag,
-  Info,
-  MessageSquare,
-  CheckSquare,
-  User
-} from 'lucide-react';
+import { Edit, Mail, Phone, Globe, Clock, Building, FileText, Tag } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import LeadInteractionsList from './LeadInteractionsList';
-import LeadTasksList from './LeadTasksList';
 import LeadAddInteraction from './LeadAddInteraction';
+import LeadTasksList from './LeadTasksList';
 
 interface LeadDetailDialogProps {
   lead: Lead;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: () => void;
 }
 
-const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({ lead, open, onOpenChange }) => {
-  const [activeTab, setActiveTab] = useState('info');
-
+const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
+  lead,
+  open,
+  onOpenChange,
+  onEdit,
+}) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'new':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">Nouveau</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Nouveau</Badge>;
       case 'in-progress':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">En cours</Badge>;
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">En cours</Badge>;
       case 'processed':
-        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Traité</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Traité</Badge>;
       case 'archived':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">Archivé</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Archivé</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -65,226 +40,121 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({ lead, open, onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl flex items-center justify-between">
-            <span>{lead.name}</span>
-            {getStatusBadge(lead.status)}
-          </DialogTitle>
-          <DialogDescription className="text-md flex items-center">
-            <Mail className="mr-2 h-4 w-4" />
-            {lead.email}
-            {lead.phone && (
-              <>
-                <span className="mx-2">•</span>
-                <Phone className="mr-2 h-4 w-4" />
-                {lead.phone}
-              </>
-            )}
-          </DialogDescription>
-        </DialogHeader>
-
-        <Tabs defaultValue="info" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 mb-4">
-            <TabsTrigger value="info">
-              <Info className="mr-2 h-4 w-4" />
-              Informations
-            </TabsTrigger>
-            <TabsTrigger value="interactions">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Interactions
-            </TabsTrigger>
-            <TabsTrigger value="tasks">
-              <CheckSquare className="mr-2 h-4 w-4" />
-              Tâches
-            </TabsTrigger>
-            <TabsTrigger value="history">
-              <Calendar className="mr-2 h-4 w-4" />
-              Historique
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="info">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Informations de contact</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-start">
-                    <Mail className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <div className="font-medium">Email</div>
-                      <div className="text-sm text-muted-foreground">{lead.email}</div>
-                    </div>
-                  </div>
-                  
-                  {lead.phone && (
-                    <div className="flex items-start">
-                      <Phone className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <div className="font-medium">Téléphone</div>
-                        <div className="text-sm text-muted-foreground">{lead.phone}</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {lead.company && (
-                    <div className="flex items-start">
-                      <Building className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <div className="font-medium">Entreprise</div>
-                        <div className="text-sm text-muted-foreground">{lead.company}</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {lead.website && (
-                    <div className="flex items-start">
-                      <Globe className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <div className="font-medium">Site web</div>
-                        <div className="text-sm text-muted-foreground">
-                          <a href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`}
-                             target="_blank" 
-                             rel="noopener noreferrer"
-                             className="hover:underline text-blue-500">
-                            {lead.website}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-start">
-                    <Calendar className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <div className="font-medium">Date de création</div>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(lead.created_at).toLocaleDateString()} - {new Date(lead.created_at).toLocaleTimeString()}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {lead.assignedTo && (
-                    <div className="flex items-start">
-                      <User className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <div className="font-medium">Assigné à</div>
-                        <div className="text-sm text-muted-foreground">{lead.assignedTo}</div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Détails de la demande</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {lead.service && (
-                    <div className="flex items-start">
-                      <div className="mr-3 h-5 w-5 flex-shrink-0"></div>
-                      <div>
-                        <div className="font-medium">Service requis</div>
-                        <div className="text-sm text-muted-foreground">
-                          {lead.service === 'web-development' && 'Développement Web'}
-                          {lead.service === 'mobile-app' && 'Application Mobile'}
-                          {lead.service === 'ui-ux' && 'Design UI/UX'}
-                          {lead.service === 'consulting' && 'Conseil'}
-                          {lead.service === 'other' && 'Autre'}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {lead.source && (
-                    <div className="flex items-start">
-                      <div className="mr-3 h-5 w-5 flex-shrink-0"></div>
-                      <div>
-                        <div className="font-medium">Source</div>
-                        <div className="text-sm text-muted-foreground">
-                          {lead.source === 'search-engine' && 'Moteur de recherche'}
-                          {lead.source === 'social-media' && 'Réseaux sociaux'}
-                          {lead.source === 'recommendation' && 'Recommandation'}
-                          {lead.source === 'advertisement' && 'Publicité'}
-                          {lead.source === 'other' && 'Autre'}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-start">
-                    <Tag className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <div className="font-medium">Tags</div>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {lead.tags.length > 0 ? (
-                          lead.tags.map(tag => (
-                            <Badge key={tag} variant="secondary">
-                              {tag}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Aucun tag</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="mr-3 h-5 w-5 flex-shrink-0"></div>
-                    <div>
-                      <div className="font-medium">Description</div>
-                      <div className="mt-1 text-sm whitespace-pre-wrap">{lead.description}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <DialogTitle className="flex items-center justify-between">
+            <span>Détails du lead</span>
+            <div className="flex items-center gap-2">
+              {getStatusBadge(lead.status)}
+              <Button size="sm" variant="outline" onClick={onEdit}>
+                <Edit className="h-4 w-4 mr-1" />
+                Modifier
+              </Button>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="interactions">
-            <LeadAddInteraction leadId={lead.id} />
-            <LeadInteractionsList leadId={lead.id} />
-          </TabsContent>
-          
-          <TabsContent value="tasks">
-            <LeadTasksList leadId={lead.id} />
-          </TabsContent>
-          
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle>Historique des modifications</CardTitle>
-                <CardDescription>
-                  Consultez l'historique complet des modifications apportées à ce lead
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="relative pl-6 border-l border-border">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="mb-6 relative">
-                      <div className="absolute -left-[21px] mt-1.5 h-4 w-4 rounded-full bg-primary"></div>
-                      <div className="font-medium">{new Date(new Date().setDate(new Date().getDate() - i)).toLocaleDateString()}</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {i === 0 && "Statut modifié de 'Nouveau' à 'En cours'"}
-                        {i === 1 && "Tag 'urgent' ajouté"}
-                        {i === 2 && "Lead créé via le formulaire de contact"}
-                      </div>
-                    </div>
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="md:col-span-1 space-y-4">
+            <div>
+              <h3 className="font-semibold text-lg">{lead.name}</h3>
+              {lead.assignedTo && (
+                <p className="text-sm text-muted-foreground">
+                  Assigné à: {lead.assignedTo}
+                </p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <a href={`mailto:${lead.email}`} className="text-primary hover:underline">
+                  {lead.email}
+                </a>
+              </div>
+              
+              {lead.phone && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <a href={`tel:${lead.phone}`} className="hover:underline">
+                    {lead.phone}
+                  </a>
+                </div>
+              )}
+              
+              {lead.company && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Building className="h-4 w-4 text-muted-foreground" />
+                  <span>{lead.company}</span>
+                </div>
+              )}
+              
+              {lead.website && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <a href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     className="text-primary hover:underline">
+                    {lead.website}
+                  </a>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  Créé le {new Date(lead.created_at).toLocaleDateString()}
+                </span>
+              </div>
+              
+              {lead.source && (
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span>Source: {lead.source}</span>
+                </div>
+              )}
+            </div>
+            
+            {lead.tags && lead.tags.length > 0 && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <span>Tags:</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {lead.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fermer
-          </Button>
+              </div>
+            )}
+            
+            <div className="border rounded-md p-3">
+              <h4 className="font-medium mb-1">Description:</h4>
+              <p className="text-sm">{lead.description}</p>
+            </div>
+          </div>
+          
+          <div className="md:col-span-2">
+            <Tabs defaultValue="interactions">
+              <TabsList className="w-full">
+                <TabsTrigger value="interactions" className="flex-1">Interactions</TabsTrigger>
+                <TabsTrigger value="tasks" className="flex-1">Tâches</TabsTrigger>
+              </TabsList>
+              <TabsContent value="interactions" className="space-y-4 pt-4">
+                <LeadAddInteraction leadId={lead.id} />
+                <LeadInteractionsList leadId={lead.id} />
+              </TabsContent>
+              <TabsContent value="tasks" className="pt-4">
+                <LeadTasksList leadId={lead.id} />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

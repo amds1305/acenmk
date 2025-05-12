@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Lead } from '@/components/lead-trace/Lead';
+import { Lead } from '@/components/lead-trace';
 
 const LeadTracePage = () => {
   return (
