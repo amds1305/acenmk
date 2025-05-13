@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Logo, NavLink, SocialLink, SearchBarSettings, ActionButton, UserMenuSettings, HeaderStyle } from '@/components/admin/header/types';
 import { LucideIcon } from 'lucide-react';
@@ -213,14 +212,14 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config
-    // Corriger la requête problématique en utilisant une autre approche :
+    // Corriger la requête problématique qui causait l'erreur 406
     let showThemeSelector = true; // Valeur par défaut
     try {
       const { data: configData, error } = await supabase
         .from('header_config')
-        .select('*')
+        .select('show_theme_selector')
         .eq('id', 'default')
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Erreur lors de la récupération de la configuration d\'en-tête:', error);
