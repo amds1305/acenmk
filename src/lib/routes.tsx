@@ -23,11 +23,31 @@ import AdminLeadTracePage from "@/pages/AdminLeadTrace";
 import LeadTracePage from "@/pages/LeadTrace";
 import Index from "@/pages/Index"; 
 import AdminSupabaseMigration from "@/pages/AdminSupabaseMigration";
+import Profile from "@/pages/Profile";
+import Projects from "@/pages/Projects";
+import Estimates from "@/pages/Estimates";
+import Messages from "@/pages/Messages";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
     element: <Index />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/projects",
+    element: <Projects />,
+  },
+  {
+    path: "/estimates",
+    element: <Estimates />,
+  },
+  {
+    path: "/messages",
+    element: <Messages />,
   },
   {
     path: "/admin",
