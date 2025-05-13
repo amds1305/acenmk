@@ -265,6 +265,7 @@ export const useAuthProvider = (): AuthContextType => {
     uploadAvatar: profileService.uploadAvatar,
     updatePassword: securityService.updatePassword,
     toggleTwoFactor: securityService.toggleTwoFactor,
+    updatePreferences: profileService.updatePreferences,
     isAuthenticated,
     isAdmin,
     messages: mockMessages,

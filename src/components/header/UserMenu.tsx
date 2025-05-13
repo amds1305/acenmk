@@ -43,9 +43,11 @@ const UserMenu = () => {
   const { hasAccess } = usePermissions();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      navigate('/');
+    }
   };
 
   // Filtrer les modules internes en fonction des permissions de l'utilisateur
@@ -98,7 +100,7 @@ const UserMenu = () => {
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="cursor-pointer h-10 w-10">
               <AvatarImage src={user?.avatar} />
-              <AvatarFallback>{user?.name.charAt(0) || 'U'}</AvatarFallback>
+              <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
