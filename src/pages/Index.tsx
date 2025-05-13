@@ -110,7 +110,6 @@ const Index = () => {
     refetchOnMount: true, // Recharger à chaque montage
     refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
     retry: 2,
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
     onError: (error) => {
       console.error('Error in getHomepageConfig:', error);
       setErrorOccurred(true);
