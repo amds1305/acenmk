@@ -6,3 +6,4 @@ export * from './lead-trace';
 export * from './footer/legal';
 export * from './careers';
 export { default as AdminHome } from './AdminHome';
+export * from './trusted-clients';
