@@ -10,17 +10,19 @@ const headers = {
 };
 
 // Enhanced supabase client with proper headers
-export const supabase = {
-  ...supabaseClient,
-  supabaseUrl: "https://kbigpjrjarlbncdtonuz.supabase.co",
-  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs"
-};
+export const supabase = supabaseClient;
 
 // Fonction utilitaire pour créer/récupérer un bucket de stockage
 export const ensureStorageBucket = async (name: string) => {
   try {
     // Vérifier si le bucket existe déjà
-    const { data: buckets } = await supabase.storage.listBuckets();
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+    
+    if (bucketsError) {
+      console.error(`Erreur lors de la vérification des buckets:`, bucketsError);
+      return;
+    }
+    
     const bucketExists = buckets?.some(bucket => bucket.name === name);
     
     if (!bucketExists) {
