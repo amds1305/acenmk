@@ -27,6 +27,9 @@ import Profile from "@/pages/Profile";
 import Projects from "@/pages/Projects";
 import Estimates from "@/pages/Estimates";
 import Messages from "@/pages/Messages";
+import AboutPage from "@/pages/AboutPage";
+import PortfolioPage from "@/pages/PortfolioPage";
+import ServicesPage from "@/pages/ServicesPage";
 
 export const routes: RouteObject[] = [
   {
@@ -34,12 +37,28 @@ export const routes: RouteObject[] = [
     element: <Index />,
   },
   {
-    path: "/profile",
-    element: <Profile />,
+    path: "/about",
+    element: <AboutPage />,
   },
   {
-    path: "/projects",
+    path: "/a-propos",
+    element: <AboutPage />,
+  },
+  {
+    path: "/portfolio",
+    element: <PortfolioPage />,
+  },
+  {
+    path: "/projets",
     element: <Projects />,
+  },
+  {
+    path: "/services",
+    element: <ServicesPage />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
   },
   {
     path: "/estimates",

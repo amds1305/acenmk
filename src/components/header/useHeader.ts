@@ -1,121 +1,73 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Facebook, Instagram, Twitter, Linkedin, Github } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
-import { getHeaderConfig } from '@/services/supabase/headerService';
-import { Mail, Twitter, Instagram, Facebook, Linkedin, Github } from 'lucide-react';
-import { useHeaderStyle } from '@/contexts/HeaderStyleContext';
+import { useHeaderContext } from '@/contexts/HeaderContext';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [headerConfig, setHeaderConfig] = useState<any>({}); // Type 'any' will be replaced
-  const { headerStyle } = useHeaderStyle();
-
+  const { headerStyle } = useHeaderContext();
+  
+  // Default nav links - à améliorer avec une API Supabase
+  const navLinks: NavLink[] = [
+    { id: '1', name: 'Accueil', href: '/', icon: 'Home', isVisible: true, order: 1, parentId: null },
+    { id: '2', name: 'À propos', href: '/a-propos', icon: '', isVisible: true, order: 2, parentId: null },
+    { id: '3', name: 'Services', href: '/#services', icon: '', isVisible: true, order: 3, parentId: null },
+    { id: '4', name: 'Portfolio', href: '/portfolio', icon: '', isVisible: true, order: 4, parentId: null },
+    { id: '5', name: 'Contact', href: '/#contact', icon: '', isVisible: true, order: 5, parentId: null },
+  ];
+  
+  // Default social links
+  const socialLinks: SocialLink[] = [
+    { href: 'https://facebook.com', icon: Facebook, ariaLabel: 'Notre page Facebook' },
+    { href: 'https://twitter.com', icon: Twitter, ariaLabel: 'Notre compte Twitter' },
+    { href: 'https://linkedin.com', icon: Linkedin, ariaLabel: 'Notre page LinkedIn' },
+    { href: 'https://instagram.com', icon: Instagram, ariaLabel: 'Notre compte Instagram' },
+    { href: 'https://github.com', icon: Github, ariaLabel: 'Notre compte GitHub' },
+  ];
+  
+  // Add scroll event listener to detect when page is scrolled
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 10);
     };
-
+    
     window.addEventListener('scroll', handleScroll);
-
+    
+    // Clean up
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
+  
+  // Handle mobile menu toggle
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-  };
-
+  
+  // Handle search toggle
   const toggleSearch = () => {
     setSearchOpen(!searchOpen);
   };
-
-  useEffect(() => {
-    const fetchHeaderConfig = async () => {
-      try {
-        const data = await getHeaderConfig();
-        setHeaderConfig(data);
-        
-        // Mise à jour des liens de navigation
-        if (data.navLinks && data.navLinks.length > 0) {
-          setNavLinks(data.navLinks);
-        }
-        
-        // Mise à jour des liens sociaux
-        if (data.socialLinks && data.socialLinks.length > 0) {
-          setSocialLinks(data.socialLinks);
-        }
-      } catch (error) {
-        console.error("Failed to fetch header configuration:", error);
-      }
-    };
-
-    fetchHeaderConfig();
-
-    // Écouter les événements de mise à jour des styles
-    const handleHeaderStyleUpdated = () => {
-      fetchHeaderConfig();
-    };
-
-    window.addEventListener('header-style-updated', handleHeaderStyleUpdated);
-    
-    return () => {
-      window.removeEventListener('header-style-updated', handleHeaderStyleUpdated);
-    };
-  }, []);
-
-  // Exemple de liens de navigation par défaut avec un pictogramme pour l'accueil
-  const defaultNavLinks: NavLink[] = [
-    { name: '', href: '/', icon: 'Home' },  // Accueil remplacé par icône Home
-    { name: 'Services', href: '/#services' },
-    { name: 'Portfolio', href: '/portfolio' },
-    { name: 'À propos', href: '/about' },
-    { name: 'Contact', href: '/#contact' },
-  ];
-
-  useEffect(() => {
-    if (!navLinks || navLinks.length === 0) {
-      setNavLinks(defaultNavLinks);
-    }
-  }, [navLinks]);
-
-  // Default Social Links
-  const defaultSocialLinks: SocialLink[] = [
-    { icon: Mail, href: 'mailto:contact@example.com', ariaLabel: 'Envoyer un email' },
-    { icon: Twitter, href: 'https://twitter.com/example', ariaLabel: 'Twitter' },
-    { icon: Instagram, href: 'https://instagram.com/example', ariaLabel: 'Instagram' },
-    { icon: Facebook, href: 'https://facebook.com/example', ariaLabel: 'Facebook' },
-    { icon: Linkedin, href: 'https://linkedin.com/company/example', ariaLabel: 'LinkedIn' },
-    { icon: Github, href: 'https://github.com/example', ariaLabel: 'GitHub' },
-  ];
-
-  useEffect(() => {
-    if (!socialLinks || socialLinks.length === 0) {
-      setSocialLinks(defaultSocialLinks);
-    }
-  }, [socialLinks]);
-
+  
+  // Close mobile menu
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+  
   return {
     isScrolled,
     mobileMenuOpen,
     searchOpen,
     navLinks,
     socialLinks,
-    headerConfig: {
-      ...headerConfig,
-      showThemeSelector: headerStyle?.showThemeSelector ?? true
-    },
     headerStyle,
     toggleMobileMenu,
+    toggleSearch,
     closeMobileMenu,
-    toggleSearch
   };
 };
+
+export default useHeader;
