@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
@@ -25,6 +26,7 @@ const DesktopNav = ({
 }: DesktopNavProps) => {
   const location = useLocation();
   const { headerStyle } = useHeaderContext();
+  const navigate = useNavigate();
   
   // Fonction pour vérifier si un lien est actif
   const isActive = (href: string): boolean => {
@@ -78,6 +80,22 @@ const DesktopNav = ({
     fontSize: headerStyle?.utilityIconSize,
     transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
+
+  // Handler pour naviguer vers un lien
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    
+    // Gérer les liens internes vs externes
+    if (href.startsWith('/')) {
+      navigate(href);
+    } else if (href.startsWith('#')) {
+      navigate('/' + href);
+    } else if (href.startsWith('/#')) {
+      navigate(href);
+    } else {
+      window.open(href, '_blank');
+    }
+  };
   
   return (
     <div className="hidden md:flex items-center space-x-8">
@@ -91,6 +109,7 @@ const DesktopNav = ({
             <a
               key={link.href}
               href={link.href}
+              onClick={(e) => handleNavigation(e, link.href)}
               className={cn(
                 "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative whitespace-nowrap",
                 isActive(link.href) 

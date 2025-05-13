@@ -75,10 +75,10 @@ export const useHeader = () => {
   // Exemple de liens de navigation par défaut avec un pictogramme pour l'accueil
   const defaultNavLinks: NavLink[] = [
     { name: '', href: '/', icon: 'Home' },  // Accueil remplacé par icône Home
-    { name: 'Services', href: '/#services' },
+    { name: 'Services', href: '/services' },  // Modifié pour pointer vers la page dédiée
     { name: 'Portfolio', href: '/portfolio' },
-    { name: 'À propos', href: '/about' },
-    { name: 'Contact', href: '/#contact' },
+    { name: 'À propos', href: '/about' },  // Modifié pour utiliser le chemin anglais cohérent avec les routes
+    { name: 'Contact', href: '/contact' },
   ];
 
   useEffect(() => {

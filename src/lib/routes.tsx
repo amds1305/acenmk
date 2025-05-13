@@ -18,6 +18,14 @@ import AdminRolesPermissions from "@/pages/AdminRolesPermissions";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
+import AboutPage from "@/pages/About";
+import ServicesPage from "@/pages/Services";
+import PortfolioPage from "@/pages/Portfolio";
+import ContactPage from "@/pages/Contact";
+import ProfilePage from "@/pages/Profile";
+import ProjectsPage from "@/pages/Projects";
+import EstimatesPage from "@/pages/Estimates";
+import MessagesPage from "@/pages/Messages";
 
 export const routes: RouteObject[] = [
   {
@@ -85,6 +93,38 @@ export const routes: RouteObject[] = [
         element: <AdminRolesPermissions />,
       },
     ],
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
+  },
+  {
+    path: "/services",
+    element: <ServicesPage />,
+  },
+  {
+    path: "/portfolio",
+    element: <PortfolioPage />,
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
+  },
+  {
+    path: "/profile",
+    element: <ProfilePage />,
+  },
+  {
+    path: "/projects",
+    element: <ProjectsPage />,
+  },
+  {
+    path: "/estimates",
+    element: <EstimatesPage />,
+  },
+  {
+    path: "/messages",
+    element: <MessagesPage />,
   },
   {
     path: "/mentions-legales",

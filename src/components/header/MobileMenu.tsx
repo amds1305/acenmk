@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
 import { ArrowRight } from 'lucide-react';
 import { iconsMap } from '@/components/admin/header/iconsMap';
 import { useHeaderContext } from '@/contexts/HeaderContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 }) => {
   const location = useLocation();
   const { headerStyle } = useHeaderContext();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   
   if (!isOpen) return null;
 
@@ -61,6 +64,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     borderColor: headerStyle?.socialIconBorderColor,
   };
   
+  // Handler pour naviguer et fermer le menu
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onNavLinkClick();
+  };
+
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
@@ -72,7 +81,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             <a 
               key={link.name}
               href={link.href} 
-              onClick={onNavLinkClick}
+              onClick={(e) => {
+                e.preventDefault();
+                // Gérer les liens internes vs externes
+                if (link.href.startsWith('/')) {
+                  handleNavigate(link.href);
+                } else if (link.href.startsWith('#')) {
+                  handleNavigate('/' + link.href);
+                } else if (link.href.startsWith('/#')) {
+                  handleNavigate(link.href);
+                } else {
+                  window.open(link.href, '_blank');
+                  onNavLinkClick();
+                }
+              }}
               className={cn(
                 "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center flex items-center justify-center gap-2",
                 isActive(link.href) 
@@ -111,21 +133,34 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
         
         {/* Auth Links in Mobile Menu */}
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 w-full sm:w-auto">
-          <Link 
-            to="/login" 
-            onClick={onNavLinkClick}
-            className="w-full sm:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white hover:border-primary transition-colors text-center"
-          >
-            Connexion
-          </Link>
-          <Link 
-            to="/signup" 
-            onClick={onNavLinkClick}
-            className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
-          >
-            Inscription
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          {!isAuthenticated ? (
+            <>
+              <Link 
+                to="/login" 
+                onClick={onNavLinkClick}
+                className="w-full sm:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white hover:border-primary transition-colors text-center"
+              >
+                Connexion
+              </Link>
+              <Link 
+                to="/register" 
+                onClick={onNavLinkClick}
+                className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
+              >
+                Inscription
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </>
+          ) : (
+            <Link 
+              to="/profile" 
+              onClick={onNavLinkClick}
+              className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
+            >
+              Mon compte
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          )}
         </div>
       </div>
     </div>

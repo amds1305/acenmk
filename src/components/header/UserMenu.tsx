@@ -25,7 +25,7 @@ import { isAdminRole } from '@/utils/roleUtils';
 const internalModules = [
   {
     name: 'AceJob',
-    path: '/ace-job',  // Correction du chemin vers /ace-job
+    path: '/ace-job',
     icon: <GraduationCap className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }
@@ -92,7 +92,7 @@ const UserMenu = () => {
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="cursor-pointer h-10 w-10">
               <AvatarImage src={user?.avatar} />
-              <AvatarFallback>{user?.name.charAt(0) || 'U'}</AvatarFallback>
+              <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
