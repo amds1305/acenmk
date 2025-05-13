@@ -1,355 +1,271 @@
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { 
-  AccessControlConfig, 
-  PermissionsContextType, 
-  PermissionRule, 
-  RouteWithAccess 
-} from '@/types/permissions';
-import { UserRole } from '@/types/auth';
-import { useToast } from '@/hooks/use-toast';
-import { getRouteMetadata, extractAppRoutes, getAllRoutes } from '@/lib/routes/index';
-import { DEFAULT_ACCESS_CONFIG } from '@/config/accessControl';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { AccessControlConfig, PermissionsContextType, PermissionRule, RouteMetadata, RouteWithAccess } from '@/types/permissions';
+import { UserRole } from '@/types/auth';
+import { getAllRoutes, getRouteMetadata } from '@/lib/routes';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './AuthContext';
 
-// Create context
-const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
+// Default permissions configuration
+const DEFAULT_ACCESS_CONFIG: AccessControlConfig = {
+  routes: {},
+  adminRoutes: {}
+};
+
+// Create the context
+const PermissionsContext = createContext<PermissionsContextType | null>(null);
 
 export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [accessConfig, setAccessConfig] = useState<AccessControlConfig>(DEFAULT_ACCESS_CONFIG);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  /**
-   * Synchronise la configuration d'accès avec les routes actuelles de l'application
-   * @param currentConfig Configuration actuelle des accès
-   * @returns Configuration mise à jour pour inclure toutes les routes de l'application
-   */
-  const syncRoutesWithAccessConfig = useCallback(
-    (currentConfig: AccessControlConfig): AccessControlConfig => {
-      const updatedConfig: AccessControlConfig = {
-        routes: { ...currentConfig.routes },
-        adminRoutes: { ...currentConfig.adminRoutes }
-      };
-      
-      // Extraire toutes les routes de l'application
-      const appRoutes = extractAppRoutes();
-      console.log('Routes extraites de l\'application:', appRoutes);
-      
-      // Parcourir toutes les routes et les ajouter à la config si elles n'existent pas déjà
-      appRoutes.forEach(route => {
-        // Séparer les routes admin et les routes normales
-        if (route.startsWith('/admin')) {
-          // Pour les routes admin, on extrait la partie après '/admin/'
-          const adminRoute = route.replace('/admin/', '');
-          
-          // Si cette route admin n'existe pas déjà dans la config, l'ajouter
-          if (!updatedConfig.adminRoutes[adminRoute] && adminRoute !== '') {
-            console.log(`Ajout de la route admin: ${adminRoute}`);
-            updatedConfig.adminRoutes[adminRoute] = {
-              isPublic: false,
-              allowedRoles: ['admin', 'super_admin'],
-              description: `Route d'administration: ${route}`
-            };
-          }
-        } else {
-          // Si cette route normale n'existe pas déjà dans la config, l'ajouter
-          if (!updatedConfig.routes[route]) {
-            console.log(`Ajout de la route: ${route}`);
-            updatedConfig.routes[route] = {
-              isPublic: true, // Par défaut, les nouvelles routes sont publiques
-              allowedRoles: [],
-              description: `Nouvelle route: ${route}`
-            };
-          }
-        }
-      });
-      
-      return updatedConfig;
-    },
-    []
-  );
-
-  // Charger la configuration des accès
-  const loadAccessConfig = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      // Vérifier si nous sommes en mode test
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      let loadedConfig: AccessControlConfig;
-      
-      if (isTestMode) {
-        console.log('Mode test: utilisation de la config par défaut pour les permissions');
-        loadedConfig = DEFAULT_ACCESS_CONFIG;
-      } else {
-        // Dans une implémentation réelle, récupérer depuis la base de données
+  // Load permissions from Supabase
+  useEffect(() => {
+    const loadPermissions = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Loading permissions from Supabase...');
+        
+        // Use proper header setup to avoid 406 errors
         const { data, error } = await supabase
           .from('app_settings')
           .select('*')
-          .eq('id', 'route_permissions')
-          .single();
-          
+          .eq('id', 'route_permissions:1');
+
         if (error) {
-          if (error.code === 'PGRST116') { // Code for "not found"
-            console.log('Aucune configuration trouvée, utilisation des valeurs par défaut');
-            loadedConfig = DEFAULT_ACCESS_CONFIG;
-          } else {
-            throw error;
-          }
-        } else if (data && data.value) {
-          console.log('Configuration des permissions chargée avec succès');
-          loadedConfig = data.value as AccessControlConfig;
-        } else {
-          console.log('Aucune donnée trouvée, utilisation des valeurs par défaut');
-          loadedConfig = DEFAULT_ACCESS_CONFIG;
+          console.error('Error loading permissions:', error);
+          toast({
+            title: "Erreur de chargement des permissions",
+            description: "Utilisation des permissions par défaut",
+            variant: "destructive",
+          });
+          return;
         }
+
+        if (data && data.length > 0 && data[0].settings) {
+          console.log('Permissions loaded successfully', data[0].settings);
+          setAccessConfig(data[0].settings as AccessControlConfig);
+        } else {
+          console.log('No permissions found, using defaults');
+        }
+      } catch (error) {
+        console.error('Exception loading permissions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPermissions();
+  }, [toast]);
+
+  // Function to check if a user has access to a route
+  const hasAccess = (route: string, userRole?: UserRole): boolean => {
+    // Default to the current user's role if not provided
+    const role = userRole || (user?.role as UserRole) || 'visitor';
+    
+    // Check if route exists in public routes
+    if (accessConfig.routes[route]) {
+      const rule = accessConfig.routes[route];
+      return rule.isPublic || rule.allowedRoles.includes(role);
+    }
+    
+    // Check if route exists in admin routes
+    if (accessConfig.adminRoutes[route]) {
+      const rule = accessConfig.adminRoutes[route];
+      return rule.isPublic || rule.allowedRoles.includes(role);
+    }
+    
+    // If route is not found in either config, default to public
+    return true;
+  };
+
+  // Function to update route access
+  const updateRouteAccess = async (route: string, permissions: PermissionRule): Promise<void> => {
+    try {
+      // Determine which set of routes this belongs to
+      const isAdminRoute = route.startsWith('/admin');
+      const updatedConfig = { ...accessConfig };
+      
+      if (isAdminRoute) {
+        updatedConfig.adminRoutes[route] = permissions;
+      } else {
+        updatedConfig.routes[route] = permissions;
       }
       
-      // Synchroniser la configuration chargée avec les routes actuelles de l'application
-      const updatedConfig = syncRoutesWithAccessConfig(loadedConfig);
       setAccessConfig(updatedConfig);
       
+      // Save is handled separately through savePermissions()
+      toast({
+        title: "Modifications en attente",
+        description: "N'oubliez pas d'enregistrer vos modifications",
+      });
+      
     } catch (error) {
-      console.error('Erreur lors du chargement des permissions:', error);
+      console.error('Error updating route access:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de charger la configuration des accès',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de mettre à jour les permissions",
+        variant: "destructive",
       });
-      // Utiliser la configuration par défaut en cas d'erreur
-      const defaultConfig = syncRoutesWithAccessConfig(DEFAULT_ACCESS_CONFIG);
-      setAccessConfig(defaultConfig);
-    } finally {
-      setIsLoading(false);
     }
-  }, [toast, syncRoutesWithAccessConfig]);
+  };
 
-  // Charger la configuration au démarrage
-  useEffect(() => {
-    loadAccessConfig();
-  }, [loadAccessConfig]);
-
-  // Vérifier si un utilisateur a accès à une route
-  const hasAccess = useCallback((route: string, userRole?: UserRole): boolean => {
-    // Si la route commence par /admin, vérifier les permissions admin
-    if (route.startsWith('/admin')) {
-      const adminRoute = route.replace('/admin/', '');
-      const permissions = accessConfig.adminRoutes[adminRoute];
-      
-      // Si pas de règle trouvée, vérifier pour /admin
-      if (!permissions && adminRoute !== '') {
-        return hasAccess('/admin', userRole);
-      }
-      
-      // Si toujours pas de règle, refuser l'accès par défaut
-      if (!permissions) {
-        return false;
-      }
-      
-      // Vérifier si la route est publique ou si l'utilisateur a un rôle autorisé
-      return permissions.isPublic || (userRole ? permissions.allowedRoles.includes(userRole) : false);
-    }
-    
-    // Autres routes (non-admin)
-    const permissions = accessConfig.routes[route];
-    
-    // Si pas de règle définie, autoriser par défaut (public)
-    if (!permissions) {
-      return true;
-    }
-    
-    // Vérifier si la route est publique ou si l'utilisateur a un rôle autorisé
-    return permissions.isPublic || (userRole ? permissions.allowedRoles.includes(userRole) : false);
-  }, [accessConfig]);
-
-  // Vérifier si une route est publique
-  const isRoutePublic = useCallback((route: string): boolean => {
-    if (route.startsWith('/admin')) {
-      const adminRoute = route.replace('/admin/', '');
-      const permissions = accessConfig.adminRoutes[adminRoute];
-      return permissions ? permissions.isPublic : false;
-    }
-    
-    const permissions = accessConfig.routes[route];
-    return permissions ? permissions.isPublic : true;
-  }, [accessConfig]);
-
-  // Mettre à jour les permissions d'une route
-  const updateRouteAccess = useCallback(async (route: string, permissions: PermissionRule): Promise<void> => {
+  // Function to save all permissions to Supabase
+  const savePermissions = async (): Promise<void> => {
     try {
-      const newConfig = { ...accessConfig };
-      
-      if (route.startsWith('/admin')) {
-        const adminRoute = route.replace('/admin/', '');
-        newConfig.adminRoutes = {
-          ...newConfig.adminRoutes,
-          [adminRoute]: permissions
-        };
-      } else {
-        newConfig.routes = {
-          ...newConfig.routes,
-          [route]: permissions
-        };
-      }
-      
-      setAccessConfig(newConfig);
-      
-      // Dans une implémentation réelle, on pourrait sauvegarder immédiatement
-      // Ici, on laisse la responsabilité à savePermissions() pour plus de contrôle
-      
-      toast({
-        title: 'Mise à jour',
-        description: 'Permissions mises à jour. N\'oubliez pas de sauvegarder!',
-      });
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des permissions:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de mettre à jour les permissions',
-        variant: 'destructive',
-      });
-    }
-  }, [accessConfig, toast]);
-
-  // Sauvegarder la configuration complète
-  const savePermissions = useCallback(async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-      
-      // Vérifier si nous sommes en mode test
-      const isTestMode = localStorage.getItem('adminTestMode') === 'true';
-      
-      if (isTestMode) {
-        console.log('Mode test: simulation de sauvegarde des permissions');
-        setTimeout(() => {
-          setIsLoading(false);
-          toast({
-            title: 'Succès',
-            description: 'Permissions sauvegardées avec succès (mode test)',
-          });
-        }, 500);
-        return;
-      }
-      
-      // Dans une implémentation réelle, sauvegarder dans la base de données
       const { error } = await supabase
         .from('app_settings')
         .upsert({
-          id: 'route_permissions',
-          name: 'Route Permissions',
-          description: 'Configuration des permissions d\'accès aux routes',
-          value: accessConfig
+          id: 'route_permissions:1',
+          settings: accessConfig,
+          updated_at: new Date().toISOString()
         });
-        
+
       if (error) throw error;
       
       toast({
-        title: 'Succès',
-        description: 'Permissions sauvegardées avec succès',
+        title: "Permissions enregistrées",
+        description: "Les modifications ont été sauvegardées avec succès",
       });
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des permissions:', error);
+      console.error('Error saving permissions:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de sauvegarder les permissions',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible d'enregistrer les permissions",
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  }, [accessConfig, toast]);
+  };
 
-  // Scanner l'application pour détecter de nouvelles routes et mettre à jour la config
-  const scanAndUpdateRoutes = useCallback(async (): Promise<void> => {
+  // Function to get routes for a specific role
+  const getRoutesForRole = (role: UserRole): RouteWithAccess[] => {
+    const allRoutes = Object.keys(accessConfig.routes);
+    const routesWithAccess: RouteWithAccess[] = [];
+    
+    allRoutes.forEach(route => {
+      const rule = accessConfig.routes[route];
+      const metadata = getRouteMetadata(route) || { path: route, title: route };
+      
+      if (rule.isPublic || rule.allowedRoles.includes(role)) {
+        routesWithAccess.push({
+          ...metadata,
+          permissions: rule
+        });
+      }
+    });
+    
+    return routesWithAccess;
+  };
+
+  // Function to get all public routes
+  const getPublicRoutes = (): RouteWithAccess[] => {
+    const allRoutes = Object.keys(accessConfig.routes);
+    const publicRoutes: RouteWithAccess[] = [];
+    
+    allRoutes.forEach(route => {
+      const rule = accessConfig.routes[route];
+      const metadata = getRouteMetadata(route) || { path: route, title: route };
+      
+      if (rule.isPublic) {
+        publicRoutes.push({
+          ...metadata,
+          permissions: rule
+        });
+      }
+    });
+    
+    return publicRoutes;
+  };
+
+  // Function to get admin routes for a specific role
+  const getAdminRoutesForRole = (role: UserRole): RouteWithAccess[] => {
+    const allAdminRoutes = Object.keys(accessConfig.adminRoutes);
+    const adminRoutesWithAccess: RouteWithAccess[] = [];
+    
+    allAdminRoutes.forEach(route => {
+      const rule = accessConfig.adminRoutes[route];
+      const metadata = getRouteMetadata(route) || { path: route, title: route };
+      
+      if (rule.isPublic || rule.allowedRoles.includes(role)) {
+        adminRoutesWithAccess.push({
+          ...metadata,
+          permissions: rule
+        });
+      }
+    });
+    
+    return adminRoutesWithAccess;
+  };
+
+  // Function to check if a route is public
+  const isRoutePublic = (route: string): boolean => {
+    if (accessConfig.routes[route]) {
+      return accessConfig.routes[route].isPublic;
+    }
+    
+    if (accessConfig.adminRoutes[route]) {
+      return accessConfig.adminRoutes[route].isPublic;
+    }
+    
+    // Default to false for undefined routes
+    return false;
+  };
+
+  // Function to scan for new routes and update the configuration
+  const scanAndUpdateRoutes = async (): Promise<void> => {
     try {
-      setIsLoading(true);
+      const allRoutes = getAllRoutes();
+      const updatedConfig = { ...accessConfig };
+      let hasChanges = false;
       
-      // Récupérer toutes les routes de l'application
-      const appRoutes = extractAppRoutes();
+      // Check for new public routes
+      allRoutes.publicRoutes.forEach(route => {
+        if (!updatedConfig.routes[route]) {
+          updatedConfig.routes[route] = {
+            isPublic: true,
+            allowedRoles: ['admin', 'user', 'editor', 'visitor']
+          };
+          hasChanges = true;
+        }
+      });
       
-      // Mettre à jour la configuration d'accès
-      const updatedConfig = syncRoutesWithAccessConfig(accessConfig);
+      // Check for new admin routes
+      allRoutes.adminRoutes.forEach(route => {
+        if (!updatedConfig.adminRoutes[route]) {
+          updatedConfig.adminRoutes[route] = {
+            isPublic: false,
+            allowedRoles: ['admin']
+          };
+          hasChanges = true;
+        }
+      });
       
-      // Si des changements ont été détectés, mettre à jour la configuration
-      if (JSON.stringify(updatedConfig) !== JSON.stringify(accessConfig)) {
+      if (hasChanges) {
         setAccessConfig(updatedConfig);
-        
         toast({
-          title: 'Routes mises à jour',
-          description: 'Nouvelles routes détectées et ajoutées à la configuration des accès',
+          title: "Nouvelles routes détectées",
+          description: "La configuration des permissions a été mise à jour",
         });
       } else {
         toast({
-          title: 'Scan terminé',
-          description: 'Aucune nouvelle route détectée',
+          title: "Scan terminé",
+          description: "Aucune nouvelle route détectée",
         });
       }
     } catch (error) {
-      console.error('Erreur lors du scan des routes:', error);
+      console.error('Error scanning routes:', error);
       toast({
-        title: 'Erreur',
-        description: 'Impossible de scanner les routes de l\'application',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de scanner les routes",
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  }, [accessConfig, syncRoutesWithAccessConfig, toast]);
+  };
 
-  // Obtenir les routes accessibles pour un rôle spécifique
-  const getRoutesForRole = useCallback((role: UserRole): RouteWithAccess[] => {
-    const routes: RouteWithAccess[] = [];
-    
-    Object.entries(accessConfig.routes).forEach(([path, permissions]) => {
-      if (permissions.isPublic || permissions.allowedRoles.includes(role)) {
-        routes.push({
-          ...getRouteMetadata(path),
-          path,
-          permissions
-        });
-      }
-    });
-    
-    return routes;
-  }, [accessConfig.routes]);
-
-  // Obtenir les routes publiques
-  const getPublicRoutes = useCallback((): RouteWithAccess[] => {
-    const routes: RouteWithAccess[] = [];
-    
-    Object.entries(accessConfig.routes).forEach(([path, permissions]) => {
-      if (permissions.isPublic) {
-        routes.push({
-          ...getRouteMetadata(path),
-          path,
-          permissions
-        });
-      }
-    });
-    
-    return routes;
-  }, [accessConfig.routes]);
-
-  // Obtenir les routes admin accessibles pour un rôle spécifique
-  const getAdminRoutesForRole = useCallback((role: UserRole): RouteWithAccess[] => {
-    const routes: RouteWithAccess[] = [];
-    
-    Object.entries(accessConfig.adminRoutes).forEach(([path, permissions]) => {
-      if (permissions.isPublic || permissions.allowedRoles.includes(role)) {
-        routes.push({
-          ...getRouteMetadata(`/admin/${path}`),
-          path: `/admin/${path}`,
-          permissions
-        });
-      }
-    });
-    
-    return routes;
-  }, [accessConfig.adminRoutes]);
-
-  const value: PermissionsContextType = {
+  const contextValue: PermissionsContextType = {
     accessConfig,
     isLoading,
     hasAccess,
@@ -363,17 +279,18 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   return (
-    <PermissionsContext.Provider value={value}>
+    <PermissionsContext.Provider value={contextValue}>
       {children}
     </PermissionsContext.Provider>
   );
 };
 
-// Hook pour utiliser le contexte
 export const usePermissions = (): PermissionsContextType => {
   const context = useContext(PermissionsContext);
-  if (context === undefined) {
-    throw new Error('usePermissions doit être utilisé à l\'intérieur d\'un PermissionsProvider');
+  if (!context) {
+    throw new Error('usePermissions must be used within a PermissionsProvider');
   }
   return context;
 };
+
+export default PermissionsProvider;
