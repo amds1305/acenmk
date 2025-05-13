@@ -154,7 +154,7 @@ const UserMenu = () => {
             </>
           )}
           
-          {/* Bouton d'accès à l'administration pour les admins */}
+          {/* Correction de la condition pour afficher le lien d'administration */}
           {user && (user.role === 'admin' || isAdminRole(user.role)) && (
             <>
               <DropdownMenuSeparator />

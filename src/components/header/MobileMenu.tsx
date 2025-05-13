@@ -25,7 +25,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   
   if (!isOpen) return null;
 
-  // Function to check if a link is active
+  // Fonction pour vérifier si un lien est actif
   const isActive = (href: string): boolean => {
     if (href === '/') {
       return location.pathname === '/';
@@ -38,7 +38,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     return location.pathname.startsWith(href);
   };
 
-  // Generate custom CSS styles
+  // Génération de styles CSS personnalisés
   const navItemStyle = {
     color: headerStyle?.textColor,
     fontFamily: headerStyle?.fontFamily,
@@ -60,44 +60,19 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     backgroundColor: headerStyle?.socialIconBgColor,
     borderColor: headerStyle?.socialIconBorderColor,
   };
-
-  // Function to handle click based on link type
-  const handleLinkClick = (href: string) => {
-    if (href.startsWith('/#')) {
-      // For hash links on the homepage
-      if (location.pathname === '/') {
-        // We're already on the homepage, just scroll to the section
-        const targetId = href.substring(2);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      } else {
-        // We need to navigate to the homepage first, then scroll
-        // The hash in the URL will cause the browser to scroll to the element
-        // after the page loads
-        window.location.href = href;
-      }
-    }
-    // Close the mobile menu after clicking
-    onNavLinkClick();
-  };
   
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
         {navLinks.map((link, index) => {
-          // Check if this link has an icon to display
+          // Vérifier si ce lien a une icône à afficher
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
           return (
             <a 
               key={link.name}
               href={link.href} 
-              onClick={(e) => {
-                e.preventDefault();
-                handleLinkClick(link.href);
-              }}
+              onClick={onNavLinkClick}
               className={cn(
                 "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center flex items-center justify-center gap-2",
                 isActive(link.href) 

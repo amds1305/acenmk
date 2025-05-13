@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections'; // Utiliser la version corrigée
+import { getHomepageConfig } from '@/services/mysql';
 import { DEFAULT_SECTIONS, DEFAULT_TEMPLATE_CONFIG, DEFAULT_HOMEPAGE_CONFIG } from '@/services/sections/defaultData';
 import { HomepageConfig } from '@/types/sections';
 

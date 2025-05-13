@@ -16,7 +16,7 @@ import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
+import { getHomepageConfig } from '@/services/mysql';
 import { useToast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 import PageLoader from '@/components/common/PageLoader';
@@ -60,7 +60,6 @@ const Index = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
-  const [errorOccurred, setErrorOccurred] = useState<boolean>(false);
   
   // Setup the intersection observer for animations
   useIntersectionAnimation();
@@ -110,13 +109,10 @@ const Index = () => {
     refetchOnMount: true, // Recharger à chaque montage
     refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
     retry: 2,
-    onError: (error) => {
-      console.error('Error in getHomepageConfig:', error);
-      setErrorOccurred(true);
-    }
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
   });
 
-  console.log('📊 [Index] Après useQuery - homeConfig:', homeConfig, 'error:', error);
+  console.log('📊 [Index] Après useQuery - homeConfig:', homeConfig);
 
   useEffect(() => {
     if (error) {
@@ -127,7 +123,6 @@ const Index = () => {
         description: "Impossible de charger la configuration de la page d'accueil. Les paramètres par défaut seront utilisés.",
       });
       console.error("Erreur lors du chargement de la configuration:", error);
-      setErrorOccurred(true);
     }
   }, [error, toast]);
 
@@ -137,9 +132,9 @@ const Index = () => {
     return <PageLoader />;
   }
 
-  // Affichage du composant de repli en cas d'erreur
-  if (errorOccurred || !homeConfig) {
-    console.warn('⚠️ [Index] Configuration problématique, affichage du fallback');
+  // Nouveau fallback: si homeConfig est entièrement indéfini (erreur complète)
+  if (!homeConfig) {
+    console.warn('⚠️ [Index] Configuration entièrement absente, affichage du fallback');
     return <ConfigFallback />;
   }
 

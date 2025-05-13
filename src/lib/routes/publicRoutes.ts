@@ -18,14 +18,6 @@ export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
     showInNav: true,
     order: 2
   },
-  "/about": {
-    path: "/about",
-    title: "À propos",
-    description: "En savoir plus sur notre entreprise",
-    icon: "info",
-    showInNav: false,
-    order: 2
-  },
   "/services": {
     path: "/services",
     title: "Services",
@@ -33,14 +25,6 @@ export const PUBLIC_ROUTES: Record<string, RouteMetadata> = {
     icon: "settings",
     showInNav: true,
     order: 3
-  },
-  "/portfolio": {
-    path: "/portfolio",
-    title: "Portfolio",
-    description: "Nos réalisations",
-    icon: "briefcase",
-    showInNav: true,
-    order: 4
   },
   "/projets": {
     path: "/projets",

@@ -13,7 +13,7 @@ interface WysiwygEditorProps {
   onChange: (value: string) => void;
 }
 
-const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange }) => {
+export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange }) => {
   // État local pour gérer le chargement de l'éditeur
   const [mounted, setMounted] = useState(false);
 
@@ -73,8 +73,3 @@ const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange }) => {
     </Suspense>
   );
 };
-
-export default WysiwygEditor;
-
-// Pour la compatibilité avec le code existant, nous exportons également comme WysiwygEditor nommé
-export { WysiwygEditor };

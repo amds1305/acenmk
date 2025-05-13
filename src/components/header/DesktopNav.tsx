@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { NavLink, SocialLink } from './types';
 import { cn } from '@/lib/utils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { iconsMap } from '@/components/admin/header/iconsMap';
 import { useHeaderContext } from '@/contexts/HeaderContext';
 
@@ -24,10 +24,9 @@ const DesktopNav = ({
   showThemeSelector = true 
 }: DesktopNavProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { headerStyle } = useHeaderContext();
   
-  // Function to check if a link is active
+  // Fonction pour vérifier si un lien est actif
   const isActive = (href: string): boolean => {
     if (href === '/') {
       return location.pathname === '/';
@@ -40,38 +39,7 @@ const DesktopNav = ({
     return location.pathname.startsWith(href);
   };
   
-  // Function to handle navigation
-  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    
-    if (href.startsWith('/#')) {
-      // For hash links on the homepage
-      if (location.pathname === '/') {
-        // We're already on the homepage, just scroll to the section
-        const targetId = href.substring(2);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      } else {
-        // We need to navigate to the homepage first, then to the section
-        navigate('/');
-        // Use setTimeout to ensure the navigation completes before scrolling
-        setTimeout(() => {
-          const targetId = href.substring(2);
-          const targetElement = document.getElementById(targetId);
-          if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      }
-    } else {
-      // Regular route navigation
-      navigate(href);
-    }
-  };
-  
-  // Custom CSS styles
+  // Génération de styles CSS personnalisés
   const navItemStyle = {
     color: headerStyle?.textColor,
     fontFamily: headerStyle?.fontFamily,
@@ -116,14 +84,13 @@ const DesktopNav = ({
       {/* Navigation Links */}
       <nav className="flex items-center space-x-3 overflow-x-auto max-w-[40vw] no-scrollbar">
         {navLinks.map((link) => {
-          // Check if this link has an icon to display
+          // Vérifier si ce lien a une icône à afficher
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
           return (
             <a
               key={link.href}
               href={link.href}
-              onClick={(e) => handleNavigation(e, link.href)}
               className={cn(
                 "menu-item group py-2 px-3 rounded-md text-sm font-medium transition-all relative whitespace-nowrap",
                 isActive(link.href) 

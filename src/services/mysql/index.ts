@@ -105,6 +105,75 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
   }
 };
 
+// Fonction pour sauvegarder la configuration de la page d'accueil
+export const saveHomepageConfig = async (config: HomepageConfig): Promise<boolean> => {
+  try {
+    console.log("Sauvegarde de la configuration:", config);
+    
+    // 1. Sauvegarde des sections
+    for (const section of config.sections) {
+      await supabase
+        .from('sections')
+        .upsert({
+          id: section.id,
+          type: section.type,
+          title: section.title,
+          visible: section.visible,
+          order: section.order,
+          custom_component: section.customComponent
+        }, { onConflict: 'id' });
+    }
+    
+    // 2. Sauvegarde des données de section
+    const sectionDataArray = Object.entries(config.sectionData).map(([section_id, data]) => ({
+      section_id,
+      data
+    }));
+    
+    for (const entry of sectionDataArray) {
+      await supabase
+        .from('section_data')
+        .upsert({ 
+          section_id: entry.section_id,
+          data: entry.data
+        }, { onConflict: 'section_id' });
+    }
+    
+    // 3. Sauvegarde de la configuration du template
+    if (config.templateConfig) {
+      await supabase
+        .from('template_config')
+        .upsert({
+          id: 'default',
+          active_template: config.templateConfig.activeTemplate
+        }, { onConflict: 'id' });
+    }
+    
+    // Nettoyer les caches
+    localStorage.removeItem('cachedHomepageConfig');
+    localStorage.removeItem('cachedConfigTimestamp');
+    
+    // Déclencher un événement de mise à jour
+    window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+    
+    console.log("Configuration sauvegardée avec succès!");
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la configuration:', error);
+    
+    // Sauvegarde de secours en localStorage
+    try {
+      localStorage.setItem('homepageSections', JSON.stringify(config.sections));
+      localStorage.setItem('homepageSectionData', JSON.stringify(config.sectionData));
+      localStorage.setItem('homepageTemplateConfig', JSON.stringify(config.templateConfig));
+      return true;
+    } catch (localError) {
+      console.error('Erreur lors de la sauvegarde locale:', localError);
+      return false;
+    }
+  }
+};
+
 // Instead of importing from local files, directly re-export from the supabase services
 export { 
   getTeamMembers,
@@ -120,3 +189,4 @@ export {
   upsertTrustedClient,
   deleteTrustedClient
 } from '@/services/supabase';
+

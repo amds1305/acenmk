@@ -1,3 +1,3 @@
 
-// Exporter directement depuis le dossier sections qui contient l'implémentation correcte
+// Re-export everything from the sections directory
 export * from '../sections/index';

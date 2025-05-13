@@ -4,6 +4,9 @@ import { DEFAULT_HOMEPAGE_CONFIG } from '@/services/sections/defaultData';
 import { supabase } from '@/lib/supabase';
 import { queryClient } from '@/lib/queryClient';
 
+// Cache expiration time in milliseconds (5 seconds)
+const CACHE_EXPIRATION = 5000;
+
 export const getHomepageConfig = async (): Promise<HomepageConfig> => {
   try {
     console.log('Tentative de chargement de la configuration depuis Supabase...');
@@ -12,67 +15,74 @@ export const getHomepageConfig = async (): Promise<HomepageConfig> => {
     const cachedTimestamp = parseInt(localStorage.getItem('cachedConfigTimestamp') || '0');
     const now = Date.now();
     const cachedConfig = localStorage.getItem('cachedHomepageConfig');
-    const CACHE_EXPIRATION = 5000; // 5 secondes
     
     if (cachedConfig && now - cachedTimestamp < CACHE_EXPIRATION) {
       console.log('Utilisation de la configuration en cache');
       return JSON.parse(cachedConfig);
     }
     
-    // Utiliser le mode fetch sans utiliser from() qui cause l'erreur
-    const sectionsResponse = await supabase
+    // 1. Récupérer les sections
+    const { data: sections, error: sectionsError } = await supabase
       .from('sections')
       .select('*')
       .order('order', { ascending: true });
-    
-    if (sectionsResponse.error) throw sectionsResponse.error;
-    const sections = sectionsResponse.data || [];
 
-    // Récupérer les données des sections
-    const sectionDataResponse = await supabase
+    if (sectionsError) {
+      throw sectionsError;
+    }
+
+    // 2. Récupérer les données des sections
+    const { data: sectionDataEntries, error: sectionDataError } = await supabase
       .from('section_data')
       .select('*');
 
-    if (sectionDataResponse.error) throw sectionDataResponse.error;
+    if (sectionDataError) {
+      throw sectionDataError;
+    }
 
     // Transformer les données de section en objet
     const sectionData = {};
-    sectionDataResponse.data?.forEach(entry => {
-      if (entry.section_id) {
-        sectionData[entry.section_id] = entry.data;
-      }
+    sectionDataEntries.forEach(entry => {
+      sectionData[entry.section_id] = entry.data;
     });
 
-    // Récupérer la configuration du template
-    const templateConfigResponse = await supabase
+    // 3. Récupérer la configuration du template
+    const { data: templateConfig, error: templateError } = await supabase
       .from('template_config')
       .select('*')
       .eq('id', 'default')
       .maybeSingle();
 
-    if (templateConfigResponse.error && templateConfigResponse.error.code !== 'PGRST116') {
-      throw templateConfigResponse.error;
+    if (templateError) {
+      throw templateError;
     }
 
     const config = {
-      sections: sections || [],
-      sectionData: sectionData || {},
-      templateConfig: templateConfigResponse.data 
-        ? { activeTemplate: templateConfigResponse.data.active_template } 
-        : DEFAULT_HOMEPAGE_CONFIG.templateConfig
+      sections: sections,
+      sectionData: sectionData,
+      templateConfig: templateConfig ? { activeTemplate: templateConfig.active_template } : DEFAULT_HOMEPAGE_CONFIG.templateConfig
     };
 
-    // Mettre en cache la configuration
+    // Mettre en cache la configuration pour une utilisation future
     localStorage.setItem('cachedHomepageConfig', JSON.stringify(config));
     localStorage.setItem('cachedConfigTimestamp', now.toString());
-    
+
     console.log('Configuration chargée depuis Supabase:', config);
+    
+    // Invalider les requêtes associées pour forcer les composants à se rafraîchir
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['faqs'] });
+      queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['trustedClientsData'] });
+    }, 500);
+    
     return config;
   } catch (error) {
     console.error('Erreur lors du chargement depuis Supabase, repli sur localStorage:', error);
     
     try {
-      console.log('Tentative de chargement depuis localStorage');
+      console.log('Chargement de la configuration depuis localStorage');
       const sections = JSON.parse(localStorage.getItem('homepageSections') || 'null');
       const sectionData = JSON.parse(localStorage.getItem('homepageSectionData') || 'null');
       const templateConfig = JSON.parse(localStorage.getItem('homepageTemplateConfig') || 'null');

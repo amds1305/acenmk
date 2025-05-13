@@ -1,45 +1,53 @@
 
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
+// Import the supabase client from our integration
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
+import { User, UserRole } from "@/types/auth";
 
-// Supabase connection constants
-const SUPABASE_URL = "https://kbigpjrjarlbncdtonuz.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs";
+// Configure custom headers
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
 
-// Create and export the Supabase client with proper headers
-export const supabase = createClient<Database>(
-  SUPABASE_URL, 
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      storage: localStorage
-    },
-    global: {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }
-  }
-);
+// Enhanced supabase client with proper headers
+export const supabase = {
+  ...supabaseClient,
+  supabaseUrl: "https://kbigpjrjarlbncdtonuz.supabase.co",
+  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs"
+};
 
-// Helper for debugging Supabase connection issues
-export const checkSupabaseConnection = async () => {
+// Fonction utilitaire pour créer/récupérer un bucket de stockage
+export const ensureStorageBucket = async (name: string) => {
   try {
-    const { data, error } = await supabase.from('app_settings').select('*').limit(1);
-    if (error) {
-      console.error('Supabase connection test error:', error);
-      return { success: false, error };
+    // Vérifier si le bucket existe déjà
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(bucket => bucket.name === name);
+    
+    if (!bucketExists) {
+      // Créer le bucket s'il n'existe pas
+      const { error } = await supabase.storage.createBucket(name, {
+        public: true
+      });
+      
+      if (error) throw error;
+      console.log(`Bucket de stockage "${name}" créé avec succès.`);
     }
-    return { success: true, data };
-  } catch (e) {
-    console.error('Supabase connection exception:', e);
-    return { success: false, error: e };
+  } catch (error) {
+    console.error(`Erreur lors de la vérification/création du bucket "${name}":`, error);
   }
 };
 
-// Export for consistent imports
-export default supabase;
+// Fonction utilitaire pour mapper le format de l'utilisateur entre Supabase et notre appli
+export const mapUserData = (profile: any, role: UserRole): User => {
+  return {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    role: role,
+    company: profile.company || undefined,
+    phone: profile.phone || undefined,
+    avatar: profile.avatar_url || undefined,
+    createdAt: profile.created_at,
+    // Ajouter d'autres champs selon vos besoins
+  } as User;
+};

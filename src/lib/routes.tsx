@@ -27,11 +27,6 @@ import Profile from "@/pages/Profile";
 import Projects from "@/pages/Projects";
 import Estimates from "@/pages/Estimates";
 import Messages from "@/pages/Messages";
-import AboutPage from "@/pages/AboutPage";
-import PortfolioPage from "@/pages/PortfolioPage";
-import ServicesPage from "@/pages/ServicesPage";
-import AdminLogin from "@/pages/AdminLogin";
-import Login from "@/pages/Login";
 
 export const routes: RouteObject[] = [
   {
@@ -39,28 +34,12 @@ export const routes: RouteObject[] = [
     element: <Index />,
   },
   {
-    path: "/about",
-    element: <AboutPage />,
-  },
-  {
-    path: "/a-propos",
-    element: <AboutPage />,
-  },
-  {
-    path: "/portfolio",
-    element: <PortfolioPage />,
-  },
-  {
-    path: "/projets",
-    element: <Projects />,
-  },
-  {
-    path: "/services",
-    element: <ServicesPage />,
-  },
-  {
     path: "/profile",
     element: <Profile />,
+  },
+  {
+    path: "/projects",
+    element: <Projects />,
   },
   {
     path: "/estimates",
@@ -69,14 +48,6 @@ export const routes: RouteObject[] = [
   {
     path: "/messages",
     element: <Messages />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/admin/login",
-    element: <AdminLogin />,
   },
   {
     path: "/admin",
