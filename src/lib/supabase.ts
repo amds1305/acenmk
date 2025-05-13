@@ -1,10 +1,20 @@
 
 // Import the supabase client from our integration
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { User, UserRole } from "@/types/auth";
 
-// Re-export the supabase client
-export { supabase };
+// Configure custom headers
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
+
+// Enhanced supabase client with proper headers
+export const supabase = {
+  ...supabaseClient,
+  supabaseUrl: "https://kbigpjrjarlbncdtonuz.supabase.co",
+  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs"
+};
 
 // Fonction utilitaire pour créer/récupérer un bucket de stockage
 export const ensureStorageBucket = async (name: string) => {
