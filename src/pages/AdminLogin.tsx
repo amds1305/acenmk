@@ -44,35 +44,26 @@ const AdminLogin = () => {
         return;
       }
       
-      // Appel direct à Supabase pour le débogage
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      // Appel à notre hook de login qui utilise correctement les entêtes d'API
+      const result = await login(email, password);
       
-      if (error) {
-        console.error("Erreur Supabase lors de la connexion admin:", error);
-        throw error;
-      }
-      
-      if (data?.session) {
-        console.log("Session admin Supabase créée avec succès:", data.session);
-        
-        // Utiliser le hook login de notre contexte d'auth
-        await login(email, password);
+      if (result.success) {
+        console.log("Session admin créée avec succès");
         
         toast({
           title: 'Connexion réussie',
           description: 'Bienvenue dans l\'interface d\'administration',
         });
         navigate(from, { replace: true });
+      } else {
+        throw new Error(result.error?.message || "Échec de connexion");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur complète lors de la connexion admin:", error);
       toast({
         variant: 'destructive',
         title: 'Échec de la connexion',
-        description: 'Veuillez vérifier vos identifiants',
+        description: error.message || 'Veuillez vérifier vos identifiants',
       });
     } finally {
       setIsSubmitting(false);

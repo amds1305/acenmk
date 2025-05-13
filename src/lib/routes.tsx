@@ -30,6 +30,8 @@ import Messages from "@/pages/Messages";
 import AboutPage from "@/pages/AboutPage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import ServicesPage from "@/pages/ServicesPage";
+import AdminLogin from "@/pages/AdminLogin";
+import Login from "@/pages/Login";
 
 export const routes: RouteObject[] = [
   {
@@ -67,6 +69,14 @@ export const routes: RouteObject[] = [
   {
     path: "/messages",
     element: <Messages />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/admin/login",
+    element: <AdminLogin />,
   },
   {
     path: "/admin",

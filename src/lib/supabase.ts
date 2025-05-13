@@ -13,13 +13,15 @@ export const supabase = createClient<Database>(
   {
     auth: {
       autoRefreshToken: true,
-      persistSession: true
+      persistSession: true,
+      storage: localStorage
     },
     global: {
       headers: {
+        'apikey': SUPABASE_ANON_KEY,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      },
+      }
     }
   }
 );

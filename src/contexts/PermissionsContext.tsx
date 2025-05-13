@@ -6,12 +6,7 @@ import { UserRole } from '@/types/auth';
 import { getAllRoutes, getRouteMetadata } from '@/lib/routes';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
-
-// Default permissions configuration
-const DEFAULT_ACCESS_CONFIG: AccessControlConfig = {
-  routes: {},
-  adminRoutes: {}
-};
+import { DEFAULT_ACCESS_CONFIG } from '@/config/accessControl';
 
 // Create the context
 const PermissionsContext = createContext<PermissionsContextType | null>(null);
@@ -29,11 +24,12 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setIsLoading(true);
         console.log('Loading permissions from Supabase...');
         
-        // Use proper header setup to avoid 406 errors
+        // Utiliser la version corrigée de la requête Supabase
         const { data, error } = await supabase
           .from('app_settings')
           .select('*')
-          .eq('id', 'route_permissions:1');
+          .eq('id', 'route_permissions:1')
+          .single();
 
         if (error) {
           console.error('Error loading permissions:', error);
@@ -45,9 +41,9 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
           return;
         }
 
-        if (data && data.length > 0 && data[0].settings) {
-          console.log('Permissions loaded successfully', data[0].settings);
-          setAccessConfig(data[0].settings as AccessControlConfig);
+        if (data && data.settings) {
+          console.log('Permissions loaded successfully', data.settings);
+          setAccessConfig(data.settings as AccessControlConfig);
         } else {
           console.log('No permissions found, using defaults');
         }
