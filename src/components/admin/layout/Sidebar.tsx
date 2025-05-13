@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ expanded, toggleSidebar }) => {
       `}
     >
       <div className="p-4 flex items-center justify-between border-b">
-        <div className="font-bold text-lg">ACE Admin</div>
+        <div className="font-bold text-lg">Back Office</div>
         <Button variant="ghost" size="sm" className="md:hidden" onClick={toggleSidebar}>
           <X className="h-5 w-5" />
         </Button>

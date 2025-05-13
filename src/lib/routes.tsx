@@ -21,7 +21,8 @@ import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
 import AdminLeadTracePage from "@/pages/AdminLeadTrace";
 import LeadTracePage from "@/pages/LeadTrace";
-import Index from "@/pages/Index"; // Import de la page d'accueil
+import Index from "@/pages/Index"; 
+import AdminSupabaseMigration from "@/pages/AdminSupabaseMigration";
 
 export const routes: RouteObject[] = [
   {
@@ -99,6 +100,10 @@ export const routes: RouteObject[] = [
       {
         path: "lead-trace",
         element: <AdminLeadTracePage />,
+      },
+      {
+        path: "migration",
+        element: <AdminSupabaseMigration />,
       },
     ],
   },

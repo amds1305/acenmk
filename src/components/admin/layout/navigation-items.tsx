@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Paperclip,
   Briefcase,
+  Database,
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -110,5 +111,10 @@ export const getNavItems = () => [
     path: '/admin/footer',
     label: 'Pied de page',
     icon: <Newspaper className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/migration',
+    label: 'Migration',
+    icon: <Database className="h-5 w-5" />,
   },
 ];

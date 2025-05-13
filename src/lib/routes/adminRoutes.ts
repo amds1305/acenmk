@@ -101,5 +101,15 @@ export const adminRouteMetadata: Record<string, RouteMetadata> = {
     showInNav: true,
     order: 523,
     category: 'admin'
+  },
+  '/admin/migration': {
+    path: '/admin/migration',
+    title: 'Migration',
+    description: 'Migration des données vers Supabase ou MySQL',
+    icon: 'database',
+    parentPath: '/admin',
+    showInNav: true,
+    order: 650,
+    category: 'admin'
   }
 };
