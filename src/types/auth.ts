@@ -14,34 +14,6 @@ export interface User {
   createdAt: string;
   lastLoginDate?: string;
   twoFactorEnabled?: boolean;
-  projects?: Project[];
-  estimates?: Estimate[];
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  date: string;
-  status: 'completed' | 'in-progress' | 'pending';
-}
-
-export interface Estimate {
-  id: string;
-  title: string;
-  description: string;
-  amount: number;
-  createdAt: string;
-  status: 'accepted' | 'pending' | 'rejected';
-}
-
-export interface Message {
-  id: string;
-  subject: string;
-  content: string;
-  sender: string;
-  date: string;
-  read: boolean;
 }
 
 export interface AuthContextType {
@@ -56,6 +28,6 @@ export interface AuthContextType {
   uploadAvatar: (file: File) => Promise<{ success: boolean; url?: string; error?: any }>;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: any }>;
   toggleTwoFactor: (enable: boolean) => Promise<{ success: boolean; error?: any }>;
-  messages: Message[];
+  messages: any[];
   unreadMessages: number;
 }

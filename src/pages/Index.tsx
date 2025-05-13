@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -19,11 +18,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/mysql';
 import { useToast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
-import PageLoader from '@/components/common/PageLoader';
-import ConfigFallback from '@/components/common/ConfigFallback';
-import TestRenderComponent from '@/components/common/TestRenderComponent';
-import SectionRenderer from '@/components/sections/SectionRenderer';
-import useIntersectionAnimation from '@/hooks/useIntersectionAnimation';
 
 export interface SectionVisibility {
   hero: boolean;
@@ -56,17 +50,12 @@ const templates: Record<HomeTemplateType, React.FC> = {
 };
 
 const Index = () => {
-  console.log('📊 [Index] Début du rendu du composant Index');
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
   
-  // Setup the intersection observer for animations
-  useIntersectionAnimation();
-  
   // Force un rechargement des données au montage du composant
   useEffect(() => {
-    console.log('📊 [Index] useEffect initial - Nettoyage du cache et préparation du rechargement');
     // Nettoyer le cache de localStorage pour forcer un rechargement depuis Supabase
     localStorage.removeItem('cachedHomepageConfig');
     localStorage.removeItem('cachedConfigTimestamp');
@@ -95,13 +84,11 @@ const Index = () => {
     }, 30000);
     
     return () => {
-      console.log('📊 [Index] Nettoyage du useEffect');
       window.removeEventListener('admin-changes-saved', handleAdminChanges as EventListener);
       clearInterval(intervalId);
     };
   }, [queryClient, toast]);
   
-  console.log('📊 [Index] Avant l\'appel à getHomepageConfig via useQuery');
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig', lastUpdate], // Inclure lastUpdate pour forcer le rechargement
     queryFn: getHomepageConfig,
@@ -112,11 +99,8 @@ const Index = () => {
     refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
   });
 
-  console.log('📊 [Index] Après useQuery - homeConfig:', homeConfig);
-
   useEffect(() => {
     if (error) {
-      console.error('📊 [Index] Erreur détectée dans useQuery:', error);
       toast({
         variant: "destructive",
         title: "Erreur de chargement",
@@ -126,45 +110,52 @@ const Index = () => {
     }
   }, [error, toast]);
 
-  // Affichage d'un fallback pendant le chargement
-  if (isLoading) {
-    console.log('📊 [Index] Affichage du loader - en attente des données');
-    return <PageLoader />;
-  }
-
-  // Nouveau fallback: si homeConfig est entièrement indéfini (erreur complète)
-  if (!homeConfig) {
-    console.warn('⚠️ [Index] Configuration entièrement absente, affichage du fallback');
-    return <ConfigFallback />;
-  }
-
-  console.log("📊 [Index] Template actif:", homeConfig?.templateConfig?.activeTemplate);
-  
-  // Sections par défaut à utiliser si nécessaire
-  const defaultSections = [
-    { id: 'hero-default', type: 'hero', order: 1, visible: true, title: 'Hero' },
-    { id: 'services-default', type: 'services', order: 2, visible: true, title: 'Services' },
-    { id: 'about-default', type: 'about', order: 3, visible: true, title: 'À propos' },
-    { id: 'team-default', type: 'team', order: 4, visible: true, title: 'Équipe' },
-    { id: 'testimonials-default', type: 'testimonials', order: 5, visible: true, title: 'Témoignages' },
-    { id: 'faq-default', type: 'faq', order: 6, visible: true, title: 'FAQ' },
-    { id: 'contact-default', type: 'contact', order: 7, visible: true, title: 'Contact' },
-  ];
-  
-  // Utiliser le template actif si configuré
+  console.log("Template actif:", homeConfig?.templateConfig?.activeTemplate);
+  console.log("Sections disponibles:", homeConfig?.sections);
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 
-  // Si aucune section n'est définie ou disponible, utiliser les sections par défaut
-  const sectionsToDisplay = homeConfig.sections?.length > 0 
-    ? homeConfig.sections.filter(section => section.visible)?.sort((a, b) => a.order - b.order) 
-    : defaultSections;
-    
-  console.log('📊 [Index] Sections à afficher:', sectionsToDisplay);
+  const sectionsToDisplay = homeConfig?.sections
+    ?.filter(section => section.visible)
+    ?.sort((a, b) => a.order - b.order) || [];
 
-  // Utilisation d'un template personnalisé si configuré
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-fade-in-up, .animate-slide-in-right, .animate-blur-in');
+    animatedElements.forEach((el) => observer.observe(el));
+
+    return () => {
+      if (animatedElements) {
+        animatedElements.forEach((el) => observer.unobserve(el));
+      }
+    };
+  }, [sectionsToDisplay]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-300 text-lg">Chargement de votre site...</p>
+      </div>
+    );
+  }
+
   if (activeTemplate !== 'default' && TemplateComponent) {
-    console.log(`📊 [Index] Utilisation du template ${activeTemplate}`);
+    console.log(`Utilisation du template ${activeTemplate}`);
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
@@ -176,18 +167,30 @@ const Index = () => {
     );
   }
 
+  const displaySections = sectionsToDisplay.length > 0 ? sectionsToDisplay : [
+    { id: 'hero-default', type: 'hero', order: 1 },
+    { id: 'services-default', type: 'services', order: 2 },
+    { id: 'about-default', type: 'about', order: 3 },
+    { id: 'team-default', type: 'team', order: 4 },
+    { id: 'testimonials-default', type: 'testimonials', order: 5 },
+    { id: 'faq-default', type: 'faq', order: 6 },
+    { id: 'contact-default', type: 'contact', order: 7 },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow dark:bg-gray-900">
-        {/* Section de test de rendu */}
-        <TestRenderComponent />
-        
-        {/* Sections dynamiques */}
-        <SectionRenderer 
-          sections={sectionsToDisplay}
-          sectionComponents={sectionComponents}
-        />
+        {displaySections.map((section) => {
+          const SectionComponent = sectionComponents[section.type];
+          
+          if (!SectionComponent) {
+            console.warn(`Section component not found for type: ${section.type}`);
+            return null;
+          }
+          
+          return <SectionComponent key={section.id} />;
+        })}
         <Pricing />
       </main>
       <Footer />

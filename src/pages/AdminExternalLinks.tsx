@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ExternalLinksManager } from '@/components/admin/external-links';
+import { SaveIndicator } from '@/components/ui/save-indicator';
 
 const AdminExternalLinks = () => {
   return (

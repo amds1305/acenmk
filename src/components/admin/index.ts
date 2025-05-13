@@ -1,7 +1,5 @@
 
-export { default as AdminLayout } from './layout/AdminLayout';
-export * from './dashboard';
-export * from './hero';
-export * from './lead-trace';
-export * from './footer/legal';
-export * from './careers';
+// Re-export all admin components
+export { default as AdminHome } from './AdminHome';
+export { default as Admin } from './dashboard/AdminDashboard';
+export { default as AdminTrustedClients } from './trusted-clients/AdminTrustedClientsMain';

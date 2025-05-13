@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Eye } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getNavItems } from './navigation-items';
-import UserProfileMenu from './UserProfileMenu';
 
 interface SidebarProps {
   expanded: boolean;
@@ -32,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ expanded, toggleSidebar }) => {
       `}
     >
       <div className="p-4 flex items-center justify-between border-b">
-        <div className="font-bold text-lg">Back Office</div>
+        <div className="font-bold text-lg">ACE Admin</div>
         <Button variant="ghost" size="sm" className="md:hidden" onClick={toggleSidebar}>
           <X className="h-5 w-5" />
         </Button>
@@ -63,19 +62,6 @@ const Sidebar: React.FC<SidebarProps> = ({ expanded, toggleSidebar }) => {
           )}
         </nav>
       </div>
-
-      {/* Visit Site Button - Fixed at bottom of sidebar above user menu */}
-      <div className="p-4 border-t">
-        <Link to="/" target="_blank">
-          <Button variant="outline" size="sm" className="w-full flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            <span>Voir le site</span>
-          </Button>
-        </Link>
-      </div>
-      
-      {/* User Profile Menu */}
-      <UserProfileMenu />
     </div>
   );
 };

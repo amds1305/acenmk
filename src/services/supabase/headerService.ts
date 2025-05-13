@@ -17,12 +17,6 @@ export interface HeaderConfig {
 // Récupérer toute la configuration d'en-tête
 export async function getHeaderConfig(): Promise<HeaderConfig> {
   try {
-    // Configuration des headers pour toutes les requêtes Supabase
-    const customHeaders = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    };
-
     // Récupérer le logo
     const { data: logoData, error: logoError } = await supabase
       .from('header_logo')
@@ -219,25 +213,19 @@ export async function getHeaderConfig(): Promise<HeaderConfig> {
     } as HeaderStyle : undefined;
 
     // Récupérer l'option showThemeSelector de la table header_config
+    // Corriger la requête problématique en utilisant une autre approche :
     let showThemeSelector = true; // Valeur par défaut
     try {
-      // Utilisation directe de fetch avec les headers appropriés pour éviter l'erreur 406
-      const response = await fetch(`${supabase.supabaseUrl}/rest/v1/header_config?select=show_theme_selector&id=eq.default`, {
-        headers: {
-          'apikey': supabase.supabaseKey,
-          'Authorization': `Bearer ${supabase.supabaseKey}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const configData = await response.json();
-        if (configData && configData.length > 0) {
-          showThemeSelector = configData[0].show_theme_selector !== false;
-        }
-      } else {
-        console.error('Erreur lors de la récupération de la configuration d\'en-tête:', response.statusText);
+      const { data: configData, error } = await supabase
+        .from('header_config')
+        .select('*')
+        .eq('id', 'default')
+        .single();
+
+      if (error) {
+        console.error('Erreur lors de la récupération de la configuration d\'en-tête:', error);
+      } else if (configData) {
+        showThemeSelector = configData.show_theme_selector !== false;
       }
     } catch (configError) {
       console.error('Erreur inattendue lors de la récupération de la configuration d\'en-tête:', configError);

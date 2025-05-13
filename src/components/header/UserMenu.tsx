@@ -25,14 +25,8 @@ import { isAdminRole } from '@/utils/roleUtils';
 const internalModules = [
   {
     name: 'AceJob',
-    path: '/ace-job',
+    path: '/ace-job',  // Correction du chemin vers /ace-job
     icon: <GraduationCap className="h-4 w-4" />,
-    requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
-  },
-  {
-    name: 'LeadTrace',
-    path: '/lead-trace',
-    icon: <Briefcase className="h-4 w-4" />,
     requiredRole: ['admin', 'super_admin', 'business_admin', 'contributor']
   }
   // Possibilité d'ajouter d'autres modules internes facilement ici
@@ -43,11 +37,9 @@ const UserMenu = () => {
   const { hasAccess } = usePermissions();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    const result = await logout();
-    if (result.success) {
-      navigate('/');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   // Filtrer les modules internes en fonction des permissions de l'utilisateur
@@ -100,7 +92,7 @@ const UserMenu = () => {
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar className="cursor-pointer h-10 w-10">
               <AvatarImage src={user?.avatar} />
-              <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+              <AvatarFallback>{user?.name.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

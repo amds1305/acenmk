@@ -19,8 +19,6 @@ import {
   TrendingUp,
   ShieldCheck,
   Paperclip,
-  Briefcase,
-  Database,
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -80,11 +78,6 @@ export const getNavItems = () => [
     icon: <GraduationCap className="h-5 w-5" />,
   },
   {
-    path: '/admin/lead-trace',
-    label: 'LeadTrace',
-    icon: <Briefcase className="h-5 w-5" />,
-  },
-  {
     path: '/admin/contact',
     label: 'Contacts',
     icon: <MessageSquare className="h-5 w-5" />,
@@ -111,10 +104,5 @@ export const getNavItems = () => [
     path: '/admin/footer',
     label: 'Pied de page',
     icon: <Newspaper className="h-5 w-5" />,
-  },
-  {
-    path: '/admin/migration',
-    label: 'Migration',
-    icon: <Database className="h-5 w-5" />,
   },
 ];
