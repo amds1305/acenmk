@@ -14,7 +14,7 @@ import NmkKinkPricing from './NmkKinkPricing';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkKink template
-const sectionComponents: Record<SectionType, React.FC> = {
+const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'hero': NmkKinkHero,
   'services': NmkKinkServices,
   'about': NmkKinkAbout,

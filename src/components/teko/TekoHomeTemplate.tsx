@@ -13,7 +13,7 @@ import TekoContact from './TekoContact';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for Teko template
-const sectionComponents: Record<SectionType, React.FC> = {
+const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'hero': TekoHero,
   'services': TekoServices,
   'about': TekoAbout,

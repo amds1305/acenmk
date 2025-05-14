@@ -13,7 +13,7 @@ import NmkFireContact from './NmkFireContact';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkFire template
-const sectionComponents: Record<SectionType, React.FC> = {
+const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'hero': NmkFireHero,
   'services': NmkFireServices,
   'about': NmkFireAbout,

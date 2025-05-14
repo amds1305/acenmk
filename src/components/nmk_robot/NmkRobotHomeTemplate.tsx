@@ -13,7 +13,7 @@ import NmkRobotContact from './NmkRobotContact';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkRobot template
-const sectionComponents: Record<SectionType, React.FC> = {
+const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'hero': NmkRobotHero,
   'services': NmkRobotServices,
   'about': NmkRobotAbout,

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -30,7 +31,7 @@ export interface SectionVisibility {
   'trusted-clients': boolean;
 }
 
-const sectionComponents: Record<string, React.FC> = {
+const sectionComponents = {
   hero: Hero,
   services: Services,
   about: About,
@@ -41,7 +42,7 @@ const sectionComponents: Record<string, React.FC> = {
   'trusted-clients': TrustedClients,
 };
 
-const templates: Record<HomeTemplateType, React.FC> = {
+const templates: Record<HomeTemplateType, React.ComponentType<{}>> = {
   default: () => null,
   teko: TekoHomeTemplate,
   nmk_fire: NmkFireHomeTemplate,
