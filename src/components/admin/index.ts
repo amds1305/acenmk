@@ -7,7 +7,7 @@ import AdminTeam from './team/AdminTeam';
 import { AdminTestimonials } from './testimonials';
 import AdminFaq from './AdminFaq';
 import AdminTrustedClients from './trusted-clients/AdminTrustedClientsList';
-import AdminContact from './contact/AdminContact';
+import { AdminContact } from './contact';
 import { LeadsManager } from './leads';
 import { UsersManager } from './users';
 import { AdminCareers } from './careers';
