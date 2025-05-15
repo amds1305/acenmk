@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +35,7 @@ const AdminTrustedClientsMain = () => {
   const [isVisible, setIsVisible] = useState(true);
   
   useEffect(() => {
-    // Charger les clients depuis le stockage local
+    // Load clients from local storage
     const loadClients = () => {
       try {
         const storedClients = localStorage.getItem('trustedClients');
@@ -44,10 +43,10 @@ const AdminTrustedClientsMain = () => {
           setClients(JSON.parse(storedClients));
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des clients:', error);
+        console.error('Error loading clients:', error);
         toast({
-          title: "Erreur",
-          description: "Impossible de charger les clients de confiance",
+          title: "Error",
+          description: "Could not load trusted clients",
           variant: "destructive"
         });
       }
@@ -68,14 +67,14 @@ const AdminTrustedClientsMain = () => {
       
       setClients(newClients);
       toast({
-        title: "Succès",
-        description: "Clients de confiance enregistrés avec succès"
+        title: "Success",
+        description: "Trusted clients saved successfully"
       });
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement des clients:', error);
+      console.error('Error saving clients:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer les modifications",
+        title: "Error",
+        description: "Could not save changes",
         variant: "destructive"
       });
     }
@@ -84,8 +83,8 @@ const AdminTrustedClientsMain = () => {
   const handleAdd = () => {
     if (!name || !logoUrl) {
       toast({
-        title: "Erreur",
-        description: "Le nom et le logo sont obligatoires",
+        title: "Error",
+        description: "Name and logo are required",
         variant: "destructive"
       });
       return;
@@ -109,8 +108,8 @@ const AdminTrustedClientsMain = () => {
   const handleEdit = () => {
     if (!currentClient || !name || !logoUrl) {
       toast({
-        title: "Erreur",
-        description: "Le nom et le logo sont obligatoires",
+        title: "Error",
+        description: "Name and logo are required",
         variant: "destructive"
       });
       return;
@@ -130,7 +129,7 @@ const AdminTrustedClientsMain = () => {
   const handleDelete = (id: string) => {
     const updatedClients = clients.filter(client => client.id !== id);
     
-    // Réordonner les clients restants
+    // Reorder remaining clients
     const reorderedClients = updatedClients.map((client, index) => ({
       ...client,
       order: index
@@ -328,7 +327,7 @@ const AdminTrustedClientsMain = () => {
         </CardContent>
       </Card>
       
-      {/* Dialog d'ajout */}
+      {/* Add Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -362,7 +361,7 @@ const AdminTrustedClientsMain = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Dialog d'édition */}
+      {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
