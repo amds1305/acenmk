@@ -4,7 +4,7 @@ import { AdminHeroEditor as AdminHero } from './hero';
 import { AdminAbout } from './about';
 import { AdminServices } from './services';
 import AdminTeam from './team/AdminTeam';
-import AdminTestimonials from './testimonials/AdminTestimonials';
+import { AdminTestimonials } from './testimonials';
 import AdminFaq from './faq/AdminFaq';
 import AdminTrustedClients from './trusted-clients/AdminTrustedClientsList';
 import AdminContact from './contact/AdminContact';
