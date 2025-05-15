@@ -1,7 +1,7 @@
 
 import AdminDashboard from './dashboard/AdminDashboard';
 import { AdminHeroEditor as AdminHero } from './hero';
-import AdminAbout from './about/AdminAbout';
+import { AdminAbout } from './about';
 import AdminServices from './services/AdminServices';
 import AdminTeam from './team/AdminTeam';
 import AdminTestimonials from './testimonials/AdminTestimonials';
