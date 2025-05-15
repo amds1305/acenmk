@@ -1,6 +1,6 @@
 
 import AdminDashboard from './dashboard/AdminDashboard';
-import AdminHero from './hero/AdminHero';
+import { AdminHeroEditor as AdminHero } from './hero';
 import AdminAbout from './about/AdminAbout';
 import AdminServices from './services/AdminServices';
 import AdminTeam from './team/AdminTeam';
@@ -8,6 +8,9 @@ import AdminTestimonials from './testimonials/AdminTestimonials';
 import AdminFaq from './faq/AdminFaq';
 import AdminTrustedClients from './trusted-clients/AdminTrustedClientsList';
 import AdminContact from './contact/AdminContact';
+import { LeadsManager } from './leads';
+import { UsersManager } from './users';
+import { AdminCareers } from './careers';
 
 export {
   AdminDashboard,
@@ -18,5 +21,8 @@ export {
   AdminTestimonials,
   AdminFaq,
   AdminTrustedClients,
-  AdminContact
+  AdminContact,
+  LeadsManager,
+  UsersManager,
+  AdminCareers
 };
