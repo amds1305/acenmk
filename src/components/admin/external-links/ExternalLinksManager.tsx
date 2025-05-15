@@ -1,256 +1,195 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { MoreHorizontal, Search, Plus, ExternalLink } from 'lucide-react';
+import { iconsMap } from '@/components/admin/header/iconsMap';
 
-interface ExternalLink {
-  id: string;
-  name: string;
-  url: string;
-  description: string;
-  icon: string;
-  requiredRole: string;
-}
+// Données fictives pour les liens externes
+const mockExternalLinks = [
+  {
+    id: '1',
+    name: 'Gmail',
+    url: 'https://gmail.com',
+    icon: 'Mail',
+    requires_auth: true,
+    allowed_roles: ['admin', 'user', 'client_premium'],
+    created_at: '2023-01-15T09:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'Google Drive',
+    url: 'https://drive.google.com',
+    icon: 'FileBox',
+    requires_auth: true,
+    allowed_roles: ['admin', 'client_premium'],
+    created_at: '2023-02-10T10:30:00Z',
+  },
+  {
+    id: '3',
+    name: 'Slack',
+    url: 'https://slack.com',
+    icon: 'MessageSquare',
+    requires_auth: true,
+    allowed_roles: ['admin'],
+    created_at: '2023-03-05T14:20:00Z',
+  },
+  {
+    id: '4',
+    name: 'Documentation API',
+    url: 'https://api.example.com/docs',
+    icon: 'FileText',
+    requires_auth: false,
+    allowed_roles: [],
+    created_at: '2023-04-01T11:10:00Z',
+  },
+  {
+    id: '5',
+    name: 'Outil Analytics',
+    url: 'https://analytics.example.com',
+    icon: 'BarChart',
+    requires_auth: true,
+    allowed_roles: ['admin', 'super_admin'],
+    created_at: '2023-01-01T08:45:00Z',
+  }
+];
 
-const ExternalLinksManager = () => {
-  const [links, setLinks] = useState<ExternalLink[]>([]);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentLink, setCurrentLink] = useState<ExternalLink | null>(null);
-  const { toast } = useToast();
+const ExternalLinksManager: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   
-  // Form state
-  const [name, setName] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
-  const [icon, setIcon] = useState('');
-  const [requiredRole, setRequiredRole] = useState('user');
-  
-  useEffect(() => {
-    // Charger les liens depuis le stockage local ou l'API
-    const loadLinks = async () => {
-      try {
-        const storedLinks = localStorage.getItem('externalLinks');
-        if (storedLinks) {
-          setLinks(JSON.parse(storedLinks));
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement des liens externes:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les liens externes",
-          variant: "destructive"
-        });
-      }
-    };
-    
-    loadLinks();
-  }, [toast]);
-  
-  const saveLinks = (newLinks: ExternalLink[]) => {
-    try {
-      localStorage.setItem('externalLinks', JSON.stringify(newLinks));
-      setLinks(newLinks);
-      toast({
-        title: "Succès",
-        description: "Liens externes enregistrés avec succès",
-      });
-    } catch (error) {
-      console.error('Erreur lors de l\'enregistrement des liens:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer les modifications",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleAdd = () => {
-    const newLink: ExternalLink = {
-      id: Date.now().toString(),
-      name,
-      url,
-      description,
-      icon,
-      requiredRole
-    };
-    
-    const newLinks = [...links, newLink];
-    saveLinks(newLinks);
-    resetForm();
-    setIsAddDialogOpen(false);
-  };
-  
-  const handleEdit = () => {
-    if (!currentLink) return;
-    
-    const updatedLinks = links.map(link => 
-      link.id === currentLink.id ? 
-      { ...currentLink, name, url, description, icon, requiredRole } : 
-      link
+  // Filtrer les liens
+  const filteredLinks = mockExternalLinks.filter(link => {
+    const query = searchQuery.toLowerCase();
+    return (
+      link.name.toLowerCase().includes(query) ||
+      link.url.toLowerCase().includes(query) ||
+      link.icon.toLowerCase().includes(query)
     );
-    
-    saveLinks(updatedLinks);
-    resetForm();
-    setIsEditDialogOpen(false);
-  };
-  
-  const handleDelete = (id: string) => {
-    const updatedLinks = links.filter(link => link.id !== id);
-    saveLinks(updatedLinks);
-  };
-  
-  const openEditDialog = (link: ExternalLink) => {
-    setCurrentLink(link);
-    setName(link.name);
-    setUrl(link.url);
-    setDescription(link.description);
-    setIcon(link.icon);
-    setRequiredRole(link.requiredRole);
-    setIsEditDialogOpen(true);
-  };
-  
-  const resetForm = () => {
-    setName('');
-    setUrl('');
-    setDescription('');
-    setIcon('');
-    setRequiredRole('user');
-    setCurrentLink(null);
-  };
-  
+  });
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Liens externes</CardTitle>
-              <CardDescription>Gérez les liens vers des applications ou sites externes</CardDescription>
-            </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> Ajouter un lien
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Ajouter un lien externe</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nom</Label>
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="url">URL</Label>
-                    <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="icon">Icône (nom de l'icône Lucide)</Label>
-                    <Input id="icon" value={icon} onChange={(e) => setIcon(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Rôle requis</Label>
-                    <Input id="role" value={requiredRole} onChange={(e) => setRequiredRole(e.target.value)} />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Annuler</Button>
-                  <Button onClick={handleAdd}>Ajouter</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+    <Card>
+      <CardHeader>
+        <CardTitle>Gestion des liens externes</CardTitle>
+        <CardDescription>
+          Gérez les liens vers des applications et des ressources externes.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un lien..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau lien
+          </Button>
+        </div>
+
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
                 <TableHead>URL</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Rôle requis</TableHead>
+                <TableHead>Icône</TableHead>
+                <TableHead>Authentification</TableHead>
+                <TableHead>Rôles autorisés</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {links.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                    Aucun lien externe configuré
-                  </TableCell>
-                </TableRow>
-              )}
-              {links.map((link) => (
-                <TableRow key={link.id}>
-                  <TableCell>{link.name}</TableCell>
-                  <TableCell>{link.url}</TableCell>
-                  <TableCell>{link.description}</TableCell>
-                  <TableCell>{link.requiredRole}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => openEditDialog(link)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(link.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredLinks.map((link) => {
+                const IconComponent = iconsMap[link.icon] || ExternalLink;
+                
+                return (
+                  <TableRow key={link.id}>
+                    <TableCell className="font-medium">{link.name}</TableCell>
+                    <TableCell>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-blue-600 hover:underline"
+                      >
+                        {new URL(link.url).hostname}
+                        <ExternalLink className="ml-1 h-3 w-3" />
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <IconComponent className="h-5 w-5 mr-2" />
+                        {link.icon}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={link.requires_auth ? 'default' : 'outline'}>
+                        {link.requires_auth ? 'Requis' : 'Public'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {link.requires_auth && link.allowed_roles.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {link.allowed_roles.map((role) => (
+                            <Badge key={role} variant="secondary" className="text-xs">
+                              {role}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        link.requires_auth ? 'Tous les utilisateurs' : 'Aucune restriction'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Modifier</DropdownMenuItem>
+                          <DropdownMenuItem>Gérer les rôles</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-      
-      {/* Dialog d'édition */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier un lien externe</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nom</Label>
-              <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-url">URL</Label>
-              <Input id="edit-url" value={url} onChange={(e) => setUrl(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
-              <Input id="edit-description" value={description} onChange={(e) => setDescription(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-icon">Icône</Label>
-              <Input id="edit-icon" value={icon} onChange={(e) => setIcon(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-role">Rôle requis</Label>
-              <Input id="edit-role" value={requiredRole} onChange={(e) => setRequiredRole(e.target.value)} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleEdit}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

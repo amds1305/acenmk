@@ -12,74 +12,77 @@ import SearchBar from './SearchBar';
 
 const Header = () => {
   const {
-    theme,
-    toggleTheme,
-    mobileMenuOpen,
-    setMobileMenuOpen,
-    toggleMobileMenu,
-    searchOpen,
-    setSearchOpen,
-    toggleSearch,
     isScrolled,
+    mobileMenuOpen,
+    searchOpen,
+    toggleMobileMenu,
+    toggleSearch,
+    closeMobileMenu,
     navLinks,
-    headerStyles,
-    showThemeSelector,
     socialLinks,
-    actionButtons,
-    logoConfig,
-    searchConfig,
-    userMenuConfig,
-    isAuthenticated,
-    user
+    headerStyle,
+    headerConfig
   } = useHeader();
+
+  // Obtenir les valeurs du contexte d'authentification
+  // Normalement, cela viendrait de useAuth mais pour simplifier, on utilise des valeurs fictives
+  const isAuthenticated = true;
+  const user = {
+    name: 'User Test',
+    email: 'user@example.com',
+    role: 'admin'
+  };
 
   const fixedHeaderClass = `
     sticky top-0 z-50 w-full transition-all duration-300
-    ${isScrolled && headerStyles?.sticky ? 'bg-opacity-80 backdrop-blur-sm shadow-sm' : ''}
-    ${headerStyles?.glassmorphism && isScrolled ? 'backdrop-filter backdrop-blur-lg' : ''}
-    ${headerStyles?.transparent && !isScrolled ? 'bg-transparent' : 'bg-background'}
-    ${headerStyles?.border_bottom ? 'border-b' : ''}
-    ${headerStyles?.drop_shadow && isScrolled ? 'shadow-md' : ''}
+    ${isScrolled && headerStyle?.sticky ? 'bg-opacity-80 backdrop-blur-sm shadow-sm' : ''}
+    ${headerStyle?.glassmorphism && isScrolled ? 'backdrop-filter backdrop-blur-lg' : ''}
+    ${headerStyle?.transparent && !isScrolled ? 'bg-transparent' : 'bg-background'}
+    ${headerStyle?.border_bottom ? 'border-b' : ''}
+    ${headerStyle?.drop_shadow && isScrolled ? 'shadow-md' : ''}
   `;
 
   return (
     <header className={fixedHeaderClass} style={{
-      backgroundColor: isScrolled ? headerStyles?.scrolled_bg_color : headerStyles?.background_color,
-      color: isScrolled ? headerStyles?.scrolled_text_color : headerStyles?.text_color,
-      borderColor: isScrolled ? headerStyles?.scrolled_border_color : headerStyles?.border_color,
-      boxShadow: isScrolled && headerStyles?.drop_shadow ? headerStyles?.scrolled_shadow : 'none',
-      padding: headerStyles?.padding,
+      backgroundColor: isScrolled ? headerStyle?.scrolled_bg_color : headerStyle?.background_color,
+      color: isScrolled ? headerStyle?.scrolled_text_color : headerStyle?.text_color,
+      borderColor: isScrolled ? headerStyle?.scrolled_border_color : headerStyle?.border_color,
+      boxShadow: isScrolled && headerStyle?.drop_shadow ? headerStyle?.scrolled_shadow : 'none',
+      padding: headerStyle?.padding,
     }}>
       <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <Logo config={logoConfig} />
+          <Logo config={headerConfig?.logoConfig} />
         </Link>
 
         {/* Desktop Navigation */}
         <DesktopNav 
-          links={navLinks} 
-          styles={headerStyles} 
+          navLinks={navLinks}
+          socialLinks={socialLinks}
+          toggleSearch={toggleSearch}
+          themeSelector={<ThemeSelector />}
+          showThemeSelector={headerConfig?.showThemeSelector}
         />
 
         {/* Right Side Elements */}
         <div className="flex items-center space-x-2">
           {/* Only show search if configured */}
-          {searchConfig?.is_enabled && (
+          {headerConfig?.searchConfig?.is_enabled && (
             <SearchBar 
               isOpen={searchOpen}
               setIsOpen={setSearchOpen}
               toggleSearch={toggleSearch}
-              placeholder={searchConfig?.placeholder || "Rechercher..."}
-              expandOnFocus={searchConfig?.expand_on_focus}
-              position={searchConfig?.position || "right"}
+              placeholder={headerConfig?.searchConfig?.placeholder || "Rechercher..."}
+              expandOnFocus={headerConfig?.searchConfig?.expand_on_focus}
+              position={headerConfig?.searchConfig?.position || "right"}
             />
           )}
 
           {/* Theme toggle */}
-          {showThemeSelector && (
+          {headerConfig?.showThemeSelector && (
             <div className="hidden md:block">
-              <ThemeSelector theme={theme} toggleTheme={toggleTheme} />
+              <ThemeSelector />
             </div>
           )}
 
@@ -87,18 +90,16 @@ const Header = () => {
           <UserMenu 
             isAuthenticated={isAuthenticated}
             user={user}
-            config={userMenuConfig}
-            actionButtons={actionButtons}
+            config={headerConfig?.userMenuConfig}
+            actionButtons={headerConfig?.actionButtons}
           />
 
           {/* Mobile menu toggle */}
           <MobileNav 
             mobileMenuOpen={mobileMenuOpen} 
             toggleMobileMenu={toggleMobileMenu} 
-            toggleTheme={toggleTheme}
             toggleSearch={toggleSearch}
-            theme={theme}
-            showThemeSelector={showThemeSelector}
+            showThemeSelector={headerConfig?.showThemeSelector}
           />
         </div>
       </div>
@@ -108,7 +109,7 @@ const Header = () => {
         isOpen={mobileMenuOpen} 
         links={navLinks} 
         socialLinks={socialLinks} 
-        actionButtons={actionButtons}
+        actionButtons={headerConfig?.actionButtons}
         isAuthenticated={isAuthenticated}
       />
     </header>

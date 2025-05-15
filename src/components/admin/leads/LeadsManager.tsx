@@ -1,164 +1,166 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { 
-  Dialog, DialogContent, DialogDescription, DialogHeader, 
-  DialogTitle, DialogFooter 
-} from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  MoreHorizontal, Mail, Phone, ExternalLink, 
-  CheckCircle, XCircle, Clock, UserPlus 
-} from 'lucide-react';
-import { 
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { MoreHorizontal, Search, Plus, Filter } from 'lucide-react';
 
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company?: string;
-  source: string;
-  status: 'new' | 'contacted' | 'qualified' | 'proposal' | 'won' | 'lost';
-  createdAt: string;
-  notes?: string;
-}
-
-const mockLeads: Lead[] = [
+const mockLeads = [
   {
     id: '1',
     name: 'Jean Dupont',
     email: 'jean@example.com',
-    phone: '+33 6 12 34 56 78',
-    company: 'Entreprise ABC',
-    source: 'Site web',
+    company: 'Dupont Inc.',
+    service: 'Développement web',
+    source: 'Formulaire de contact',
     status: 'new',
-    createdAt: '2023-05-15',
-    notes: 'Intéressé par nos services de développement web.'
+    created_at: '2023-05-10T09:00:00Z',
   },
   {
     id: '2',
     name: 'Marie Martin',
     email: 'marie@example.com',
-    phone: '+33 7 12 34 56 78',
-    company: 'Startup XYZ',
+    company: 'Martin SA',
+    service: 'SEO',
     source: 'LinkedIn',
     status: 'contacted',
-    createdAt: '2023-05-10',
-    notes: 'Premier appel effectué le 12/05, rappel prévu le 18/05.'
+    created_at: '2023-05-08T10:30:00Z',
   },
   {
     id: '3',
-    name: 'Pierre Dubois',
+    name: 'Pierre Petit',
     email: 'pierre@example.com',
-    phone: '+33 6 98 76 54 32',
-    source: 'Recommandation',
+    company: 'Petit SARL',
+    service: 'Application mobile',
+    source: 'Référence',
     status: 'qualified',
-    createdAt: '2023-05-05',
-    notes: 'Besoin urgent d\'une solution de e-commerce.'
+    created_at: '2023-05-05T14:20:00Z',
+  },
+  {
+    id: '4',
+    name: 'Sophie Bernard',
+    email: 'sophie@example.com',
+    company: 'Bernard & Co',
+    service: 'Maintenance',
+    source: 'Google',
+    status: 'proposal',
+    created_at: '2023-05-01T11:10:00Z',
+  },
+  {
+    id: '5',
+    name: 'Lucas Moreau',
+    email: 'lucas@example.com',
+    company: 'Moreau Tech',
+    service: 'Hébergement',
+    source: 'Salon professionnel',
+    status: 'negotiation',
+    created_at: '2023-04-25T08:45:00Z',
   }
 ];
 
-const statusLabels: Record<string, { label: string, color: string }> = {
-  'new': { label: 'Nouveau', color: 'bg-blue-500' },
-  'contacted': { label: 'Contacté', color: 'bg-purple-500' },
-  'qualified': { label: 'Qualifié', color: 'bg-amber-500' },
-  'proposal': { label: 'Proposition', color: 'bg-orange-500' },
-  'won': { label: 'Gagné', color: 'bg-green-500' },
-  'lost': { label: 'Perdu', color: 'bg-red-500' }
+const statusLabels: Record<string, { label: string, variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
+  new: { label: 'Nouveau', variant: 'default' },
+  contacted: { label: 'Contacté', variant: 'secondary' },
+  qualified: { label: 'Qualifié', variant: 'secondary' },
+  proposal: { label: 'Proposition', variant: 'outline' },
+  negotiation: { label: 'Négociation', variant: 'outline' },
+  won: { label: 'Gagné', variant: 'default' },
+  lost: { label: 'Perdu', variant: 'destructive' }
 };
 
-const LeadsManager = () => {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState('');
-  const { toast } = useToast();
+const LeadsManager: React.FC = () => {
+  const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    // Dans un environnement réel, nous chargerions les leads depuis l'API
-    const storedLeads = localStorage.getItem('leads');
-    if (storedLeads) {
-      setLeads(JSON.parse(storedLeads));
-    } else {
-      setLeads(mockLeads);
-      localStorage.setItem('leads', JSON.stringify(mockLeads));
-    }
-  }, []);
-
-  const viewLeadDetails = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsDetailOpen(true);
-  };
-
-  const openStatusDialog = (lead: Lead) => {
-    setSelectedLead(lead);
-    setNewStatus(lead.status);
-    setIsStatusDialogOpen(true);
-  };
-
-  const updateLeadStatus = () => {
-    if (!selectedLead || !newStatus) return;
-
-    const updatedLeads = leads.map(lead => 
-      lead.id === selectedLead.id ? { ...lead, status: newStatus as any } : lead
-    );
-
-    setLeads(updatedLeads);
-    localStorage.setItem('leads', JSON.stringify(updatedLeads));
-
-    toast({
-      title: "Statut mis à jour",
-      description: `Le lead est maintenant marqué comme "${statusLabels[newStatus].label}"`
-    });
-
-    setIsStatusDialogOpen(false);
-  };
-
-  const deleteLead = (id: string) => {
-    const updatedLeads = leads.filter(lead => lead.id !== id);
-    setLeads(updatedLeads);
-    localStorage.setItem('leads', JSON.stringify(updatedLeads));
-
-    toast({
-      title: "Lead supprimé",
-      description: "Le lead a été supprimé avec succès"
-    });
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'new': return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'contacted': return <Mail className="h-4 w-4 text-purple-500" />;
-      case 'qualified': return <UserPlus className="h-4 w-4 text-amber-500" />;
-      case 'proposal': return <ExternalLink className="h-4 w-4 text-orange-500" />;
-      case 'won': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'lost': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
+  // Filtrer les leads
+  const filteredLeads = mockLeads.filter(lead => {
+    const matchesFilter = filter === 'all' || lead.status === filter;
+    const matchesSearch = searchQuery === '' || 
+      lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead.company?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesFilter && matchesSearch;
+  });
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Liste des leads</CardTitle>
-          <CardDescription>Gérez vos prospects et suivez leur progression</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <Card>
+      <CardHeader>
+        <CardTitle>Gestion des leads</CardTitle>
+        <CardDescription>
+          Gérez et suivez vos prospects commerciaux.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par nom, email ou entreprise..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[180px]">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="new">Nouveaux</SelectItem>
+                <SelectItem value="contacted">Contactés</SelectItem>
+                <SelectItem value="qualified">Qualifiés</SelectItem>
+                <SelectItem value="proposal">Proposition</SelectItem>
+                <SelectItem value="negotiation">Négociation</SelectItem>
+                <SelectItem value="won">Gagnés</SelectItem>
+                <SelectItem value="lost">Perdus</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Nouveau lead
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
-                <TableHead>Contact</TableHead>
                 <TableHead>Entreprise</TableHead>
+                <TableHead>Service</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Date</TableHead>
@@ -166,51 +168,34 @@ const LeadsManager = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map((lead) => (
+              {filteredLeads.map((lead) => (
                 <TableRow key={lead.id}>
-                  <TableCell className="font-medium">{lead.name}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm">{lead.email}</span>
-                      <span className="text-xs text-muted-foreground">{lead.phone}</span>
-                    </div>
+                  <TableCell className="font-medium">
+                    <div>{lead.name}</div>
+                    <div className="text-xs text-muted-foreground">{lead.email}</div>
                   </TableCell>
                   <TableCell>{lead.company || '-'}</TableCell>
-                  <TableCell>{lead.source}</TableCell>
+                  <TableCell>{lead.service || '-'}</TableCell>
+                  <TableCell>{lead.source || '-'}</TableCell>
                   <TableCell>
-                    <Badge className={statusLabels[lead.status].color}>
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(lead.status)}
-                        <span>{statusLabels[lead.status].label}</span>
-                      </div>
+                    <Badge variant={statusLabels[lead.status]?.variant || 'default'}>
+                      {statusLabels[lead.status]?.label || lead.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{lead.createdAt}</TableCell>
+                  <TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Actions</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => viewLeadDetails(lead)}>
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          <span>Voir les détails</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openStatusDialog(lead)}>
-                          <Clock className="mr-2 h-4 w-4" />
-                          <span>Modifier le statut</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => window.location.href = `mailto:${lead.email}`}>
-                          <Mail className="mr-2 h-4 w-4" />
-                          <span>Envoyer un email</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => deleteLead(lead.id)} className="text-red-600">
-                          <XCircle className="mr-2 h-4 w-4" />
-                          <span>Supprimer</span>
-                        </DropdownMenuItem>
+                        <DropdownMenuItem>Voir les détails</DropdownMenuItem>
+                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem>Changer le statut</DropdownMenuItem>
+                        <DropdownMenuItem>Assigner</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -218,92 +203,9 @@ const LeadsManager = () => {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-
-      {/* Modal détails du lead */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Détails du lead</DialogTitle>
-            <DialogDescription>
-              Informations complètes sur le prospect
-            </DialogDescription>
-          </DialogHeader>
-          {selectedLead && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Nom</h3>
-                  <p>{selectedLead.name}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                  <p>{selectedLead.email}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Téléphone</h3>
-                  <p>{selectedLead.phone}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Entreprise</h3>
-                  <p>{selectedLead.company || '-'}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Source</h3>
-                  <p>{selectedLead.source}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Date de création</h3>
-                  <p>{selectedLead.createdAt}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Statut</h3>
-                  <Badge className={statusLabels[selectedLead.status].color}>
-                    {statusLabels[selectedLead.status].label}
-                  </Badge>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground">Notes</h3>
-                <p className="mt-1 text-sm">{selectedLead.notes || 'Aucune note'}</p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailOpen(false)}>Fermer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal changement de statut */}
-      <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier le statut</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Select value={newStatus} onValueChange={setNewStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez un statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new">Nouveau</SelectItem>
-                <SelectItem value="contacted">Contacté</SelectItem>
-                <SelectItem value="qualified">Qualifié</SelectItem>
-                <SelectItem value="proposal">Proposition</SelectItem>
-                <SelectItem value="won">Gagné</SelectItem>
-                <SelectItem value="lost">Perdu</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsStatusDialogOpen(false)}>Annuler</Button>
-            <Button onClick={updateLeadStatus}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

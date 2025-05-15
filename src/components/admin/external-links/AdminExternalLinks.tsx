@@ -1,50 +1,16 @@
 
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { ExternalLinksHeader, ExternalLinksList, ExternalLinkDialog } from './components';
-import { useExternalLinksManager } from './hooks';
+import ExternalLinksManager from './ExternalLinksManager';
 
-const AdminExternalLinks = () => {
-  const {
-    externalLinks,
-    editForm,
-    dialogOpen,
-    saveStatus,
-    availableRoles,
-    handleEdit,
-    handleUpdateSection,
-    handleToggleVisibility,
-    handleRoleToggle,
-    handleFormChange,
-    handleSaveAll,
-    setDialogOpen
-  } = useExternalLinksManager();
-
+const AdminExternalLinks: React.FC = () => {
   return (
     <div className="space-y-6">
-      <ExternalLinksHeader 
-        saveStatus={saveStatus} 
-        onSave={handleSaveAll} 
-      />
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight">Liens externes</h1>
+        <p className="text-muted-foreground">Gérer les liens vers des applications externes</p>
+      </div>
       
-      <Card>
-        <ExternalLinksList 
-          externalLinks={externalLinks} 
-          availableRoles={availableRoles}
-          onEdit={handleEdit}
-          onToggleVisibility={handleToggleVisibility}
-        />
-      </Card>
-      
-      <ExternalLinkDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        formData={editForm}
-        onFormChange={handleFormChange}
-        onRoleToggle={handleRoleToggle}
-        onSubmit={handleUpdateSection}
-        availableRoles={availableRoles}
-      />
+      <ExternalLinksManager />
     </div>
   );
 };

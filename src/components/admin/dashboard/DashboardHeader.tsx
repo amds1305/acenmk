@@ -1,22 +1,30 @@
 
 import React from 'react';
-import { Eye } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { CalendarRange, Download } from 'lucide-react';
 
-export const DashboardHeader: React.FC = () => {
+const DashboardHeader: React.FC = () => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
-        <p className="text-muted-foreground">Gérez votre contenu et suivez l'activité de votre site.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Bienvenue dans votre panneau d'administration
+        </p>
       </div>
-      <Link to="/">
-        <Button variant="outline" size="sm" className="hidden md:flex">
-          <Eye className="mr-2 h-4 w-4" />
-          Voir le site
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button variant="outline" className="flex items-center gap-2">
+          <CalendarRange className="h-4 w-4" />
+          Sélectionner la période
         </Button>
-      </Link>
+        <Button variant="outline" className="flex items-center gap-2">
+          <Download className="h-4 w-4" />
+          Exporter
+        </Button>
+      </div>
     </div>
   );
 };
+
+export default DashboardHeader;

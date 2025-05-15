@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
 import { ArrowRight } from 'lucide-react';
@@ -10,21 +10,21 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
-  navLinks: NavLink[];
+  links: NavLink[];
   socialLinks: SocialLink[];
-  onNavLinkClick: () => void;
+  actionButtons?: any[];
+  isAuthenticated?: boolean;
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({
   isOpen,
-  navLinks,
+  links,
   socialLinks,
-  onNavLinkClick
+  actionButtons = [],
+  isAuthenticated
 }) => {
   const location = useLocation();
   const { headerStyle } = useHeaderContext();
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   
   if (!isOpen) return null;
 
@@ -63,38 +63,18 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     backgroundColor: headerStyle?.socialIconBgColor,
     borderColor: headerStyle?.socialIconBorderColor,
   };
-  
-  // Handler pour naviguer et fermer le menu
-  const handleNavigate = (path: string) => {
-    navigate(path);
-    onNavLinkClick();
-  };
 
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
-        {navLinks.map((link, index) => {
+        {links.map((link, index) => {
           // Vérifier si ce lien a une icône à afficher
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
           return (
-            <a 
-              key={link.name}
-              href={link.href} 
-              onClick={(e) => {
-                e.preventDefault();
-                // Gérer les liens internes vs externes
-                if (link.href.startsWith('/')) {
-                  handleNavigate(link.href);
-                } else if (link.href.startsWith('#')) {
-                  handleNavigate('/' + link.href);
-                } else if (link.href.startsWith('/#')) {
-                  handleNavigate(link.href);
-                } else {
-                  window.open(link.href, '_blank');
-                  onNavLinkClick();
-                }
-              }}
+            <Link 
+              key={link.href}
+              to={link.href}
               className={cn(
                 "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center flex items-center justify-center gap-2",
                 isActive(link.href) 
@@ -106,7 +86,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             >
               {IconComponent ? <IconComponent size={20} /> : null}
               <span>{link.name}</span>
-            </a>
+            </Link>
           );
         })}
         
@@ -137,14 +117,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             <>
               <Link 
                 to="/login" 
-                onClick={onNavLinkClick}
                 className="w-full sm:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white hover:border-primary transition-colors text-center"
               >
                 Connexion
               </Link>
               <Link 
                 to="/register" 
-                onClick={onNavLinkClick}
                 className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
               >
                 Inscription
@@ -154,7 +132,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           ) : (
             <Link 
               to="/profile" 
-              onClick={onNavLinkClick}
               className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
             >
               Mon compte

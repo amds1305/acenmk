@@ -1,82 +1,73 @@
 
 import React from 'react';
-import { FileText, Users, Eye, Settings, MessageSquare, HelpCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowUp, ArrowDown, Users, Globe, MessageSquare, DollarSign } from 'lucide-react';
 
-export const StatCards: React.FC = () => {
-  // These data would normally be fetched from an API
-  const stats = [
-    { 
-      title: 'Articles', 
-      value: '12', 
-      description: 'Articles de blog publiés', 
-      icon: <FileText className="h-6 w-6 text-primary" />,
-      link: '/admin/blog'
-    },
-    { 
-      title: 'Équipe', 
-      value: '8', 
-      description: 'Membres dans l\'équipe', 
-      icon: <Users className="h-6 w-6 text-primary" />,
-      link: '/admin/team'
-    },
-    { 
-      title: 'Services', 
-      value: '6', 
-      description: 'Services proposés', 
-      icon: <Settings className="h-6 w-6 text-primary" />,
-      link: '/admin/services'
-    },
-    { 
-      title: 'Témoignages', 
-      value: '15', 
-      description: 'Témoignages clients', 
-      icon: <MessageSquare className="h-6 w-6 text-primary" />,
-      link: '/admin/testimonials'
-    },
-    { 
-      title: 'FAQ', 
-      value: '24', 
-      description: 'Questions & Réponses', 
-      icon: <HelpCircle className="h-6 w-6 text-primary" />,
-      link: '/admin/faq'
-    },
-    { 
-      title: 'Visites', 
-      value: '2.4k', 
-      description: 'Visites ce mois-ci', 
-      icon: <Eye className="h-6 w-6 text-primary" />,
-      link: '#analytics'
-    },
-  ];
-
+const StatCards: React.FC = () => {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {stats.map((stat, index) => (
-        <Card key={index} className="hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {stat.title}
-            </CardTitle>
-            {stat.icon}
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
-            <p className="text-xs text-muted-foreground">{stat.description}</p>
-            <div className="mt-4">
-              <Link to={stat.link}>
-                <Button variant="ghost" size="sm" className="px-0 hover:bg-transparent hover:text-primary">
-                  Gérer
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Visiteurs uniques</CardTitle>
+          <Globe className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+573</div>
+          <p className="text-xs text-muted-foreground">
+            <span className="text-emerald-500 font-medium inline-flex items-center">
+              <ArrowUp className="h-3 w-3 mr-1" /> +12%
+            </span>{" "}
+            depuis le mois dernier
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Nouveaux utilisateurs</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+24</div>
+          <p className="text-xs text-muted-foreground">
+            <span className="text-emerald-500 font-medium inline-flex items-center">
+              <ArrowUp className="h-3 w-3 mr-1" /> +8%
+            </span>{" "}
+            depuis le mois dernier
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Contacts</CardTitle>
+          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+42</div>
+          <p className="text-xs text-muted-foreground">
+            <span className="text-rose-500 font-medium inline-flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" /> -2%
+            </span>{" "}
+            depuis le mois dernier
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Ventes</CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">12,234 €</div>
+          <p className="text-xs text-muted-foreground">
+            <span className="text-emerald-500 font-medium inline-flex items-center">
+              <ArrowUp className="h-3 w-3 mr-1" /> +19%
+            </span>{" "}
+            depuis le mois dernier
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
+
+export default StatCards;

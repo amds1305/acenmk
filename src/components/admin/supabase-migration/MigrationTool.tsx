@@ -1,219 +1,148 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardTitle, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Database, Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { migrateLocalStorageToSupabase } from '@/services/mysql/migration';
 
-// Les sections disponibles pour la migration
-const dataSections = [
-  { id: 'sections', name: 'Sections de page' },
-  { id: 'hero', name: 'Section Hero' },
-  { id: 'services', name: 'Services' },
-  { id: 'about', name: 'À propos' },
-  { id: 'team', name: 'Équipe' },
-  { id: 'testimonials', name: 'Témoignages' },
-  { id: 'faq', name: 'FAQ' },
-  { id: 'trusted_clients', name: 'Clients de confiance' },
-  { id: 'contact', name: 'Contact' },
-  { id: 'footer', name: 'Footer' },
-  { id: 'legal', name: 'Contenus légaux' },
-  { id: 'users', name: 'Utilisateurs' },
-];
-
-const MigrationTool = () => {
-  const [selectedSections, setSelectedSections] = useState<string[]>([]);
-  const [migrationStatus, setMigrationStatus] = useState<'idle' | 'migrating' | 'success' | 'error'>('idle');
-  const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<{ section: string, success: boolean, message: string }[]>([]);
+const MigrationTool: React.FC = () => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [migrationComplete, setMigrationComplete] = useState(false);
+  const [migrationError, setMigrationError] = useState<string | null>(null);
+  const [confirmMigration, setConfirmMigration] = useState(false);
 
-  const handleSectionToggle = (section: string) => {
-    setSelectedSections((prev) => 
-      prev.includes(section) 
-        ? prev.filter(s => s !== section)
-        : [...prev, section]
-    );
-  };
-
-  const selectAll = () => {
-    setSelectedSections(dataSections.map(section => section.id));
-  };
-
-  const deselectAll = () => {
-    setSelectedSections([]);
-  };
-
-  const startMigration = async () => {
-    if (selectedSections.length === 0) {
+  const handleMigration = async () => {
+    if (!confirmMigration) {
       toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner au moins une section à migrer",
-        variant: "destructive"
+        variant: "destructive",
+        title: "Confirmation requise",
+        description: "Veuillez confirmer que vous avez lu les informations de migration.",
       });
       return;
     }
 
-    setMigrationStatus('migrating');
-    setProgress(0);
-    setResults([]);
-
-    const totalSections = selectedSections.length;
-    let completedSections = 0;
-    const migrationResults = [];
-
-    // Simuler le processus de migration
-    for (const sectionId of selectedSections) {
-      try {
-        // Dans une implémentation réelle, cette partie serait remplacée par le code de migration effectif
-        // vers Supabase pour chaque section
-        const success = Math.random() > 0.2; // Simulation: 80% de chance de succès
-        
-        // Simuler une opération asynchrone
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const sectionName = dataSections.find(s => s.id === sectionId)?.name || sectionId;
-        
-        migrationResults.push({
-          section: sectionName,
-          success,
-          message: success 
-            ? `Les données de ${sectionName} ont été migrées avec succès` 
-            : `Échec de la migration pour ${sectionName}`
+    setIsLoading(true);
+    setMigrationError(null);
+    
+    try {
+      const success = await migrateLocalStorageToSupabase();
+      
+      if (success) {
+        setMigrationComplete(true);
+        toast({
+          title: "Migration réussie",
+          description: "Les données ont été transférées avec succès vers Supabase",
         });
-
-        completedSections++;
-        setProgress(Math.round((completedSections / totalSections) * 100));
-      } catch (error) {
-        console.error(`Erreur lors de la migration de ${sectionId}:`, error);
-        
-        const sectionName = dataSections.find(s => s.id === sectionId)?.name || sectionId;
-        
-        migrationResults.push({
-          section: sectionName,
-          success: false,
-          message: `Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+      } else {
+        setMigrationError("La migration n'a pas pu être effectuée ou aucune donnée n'était disponible.");
+        toast({
+          variant: "destructive",
+          title: "Échec de la migration",
+          description: "La migration des données n'a pas pu être effectuée.",
         });
-
-        completedSections++;
-        setProgress(Math.round((completedSections / totalSections) * 100));
       }
+    } catch (error) {
+      console.error('Erreur lors de la migration:', error);
+      setMigrationError(error instanceof Error ? error.message : "Une erreur inconnue est survenue.");
+      toast({
+        variant: "destructive",
+        title: "Erreur de migration",
+        description: "Une erreur s'est produite lors de la migration.",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    setResults(migrationResults);
-    
-    // Déterminer le statut global
-    const hasErrors = migrationResults.some(result => !result.success);
-    setMigrationStatus(hasErrors ? 'error' : 'success');
-    
-    toast({
-      title: hasErrors ? "Migration terminée avec des erreurs" : "Migration réussie",
-      description: hasErrors 
-        ? "Certaines sections n'ont pas pu être migrées. Consultez les détails pour plus d'informations."
-        : "Toutes les sections ont été migrées avec succès vers Supabase.",
-      variant: hasErrors ? "destructive" : "default"
-    });
-  };
-
-  const resetMigration = () => {
-    setMigrationStatus('idle');
-    setProgress(0);
-    setResults([]);
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Migration des données vers Supabase</CardTitle>
-        <CardDescription>
-          Transférez les données stockées localement vers votre base de données Supabase
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {migrationStatus === 'migrating' ? (
-          <div className="space-y-4">
-            <p className="text-muted-foreground">Migration en cours... Veuillez patienter.</p>
-            <Progress value={progress} className="h-2" />
-            <p className="text-sm text-right">{progress}%</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-6 w-6" />
+            Migration vers Supabase
+          </CardTitle>
+          <CardDescription>
+            Transférez vos données du stockage local vers la base de données Supabase pour une persistance permanente et un accès multi-utilisateurs.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-4 rounded-md">
+            <h3 className="flex items-center text-amber-800 dark:text-amber-300 font-medium mb-2">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              Informations importantes
+            </h3>
+            <ul className="list-disc list-inside space-y-2 text-amber-700 dark:text-amber-400">
+              <li>Cette opération est à effectuer une seule fois pour initialiser votre base de données.</li>
+              <li>Assurez-vous que tous vos contenus ont été correctement saisis et sauvegardés localement avant de procéder.</li>
+              <li>Les données existantes dans la base de données Supabase seront préservées si elles ont le même identifiant.</li>
+              <li>Une fois la migration effectuée, votre site utilisera exclusivement la base de données Supabase.</li>
+            </ul>
           </div>
-        ) : migrationStatus === 'success' || migrationStatus === 'error' ? (
-          <div className="space-y-4">
-            <Alert variant={migrationStatus === 'success' ? "default" : "destructive"}>
-              {migrationStatus === 'success' ? (
-                <CheckCircle2 className="h-4 w-4" />
+          
+          <div className="flex items-top space-x-2">
+            <Checkbox 
+              id="confirm-migration" 
+              checked={confirmMigration}
+              onCheckedChange={(checked) => setConfirmMigration(!!checked)}
+            />
+            <label htmlFor="confirm-migration" className="text-sm leading-tight">
+              J'ai lu les informations ci-dessus et je comprends que cette opération doit être effectuée une seule fois. J'ai sauvegardé mes données et je souhaite procéder à la migration.
+            </label>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button 
+              onClick={handleMigration} 
+              disabled={isLoading || migrationComplete || !confirmMigration}
+              className="flex items-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Migration en cours...
+                </>
+              ) : migrationComplete ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Migration effectuée
+                </>
               ) : (
-                <AlertTriangle className="h-4 w-4" />
+                <>
+                  <ArrowRight className="h-4 w-4" />
+                  Démarrer la migration
+                </>
               )}
-              <AlertDescription>
-                {migrationStatus === 'success' 
-                  ? "Migration terminée avec succès" 
-                  : "Migration terminée avec des erreurs"}
-              </AlertDescription>
-            </Alert>
+            </Button>
             
-            <div className="border rounded-md">
-              <div className="bg-muted px-4 py-2 rounded-t-md">
-                <h3 className="font-medium">Résultats de la migration</h3>
-              </div>
-              <div className="p-4 space-y-2 max-h-60 overflow-y-auto">
-                {results.map((result, index) => (
-                  <div key={index} className="flex items-start">
-                    <div className={`w-5 h-5 mt-0.5 flex-shrink-0 rounded-full ${result.success ? 'bg-green-500' : 'bg-red-500'}`}>
-                      {result.success ? (
-                        <CheckCircle2 className="h-4 w-4 text-white m-0.5" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4 text-white m-0.5" />
-                      )}
-                    </div>
-                    <div className="ml-2">
-                      <p className={`text-sm font-medium ${result.success ? 'text-green-600' : 'text-red-600'}`}>{result.section}</p>
-                      <p className="text-xs text-muted-foreground">{result.message}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {migrationComplete && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
+                <Check className="h-4 w-4" />
+                Migration réussie
+              </Badge>
+            )}
+            
+            {migrationError && (
+              <Badge variant="outline" className="flex items-center gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
+                <AlertTriangle className="h-4 w-4" />
+                Erreur de migration
+              </Badge>
+            )}
           </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex justify-between mb-2">
-              <h3 className="font-medium">Sélectionnez les données à migrer</h3>
-              <div className="space-x-2">
-                <Button variant="outline" size="sm" onClick={selectAll}>Tout sélectionner</Button>
-                <Button variant="outline" size="sm" onClick={deselectAll}>Tout désélectionner</Button>
-              </div>
+          
+          {migrationError && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 p-4 rounded-md text-red-700 dark:text-red-300">
+              <h4 className="font-medium mb-1">Détails de l'erreur:</h4>
+              <p className="text-sm">{migrationError}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {dataSections.map((section) => (
-                <div key={section.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={section.id}
-                    checked={selectedSections.includes(section.id)}
-                    onCheckedChange={() => handleSectionToggle(section.id)}
-                  />
-                  <Label htmlFor={section.id}>{section.name}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-end space-x-2">
-        {migrationStatus === 'idle' ? (
-          <Button onClick={startMigration} disabled={selectedSections.length === 0}>
-            Démarrer la migration
-          </Button>
-        ) : migrationStatus === 'migrating' ? (
-          <Button disabled>Migration en cours...</Button>
-        ) : (
-          <Button onClick={resetMigration}>Nouvelle migration</Button>
-        )}
-      </CardFooter>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

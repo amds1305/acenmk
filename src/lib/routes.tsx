@@ -31,6 +31,14 @@ import EstimatesPage from "@/pages/Estimates";
 import MessagesPage from "@/pages/Messages";
 import MyLeadsPage from "@/pages/MyLeads";
 import NotFound from "@/pages/NotFound";
+import { Suspense, lazy } from "react";
+
+// Ajoutons un composant de chargement pour la Suspense
+const Loading = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 export const routes: RouteObject[] = [
   {
@@ -113,59 +121,59 @@ export const routes: RouteObject[] = [
   },
   {
     path: "/about",
-    element: <AboutPage />,
+    element: <Suspense fallback={<Loading />}><AboutPage /></Suspense>,
   },
   {
     path: "/services",
-    element: <ServicesPage />,
+    element: <Suspense fallback={<Loading />}><ServicesPage /></Suspense>,
   },
   {
     path: "/portfolio",
-    element: <PortfolioPage />,
+    element: <Suspense fallback={<Loading />}><PortfolioPage /></Suspense>,
   },
   {
     path: "/contact",
-    element: <ContactPage />,
+    element: <Suspense fallback={<Loading />}><ContactPage /></Suspense>,
   },
   {
     path: "/profile",
-    element: <ProfilePage />,
+    element: <Suspense fallback={<Loading />}><ProfilePage /></Suspense>,
   },
   {
     path: "/projects",
-    element: <ProjectsPage />,
+    element: <Suspense fallback={<Loading />}><ProjectsPage /></Suspense>,
   },
   {
     path: "/estimates",
-    element: <EstimatesPage />,
+    element: <Suspense fallback={<Loading />}><EstimatesPage /></Suspense>,
   },
   {
     path: "/messages",
-    element: <MessagesPage />,
+    element: <Suspense fallback={<Loading />}><MessagesPage /></Suspense>,
   },
   {
     path: "/leads",
-    element: <MyLeadsPage />,
+    element: <Suspense fallback={<Loading />}><MyLeadsPage /></Suspense>,
   },
   {
     path: "/mentions-legales",
-    element: <LegalPageRoute />,
+    element: <Suspense fallback={<Loading />}><LegalPageRoute /></Suspense>,
   },
   {
     path: "/politique-de-confidentialite",
-    element: <LegalPageRoute />,
+    element: <Suspense fallback={<Loading />}><LegalPageRoute /></Suspense>,
   },
   {
     path: "/conditions-utilisation",
-    element: <LegalPageRoute />,
+    element: <Suspense fallback={<Loading />}><LegalPageRoute /></Suspense>,
   },
   {
     path: "/politique-cookies",
-    element: <LegalPageRoute />,
+    element: <Suspense fallback={<Loading />}><LegalPageRoute /></Suspense>,
   },
   {
     path: "/ace-job",
-    element: <AceJobPage />,
+    element: <Suspense fallback={<Loading />}><AceJobPage /></Suspense>,
   },
   {
     path: "*",
