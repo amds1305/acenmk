@@ -15,8 +15,12 @@ import AdminFooter from './pages/AdminFooter';
 import AdminHeader from './pages/AdminHeader';
 import AdminAceJob from './pages/AdminAceJob';
 import AdminRolesPermissions from './pages/AdminRolesPermissions';
+import AdminExternalLinks from './pages/AdminExternalLinks';
+import AdminLeads from './pages/AdminLeads';
+import AdminTrustedClients from './pages/AdminTrustedClients';
+import AdminUsers from './pages/AdminUsers';
+import AdminSupabaseMigration from './pages/AdminSupabaseMigration';
 import AdminWrapper from './pages/AdminWrapper';
-import AceJob from './pages/AceJob';
 
 // Providers
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -32,9 +36,19 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 import Admin from './pages/Admin';
+import LegalPage from './pages/LegalPage';
 
-// Page des mentions légales
-const LegalPage = React.lazy(() => import('./pages/LegalPage'));
+// Pages utilisateur
+import AceJob from './pages/AceJob';
+import About from './pages/About';
+import Services from './pages/Services';
+import Portfolio from './pages/Portfolio';
+import Contact from './pages/Contact';
+import Profile from './pages/Profile';
+import Projects from './pages/Projects';
+import Estimates from './pages/Estimates';
+import Messages from './pages/Messages';
+import MyLeads from './pages/MyLeads';
 
 function App() {
   return (
@@ -49,6 +63,15 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/ace-job" element={<AceJob />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/estimates" element={<Estimates />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/leads" element={<MyLeads />} />
             
             {/* Routes admin avec AdminWrapper comme layout parent */}
             <Route path="/admin" element={
@@ -70,14 +93,18 @@ function App() {
               <Route path="header" element={<AdminHeader />} />
               <Route path="ace-job" element={<AdminAceJob />} />
               <Route path="roles" element={<AdminRolesPermissions />} />
+              <Route path="external-links" element={<AdminExternalLinks />} />
+              <Route path="trusted-clients" element={<AdminTrustedClients />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="leads" element={<AdminLeads />} />
+              <Route path="migration" element={<AdminSupabaseMigration />} />
             </Route>
             
             {/* Routes légales */}
-            <Route path="/legal/:page" element={
-              <React.Suspense fallback={<div>Chargement...</div>}>
-                <LegalPage />
-              </React.Suspense>
-            } />
+            <Route path="/mentions-legales" element={<LegalPage />} />
+            <Route path="/politique-de-confidentialite" element={<LegalPage />} />
+            <Route path="/conditions-utilisation" element={<LegalPage />} />
+            <Route path="/politique-cookies" element={<LegalPage />} />
             
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />

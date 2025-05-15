@@ -233,7 +233,7 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           content: Json
@@ -243,7 +243,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           content?: Json
@@ -253,7 +253,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1246,6 +1246,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_auth_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -1257,13 +1261,22 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       rollback_transaction: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "super_admin" | "admin" | "client_premium" | "user"
+      app_role:
+        | "super_admin"
+        | "admin"
+        | "client_premium"
+        | "user"
+        | "business_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1379,7 +1392,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "admin", "client_premium", "user"],
+      app_role: [
+        "super_admin",
+        "admin",
+        "client_premium",
+        "user",
+        "business_admin",
+      ],
     },
   },
 } as const

@@ -19,6 +19,8 @@ import {
   TrendingUp,
   ShieldCheck,
   Paperclip,
+  UserSquare,
+  Database
 } from 'lucide-react';
 
 export const getNavItems = () => [
@@ -83,12 +85,17 @@ export const getNavItems = () => [
     icon: <MessageSquare className="h-5 w-5" />,
   },
   {
+    path: '/admin/leads',
+    label: 'Leads',
+    icon: <TrendingUp className="h-5 w-5" />,
+  },
+  {
     divider: true,
   },
   {
     path: '/admin/users',
     label: 'Utilisateurs',
-    icon: <Users className="h-5 w-5" />,
+    icon: <UserSquare className="h-5 w-5" />,
   },
   {
     path: '/admin/roles',
@@ -104,5 +111,10 @@ export const getNavItems = () => [
     path: '/admin/footer',
     label: 'Pied de page',
     icon: <Newspaper className="h-5 w-5" />,
+  },
+  {
+    path: '/admin/migration',
+    label: 'Migration DB',
+    icon: <Database className="h-5 w-5" />,
   },
 ];

@@ -15,6 +15,9 @@ import AdminTrustedClientsPage from "@/pages/AdminTrustedClients";
 import AdminContactPage from "@/pages/AdminContact";
 import AdminAceJobPage from "@/pages/AdminAceJob";
 import AdminRolesPermissions from "@/pages/AdminRolesPermissions";
+import AdminExternalLinks from "@/pages/AdminExternalLinks";
+import AdminLeadsPage from "@/pages/AdminLeads";
+import AdminSupabaseMigration from "@/pages/AdminSupabaseMigration";
 import AdminWrapper from "@/pages/AdminWrapper";
 import LegalPageRoute from "@/pages/LegalPage";
 import AceJobPage from "@/pages/AceJob";
@@ -26,6 +29,8 @@ import ProfilePage from "@/pages/Profile";
 import ProjectsPage from "@/pages/Projects";
 import EstimatesPage from "@/pages/Estimates";
 import MessagesPage from "@/pages/Messages";
+import MyLeadsPage from "@/pages/MyLeads";
+import NotFound from "@/pages/NotFound";
 
 export const routes: RouteObject[] = [
   {
@@ -92,6 +97,18 @@ export const routes: RouteObject[] = [
         path: "roles",
         element: <AdminRolesPermissions />,
       },
+      {
+        path: "external-links",
+        element: <AdminExternalLinks />,
+      },
+      {
+        path: "leads",
+        element: <AdminLeadsPage />,
+      },
+      {
+        path: "migration",
+        element: <AdminSupabaseMigration />,
+      },
     ],
   },
   {
@@ -127,6 +144,10 @@ export const routes: RouteObject[] = [
     element: <MessagesPage />,
   },
   {
+    path: "/leads",
+    element: <MyLeadsPage />,
+  },
+  {
     path: "/mentions-legales",
     element: <LegalPageRoute />,
   },
@@ -145,6 +166,10 @@ export const routes: RouteObject[] = [
   {
     path: "/ace-job",
     element: <AceJobPage />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ];
 

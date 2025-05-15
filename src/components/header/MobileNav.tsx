@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Menu, X, Moon, Sun, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useHeaderContext } from '@/contexts/HeaderContext';
+import { Menu, X, Moon, Sun } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface MobileNavProps {
   mobileMenuOpen: boolean;
@@ -13,81 +13,42 @@ interface MobileNavProps {
   showThemeSelector?: boolean;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({
+const MobileNav = ({
   mobileMenuOpen,
   toggleMobileMenu,
   toggleTheme,
   toggleSearch,
   theme,
   showThemeSelector = true
-}) => {
-  const { headerStyle } = useHeaderContext();
-  
-  // Styles personnalisés pour les icônes d'utilité
-  const utilityIconStyle = {
-    color: headerStyle?.utilityIconColor,
-    backgroundColor: headerStyle?.utilityIconBgColor,
-    borderColor: headerStyle?.utilityIconBorderColor,
-    fontSize: headerStyle?.utilityIconSize,
-    transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
-  };
-  
+}: MobileNavProps) => {
   return (
-    <div className="md:hidden flex items-center space-x-3">
+    <div className="flex md:hidden items-center">
+      {/* Theme Toggle */}
       {showThemeSelector && (
         <Button
-          onClick={toggleTheme}
           variant="ghost"
           size="icon"
-          className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          style={utilityIconStyle}
-          onMouseOver={(e) => {
-            e.currentTarget.style.color = headerStyle?.utilityIconHoverColor;
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.color = headerStyle?.utilityIconColor;
-          }}
+          aria-label="Toggle theme"
+          onClick={toggleTheme}
+          className="mr-2 hover-scale"
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
       )}
       
+      {/* Mobile Menu Button */}
       <Button
-        onClick={toggleSearch}
-        variant="ghost"
-        size="icon"
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
-        aria-label="Search"
-        style={utilityIconStyle}
-        onMouseOver={(e) => {
-          e.currentTarget.style.color = headerStyle?.utilityIconHoverColor;
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.color = headerStyle?.utilityIconColor;
-        }}
-      >
-        <Search size={18} />
-      </Button>
-      
-      <Button 
-        variant="ghost"
-        size="icon"
         onClick={toggleMobileMenu}
-        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors hover-scale"
-        aria-label="Toggle Menu"
-        style={utilityIconStyle}
-        onMouseOver={(e) => {
-          e.currentTarget.style.color = headerStyle?.utilityIconHoverColor;
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.color = headerStyle?.utilityIconColor;
-        }}
+        variant="ghost"
+        size="icon"
+        aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+        className="hover-scale"
       >
-        {mobileMenuOpen ? 
-          <X size={24} className="animate-fade-in" /> : 
-          <Menu size={24} className="animate-fade-in" />
-        }
+        {mobileMenuOpen ? (
+          <X className={cn("h-5 w-5 transition-all", mobileMenuOpen ? "rotate-90" : "rotate-0")} />
+        ) : (
+          <Menu className="h-5 w-5" />
+        )}
       </Button>
     </div>
   );

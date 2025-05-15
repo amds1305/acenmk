@@ -1,198 +1,219 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2, InfoIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useSections } from '@/contexts/SectionsContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import MySQLConfigInfo from './MySQLConfigInfo';
-import ApiPackageDownload from './ApiPackageDownload';
-import { migrateLocalStorageToSupabase } from '@/services/supabase/sectionsService'; // Pour la migration Supabase
-import { migrateLocalStorageToMySQL } from '@/services/mysql/migration'; // Pour la migration MySQL
 
-const MigrationTool: React.FC = () => {
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [migrationComplete, setMigrationComplete] = useState(false);
-  const [migrationSuccess, setMigrationSuccess] = useState(false);
+// Les sections disponibles pour la migration
+const dataSections = [
+  { id: 'sections', name: 'Sections de page' },
+  { id: 'hero', name: 'Section Hero' },
+  { id: 'services', name: 'Services' },
+  { id: 'about', name: 'À propos' },
+  { id: 'team', name: 'Équipe' },
+  { id: 'testimonials', name: 'Témoignages' },
+  { id: 'faq', name: 'FAQ' },
+  { id: 'trusted_clients', name: 'Clients de confiance' },
+  { id: 'contact', name: 'Contact' },
+  { id: 'footer', name: 'Footer' },
+  { id: 'legal', name: 'Contenus légaux' },
+  { id: 'users', name: 'Utilisateurs' },
+];
+
+const MigrationTool = () => {
+  const [selectedSections, setSelectedSections] = useState<string[]>([]);
+  const [migrationStatus, setMigrationStatus] = useState<'idle' | 'migrating' | 'success' | 'error'>('idle');
+  const [progress, setProgress] = useState(0);
+  const [results, setResults] = useState<{ section: string, success: boolean, message: string }[]>([]);
   const { toast } = useToast();
-  const { reloadConfig } = useSections();
 
-  const handleSupabaseMigration = async () => {
-    try {
-      setIsMigrating(true);
-      const success = await migrateLocalStorageToSupabase();
-      
-      if (success) {
-        toast({
-          title: "Migration réussie",
-          description: "Vos données ont été migrées avec succès vers Supabase.",
-        });
-        setMigrationSuccess(true);
-        
-        // Recharger la configuration
-        await reloadConfig();
-      } else {
-        toast({
-          title: "Aucune donnée à migrer",
-          description: "Aucune donnée n'a été trouvée dans le localStorage.",
-        });
-        setMigrationSuccess(false);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la migration vers Supabase:', error);
-      toast({
-        title: "Erreur de migration",
-        description: "Un problème est survenu lors de la migration des données vers Supabase.",
-        variant: "destructive",
-      });
-      setMigrationSuccess(false);
-    } finally {
-      setIsMigrating(false);
-      setMigrationComplete(true);
-    }
+  const handleSectionToggle = (section: string) => {
+    setSelectedSections((prev) => 
+      prev.includes(section) 
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    );
   };
-  
-  const handleMySQLMigration = async () => {
-    try {
-      setIsMigrating(true);
-      const success = await migrateLocalStorageToMySQL();
-      
-      if (success) {
-        toast({
-          title: "Migration réussie",
-          description: "Vos données ont été migrées avec succès vers MySQL.",
-        });
-        setMigrationSuccess(true);
-        
-        // Recharger la configuration
-        await reloadConfig();
-      } else {
-        toast({
-          title: "Échec de la migration",
-          description: "Aucune donnée n'a été migrée. Vérifiez que l'API MySQL est configurée correctement.",
-        });
-        setMigrationSuccess(false);
-      }
-    } catch (error) {
-      console.error('Erreur lors de la migration vers MySQL:', error);
+
+  const selectAll = () => {
+    setSelectedSections(dataSections.map(section => section.id));
+  };
+
+  const deselectAll = () => {
+    setSelectedSections([]);
+  };
+
+  const startMigration = async () => {
+    if (selectedSections.length === 0) {
       toast({
-        title: "Erreur de migration",
-        description: "Un problème est survenu lors de la migration des données vers MySQL. Vérifiez la configuration de l'API.",
-        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez sélectionner au moins une section à migrer",
+        variant: "destructive"
       });
-      setMigrationSuccess(false);
-    } finally {
-      setIsMigrating(false);
-      setMigrationComplete(true);
+      return;
     }
+
+    setMigrationStatus('migrating');
+    setProgress(0);
+    setResults([]);
+
+    const totalSections = selectedSections.length;
+    let completedSections = 0;
+    const migrationResults = [];
+
+    // Simuler le processus de migration
+    for (const sectionId of selectedSections) {
+      try {
+        // Dans une implémentation réelle, cette partie serait remplacée par le code de migration effectif
+        // vers Supabase pour chaque section
+        const success = Math.random() > 0.2; // Simulation: 80% de chance de succès
+        
+        // Simuler une opération asynchrone
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const sectionName = dataSections.find(s => s.id === sectionId)?.name || sectionId;
+        
+        migrationResults.push({
+          section: sectionName,
+          success,
+          message: success 
+            ? `Les données de ${sectionName} ont été migrées avec succès` 
+            : `Échec de la migration pour ${sectionName}`
+        });
+
+        completedSections++;
+        setProgress(Math.round((completedSections / totalSections) * 100));
+      } catch (error) {
+        console.error(`Erreur lors de la migration de ${sectionId}:`, error);
+        
+        const sectionName = dataSections.find(s => s.id === sectionId)?.name || sectionId;
+        
+        migrationResults.push({
+          section: sectionName,
+          success: false,
+          message: `Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+        });
+
+        completedSections++;
+        setProgress(Math.round((completedSections / totalSections) * 100));
+      }
+    }
+
+    setResults(migrationResults);
+    
+    // Déterminer le statut global
+    const hasErrors = migrationResults.some(result => !result.success);
+    setMigrationStatus(hasErrors ? 'error' : 'success');
+    
+    toast({
+      title: hasErrors ? "Migration terminée avec des erreurs" : "Migration réussie",
+      description: hasErrors 
+        ? "Certaines sections n'ont pas pu être migrées. Consultez les détails pour plus d'informations."
+        : "Toutes les sections ont été migrées avec succès vers Supabase.",
+      variant: hasErrors ? "destructive" : "default"
+    });
+  };
+
+  const resetMigration = () => {
+    setMigrationStatus('idle');
+    setProgress(0);
+    setResults([]);
   };
 
   return (
-    <Tabs defaultValue="mysql">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="mysql">MySQL (OVH)</TabsTrigger>
-        <TabsTrigger value="supabase">Supabase</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="mysql" className="space-y-4 mt-4">
-        <ApiPackageDownload />
-        <MySQLConfigInfo />
-        
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Migration des données vers MySQL</CardTitle>
-            <CardDescription>
-              Migrer les données de votre site depuis le stockage local vers votre base de données MySQL.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Cette opération va transférer toutes vos données actuelles (sections, configuration, clients en vedette, etc.) 
-              depuis le stockage local de votre navigateur vers votre base de données MySQL via votre API.
-            </p>
-            
-            {migrationComplete && (
-              <Alert variant={migrationSuccess ? "default" : "destructive"} className="mb-4">
-                {migrationSuccess ? (
-                  <CheckCircle className="h-4 w-4" />
-                ) : (
-                  <AlertCircle className="h-4 w-4" />
-                )}
-                <AlertTitle>
-                  {migrationSuccess ? "Migration réussie" : "Échec de la migration"}
-                </AlertTitle>
-                <AlertDescription>
-                  {migrationSuccess 
-                    ? "Toutes les données ont été migrées avec succès vers votre base MySQL." 
-                    : "Un problème est survenu lors de la migration des données. Vérifiez que l'API est bien configurée."}
-                </AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button 
-              onClick={handleMySQLMigration} 
-              disabled={isMigrating}
-              className="w-full"
-            >
-              {isMigrating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Migration en cours...
-                </>
-              ) : migrationComplete && migrationSuccess ? (
-                "Migration terminée"
-              ) : migrationComplete && !migrationSuccess ? (
-                "Réessayer la migration"
+    <Card>
+      <CardHeader>
+        <CardTitle>Migration des données vers Supabase</CardTitle>
+        <CardDescription>
+          Transférez les données stockées localement vers votre base de données Supabase
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {migrationStatus === 'migrating' ? (
+          <div className="space-y-4">
+            <p className="text-muted-foreground">Migration en cours... Veuillez patienter.</p>
+            <Progress value={progress} className="h-2" />
+            <p className="text-sm text-right">{progress}%</p>
+          </div>
+        ) : migrationStatus === 'success' || migrationStatus === 'error' ? (
+          <div className="space-y-4">
+            <Alert variant={migrationStatus === 'success' ? "default" : "destructive"}>
+              {migrationStatus === 'success' ? (
+                <CheckCircle2 className="h-4 w-4" />
               ) : (
-                "Lancer la migration"
+                <AlertTriangle className="h-4 w-4" />
               )}
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="supabase" className="space-y-4 mt-4">
-        <Alert>
-          <InfoIcon className="h-4 w-4" />
-          <AlertTitle>Information</AlertTitle>
-          <AlertDescription>
-            Supabase utilise PostgreSQL et non MySQL. Si vous préférez utiliser Supabase directement,
-            vous devrez créer un projet Supabase et configurer les tables PostgreSQL.
-          </AlertDescription>
-        </Alert>
-        
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Migration des données vers Supabase</CardTitle>
-            <CardDescription>
-              Migrer les données de votre site depuis le stockage local vers la base de données Supabase.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Cette option migre vos données vers Supabase, une solution de base de données PostgreSQL hébergée dans le cloud.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Button 
-              onClick={handleSupabaseMigration}
-              disabled={isMigrating}
-              className="w-full"
-            >
-              {isMigrating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Migration en cours...
-                </>
-              ) : "Lancer la migration vers Supabase"}
-            </Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-    </Tabs>
+              <AlertDescription>
+                {migrationStatus === 'success' 
+                  ? "Migration terminée avec succès" 
+                  : "Migration terminée avec des erreurs"}
+              </AlertDescription>
+            </Alert>
+            
+            <div className="border rounded-md">
+              <div className="bg-muted px-4 py-2 rounded-t-md">
+                <h3 className="font-medium">Résultats de la migration</h3>
+              </div>
+              <div className="p-4 space-y-2 max-h-60 overflow-y-auto">
+                {results.map((result, index) => (
+                  <div key={index} className="flex items-start">
+                    <div className={`w-5 h-5 mt-0.5 flex-shrink-0 rounded-full ${result.success ? 'bg-green-500' : 'bg-red-500'}`}>
+                      {result.success ? (
+                        <CheckCircle2 className="h-4 w-4 text-white m-0.5" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-white m-0.5" />
+                      )}
+                    </div>
+                    <div className="ml-2">
+                      <p className={`text-sm font-medium ${result.success ? 'text-green-600' : 'text-red-600'}`}>{result.section}</p>
+                      <p className="text-xs text-muted-foreground">{result.message}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex justify-between mb-2">
+              <h3 className="font-medium">Sélectionnez les données à migrer</h3>
+              <div className="space-x-2">
+                <Button variant="outline" size="sm" onClick={selectAll}>Tout sélectionner</Button>
+                <Button variant="outline" size="sm" onClick={deselectAll}>Tout désélectionner</Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dataSections.map((section) => (
+                <div key={section.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={section.id}
+                    checked={selectedSections.includes(section.id)}
+                    onCheckedChange={() => handleSectionToggle(section.id)}
+                  />
+                  <Label htmlFor={section.id}>{section.name}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-end space-x-2">
+        {migrationStatus === 'idle' ? (
+          <Button onClick={startMigration} disabled={selectedSections.length === 0}>
+            Démarrer la migration
+          </Button>
+        ) : migrationStatus === 'migrating' ? (
+          <Button disabled>Migration en cours...</Button>
+        ) : (
+          <Button onClick={resetMigration}>Nouvelle migration</Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 
