@@ -1,85 +1,101 @@
 
-import { useCallback } from 'react';
-import { Section, HomepageConfig, SectionData, SectionType } from '@/types/sections';
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Section } from '../sections/types';
+import { toast } from '@/hooks/use-toast';
 
-export const useSectionOperations = (
-  config: HomepageConfig,
-  setConfig: (config: HomepageConfig) => void
-) => {
-  const addNewSection = useCallback((newSection: Section) => {
-    // Vérifier si la section existe déjà
-    const existingSection = config.sections.find(s => s.id === newSection.id);
-    if (existingSection) {
-      console.log('Section déjà existante:', existingSection);
-      return;
+export const useSectionOperations = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const updateExistingSection = async (sectionId: string, updates: Partial<Section>) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const { data, error } = await supabase
+        .from('sections')
+        .update(updates)
+        .eq('id', sectionId);
+
+      if (error) throw error;
+
+      // Déclencher un événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('admin-changes-saved', {
+        detail: { type: 'section-updated', sectionId, updates }
+      }));
+
+      return data;
+    } catch (err) {
+      console.error('Error updating section:', err);
+      setError(err as Error);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    console.log('Ajout d\'une nouvelle section:', newSection);
-    
-    setConfig({
-      ...config,
-      sections: [...config.sections, newSection],
-    });
-  }, [config, setConfig]);
+  const updateExistingSectionData = async (sectionId: string, data: any) => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-  const removeExistingSection = useCallback((sectionId: string) => {
-    console.log('Suppression de la section:', sectionId);
-    
-    setConfig({
-      ...config,
-      sections: config.sections.filter(s => s.id !== sectionId),
-    });
-  }, [config, setConfig]);
+      const { error } = await supabase
+        .from('section_data')
+        .update({ data, updated_at: new Date() })
+        .eq('section_id', sectionId);
 
-  const updateSectionOrder = useCallback((updatedSections: Section[]) => {
-    console.log('Mise à jour de l\'ordre des sections:', updatedSections);
-    
-    setConfig({
-      ...config,
-      sections: updatedSections,
-    });
-  }, [config, setConfig]);
+      if (error) throw error;
 
-  const updateSectionVisibility = useCallback((sectionId: string, isVisible: boolean) => {
-    console.log(`Mise à jour de la visibilité de la section ${sectionId}:`, isVisible);
-    
-    setConfig({
-      ...config,
-      sections: config.sections.map(s =>
-        s.id === sectionId ? { ...s, visible: isVisible } : s
-      ),
-    });
-  }, [config, setConfig]);
+      // Déclencher un événement pour notifier les autres composants
+      window.dispatchEvent(new CustomEvent('admin-changes-saved', {
+        detail: { type: 'section-data-updated', sectionId, data }
+      }));
 
-  const updateExistingSectionData = useCallback((sectionId: string, data: SectionData) => {
-    console.log('Mise à jour des données de section:', sectionId, data);
-    
-    setConfig({
-      ...config,
-      sectionData: {
-        ...config.sectionData,
-        [sectionId]: data,
-      },
-    });
-  }, [config, setConfig]);
+      return true;
+    } catch (err) {
+      console.error('Error updating section data:', err);
+      setError(err as Error);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const updateExistingSection = useCallback((updatedSection: Section) => {
-    console.log('Mise à jour de la section:', updatedSection);
-    
-    setConfig({
-      ...config,
-      sections: config.sections.map(s =>
-        s.id === updatedSection.id ? updatedSection : s
-      ),
-    });
-  }, [config, setConfig]);
+  const saveChanges = async () => {
+    try {
+      // Déclencher un événement pour forcer le rechargement
+      window.dispatchEvent(new CustomEvent('admin-changes-saved', {
+        detail: { type: 'save-all', timestamp: Date.now() }
+      }));
+      
+      // Montrer une notification
+      toast({
+        title: "Sauvegarde réussie",
+        description: "Les modifications ont été enregistrées et seront visibles sur le site.",
+      });
+      
+      return true;
+    } catch (err) {
+      console.error('Error saving all changes:', err);
+      setError(err as Error);
+      
+      // Montrer une notification d'erreur
+      toast({
+        title: "Erreur de sauvegarde",
+        description: "Une erreur est survenue lors de la sauvegarde des modifications.",
+        variant: "destructive"
+      });
+      
+      throw err;
+    }
+  };
 
   return {
-    addNewSection,
-    removeExistingSection,
-    updateSectionOrder,
-    updateSectionVisibility,
-    updateExistingSectionData,
+    isLoading,
+    error,
     updateExistingSection,
+    updateExistingSectionData,
+    saveChanges
   };
 };

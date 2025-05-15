@@ -57,32 +57,44 @@ const Index = () => {
   
   // Force un rechargement des données au montage du composant
   useEffect(() => {
+    console.log("Index - Montage du composant, rechargement des données...");
+    
     // Nettoyer le cache de localStorage pour forcer un rechargement depuis Supabase
     localStorage.removeItem('cachedHomepageConfig');
     localStorage.removeItem('cachedConfigTimestamp');
     
     // Invalider le cache pour forcer un rafraîchissement complet
     queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    console.log("Index - Rechargement initial des données...");
     
     // Ajouter un écouteur d'événements pour les changements administratifs
     const handleAdminChanges = (e?: CustomEvent) => {
       console.log("Changements administratifs détectés, rechargement...", e?.detail);
+      
+      // Nettoyer le cache de localStorage
+      localStorage.removeItem('cachedHomepageConfig');
+      localStorage.removeItem('cachedConfigTimestamp');
+      
+      // Invalider tous les caches de requête
       queryClient.invalidateQueries();
-      setLastUpdate(Date.now()); // Forcer une mise à jour du composant
+      
+      // Forcer une mise à jour du composant
+      setLastUpdate(Date.now());
+      
+      // Afficher une notification
       toast({
         title: "Site mis à jour",
         description: "Les modifications administratives ont été appliquées",
       });
     };
 
+    // Écouter l'événement personnalisé pour les changements administratifs
     window.addEventListener('admin-changes-saved', handleAdminChanges as EventListener);
     
-    // Réactualiser régulièrement (toutes les 30 secondes)
+    // Réactualiser régulièrement (toutes les 15 secondes)
     const intervalId = setInterval(() => {
       console.log("Actualisation périodique des données...");
       queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    }, 30000);
+    }, 15000);
     
     return () => {
       window.removeEventListener('admin-changes-saved', handleAdminChanges as EventListener);
@@ -97,17 +109,17 @@ const Index = () => {
     refetchOnMount: true, // Recharger à chaque montage
     refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
     retry: 2,
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchInterval: 15000, // Rafraîchir toutes les 15 secondes
   });
 
   useEffect(() => {
     if (error) {
+      console.error("Erreur lors du chargement de la configuration:", error);
       toast({
         variant: "destructive",
         title: "Erreur de chargement",
         description: "Impossible de charger la configuration de la page d'accueil. Les paramètres par défaut seront utilisés.",
       });
-      console.error("Erreur lors du chargement de la configuration:", error);
     }
   }, [error, toast]);
 

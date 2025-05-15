@@ -1,112 +1,117 @@
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/contexts/ThemeContext';
-import Search from './Search';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useHeader } from './header/useHeader';
 import Logo from './header/Logo';
 import DesktopNav from './header/DesktopNav';
 import MobileNav from './header/MobileNav';
 import MobileMenu from './header/MobileMenu';
-import { useHeader } from './header/useHeader';
-import ThemeSelector from './header/ThemeSelector';
 import UserMenu from './header/UserMenu';
-import { HeaderProvider } from '@/contexts/HeaderContext';
-import { HeaderStyleProvider } from '@/contexts/HeaderStyleContext';
-
-// Configuration par défaut du header - À terme, cela pourrait être chargé depuis une API
-const defaultHeaderConfig = {
-  showThemeSelector: true,
-  // Autres options de configuration possibles
-};
-
-const HeaderContent = () => {
-  const { 
-    isScrolled, 
-    mobileMenuOpen, 
-    searchOpen, 
-    toggleMobileMenu, 
-    toggleSearch, 
-    navLinks, 
-    socialLinks, 
-    closeMobileMenu, 
-    headerConfig = defaultHeaderConfig, 
-    headerStyle 
-  } = useHeader();
-  const { theme, toggleTheme } = useTheme();
-  
-  // Appliquer les styles personnalisés au header lors du défilement
-  const scrolledHeaderStyle = isScrolled ? {
-    backgroundColor: headerStyle?.scrolledBgColor || 'rgba(255, 255, 255, 0.8)',
-    color: headerStyle?.scrolledTextColor || '#333333',
-    borderColor: headerStyle?.scrolledBorderColor || '#e5e7eb',
-    boxShadow: headerStyle?.scrolledShadow || '0 2px 4px rgba(0, 0, 0, 0.05)',
-  } : {};
-  
-  return (
-    <header 
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-2',
-        isScrolled ? 'header-glass border-b border-gray-200 dark:border-gray-800 backdrop-blur-md' : 'bg-transparent',
-        searchOpen && 'h-32'
-      )}
-      style={{
-        transition: `all ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
-        ...scrolledHeaderStyle
-      }}
-    >
-      <div className="header-container h-16" style={{ padding: headerStyle?.padding }}>
-        <Logo />
-        
-        {/* Desktop Navigation and Social Links */}
-        <DesktopNav 
-          navLinks={navLinks}
-          socialLinks={socialLinks}
-          toggleSearch={toggleSearch}
-          themeSelector={<ThemeSelector />}
-          showThemeSelector={headerConfig.showThemeSelector}
-        />
-        
-        {/* User Menu */}
-        <div className="hidden md:flex ml-4">
-          <UserMenu />
-        </div>
-        
-        {/* Mobile Menu Button */}
-        <MobileNav 
-          mobileMenuOpen={mobileMenuOpen}
-          toggleMobileMenu={toggleMobileMenu}
-          toggleTheme={toggleTheme}
-          toggleSearch={toggleSearch}
-          theme={theme}
-          showThemeSelector={headerConfig.showThemeSelector}
-        />
-      </div>
-      
-      {/* Search */}
-      {searchOpen && (
-        <div className="max-w-3xl mx-auto mt-4 px-4 animate-fade-in">
-          <Search />
-        </div>
-      )}
-      
-      {/* Mobile Menu */}
-      <MobileMenu 
-        isOpen={mobileMenuOpen}
-        navLinks={navLinks}
-        socialLinks={socialLinks}
-        onNavLinkClick={closeMobileMenu}
-      />
-    </header>
-  );
-};
+import ThemeSelector from './header/ThemeSelector';
+import SearchBar from './SearchBar';
 
 const Header = () => {
+  const {
+    theme,
+    toggleTheme,
+    mobileMenuOpen,
+    setMobileMenuOpen,
+    toggleMobileMenu,
+    searchOpen,
+    setSearchOpen,
+    toggleSearch,
+    isScrolled,
+    navLinks,
+    headerStyles,
+    showThemeSelector,
+    socialLinks,
+    actionButtons,
+    logoConfig,
+    searchConfig,
+    userMenuConfig,
+    isAuthenticated,
+    user
+  } = useHeader();
+
+  const fixedHeaderClass = `
+    sticky top-0 z-50 w-full transition-all duration-300
+    ${isScrolled && headerStyles?.sticky ? 'bg-opacity-80 backdrop-blur-sm shadow-sm' : ''}
+    ${headerStyles?.glassmorphism && isScrolled ? 'backdrop-filter backdrop-blur-lg' : ''}
+    ${headerStyles?.transparent && !isScrolled ? 'bg-transparent' : 'bg-background'}
+    ${headerStyles?.border_bottom ? 'border-b' : ''}
+    ${headerStyles?.drop_shadow && isScrolled ? 'shadow-md' : ''}
+  `;
+
   return (
-    <HeaderProvider>
-      <HeaderStyleProvider>
-        <HeaderContent />
-      </HeaderStyleProvider>
-    </HeaderProvider>
+    <header className={fixedHeaderClass} style={{
+      backgroundColor: isScrolled ? headerStyles?.scrolled_bg_color : headerStyles?.background_color,
+      color: isScrolled ? headerStyles?.scrolled_text_color : headerStyles?.text_color,
+      borderColor: isScrolled ? headerStyles?.scrolled_border_color : headerStyles?.border_color,
+      boxShadow: isScrolled && headerStyles?.drop_shadow ? headerStyles?.scrolled_shadow : 'none',
+      padding: headerStyles?.padding,
+    }}>
+      <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <Logo config={logoConfig} />
+        </Link>
+
+        {/* Desktop Navigation */}
+        <DesktopNav 
+          links={navLinks} 
+          styles={headerStyles} 
+        />
+
+        {/* Right Side Elements */}
+        <div className="flex items-center space-x-2">
+          {/* Only show search if configured */}
+          {searchConfig?.is_enabled && (
+            <SearchBar 
+              isOpen={searchOpen}
+              setIsOpen={setSearchOpen}
+              toggleSearch={toggleSearch}
+              placeholder={searchConfig?.placeholder || "Rechercher..."}
+              expandOnFocus={searchConfig?.expand_on_focus}
+              position={searchConfig?.position || "right"}
+            />
+          )}
+
+          {/* Theme toggle */}
+          {showThemeSelector && (
+            <div className="hidden md:block">
+              <ThemeSelector theme={theme} toggleTheme={toggleTheme} />
+            </div>
+          )}
+
+          {/* User menu */}
+          <UserMenu 
+            isAuthenticated={isAuthenticated}
+            user={user}
+            config={userMenuConfig}
+            actionButtons={actionButtons}
+          />
+
+          {/* Mobile menu toggle */}
+          <MobileNav 
+            mobileMenuOpen={mobileMenuOpen} 
+            toggleMobileMenu={toggleMobileMenu} 
+            toggleTheme={toggleTheme}
+            toggleSearch={toggleSearch}
+            theme={theme}
+            showThemeSelector={showThemeSelector}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <MobileMenu 
+        isOpen={mobileMenuOpen} 
+        links={navLinks} 
+        socialLinks={socialLinks} 
+        actionButtons={actionButtons}
+        isAuthenticated={isAuthenticated}
+      />
+    </header>
   );
 };
 

@@ -2,6 +2,18 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
+
+// Providers
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { SectionsProvider } from './contexts/sections/SectionsContext';
+import { Toaster } from './components/ui/toaster';
+
+// Protected Route
+import ProtectedRoute from './components/admin/ProtectedRoute';
+
+// Admin Pages
+import Admin from './pages/Admin';
 import AdminHome from './pages/AdminHome';
 import AdminServices from './pages/AdminServices';
 import AdminAbout from './pages/AdminAbout';
@@ -22,23 +34,14 @@ import AdminUsers from './pages/AdminUsers';
 import AdminSupabaseMigration from './pages/AdminSupabaseMigration';
 import AdminWrapper from './pages/AdminWrapper';
 
-// Providers
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { SectionsProvider } from './contexts/sections/SectionsContext';
-import { Toaster } from './components/ui/toaster';
-
-// Autres imports
-import ProtectedRoute from './components/admin/ProtectedRoute';
+// Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
-import Admin from './pages/Admin';
-import LegalPage from './pages/LegalPage';
 
-// Pages utilisateur
+// User Pages
 import AceJob from './pages/AceJob';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -49,6 +52,7 @@ import Projects from './pages/Projects';
 import Estimates from './pages/Estimates';
 import Messages from './pages/Messages';
 import MyLeads from './pages/MyLeads';
+import LegalPage from './pages/LegalPage';
 
 function App() {
   return (
@@ -81,6 +85,7 @@ function App() {
             }>
               <Route index element={<Admin />} />
               <Route path="home" element={<AdminHome />} />
+              <Route path="hero" element={<AdminHeroPage />} />
               <Route path="services" element={<AdminServices />} />
               <Route path="about" element={<AdminAbout />} />
               <Route path="team" element={<AdminTeam />} />
@@ -88,7 +93,6 @@ function App() {
               <Route path="faq" element={<AdminFaq />} />
               <Route path="contact" element={<AdminContact />} />
               <Route path="custom-section/:id" element={<AdminCustomSection />} />
-              <Route path="hero" element={<AdminHeroPage />} />
               <Route path="footer" element={<AdminFooter />} />
               <Route path="header" element={<AdminHeader />} />
               <Route path="ace-job" element={<AdminAceJob />} />
