@@ -7,7 +7,8 @@ import { useHeaderContext } from '@/contexts/HeaderContext';
 
 const ThemeSelector = () => {
   const { theme, setTheme } = useTheme();
-  const { headerStyle } = useHeaderContext();
+  const headerContext = useHeaderContext();
+  const headerStyle = headerContext?.headerStyle || {};
   
   // Function to toggle theme
   const toggleTheme = () => {

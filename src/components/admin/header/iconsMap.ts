@@ -22,7 +22,7 @@ import {
   MessageCircle,
   Building,
   LayoutGrid,
-  LucideIcon
+  type LucideIcon
 } from 'lucide-react';
 
 // Map of icon names to Lucide components
@@ -50,3 +50,5 @@ export const iconsMap: Record<string, LucideIcon> = {
   Building,
   LayoutGrid
 };
+
+export default iconsMap;

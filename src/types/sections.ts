@@ -36,8 +36,14 @@ export interface ExternalLinkSectionData {
 
 export interface HomepageConfig {
   sections: Section[];
-  header: any;
+  header?: any;
   sectionData?: {
     [key: string]: any;
   };
+}
+
+export type HomeTemplateType = 'default' | 'teko' | 'nmk_kink' | 'nmk_fire' | 'nmk_robot';
+
+export interface SectionData {
+  [key: string]: any;
 }

@@ -1,33 +1,84 @@
 
-export type UserRole = 'visitor' | 'client_standard' | 'client_premium' | 'external_provider' | 
-                       'contributor' | 'manager' | 'business_admin' | 'super_admin' | 'user' | 'admin';
-
+// Basic User type
 export interface User {
   id: string;
-  email: string;
   name: string;
-  role: UserRole;
+  email: string;
+  role: string;
   avatar?: string;
   company?: string;
   phone?: string;
-  biography?: string;
   createdAt: string;
-  lastLoginDate?: string;
+  updatedAt: string;
   twoFactorEnabled?: boolean;
+  // Add these to fix type errors
+  projects?: Project[];
+  estimates?: Estimate[];
+  address?: Address;
+  socialLinks?: SocialLink[];
+  loginHistory?: LoginHistory[];
+  preferences?: UserPreferences;
 }
 
-export interface AuthContextType {
+// AuthState interface
+export interface AuthState {
   user: User | null;
-  isLoading: boolean;
   isAuthenticated: boolean;
-  isAdmin: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
-  logout: () => Promise<{ success: boolean; error?: any }>;
-  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: any }>;
-  updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: any }>;
-  uploadAvatar: (file: File) => Promise<{ success: boolean; url?: string; error?: any }>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: any }>;
-  toggleTwoFactor: (enable: boolean) => Promise<{ success: boolean; error?: any }>;
-  messages: any[];
-  unreadMessages: number;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+}
+
+export interface LoginHistory {
+  id: string;
+  date: string;
+  ip: string;
+  device: string;
+  location: string;
+}
+
+export interface UserPreferences {
+  emailNotifications: boolean;
+  darkMode: boolean;
+  language: string;
+}
+
+export interface Message {
+  id: string;
+  sender: string;
+  timestamp: string;
+  content: string;
+  read: boolean;
+  avatar?: string;
+}
+
+export interface Estimate {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  progress: number;
+  startDate: string;
+  endDate?: string;
 }

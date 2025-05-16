@@ -1,9 +1,9 @@
 
-import { HomepageConfig, Section, SectionData, HomeTemplateType } from "@/types/sections";
+import { Section } from "@/types/sections";
 
 export interface SectionsStateProps {
-  config: HomepageConfig;
-  setConfig: (config: HomepageConfig) => void;
+  config: any;
+  setConfig: (config: any) => void;
   isLoading: boolean;
   loadConfig: () => Promise<void>;
   isRefetching: boolean;
@@ -11,7 +11,7 @@ export interface SectionsStateProps {
 }
 
 export interface SectionsContextProps {
-  config: HomepageConfig;
+  config: any;
   isLoading: boolean;
   isRefetching: boolean;
   isError: boolean;
@@ -20,9 +20,9 @@ export interface SectionsContextProps {
   removeExistingSection: (sectionId: string) => void;
   updateSectionOrder: (updatedSections: Section[]) => void;
   updateSectionVisibility: (sectionId: string, isVisible: boolean) => void;
-  updateExistingSectionData: (sectionId: string, data: SectionData) => void;
+  updateExistingSectionData: (sectionId: string, data: any) => void;
   updateExistingSection: (section: Section) => void;
-  updateTemplateType: (template: HomeTemplateType) => void;
+  updateTemplateType: (template: string) => void;
   saveChanges: () => Promise<void>;
   reloadConfig: () => Promise<void>;
 }

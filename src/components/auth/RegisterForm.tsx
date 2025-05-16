@@ -40,7 +40,8 @@ const RegisterForm = () => {
     setIsSubmitting(true);
     try {
       console.log("Tentative d'inscription avec les données:", data);
-      const { success, error } = await register(data.name, data.email, data.password, data.company, data.phone);
+      // Updated to only use the required arguments
+      const { success, error } = await register(data.name, data.email, data.password);
       
       if (success) {
         // Rediriger vers la page de connexion après l'inscription

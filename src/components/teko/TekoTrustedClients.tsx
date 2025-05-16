@@ -1,74 +1,87 @@
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/sections';
-import { ChevronRight } from 'lucide-react';
 
-const TekoTrustedClients: React.FC = () => {
-  const { data: config } = useQuery({
-    queryKey: ['trustedClientsData'],
-    queryFn: getHomepageConfig,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-  
-  // Extract the trusted clients data from the config
-  const trustedClientsData = config?.sectionData?.['trusted-clients'] || {
-    title: 'Ils nous font confiance',
-    featuredLabel: 'Nos clients',
-    showTrustedClients: true,
-    clients: []
-  };
-
-  // Ne pas afficher la section si elle est explicitement désactivée ou s'il n'y a pas de clients
-  if (!trustedClientsData || trustedClientsData.showTrustedClients === false || 
-      !trustedClientsData.clients || trustedClientsData.clients.length === 0) {
-    return null;
+// Mock client data
+const clients = [
+  {
+    id: '1',
+    name: 'Google',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/2560px-Google_2015_logo.svg.png',
+    websiteUrl: 'https://google.com'
+  },
+  {
+    id: '2',
+    name: 'Microsoft',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2048px-Microsoft_logo.svg.png',
+    websiteUrl: 'https://microsoft.com'
+  },
+  {
+    id: '3',
+    name: 'Amazon',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png',
+    websiteUrl: 'https://amazon.com'
+  },
+  {
+    id: '4',
+    name: 'Apple',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1667px-Apple_logo_black.svg.png',
+    websiteUrl: 'https://apple.com'
+  },
+  {
+    id: '5',
+    name: 'Facebook',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Facebook_f_logo_%282021%29.svg/2048px-Facebook_f_logo_%282021%29.svg.png',
+    websiteUrl: 'https://facebook.com'
+  },
+  {
+    id: '6',
+    name: 'Netflix',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png',
+    websiteUrl: 'https://netflix.com'
   }
+];
 
+const sectionData = {
+  title: 'Our Trusted Clients',
+  featuredLabel: 'CLIENT SHOWCASE',
+  showTrustedClients: true,
+  clients: clients
+};
+
+const TekoTrustedClients = () => {
   return (
-    <section id="trusted-clients" className="py-24 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
-            <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
-            {trustedClientsData.featuredLabel || 'Nos clients'}
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </div>
+    <section id="trusted-clients" className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-10">
+          <p className="text-teal-600 font-semibold mb-2">{sectionData.featuredLabel}</p>
+          <h2 className="text-3xl font-bold">{sectionData.title}</h2>
         </div>
         
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-          {trustedClientsData.title || 'Ils nous font confiance'}
-        </h2>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-          {trustedClientsData.clients.map((client: any) => (
-            <div key={client.id} className="flex flex-col items-center">
-              <div className="h-16 w-auto mb-4">
-                {client.websiteUrl ? (
-                  <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">
-                    <img 
-                      src={client.logoUrl} 
-                      alt={client.name} 
-                      className="h-full w-auto transition-all duration-300" 
-                      title={client.name}
-                    />
-                  </a>
-                ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
+          {sectionData.clients.map((client) => (
+            <div key={client.id} className="flex justify-center">
+              {client.websiteUrl ? (
+                <a 
+                  href={client.websiteUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block grayscale hover:grayscale-0 transition-all"
+                >
                   <img 
                     src={client.logoUrl} 
                     alt={client.name} 
-                    className="h-full w-auto transition-all duration-300" 
+                    className="max-h-10 w-auto object-contain" 
                     title={client.name}
                   />
-                )}
-              </div>
-              <div className="text-center">
-                {client.category && (
-                  <p className="text-center text-gray-500">
-                    {client.category}
-                  </p>
-                )}
-              </div>
+                </a>
+              ) : (
+                <img 
+                  src={client.logoUrl} 
+                  alt={client.name} 
+                  className="max-h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" 
+                  title={client.name}
+                />
+              )}
             </div>
           ))}
         </div>
