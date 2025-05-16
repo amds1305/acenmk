@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { PricingCard } from './pricing/PricingCard';
 
 interface Feature {
@@ -21,58 +20,77 @@ interface PricingPackage {
   features: Feature[];
 }
 
+// Fonction pour simuler la récupération des packages de pricing
+const fetchPricingPackages = async (): Promise<PricingPackage[]> => {
+  // Simulation d'un délai réseau
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // Retourne des données statiques
+  return [
+    {
+      id: '1',
+      title: 'Starter',
+      description: 'Parfait pour les petits projets et les startups',
+      starting_price: 499,
+      is_featured: false,
+      is_visible: true,
+      features: [
+        { id: '1-1', feature: 'Site web responsive', is_included: true, order_index: 0 },
+        { id: '1-2', feature: '5 pages incluses', is_included: true, order_index: 1 },
+        { id: '1-3', feature: 'SEO de base', is_included: true, order_index: 2 },
+        { id: '1-4', feature: 'Formulaire de contact', is_included: true, order_index: 3 },
+        { id: '1-5', feature: 'Support par email', is_included: true, order_index: 4 },
+        { id: '1-6', feature: 'Système de blog', is_included: false, order_index: 5 },
+        { id: '1-7', feature: 'E-commerce', is_included: false, order_index: 6 },
+      ]
+    },
+    {
+      id: '2',
+      title: 'Business',
+      description: 'La solution complète pour les entreprises en croissance',
+      starting_price: 999,
+      is_featured: true,
+      is_visible: true,
+      features: [
+        { id: '2-1', feature: 'Site web responsive', is_included: true, order_index: 0 },
+        { id: '2-2', feature: '10 pages incluses', is_included: true, order_index: 1 },
+        { id: '2-3', feature: 'SEO avancé', is_included: true, order_index: 2 },
+        { id: '2-4', feature: 'Formulaire de contact', is_included: true, order_index: 3 },
+        { id: '2-5', feature: 'Support prioritaire', is_included: true, order_index: 4 },
+        { id: '2-6', feature: 'Système de blog', is_included: true, order_index: 5 },
+        { id: '2-7', feature: 'E-commerce (100 produits)', is_included: true, order_index: 6 },
+        { id: '2-8', feature: 'Système de réservation', is_included: false, order_index: 7 },
+      ]
+    },
+    {
+      id: '3',
+      title: 'Enterprise',
+      description: 'Solutions personnalisées pour les grandes entreprises',
+      starting_price: 2499,
+      is_featured: false,
+      is_visible: true,
+      features: [
+        { id: '3-1', feature: 'Site web responsive', is_included: true, order_index: 0 },
+        { id: '3-2', feature: 'Pages illimitées', is_included: true, order_index: 1 },
+        { id: '3-3', feature: 'SEO premium', is_included: true, order_index: 2 },
+        { id: '3-4', feature: 'Formulaires personnalisés', is_included: true, order_index: 3 },
+        { id: '3-5', feature: 'Support dédié 24/7', is_included: true, order_index: 4 },
+        { id: '3-6', feature: 'CMS avancé', is_included: true, order_index: 5 },
+        { id: '3-7', feature: 'E-commerce illimité', is_included: true, order_index: 6 },
+        { id: '3-8', feature: 'Système de réservation', is_included: true, order_index: 7 },
+        { id: '3-9', feature: 'Intégration systèmes tiers', is_included: true, order_index: 8 },
+      ]
+    }
+  ];
+};
+
 const Pricing = () => {
   const { data: packages, isLoading, error } = useQuery({
     queryKey: ['pricing-packages'],
-    queryFn: async () => {
-      console.log("Fetching pricing packages");
-      const { data: packagesData, error } = await supabase
-        .from('pricing_packages')
-        .select('*')
-        .eq('is_visible', true)
-        .order('order_index');
-
-      if (error) {
-        console.error("Error fetching packages:", error);
-        throw error;
-      }
-
-      const packagesWithFeatures = await Promise.all(
-        (packagesData || []).map(async (pkg) => {
-          const { data: features, error: featuresError } = await supabase
-            .from('package_features')
-            .select('*')
-            .eq('package_id', pkg.id)
-            .order('order_index');
-          
-          if (featuresError) {
-            console.error(`Error fetching features for package ${pkg.id}:`, featuresError);
-          }
-          
-          return { ...pkg, features: features || [] };
-        })
-      );
-
-      console.log("Fetched packages:", packagesWithFeatures);
-      return packagesWithFeatures;
-    },
-    // Refresh every time component is mounted
+    queryFn: fetchPricingPackages,
     refetchOnMount: true,
     staleTime: 0,
   });
-
-  // Event listener for admin changes
-  React.useEffect(() => {
-    const handleAdminChanges = () => {
-      console.log("Admin changes detected, refreshing pricing packages");
-    };
-    
-    window.addEventListener('admin-changes-saved', handleAdminChanges);
-    
-    return () => {
-      window.removeEventListener('admin-changes-saved', handleAdminChanges);
-    };
-  }, []);
 
   if (error) {
     console.error("Error loading packages:", error);

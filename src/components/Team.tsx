@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Linkedin, Twitter, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamMembers } from '@/services/supabase/teamService';
+import { getTeamMembers, TeamMember } from '@/services/supabase/teamService';
 
 const Team = () => {
   const { data: teamMembers, isLoading, error } = useQuery({
@@ -17,26 +17,30 @@ const Team = () => {
   console.log("Team component - Données d'équipe:", teamMembers);
   
   // Utiliser des données par défaut si aucune donnée n'est disponible
-  const defaultTeamMembers = [
+  const defaultTeamMembers: TeamMember[] = [
     {
+      id: '1',
       name: 'Marie Dubois',
       role: 'CEO & Fondatrice',
       bio: 'Plus de 15 ans d\'expérience dans la tech et la stratégie digitale.',
       delay: 0,
     },
     {
+      id: '2',
       name: 'Thomas Martin',
       role: 'Directeur Technique',
       bio: 'Expert en architecture logicielle et innovation technologique.',
       delay: 100,
     },
     {
+      id: '3',
       name: 'Sophie Leroy',
       role: 'Directrice UX/UI',
       bio: 'Passionnée par la création d\'expériences utilisateur exceptionnelles.',
       delay: 200,
     },
     {
+      id: '4',
       name: 'David Bernard',
       role: 'Lead Developer',
       bio: 'Spécialiste en développement web et mobile full-stack.',

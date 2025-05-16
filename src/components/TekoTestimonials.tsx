@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getTestimonials } from '@/services/supabase/testimonialsService';
+import { getTestimonials, Testimonial } from '@/services/supabase/testimonialsService';
 
 const TekoTestimonials: React.FC = () => {
   const { data: testimonials, isLoading, error } = useQuery({
@@ -31,8 +31,9 @@ const TekoTestimonials: React.FC = () => {
   }
   
   // Si nous n'avons pas de données, utiliser des données par défaut
-  const defaultTestimonials = [
+  const defaultTestimonials: Testimonial[] = [
     {
+      id: '1',
       name: 'Sophie Leclerc',
       role: 'Directrice Marketing',
       company: 'TechGlobe',
@@ -41,6 +42,7 @@ const TekoTestimonials: React.FC = () => {
       rating: 5
     },
     {
+      id: '2',
       name: 'Thomas Dubois',
       role: 'CEO',
       company: 'InnovateCorp',
@@ -49,6 +51,7 @@ const TekoTestimonials: React.FC = () => {
       rating: 5
     },
     {
+      id: '3',
       name: 'Marie Renaud',
       role: 'CTO',
       company: 'DataSmart',

@@ -9,7 +9,7 @@ import {
 import { ArrowRight, PlusCircle, MinusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { getFAQs } from '@/services/supabase/faqService';
+import { getFAQs, Faq } from '@/services/supabase/faqService';
 
 const FaqSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -25,28 +25,34 @@ const FaqSection = () => {
   console.log("FaqSection - Données FAQ reçues:", faqs);
 
   // Données par défaut si aucune donnée n'est trouvée
-  const defaultFaqItems = [
+  const defaultFaqItems: Faq[] = [
     {
+      id: '1',
       question: "Quels services proposez-vous exactement ?",
       answer: "Nous offrons une gamme complète de services numériques incluant le développement d'applications web et mobiles sur mesure, la conception UX/UI, l'infrastructure cloud, la transformation digitale et l'intégration de solutions d'intelligence artificielle. Chaque solution est personnalisée selon les besoins spécifiques de votre entreprise."
     },
     {
+      id: '2',
       question: "Combien coûte un projet typique ?",
       answer: "Les coûts varient considérablement en fonction de la complexité, de l'envergure et des fonctionnalités requises. Nous proposons une tarification transparente avec des devis détaillés après une analyse approfondie de vos besoins. Contactez-nous pour une consultation gratuite et un devis personnalisé."
     },
     {
+      id: '3',
       question: "Quelle est la durée moyenne d'un projet ?",
       answer: "La durée d'un projet dépend de sa complexité et de son envergure. Un site web simple peut prendre 2-4 semaines, tandis qu'une application complexe peut nécessiter 3-6 mois ou plus. Nous établissons toujours un calendrier détaillé au début du projet et vous tenons informé de l'avancement à chaque étape."
     },
     {
+      id: '4',
       question: "Proposez-vous un support après le lancement du projet ?",
       answer: "Absolument. Nous offrons divers plans de maintenance et de support continu pour assurer le bon fonctionnement de votre solution. Ces plans incluent les mises à jour de sécurité, l'optimisation des performances, le support technique et l'évolution fonctionnelle selon vos besoins."
     },
     {
+      id: '5',
       question: "Comment assurez-vous la qualité de vos développements ?",
       answer: "Notre processus de développement comprend plusieurs phases de tests rigoureux : tests unitaires, tests d'intégration, tests de performance et tests d'acceptation utilisateur. Nous utilisons également des méthodes de développement agiles qui permettent des ajustements continus basés sur vos retours."
     },
     {
+      id: '6',
       question: "Avez-vous de l'expérience dans notre secteur d'activité ?",
       answer: "Notre équipe a travaillé avec des clients de nombreux secteurs, notamment la finance, la santé, l'éducation, le commerce de détail et l'industrie. Nous adaptons notre approche à chaque secteur et ses défis spécifiques. N'hésitez pas à nous demander des références ou études de cas pertinentes pour votre domaine."
     }

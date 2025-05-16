@@ -12,7 +12,7 @@ const TekoTeam: React.FC = () => {
   });
 
   // Utiliser les données de l'équipe depuis la base de données si disponibles
-  const teamData = config?.sectionData?.team?.members;
+  const teamMembers = config?.sections.find(section => section.type === 'team')?.data?.members || [];
   
   // Données par défaut si aucune donnée n'est trouvée
   const defaultTeam = [
@@ -38,8 +38,8 @@ const TekoTeam: React.FC = () => {
     }
   ];
   
-  console.log("TekoTeam - Données d'équipe reçues:", teamData);
-  const team = teamData && teamData.length > 0 ? teamData : defaultTeam;
+  console.log("TekoTeam - Données d'équipe reçues:", teamMembers);
+  const team = teamMembers.length > 0 ? teamMembers : defaultTeam;
   
   return (
     <section id="team" className="py-24 bg-[#f8fafc]">

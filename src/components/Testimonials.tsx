@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getTestimonials } from '@/services/supabase/testimonialsService';
+import { getTestimonials, Testimonial } from '@/services/supabase/testimonialsService';
 
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -19,9 +19,9 @@ const Testimonials = () => {
   console.log("Testimonials - Données reçues:", testimonials);
   
   // Données par défaut si aucune donnée n'est trouvée
-  const defaultTestimonials = [
+  const defaultTestimonials: Testimonial[] = [
     {
-      id: 1,
+      id: '1',
       name: 'Sophie Leclerc',
       role: 'Directrice Marketing',
       company: 'TechGlobe',
@@ -30,7 +30,7 @@ const Testimonials = () => {
       rating: 5,
     },
     {
-      id: 2,
+      id: '2',
       name: 'Thomas Dubois',
       role: 'CEO',
       company: 'InnovateCorp',
@@ -39,7 +39,7 @@ const Testimonials = () => {
       rating: 5,
     },
     {
-      id: 3,
+      id: '3',
       name: 'Marie Renaud',
       role: 'CTO',
       company: 'DataSmart',
@@ -48,7 +48,7 @@ const Testimonials = () => {
       rating: 4,
     },
     {
-      id: 4,
+      id: '4',
       name: 'Philippe Moreau',
       role: 'Directeur Technique',
       company: 'EcoSolutions',

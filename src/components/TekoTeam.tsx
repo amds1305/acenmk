@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getTeamMembers } from '@/services/supabase/teamService';
+import { getTeamMembers, TeamMember } from '@/services/supabase/teamService';
 
 const TekoTeam: React.FC = () => {
   const { data: teamMembers, isLoading, error } = useQuery({
@@ -12,23 +12,27 @@ const TekoTeam: React.FC = () => {
   });
   
   // Données par défaut si aucune donnée n'est trouvée
-  const defaultTeam = [
+  const defaultTeam: TeamMember[] = [
     {
+      id: '1',
       name: "Sophie Martin",
       role: "CEO & Fondatrice",
       image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3"
     },
     {
+      id: '2',
       name: "Thomas Dubois",
       role: "Directeur Technique",
       image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3"
     },
     {
+      id: '3',
       name: "Marie Leclerc",
       role: "Directrice UX Design",
       image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1998&auto=format&fit=crop&ixlib=rb-4.0.3"
     },
     {
+      id: '4',
       name: "Jean Fontaine",
       role: "Lead Developer",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3"

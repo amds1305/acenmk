@@ -1,51 +1,35 @@
 
-// Si ce fichier n'existe pas encore, nous le créons
-
-export type SectionType = 
-  'hero' | 
-  'services' | 
-  'about' | 
-  'team' | 
-  'testimonials' | 
-  'faq' | 
-  'contact' | 
-  'trusted-clients' |
-  'custom' |
-  'external-link';
-
-export type HomeTemplateType = 
-  'default' | 
-  'teko' | 
-  'nmk_fire' | 
-  'nmk_robot' | 
-  'nmk_kink';
+// Types for section configuration
+export type SectionType = 'hero' | 'services' | 'about' | 'team' | 'trusted-clients' | 'testimonials' | 'faq' | 'contact' | 'custom';
 
 export interface Section {
   id: string;
   type: SectionType;
-  title: string;
+  title?: string;
   visible: boolean;
   order: number;
-  customComponent?: string;
-  externalUrl?: string;
-  requiresAuth?: boolean;
-  allowedRoles?: string[];
-  openInNewTab?: boolean;
+  data?: any;
 }
 
-export interface ExternalLinkSectionData {
-  url: string;
+export interface ClientLogo {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl?: string;
+  category?: string;
+}
+
+export interface TrustedClientsSectionData {
   title: string;
-  requiresAuth: boolean;
-  allowedRoles?: string[];
-  openInNewTab?: boolean;
-}
-
-export interface TemplateConfig {
-  activeTemplate: HomeTemplateType;
+  clients: ClientLogo[];
+  featuredLabel?: string;
+  showTrustedClients?: boolean;
 }
 
 export interface HomepageConfig {
   sections: Section[];
-  templateConfig?: TemplateConfig;
+  header: any;
+  sectionData?: {
+    [key: string]: any;
+  };
 }

@@ -3,7 +3,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Code, Database, Layout, Smartphone, Globe, BarChart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useServices } from '@/hooks/useServices';
 import { useToast } from '@/hooks/use-toast';
 
 // Mapping des noms d'icônes vers les composants Lucide
@@ -17,16 +16,18 @@ const iconMap = {
   // Ajoutez d'autres icônes au besoin
 };
 
-const Services = () => {
-  const { services, isLoading, error } = useServices();
-  const { toast } = useToast();
+// Service interface
+interface Service {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  order_index: number;
+}
 
-  // Afficher un message d'erreur si le chargement échoue
-  if (error) {
-    console.error("Erreur lors du chargement des services:", error);
-  }
-
-  // Utiliser les données de services depuis Supabase ou des services par défaut si vide
+// Custom hook for services
+const useServices = () => {
+  // Default services data
   const defaultServices = [
     {
       id: '1',
@@ -71,9 +72,22 @@ const Services = () => {
       order_index: 5,
     },
   ];
+  
+  return { 
+    services: defaultServices, 
+    isLoading: false, 
+    error: null 
+  };
+};
 
-  // Utiliser les services de Supabase s'ils sont disponibles, sinon utiliser les services par défaut
-  const displayServices = services.length > 0 ? services : defaultServices;
+const Services = () => {
+  const { services, isLoading, error } = useServices();
+  const { toast } = useToast();
+
+  // Afficher un message d'erreur si le chargement échoue
+  if (error) {
+    console.error("Erreur lors du chargement des services:", error);
+  }
 
   return (
     <section id="services" className="py-24 bg-gray-50 dark:bg-gray-900">
@@ -90,7 +104,7 @@ const Services = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayServices.map((service, index) => {
+          {services.map((service) => {
             // Obtenir le composant d'icône ou utiliser Code comme icône par défaut
             const IconComponent = iconMap[service.icon as keyof typeof iconMap] || Code;
             
