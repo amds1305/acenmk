@@ -1,61 +1,63 @@
 
-import React, { createContext, useContext } from 'react';
-import { useSectionsState } from './useSectionsState';
-import { useSectionOperations } from './useSectionOperations';
-import { useTemplateOperations } from './useTemplateOperations';
-import { SectionsContextProps } from './types';
-import { useAdminNotification } from '@/hooks/use-admin-notification';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getHomepageConfig } from '@/services/staticService';
+import { Section } from '@/types/sections';
 
-const SectionsContext = createContext<SectionsContextProps | undefined>(undefined);
+interface SectionsContextType {
+  sections: Section[];
+  isLoading: boolean;
+  error: Error | null;
+  refetchSections: () => Promise<void>;
+}
 
-export const SectionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { config, setConfig, isLoading, loadConfig, isRefetching, isError } = useSectionsState();
-  
-  // Utilisation du hook avec une condition de sécurité
-  const adminNotification = useAdminNotification();
-  // Utilisation sécurisée des valeurs
-  const saveStatus = adminNotification?.saveStatus || 'idle';
-  const setSaveStatus = adminNotification?.setSaveStatus || (() => {});
-  
-  const { 
-    addNewSection,
-    removeExistingSection,
-    updateSectionOrder,
-    updateSectionVisibility,
-    updateExistingSectionData,
-    updateExistingSection
-  } = useSectionOperations(config, setConfig);
-  
-  const { updateTemplateType, saveChanges } = useTemplateOperations(config, setConfig, setSaveStatus);
+const SectionsContext = createContext<SectionsContextType>({
+  sections: [],
+  isLoading: true,
+  error: null,
+  refetchSections: async () => {},
+});
 
-  const value: SectionsContextProps = {
-    config,
-    isLoading,
-    isRefetching,
-    isError,
-    saveStatus,
-    addNewSection,
-    removeExistingSection,
-    updateSectionOrder,
-    updateSectionVisibility,
-    updateExistingSectionData,
-    updateExistingSection,
-    updateTemplateType,
-    saveChanges,
-    reloadConfig: loadConfig
+export const useSections = () => useContext(SectionsContext);
+
+interface SectionsProviderProps {
+  children: ReactNode;
+}
+
+export const SectionsProvider: React.FC<SectionsProviderProps> = ({ children }) => {
+  const [sections, setSections] = useState<Section[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchSections = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const config = await getHomepageConfig();
+      if (config?.sections) {
+        setSections(config.sections);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch sections'));
+      console.error('Error fetching sections:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchSections();
+  }, []);
+
   return (
-    <SectionsContext.Provider value={value}>
+    <SectionsContext.Provider
+      value={{
+        sections,
+        isLoading,
+        error,
+        refetchSections: fetchSections,
+      }}
+    >
       {children}
     </SectionsContext.Provider>
   );
-};
-
-export const useSections = () => {
-  const context = useContext(SectionsContext);
-  if (context === undefined) {
-    throw new Error('useSections must be used within a SectionsProvider');
-  }
-  return context;
 };

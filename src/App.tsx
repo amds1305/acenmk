@@ -1,14 +1,12 @@
 
 import React from 'react';
-import { Routes, Route, useRoutes, Outlet } from 'react-router-dom';
-import Index from './pages/Index';
+import { useRoutes } from 'react-router-dom';
 import routes from './lib/routes';
 
 // Providers
 import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { SectionsProvider } from './contexts/sections/SectionsContext';
 import { HeaderProvider } from './contexts/HeaderContext';
+import { SectionsProvider } from './contexts/sections/SectionsContext';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
@@ -16,14 +14,12 @@ function App() {
   
   return (
     <ThemeProvider defaultTheme="light">
-      <AuthProvider>
-        <HeaderProvider>
-          <SectionsProvider>
-            {routeElements}
-            <Toaster />
-          </SectionsProvider>
-        </HeaderProvider>
-      </AuthProvider>
+      <HeaderProvider>
+        <SectionsProvider>
+          {routeElements}
+          <Toaster />
+        </SectionsProvider>
+      </HeaderProvider>
     </ThemeProvider>
   );
 }
