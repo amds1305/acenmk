@@ -37,7 +37,7 @@ export const getSectionByType = async (type: SectionType) => {
   return homePageData.sections.find(s => s.type === type);
 };
 
-// Les méthodes de mise à jour ne font rien car nous n'avons plus de base de données
+// Méthodes de sauvegarde désactivées (données statiques uniquement)
 export const saveHomepageConfig = async (): Promise<boolean> => {
   console.info('Méthode de sauvegarde appelée mais désactivée (mode statique)');
   return true;

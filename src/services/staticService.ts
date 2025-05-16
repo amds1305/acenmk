@@ -15,7 +15,6 @@ export const getHeaderConfig = async () => {
   return homePageData.header;
 };
 
-// Autres fonctions statiques en fonction des besoins
 export const getSectionData = async (sectionId: string) => {
   await new Promise(resolve => setTimeout(resolve, 100));
   const section = homePageData.sections.find(s => s.id === sectionId);
