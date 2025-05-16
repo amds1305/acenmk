@@ -36,7 +36,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {loginHistory.length > 0 ? (
+        {loginHistory && loginHistory.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -54,7 +54,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
                 <TableRow key={entry.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {entry.success ? (
+                      {entry.success !== false ? (
                         <div className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 p-1 rounded-full">
                           <Check className="h-4 w-4" />
                         </div>
@@ -63,7 +63,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
                           <X className="h-4 w-4" />
                         </div>
                       )}
-                      {entry.success ? 'Réussi' : 'Échec'}
+                      {entry.success !== false ? 'Réussi' : 'Échec'}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -72,7 +72,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
                       {new Date(entry.date).toLocaleTimeString('fr-FR')}
                     </div>
                   </TableCell>
-                  <TableCell>{entry.deviceInfo}</TableCell>
+                  <TableCell>{entry.deviceInfo || entry.device}</TableCell>
                   <TableCell>{entry.location || 'Inconnu'}</TableCell>
                   <TableCell>{entry.ip}</TableCell>
                 </TableRow>

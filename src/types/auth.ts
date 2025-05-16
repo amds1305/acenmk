@@ -4,21 +4,25 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   avatar?: string;
   company?: string;
   phone?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   twoFactorEnabled?: boolean;
-  // Add these to fix type errors
   projects?: Project[];
   estimates?: Estimate[];
   address?: Address;
   socialLinks?: SocialLink[];
   loginHistory?: LoginHistory[];
   preferences?: UserPreferences;
+  biography?: string;
+  lastLoginDate?: string;
 }
+
+// UserRole type
+export type UserRole = 'admin' | 'manager' | 'user' | 'guest';
 
 // AuthState interface
 export interface AuthState {
@@ -26,6 +30,23 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+}
+
+// Auth context interface
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  logout: () => Promise<any>;
+  register: (data: any) => Promise<any>;
+  updateProfile: (data: Partial<User>) => Promise<any>;
+  uploadAvatar: (file: File) => Promise<string | null>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<any>;
+  toggleTwoFactor: (enable: boolean) => Promise<any>;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  messages: Message[];
+  unreadMessages: number;
 }
 
 export interface Address {
@@ -39,6 +60,7 @@ export interface Address {
 export interface SocialLink {
   platform: string;
   url: string;
+  label?: string;
 }
 
 export interface LoginHistory {
@@ -47,12 +69,26 @@ export interface LoginHistory {
   ip: string;
   device: string;
   location: string;
+  success?: boolean;
+  deviceInfo?: string;
 }
 
 export interface UserPreferences {
   emailNotifications: boolean;
   darkMode: boolean;
   language: string;
+  notifications?: {
+    email?: boolean;
+    sms?: boolean;
+    projectUpdates?: boolean;
+    marketing?: boolean;
+  };
+  privacy?: {
+    profileVisibility?: "public" | "private" | "contacts_only";
+    showEmail?: boolean;
+    showPhone?: boolean;
+  };
+  theme?: "light" | "dark" | "system";
 }
 
 export interface Message {
@@ -62,6 +98,7 @@ export interface Message {
   content: string;
   read: boolean;
   avatar?: string;
+  date?: string;
 }
 
 export interface Estimate {

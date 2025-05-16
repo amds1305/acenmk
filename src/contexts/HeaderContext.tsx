@@ -1,74 +1,65 @@
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getHeaderConfig } from '@/services/supabase/headerService';
 
-interface HeaderContextProps {
+interface HeaderContextType {
   headerConfig: any;
   headerStyle: any;
+  isLoading: boolean;
+  error: any;
 }
 
-interface HeaderContextProviderProps {
-  children: ReactNode;
-}
+const HeaderContext = createContext<HeaderContextType | null>(null);
 
-const HeaderContext = createContext<HeaderContextProps | null>(null);
-
-export const useHeaderContext = () => useContext(HeaderContext);
-
-// Make sure to export the custom hook
 export const useHeader = () => {
-  // Get header data from context
-  const headerContext = useHeaderContext();
+  const context = useContext(HeaderContext);
   
-  // Default values for navigation links if not available from context
-  const defaultNavLinks = [
-    { id: 'home', name: 'Accueil', href: '/', is_visible: true },
-    { id: 'services', name: 'Services', href: '/#services', is_visible: true },
-    { id: 'about', name: 'À propos', href: '/#about', is_visible: true },
-    { id: 'contact', name: 'Contact', href: '/#contact', is_visible: true },
-  ];
+  if (!context) {
+    console.warn("HeaderContext is being used outside its provider!");
+    return {
+      navLinks: [],
+      socialLinks: [],
+      headerStyle: {},
+      headerConfig: {},
+      isLoading: false
+    };
+  }
   
-  const navLinks = headerContext?.headerConfig?.navLinks || defaultNavLinks;
-  const socialLinks = headerContext?.headerConfig?.socialLinks || [];
-  const headerStyle = headerContext?.headerStyle || {};
-
-  return {
-    navLinks,
-    socialLinks,
-    headerStyle,
-    headerConfig: headerContext?.headerConfig || {},
-  };
+  return context;
 };
 
-export const HeaderProvider: React.FC<HeaderContextProviderProps> = ({ children }) => {
-  const [headerConfig] = useState({
-    navLinks: [
-      { id: 'home', name: 'Accueil', href: '/', is_visible: true },
-      { id: 'services', name: 'Services', href: '/#services', is_visible: true },
-      { id: 'about', name: 'À propos', href: '/#about', is_visible: true },
-      { id: 'contact', name: 'Contact', href: '/#contact', is_visible: true },
-    ],
-    socialLinks: [],
-    showThemeSelector: true
-  });
+export const useHeaderContext = useHeader;
 
-  const [headerStyle] = useState({
-    transparent: true,
-    sticky: true,
-    glassmorphism: true,
-    border_bottom: false,
-    drop_shadow: true,
-    background_color: 'rgba(255, 255, 255, 0)',
-    text_color: '#ffffff',
-    border_color: 'rgba(255, 255, 255, 0.1)',
-    scrolled_bg_color: 'rgba(255, 255, 255, 0.9)',
-    scrolled_text_color: '#111827',
-    scrolled_border_color: 'rgba(229, 231, 235, 1)',
-    scrolled_shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    padding: '1rem',
-  });
+export const HeaderProvider = ({ children }: { children: React.ReactNode }) => {
+  const [headerConfig, setHeaderConfig] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<any>(null);
+  
+  useEffect(() => {
+    const fetchHeaderConfig = async () => {
+      try {
+        const config = await getHeaderConfig();
+        setHeaderConfig(config);
+      } catch (err) {
+        console.error("Error loading header configuration:", err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchHeaderConfig();
+  }, []);
   
   return (
-    <HeaderContext.Provider value={{ headerConfig, headerStyle }}>
+    <HeaderContext.Provider 
+      value={{
+        headerConfig,
+        headerStyle: headerConfig?.style || {},
+        isLoading,
+        error
+      }}
+    >
       {children}
     </HeaderContext.Provider>
   );

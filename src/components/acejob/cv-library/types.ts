@@ -11,5 +11,5 @@ export interface CV {
   uploadDate: string;
   rating: number;
   tags?: string[];
-  lastInteraction?: string; // Add lastInteraction property
+  lastInteraction?: string;
 }

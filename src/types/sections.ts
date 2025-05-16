@@ -1,6 +1,6 @@
 
 // Types for section configuration
-export type SectionType = 'hero' | 'services' | 'about' | 'team' | 'trusted-clients' | 'testimonials' | 'faq' | 'contact' | 'custom';
+export type SectionType = 'hero' | 'services' | 'about' | 'team' | 'trusted-clients' | 'testimonials' | 'faq' | 'contact' | 'custom' | 'external-link';
 
 export interface Section {
   id: string;
@@ -39,6 +39,9 @@ export interface HomepageConfig {
   header?: any;
   sectionData?: {
     [key: string]: any;
+  };
+  templateConfig?: {
+    activeTemplate: string;
   };
 }
 

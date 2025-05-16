@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useHeader } from '@/contexts/HeaderContext';
+import { useHeader as useHeaderContext } from '@/contexts/HeaderContext';
 
 export const useHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -8,7 +8,7 @@ export const useHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   
   // Get header data from context
-  const headerContext = useHeader();
+  const headerContext = useHeaderContext();
   const headerConfig = headerContext?.headerConfig;
   
   // Default values for navigation links if not available from context
@@ -37,6 +37,7 @@ export const useHeader = () => {
     scrolled_border_color: 'rgba(229, 231, 235, 1)',
     scrolled_shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     padding: '1rem',
+    showThemeSelector: true,
   };
   
   // Handle scroll events to update header appearance
@@ -82,5 +83,6 @@ export const useHeader = () => {
     socialLinks,
     headerStyle,
     headerConfig,
+    isLoading: false,
   };
 };

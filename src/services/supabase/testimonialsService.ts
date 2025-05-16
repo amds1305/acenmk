@@ -1,8 +1,18 @@
 
 // Static implementation of testimonials service
 
+// Testimonial type
+export interface Testimonial {
+  id: string;
+  name: string;
+  company?: string;
+  text: string;
+  rating: number;
+  image?: string;
+}
+
 // Mock testimonials data
-const testimonialsData = [
+const testimonialsData: Testimonial[] = [
   {
     id: '1',
     name: 'Sophie Leroux',
@@ -29,7 +39,7 @@ const testimonialsData = [
   }
 ];
 
-export const getTestimonials = async () => {
+export const getTestimonials = async (): Promise<Testimonial[]> => {
   try {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 250));
@@ -40,7 +50,7 @@ export const getTestimonials = async () => {
   }
 };
 
-export const getFeaturedTestimonials = async (limit = 3) => {
+export const getFeaturedTestimonials = async (limit = 3): Promise<Testimonial[]> => {
   try {
     await new Promise(resolve => setTimeout(resolve, 150));
     return testimonialsData.slice(0, limit);
@@ -50,10 +60,10 @@ export const getFeaturedTestimonials = async (limit = 3) => {
   }
 };
 
-export const getTestimonialById = async (id) => {
+export const getTestimonialById = async (id: string): Promise<Testimonial | null> => {
   try {
     await new Promise(resolve => setTimeout(resolve, 50));
-    return testimonialsData.find(testimonial => testimonial.id === id);
+    return testimonialsData.find(testimonial => testimonial.id === id) || null;
   } catch (error) {
     console.error('Error fetching testimonial by ID:', error);
     return null;

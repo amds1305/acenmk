@@ -1,8 +1,17 @@
 
 // Static implementation of FAQ service
 
+// Faq type
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+  order_index?: number;
+}
+
 // Mock FAQ data
-const faqData = [
+const faqData: Faq[] = [
   {
     id: '1',
     question: 'Comment démarrer un projet avec votre entreprise?',
@@ -20,7 +29,7 @@ const faqData = [
   }
 ];
 
-export const getFaqItems = async () => {
+export const getFAQs = async (template = 'default'): Promise<Faq[]> => {
   try {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 150));
@@ -31,7 +40,7 @@ export const getFaqItems = async () => {
   }
 };
 
-export const getFeaturedFaqs = async (limit = 3) => {
+export const getFeaturedFaqs = async (limit = 3): Promise<Faq[]> => {
   try {
     await new Promise(resolve => setTimeout(resolve, 100));
     return faqData.slice(0, limit);
@@ -41,10 +50,10 @@ export const getFeaturedFaqs = async (limit = 3) => {
   }
 };
 
-export const getFaqById = async (id) => {
+export const getFaqById = async (id: string): Promise<Faq | null> => {
   try {
     await new Promise(resolve => setTimeout(resolve, 50));
-    return faqData.find(faq => faq.id === id);
+    return faqData.find(faq => faq.id === id) || null;
   } catch (error) {
     console.error('Error fetching FAQ by ID:', error);
     return null;

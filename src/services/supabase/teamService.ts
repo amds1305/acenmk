@@ -1,8 +1,21 @@
 
 // Static implementation of team service
 
+// TeamMember type
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  bio?: string;
+  socialLinks?: {
+    platform: string;
+    url: string;
+  }[];
+}
+
 // Mock team data
-const teamData = [
+const teamData: TeamMember[] = [
   {
     id: '1',
     name: 'Jean Dupont',
@@ -38,7 +51,7 @@ const teamData = [
   }
 ];
 
-export const getTeamMembers = async () => {
+export const getTeamMembers = async (): Promise<TeamMember[]> => {
   try {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -49,10 +62,10 @@ export const getTeamMembers = async () => {
   }
 };
 
-export const getTeamMemberById = async (id) => {
+export const getTeamMemberById = async (id: string): Promise<TeamMember | null> => {
   try {
     await new Promise(resolve => setTimeout(resolve, 50));
-    return teamData.find(member => member.id === id);
+    return teamData.find(member => member.id === id) || null;
   } catch (error) {
     console.error('Error fetching team member by ID:', error);
     return null;

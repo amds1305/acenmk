@@ -1,230 +1,212 @@
 
 import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { User as UserType, Address, SocialLink } from '@/types/auth';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Briefcase, 
-  MapPin, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Linkedin, 
-  Github,
-  Camera,
-  Plus,
-  Trash2
-} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { SaveIndicator } from '@/components/ui/save-indicator';
+import { Address, SocialLink } from '@/types/auth';
 
-const profileFormSchema = z.object({
-  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  email: z.string().email("Email invalide"),
-  company: z.string().optional(),
-  phone: z.string().optional(),
-  biography: z.string().optional(),
-  address: z.object({
-    street: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zipCode: z.string().optional(),
-    country: z.string().optional(),
-  }).optional(),
-  socialLinks: z.array(
-    z.object({
-      platform: z.enum(['facebook', 'twitter', 'instagram', 'linkedin', 'github', 'other']),
-      url: z.string().url("URL invalide"),
-      label: z.string().optional(),
-    })
-  ).optional(),
-});
+const ProfileInfo = () => {
+  const { user, updateProfile, uploadAvatar } = useAuth();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
-interface ProfileInfoProps {
-  user: UserType;
-  updateProfile: (data: Partial<UserType>) => Promise<void>;
-  uploadAvatar: (file: File) => Promise<string>;
-}
-
-const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAvatar }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  
-  // Set up form with existing user data
-  const form = useForm<z.infer<typeof profileFormSchema>>({
-    resolver: zodResolver(profileFormSchema),
+  const form = useForm({
     defaultValues: {
-      name: user.name || '',
-      email: user.email || '',
-      company: user.company || '',
-      phone: user.phone || '',
-      biography: user.biography || '',
-      address: user.address || {
+      name: user?.name || '',
+      email: user?.email || '',
+      company: user?.company || '',
+      phone: user?.phone || '',
+      biography: user?.biography || '',
+      // Address fields with defaults
+      address: user?.address ? {
+        street: user.address.street || '',
+        city: user.address.city || '',
+        state: user.address.state || '',
+        zipCode: user.address.zip || '',
+        country: user.address.country || '',
+      } : {
         street: '',
         city: '',
         state: '',
         zipCode: '',
         country: '',
       },
-      socialLinks: user.socialLinks || [],
+      // Social links with defaults
+      socialLinks: user?.socialLinks ? 
+        user.socialLinks.map(link => ({
+          platform: link.platform,
+          url: link.url,
+          label: link.label || '',
+        })) : 
+        [
+          { platform: 'linkedin', url: '', label: 'LinkedIn' },
+          { platform: 'twitter', url: '', label: 'Twitter' },
+          { platform: 'github', url: '', label: 'GitHub' },
+        ],
     },
   });
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setIsUploading(true);
-      try {
-        await uploadAvatar(file);
-      } catch (error) {
-        console.error('Error uploading avatar:', error);
-      } finally {
-        setIsUploading(false);
-      }
+      setAvatarFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
     }
   };
 
-  const onSubmit = async (data: z.infer<typeof profileFormSchema>) => {
-    await updateProfile(data);
-  };
+  const onSubmit = async (data: any) => {
+    setIsSaving('saving');
+    try {
+      // Handle avatar upload if a new file was selected
+      let avatarUrl = user?.avatar;
+      if (avatarFile) {
+        const uploadedUrl = await uploadAvatar(avatarFile);
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl;
+        }
+      }
 
-  const addSocialLink = () => {
-    const currentLinks = form.getValues('socialLinks') || [];
-    form.setValue('socialLinks', [
-      ...currentLinks,
-      { platform: 'other', url: '', label: '' }
-    ]);
-  };
+      // Update user profile with form data and new avatar if applicable
+      await updateProfile({
+        id: user?.id || '',
+        name: data.name,
+        email: data.email,
+        company: data.company,
+        phone: data.phone,
+        biography: data.biography,
+        avatar: avatarUrl,
+        address: {
+          street: data.address.street,
+          city: data.address.city,
+          state: data.address.state,
+          zip: data.address.zipCode,
+          country: data.address.country,
+        } as Address,
+      });
 
-  const removeSocialLink = (index: number) => {
-    const currentLinks = form.getValues('socialLinks') || [];
-    form.setValue('socialLinks', currentLinks.filter((_, i) => i !== index));
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case 'facebook': return <Facebook className="h-4 w-4" />;
-      case 'twitter': return <Twitter className="h-4 w-4" />;
-      case 'instagram': return <Instagram className="h-4 w-4" />;
-      case 'linkedin': return <Linkedin className="h-4 w-4" />;
-      case 'github': return <Github className="h-4 w-4" />;
-      default: return null;
+      setIsSaving('success');
+      setTimeout(() => setIsSaving('idle'), 3000);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setIsSaving('error');
+      setTimeout(() => setIsSaving('idle'), 5000);
     }
   };
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Informations de profil</CardTitle>
-        <CardDescription>
-          Mettez à jour vos informations personnelles et professionnelles
-        </CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0">
+        <div>
+          <CardTitle>Profil</CardTitle>
+          <CardDescription>
+            Gérez vos informations personnelles
+          </CardDescription>
+        </div>
+        <SaveIndicator status={isSaving} />
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Avatar Upload */}
-          <div className="flex flex-col items-center">
-            <div className="relative group">
-              <Avatar className="h-32 w-32">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="text-4xl">{user.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <label 
-                htmlFor="avatar-upload" 
-                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 cursor-pointer transition"
-              >
-                <Camera className="h-6 w-6" />
-              </label>
-              <input 
-                id="avatar-upload" 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleAvatarUpload} 
-                disabled={isUploading}
-              />
-            </div>
-            {isUploading && <p className="text-sm mt-2">Téléchargement...</p>}
-          </div>
-          
-          {/* Profile Form */}
-          <div className="flex-1">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Basic Information */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Avatar upload section */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative w-32 h-32 rounded-full overflow-hidden border border-gray-200 dark:border-gray-800">
+                  <img
+                    src={avatarPreview || user?.avatar || '/placeholder.svg'}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <label
+                    htmlFor="avatar-upload"
+                    className="cursor-pointer text-sm text-primary hover:underline"
+                  >
+                    Changer d'image
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                </div>
+              </div>
+              
+              {/* Personal information section */}
+              <div className="flex-1 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <User className="h-4 w-4" /> Nom complet
-                        </FormLabel>
+                        <FormLabel>Nom complet</FormLabel>
                         <FormControl>
-                          <Input placeholder="Votre nom" {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" /> Email
-                        </FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="Votre email" {...field} />
+                          <Input type="email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Phone className="h-4 w-4" /> Téléphone
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Votre téléphone" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  
                   <FormField
                     control={form.control}
                     name="company"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" /> Entreprise
-                        </FormLabel>
+                        <FormLabel>Entreprise</FormLabel>
                         <FormControl>
-                          <Input placeholder="Votre entreprise" {...field} />
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Téléphone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -239,10 +221,10 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                     <FormItem>
                       <FormLabel>Biographie</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Parlez-nous de vous..." 
-                          className="min-h-32" 
-                          {...field} 
+                        <Textarea
+                          placeholder="Parlez-nous de vous..."
+                          className="min-h-[100px]"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -250,11 +232,8 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                   )}
                 />
                 
-                {/* Address */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <MapPin className="h-4 w-4" /> Adresse
-                  </h3>
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Adresse</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -263,12 +242,13 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                         <FormItem>
                           <FormLabel>Rue</FormLabel>
                           <FormControl>
-                            <Input placeholder="Rue" {...field} />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    
                     <FormField
                       control={form.control}
                       name="address.city"
@@ -276,14 +256,27 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                         <FormItem>
                           <FormLabel>Ville</FormLabel>
                           <FormControl>
-                            <Input placeholder="Ville" {...field} />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
+                    
+                    <FormField
+                      control={form.control}
+                      name="address.state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>État/Province</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
                     <FormField
                       control={form.control}
                       name="address.zipCode"
@@ -291,33 +284,21 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                         <FormItem>
                           <FormLabel>Code postal</FormLabel>
                           <FormControl>
-                            <Input placeholder="Code postal" {...field} />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="address.state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>État/Département</FormLabel>
-                          <FormControl>
-                            <Input placeholder="État/Département" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    
                     <FormField
                       control={form.control}
                       name="address.country"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="md:col-span-2">
                           <FormLabel>Pays</FormLabel>
                           <FormControl>
-                            <Input placeholder="Pays" {...field} />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -325,82 +306,16 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAv
                     />
                   </div>
                 </div>
-                
-                {/* Social Links */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Réseaux sociaux</h3>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={addSocialLink}
-                      className="text-xs gap-1"
-                    >
-                      <Plus className="h-3 w-3" /> Ajouter
-                    </Button>
-                  </div>
-                  
-                  {form.watch('socialLinks')?.map((_, index) => (
-                    <div className="flex gap-3" key={index}>
-                      <FormField
-                        control={form.control}
-                        name={`socialLinks.${index}.platform`}
-                        render={({ field }) => (
-                          <FormItem className="flex-shrink-0 w-32">
-                            <FormControl>
-                              <select 
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                                {...field}
-                              >
-                                <option value="facebook">Facebook</option>
-                                <option value="twitter">Twitter</option>
-                                <option value="instagram">Instagram</option>
-                                <option value="linkedin">LinkedIn</option>
-                                <option value="github">GitHub</option>
-                                <option value="other">Autre</option>
-                              </select>
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`socialLinks.${index}.url`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <div className="flex gap-2">
-                                <span className="flex items-center pl-3 bg-muted rounded-l-md border border-r-0 border-input">
-                                  {getPlatformIcon(form.watch(`socialLinks.${index}.platform`))}
-                                </span>
-                                <Input placeholder="URL" className="rounded-l-none" {...field} />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => removeSocialLink(index)}
-                        className="h-10 w-10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                
-                <Button type="submit" className="w-full">
-                  Enregistrer les modifications
-                </Button>
-              </form>
-            </Form>
-          </div>
-        </div>
+              </div>
+            </div>
+            
+            <div className="border-t pt-6">
+              <Button type="submit">
+                Mettre à jour le profil
+              </Button>
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

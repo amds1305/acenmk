@@ -1,113 +1,105 @@
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Form } from '@/components/ui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserInfoFields } from './register/UserInfoFields';
 import { PasswordFields } from './register/PasswordFields';
 import { OptionalFields } from './register/OptionalFields';
 import { TermsField } from './register/TermsField';
-import { formSchema, FormData } from './register/formSchema';
-import { useToast } from '@/hooks/use-toast';
+import { formSchema, type FormData } from './register/formSchema';
+import { Loader2 } from 'lucide-react';
 
 const RegisterForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      company: '',
-      phone: '',
-      terms: false,
-    },
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      company: "",
+      phone: "",
+      terms: false
+    }
   });
-
+  
   const onSubmit = async (data: FormData) => {
-    if (isSubmitting) return;
-    
-    setIsSubmitting(true);
+    setLoading(true);
     try {
-      console.log("Tentative d'inscription avec les données:", data);
-      // Updated to only use the required arguments
-      const { success, error } = await register(data.name, data.email, data.password);
+      const { confirmPassword, terms, ...userData } = data;
+      const response = await register(userData);
       
-      if (success) {
-        // Rediriger vers la page de connexion après l'inscription
-        // La notification toast est déjà gérée dans la fonction register
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
-      } else if (error) {
-        throw error;
+      if (response && !response.error) {
+        toast({
+          title: "Inscription réussie",
+          description: "Votre compte a été créé avec succès.",
+        });
+        navigate('/login');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: "Erreur d'inscription",
+          description: response.error.message || "Une erreur est survenue lors de l'inscription.",
+        });
       }
-    } catch (error) {
-      console.error("Erreur lors de l'inscription:", error);
-      
-      // Afficher un message d'erreur spécifique
+    } catch (error: any) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: "Erreur d'inscription",
-        description: error instanceof Error ? error.message : "Une erreur s'est produite lors de l'inscription.",
+        description: error.message || "Une erreur est survenue lors de l'inscription.",
       });
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
-
+  
   return (
-    <Card className="w-full max-w-lg">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl text-center">Créer un compte</CardTitle>
-        <CardDescription className="text-center">
-          Inscrivez-vous pour gérer vos projets et demandes
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle className="text-2xl">Créer un compte</CardTitle>
+        <CardDescription>
+          Inscrivez-vous pour accéder à toutes les fonctionnalités
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <UserInfoFields control={form.control} />
             <PasswordFields control={form.control} />
             <OptionalFields control={form.control} />
             <TermsField control={form.control} />
             
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Inscription en cours...
                 </>
               ) : (
-                'Créer mon compte'
+                "S'inscrire"
               )}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-        <div className="w-full text-center">
-          <p className="text-sm text-muted-foreground">
-            Vous avez déjà un compte?{' '}
-            <Link to="/login" className="text-primary hover:underline">
-              Se connecter
-            </Link>
-          </p>
-        </div>
+      <CardFooter className="flex justify-center">
+        <p className="text-sm text-muted-foreground">
+          Déjà un compte ?{' '}
+          <Link to="/login" className="font-medium text-primary hover:underline">
+            Connectez-vous
+          </Link>
+        </p>
       </CardFooter>
     </Card>
   );

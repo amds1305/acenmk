@@ -1,5 +1,5 @@
 
-import { Section } from "@/types/sections";
+import { Section, SectionData, HomeTemplateType } from "@/types/sections";
 
 export interface SectionsStateProps {
   config: any;
@@ -9,6 +9,8 @@ export interface SectionsStateProps {
   isRefetching: boolean;
   isError: boolean;
 }
+
+export { Section };
 
 export interface SectionsContextProps {
   config: any;
