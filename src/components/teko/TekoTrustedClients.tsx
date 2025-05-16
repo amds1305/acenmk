@@ -5,27 +5,23 @@ import { getHomepageConfig } from '@/services/sections';
 import { ChevronRight } from 'lucide-react';
 
 const TekoTrustedClients: React.FC = () => {
-  const { data } = useQuery({
+  const { data: config } = useQuery({
     queryKey: ['trustedClientsData'],
-    queryFn: async () => {
-      const config = getHomepageConfig();
-      
-      if (config.sectionData && config.sectionData['trusted-clients']) {
-        return config.sectionData['trusted-clients'] as any;
-      }
-      
-      return {
-        title: 'Ils nous font confiance',
-        featuredLabel: 'Nos clients',
-        showTrustedClients: true,
-        clients: []
-      };
-    },
+    queryFn: getHomepageConfig,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+  
+  // Extract the trusted clients data from the config
+  const trustedClientsData = config?.sectionData?.['trusted-clients'] || {
+    title: 'Ils nous font confiance',
+    featuredLabel: 'Nos clients',
+    showTrustedClients: true,
+    clients: []
+  };
 
   // Ne pas afficher la section si elle est explicitement désactivée ou s'il n'y a pas de clients
-  if (!data || data.showTrustedClients === false || data.clients.length === 0) {
+  if (!trustedClientsData || trustedClientsData.showTrustedClients === false || 
+      !trustedClientsData.clients || trustedClientsData.clients.length === 0) {
     return null;
   }
 
@@ -35,17 +31,17 @@ const TekoTrustedClients: React.FC = () => {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 mb-4 text-xs md:text-sm font-medium bg-rose-50 text-rose-500 px-3 py-1 rounded-full">
             <span className="bg-rose-500 w-2 h-2 rounded-full"></span>
-            {data.featuredLabel || 'Nos clients'}
+            {trustedClientsData.featuredLabel || 'Nos clients'}
             <ChevronRight className="h-3 w-3 opacity-60" />
           </div>
         </div>
         
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-          {data.title || 'Ils nous font confiance'}
+          {trustedClientsData.title || 'Ils nous font confiance'}
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-          {data.clients.map((client) => (
+          {trustedClientsData.clients.map((client: any) => (
             <div key={client.id} className="flex flex-col items-center">
               <div className="h-16 w-auto mb-4">
                 {client.websiteUrl ? (

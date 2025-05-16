@@ -86,7 +86,7 @@ const CVUpload = ({ isOpen, onClose }: CVUploadProps) => {
                   onChange={handleFileChange}
                 />
                 <label htmlFor="file-upload">
-                  <Button variant="outline" className="mt-2" as="span">Parcourir</Button>
+                  <Button variant="outline" className="mt-2">Parcourir</Button>
                 </label>
               </div>
             </div>

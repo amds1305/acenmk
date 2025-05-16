@@ -1,0 +1,52 @@
+
+import { 
+  Home, 
+  User, 
+  Settings, 
+  Mail, 
+  Phone, 
+  Calendar, 
+  FileText, 
+  Image, 
+  Briefcase, 
+  HelpCircle, 
+  DollarSign,
+  BookOpen,
+  Info,
+  Heart,
+  MapPin,
+  PenTool,
+  Star,
+  Users,
+  Check,
+  MessageCircle,
+  Building,
+  LayoutGrid,
+  LucideIcon
+} from 'lucide-react';
+
+// Map of icon names to Lucide components
+export const iconsMap: Record<string, LucideIcon> = {
+  Home,
+  User,
+  Settings,
+  Mail,
+  Phone,
+  Calendar,
+  FileText,
+  Image,
+  Briefcase,
+  HelpCircle,
+  DollarSign,
+  BookOpen,
+  Info,
+  Heart,
+  MapPin,
+  PenTool,
+  Star,
+  Users,
+  Check,
+  MessageCircle,
+  Building,
+  LayoutGrid
+};

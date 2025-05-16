@@ -26,6 +26,14 @@ export interface TrustedClientsSectionData {
   showTrustedClients?: boolean;
 }
 
+export interface ExternalLinkSectionData {
+  title: string;
+  url: string;
+  openInNewTab: boolean;
+  requiresAuth: boolean;
+  allowedRoles?: string[];
+}
+
 export interface HomepageConfig {
   sections: Section[];
   header: any;

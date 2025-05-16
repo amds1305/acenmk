@@ -6,8 +6,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useHeaderContext } from '@/contexts/HeaderContext';
 
 const ThemeSelector = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { headerStyle } = useHeaderContext();
+  
+  // Function to toggle theme
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
   
   // Styles personnalisés pour les icônes d'utilité
   const utilityIconStyle = {

@@ -37,7 +37,7 @@ const CVLibrary: React.FC = () => {
   }
 
   // Filtrer les CVs en fonction de la recherche et des filtres
-  const filteredCVs = cvs?.filter((cv: CV) => {
+  const filteredCVs = cvs ? cvs.filter((cv: CV) => {
     const matchesSearch = searchTerm === '' || 
       cv.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -47,10 +47,10 @@ const CVLibrary: React.FC = () => {
       (cv.tags && cv.tags.includes(selectedFilter));
     
     return matchesSearch && matchesFilter;
-  }) || [];
+  }) : [];
 
   // Extraire tous les tags uniques pour les filtres
-  const allTags = [...new Set(cvs?.flatMap(cv => cv.tags || []))];
+  const allTags = cvs ? [...new Set(cvs.flatMap((cv: CV) => cv.tags || []))] : [];
 
   return (
     <div className="p-8">
@@ -71,7 +71,7 @@ const CVLibrary: React.FC = () => {
           onChange={(e) => setSelectedFilter(e.target.value || null)}
         >
           <option value="">Tous les filtres</option>
-          {allTags.map((tag, index) => (
+          {allTags.map((tag: string, index) => (
             <option key={index} value={tag}>{tag}</option>
           ))}
         </select>
@@ -83,7 +83,7 @@ const CVLibrary: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCVs.map((cv) => (
+          {filteredCVs.map((cv: CV) => (
             <div key={cv.id} className="border rounded-lg overflow-hidden shadow-md">
               <div className="p-4 bg-gray-50">
                 <h2 className="text-lg font-semibold">{cv.candidateName}</h2>

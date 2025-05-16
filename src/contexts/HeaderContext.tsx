@@ -1,79 +1,20 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getHeaderConfig } from '@/services/staticService';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useHeader } from '@/components/header/useHeader';
 
-// Types simplifiés pour le header
-interface HeaderLogo {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}
-
-interface NavLink {
-  id: string;
-  name: string;
-  href: string;
-  is_visible: boolean;
-}
-
-interface HeaderConfig {
-  logo: HeaderLogo;
-  navLinks: NavLink[];
-}
-
-interface HeaderContextType {
-  headerConfig: HeaderConfig | null;
-  isLoading: boolean;
-  error: Error | null;
-  refetchHeader: () => Promise<void>;
-}
-
-const HeaderContext = createContext<HeaderContextType>({
-  headerConfig: null,
-  isLoading: true,
-  error: null,
-  refetchHeader: async () => {},
-});
-
-export const useHeader = () => useContext(HeaderContext);
-
-interface HeaderProviderProps {
+interface HeaderContextProviderProps {
   children: ReactNode;
 }
 
-export const HeaderProvider: React.FC<HeaderProviderProps> = ({ children }) => {
-  const [headerConfig, setHeaderConfig] = useState<HeaderConfig | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+const HeaderContext = createContext<any>({});
 
-  const fetchHeader = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const config = await getHeaderConfig();
-      setHeaderConfig(config);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch header configuration'));
-      console.error('Error fetching header:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export const useHeaderContext = () => useContext(HeaderContext);
 
-  useEffect(() => {
-    fetchHeader();
-  }, []);
-
+export const HeaderProvider: React.FC<HeaderContextProviderProps> = ({ children }) => {
+  const headerData = useHeader();
+  
   return (
-    <HeaderContext.Provider
-      value={{
-        headerConfig,
-        isLoading,
-        error,
-        refetchHeader: fetchHeader,
-      }}
-    >
+    <HeaderContext.Provider value={headerData}>
       {children}
     </HeaderContext.Provider>
   );
