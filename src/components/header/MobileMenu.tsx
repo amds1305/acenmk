@@ -3,25 +3,21 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
-import { ArrowRight } from 'lucide-react';
 import { iconsMap } from '@/components/admin/header/iconsMap';
 import { useHeaderContext } from '@/contexts/HeaderContext';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileMenuProps {
   isOpen: boolean;
   links: NavLink[];
   socialLinks: SocialLink[];
   actionButtons?: any[];
-  isAuthenticated?: boolean;
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({
   isOpen,
   links,
   socialLinks,
-  actionButtons = [],
-  isAuthenticated
+  actionButtons = []
 }) => {
   const location = useLocation();
   const { headerStyle } = useHeaderContext();
@@ -64,10 +60,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     borderColor: headerStyle?.socialIconBorderColor,
   };
 
+  // Filtrer les liens pour supprimer portfolio et admin
+  const filteredLinks = links.filter(link => 
+    !link.href.includes('portfolio') && 
+    !link.href.includes('admin') &&
+    !link.href.includes('profile')
+  );
+
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
-        {links.map((link, index) => {
+        {filteredLinks.map((link, index) => {
           // Vérifier si ce lien a une icône à afficher
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
@@ -109,35 +112,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               <link.icon size={20} />
             </a>
           ))}
-        </div>
-        
-        {/* Auth Links in Mobile Menu */}
-        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 w-full sm:w-auto">
-          {!isAuthenticated ? (
-            <>
-              <Link 
-                to="/login" 
-                className="w-full sm:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white hover:border-primary transition-colors text-center"
-              >
-                Connexion
-              </Link>
-              <Link 
-                to="/register" 
-                className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
-              >
-                Inscription
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </>
-          ) : (
-            <Link 
-              to="/profile" 
-              className="w-full sm:w-auto px-6 py-3 bg-primary rounded-md text-white hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
-            >
-              Mon compte
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          )}
         </div>
       </div>
     </div>

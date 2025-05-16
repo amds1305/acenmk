@@ -41,6 +41,13 @@ const DesktopNav = ({
     return location.pathname.startsWith(href);
   };
   
+  // Filtrer les liens pour supprimer le portfolio et les sections d'administration
+  const filteredNavLinks = navLinks.filter(link => 
+    !link.href.includes('portfolio') && 
+    !link.href.includes('admin') &&
+    !link.href.includes('profile')
+  );
+  
   // Génération de styles CSS personnalisés
   const navItemStyle = {
     color: headerStyle?.textColor,
@@ -101,7 +108,7 @@ const DesktopNav = ({
     <div className="hidden md:flex items-center space-x-8">
       {/* Navigation Links */}
       <nav className="flex items-center space-x-3 overflow-x-auto max-w-[40vw] no-scrollbar">
-        {navLinks.map((link) => {
+        {filteredNavLinks.map((link) => {
           // Vérifier si ce lien a une icône à afficher
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           

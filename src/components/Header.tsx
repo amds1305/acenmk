@@ -8,7 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Menu, Sun, Moon, Search } from 'lucide-react';
 
 const Header = () => {
-  const { headerConfig, isLoading } = useHeader();
+  const { headerConfig, headerStyle, isLoading } = useHeader();
   const { theme, setTheme } = useTheme();
   
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,8 +40,10 @@ const Header = () => {
     { id: 'contact', name: 'Contact', href: '/#contact', is_visible: true },
   ];
   
-  // Filter visible links
-  const visibleNavLinks = navLinks.filter(link => link.is_visible);
+  // Filter visible links and remove Portfolio
+  const visibleNavLinks = navLinks
+    .filter(link => link.is_visible)
+    .filter(link => !link.href.includes('portfolio'));
 
   return (
     <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
