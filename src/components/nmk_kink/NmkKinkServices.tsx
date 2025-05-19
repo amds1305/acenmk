@@ -21,7 +21,7 @@ const NmkKinkServices: React.FC = () => {
     },
     {
       icon: <BarChart className="h-8 w-8" />,
-      title: 'Marketing Digital',
+      title: 'Marketing _',
       description: 'SEO, campagnes publicitaires et stratégies de contenu pour augmenter votre visibilité.',
     },
     {
