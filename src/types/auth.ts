@@ -1,28 +1,35 @@
 
 export type Project = {
   id: string;
-  title: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  lastUpdated: string;
+  name: string;
+  title: string; // For backward compatibility
+  status: 'active' | 'completed' | 'onhold' | 'in_progress';
+  lastUpdated?: string;
+  dueDate: string;
+  client: string;
+  progress: number;
 };
 
 export type Estimate = {
   id: string;
   title: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected' | 'in_review';
   date: string;
   amount: number;
+  client: string;
 };
 
 export type Message = {
   id: string;
   content: string;
-  date: string;
+  date?: string; // For backward compatibility
+  timestamp: string;
   read: boolean;
-  sender: 'user' | 'admin';
+  sender: string;
+  avatar?: string;
 };
 
-export type UserRole = 'admin' | 'user' | 'client_premium' | 'super_admin';
+export type UserRole = 'admin' | 'user' | 'client_premium' | 'super_admin' | 'business_admin' | 'client_standard' | 'external_provider' | 'contributor';
 
 export type UserPreferences = {
   notifications: {
@@ -55,9 +62,12 @@ export type SocialLink = {
 
 export type LoginHistory = {
   id: string;
-  date: string;
-  ip: string;
-  deviceInfo: string;
+  timestamp: string;
+  date?: string; // For backward compatibility
+  ipAddress: string;
+  ip?: string; // For backward compatibility
+  device: string;
+  deviceInfo?: string; // For backward compatibility
   location?: string;
   success: boolean;
 };

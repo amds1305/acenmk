@@ -1,4 +1,3 @@
-
 import { User, Message, LoginHistory, Project, Estimate } from '../types/auth';
 
 // Passwords (in a real app, these would be hashed)
@@ -9,24 +8,33 @@ export const USER_PASSWORD = 'user123';
 const adminLoginHistory: LoginHistory[] = [
   {
     id: '1',
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
     date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    ipAddress: '192.168.1.100',
     ip: '192.168.1.100',
+    device: 'Chrome / Windows',
     deviceInfo: 'Chrome / Windows',
     location: 'Paris, France',
     success: true
   },
   {
     id: '2',
+    timestamp: new Date(Date.now() - 172800000).toISOString(),
     date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    ipAddress: '192.168.1.100',
     ip: '192.168.1.100',
+    device: 'Firefox / Mac',
     deviceInfo: 'Firefox / Mac',
     location: 'Lyon, France',
     success: true
   },
   {
     id: '3',
+    timestamp: new Date(Date.now() - 259200000).toISOString(),
     date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    ipAddress: '192.168.1.101',
     ip: '192.168.1.101',
+    device: 'Unknown / Android',
     deviceInfo: 'Unknown / Android',
     location: 'Marseille, France',
     success: false
@@ -36,16 +44,22 @@ const adminLoginHistory: LoginHistory[] = [
 const userLoginHistory: LoginHistory[] = [
   {
     id: '1',
+    timestamp: new Date(Date.now() - 43200000).toISOString(),
     date: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+    ipAddress: '192.168.1.200',
     ip: '192.168.1.200',
+    device: 'Safari / Mac',
     deviceInfo: 'Safari / Mac',
     location: 'Nice, France',
     success: true
   },
   {
     id: '2',
+    timestamp: new Date(Date.now() - 129600000).toISOString(),
     date: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
+    ipAddress: '192.168.1.201',
     ip: '192.168.1.201',
+    device: 'Chrome / Windows',
     deviceInfo: 'Chrome / Windows',
     location: 'Bordeaux, France',
     success: true
@@ -56,21 +70,33 @@ const userLoginHistory: LoginHistory[] = [
 const mockProjects: Project[] = [
   {
     id: '1',
+    name: 'Site E-commerce',
     title: 'Site E-commerce',
-    status: 'in-progress',
-    lastUpdated: new Date(Date.now() - 86400000).toISOString()
+    status: 'in_progress',
+    lastUpdated: new Date(Date.now() - 86400000).toISOString(),
+    client: 'Client A',
+    dueDate: new Date(Date.now() + 1209600000).toISOString(),
+    progress: 60
   },
   {
     id: '2',
+    name: 'Application mobile',
     title: 'Application mobile',
-    status: 'pending',
-    lastUpdated: new Date(Date.now() - 172800000).toISOString()
+    status: 'active',
+    lastUpdated: new Date(Date.now() - 172800000).toISOString(),
+    client: 'Client B',
+    dueDate: new Date(Date.now() + 2419200000).toISOString(),
+    progress: 25
   },
   {
     id: '3',
+    name: 'Refonte graphique',
     title: 'Refonte graphique',
     status: 'completed',
-    lastUpdated: new Date(Date.now() - 604800000).toISOString()
+    lastUpdated: new Date(Date.now() - 604800000).toISOString(),
+    client: 'Client C',
+    dueDate: new Date(Date.now() - 604800000).toISOString(),
+    progress: 100
   }
 ];
 
@@ -79,23 +105,26 @@ const mockEstimates: Estimate[] = [
   {
     id: '1',
     title: 'Développement site vitrine',
-    status: 'approved',
+    status: 'accepted',
     date: new Date(Date.now() - 1209600000).toISOString(), // 14 days ago
-    amount: 2500
+    amount: 2500,
+    client: 'Client A'
   },
   {
     id: '2',
     title: 'Maintenance annuelle',
     status: 'pending',
     date: new Date().toISOString(),
-    amount: 1200
+    amount: 1200,
+    client: 'Client B'
   },
   {
     id: '3',
     title: 'Module de paiement',
     status: 'rejected',
     date: new Date(Date.now() - 2592000000).toISOString(), // 30 days ago
-    amount: 800
+    amount: 800,
+    client: 'Client C'
   }
 ];
 
@@ -191,6 +220,7 @@ export const MOCK_MESSAGES: Message[] = [
     id: '1',
     content: 'Votre projet a été mis à jour. Veuillez consulter les dernières modifications.',
     date: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
     read: false,
     sender: 'admin'
   },
@@ -198,6 +228,7 @@ export const MOCK_MESSAGES: Message[] = [
     id: '2',
     content: 'J\'ai une question concernant le devis pour le développement du site vitrine.',
     date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
     read: true,
     sender: 'user'
   },
@@ -205,6 +236,7 @@ export const MOCK_MESSAGES: Message[] = [
     id: '3',
     content: 'Nous avons bien reçu votre paiement. Merci pour votre confiance.',
     date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    timestamp: new Date(Date.now() - 172800000).toISOString(),
     read: true,
     sender: 'admin'
   },
@@ -212,6 +244,7 @@ export const MOCK_MESSAGES: Message[] = [
     id: '4',
     content: 'Une nouvelle version de votre application est disponible pour test.',
     date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    timestamp: new Date(Date.now() - 259200000).toISOString(),
     read: false,
     sender: 'admin'
   },
@@ -219,6 +252,7 @@ export const MOCK_MESSAGES: Message[] = [
     id: '5',
     content: 'Pourriez-vous me donner plus de détails sur les fonctionnalités du module de paiement ?',
     date: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+    timestamp: new Date(Date.now() - 345600000).toISOString(),
     read: true,
     sender: 'user'
   }

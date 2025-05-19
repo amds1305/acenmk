@@ -11,7 +11,8 @@ export type SectionType =
   | 'faq' 
   | 'contact'
   | 'custom'
-  | 'trusted-clients'; // Ajout du nouveau type pour la section "Ils nous font confiance"
+  | 'trusted-clients'
+  | 'external-link';
 
 export interface Section {
   id: string;
