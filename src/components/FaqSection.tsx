@@ -75,9 +75,9 @@ const FaqSection = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <span className="inline-block text-sm font-medium bg-primary/10 text-primary dark:bg-primary/20 px-4 py-1.5 rounded-full mb-4">FAQ</span>
-          <h2 className="section-title text-3xl md:text-4xl font-bold mb-6">Questions fréquentes</h2>
+          <h2 className="section-title text-3xl md:text-4xl font-bold mb-6">On vous accompagne dès le premier clic</h2>
           <p className="section-subtitle mx-auto mt-4 text-gray-600 dark:text-gray-300">
-            Tout ce que vous devez savoir sur nos services et notre façon de travailler
+            Voici les réponses claires à vos interrogations, pour un choix avisé
           </p>
         </div>
         
