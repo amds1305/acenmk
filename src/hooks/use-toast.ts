@@ -4,7 +4,7 @@ import {
   ToastActionElement,
   ToastProps,
 } from "@/components/ui/toast";
-import { useToast as useToastOriginal } from "@/components/ui/use-toast";
+import { useToast as useToastOriginal } from "@radix-ui/react-toast";
 
 type ToasterToast = Toast & {
   id: string;
@@ -13,18 +13,23 @@ type ToasterToast = Toast & {
   action?: ToastActionElement;
 };
 
+// Create a custom hook that extends the original hook
 const useToast = () => {
-  const { toast, ...rest } = useToastOriginal();
-
+  const methods = useToastOriginal();
+  
   return {
-    toast,
-    ...rest,
+    ...methods,
+    toast: (props: Omit<ToasterToast, "id">) => {
+      const id = crypto.randomUUID();
+      methods.toast({ id, ...props });
+      return id;
+    }
   };
 };
 
-// Define the toast function that was missing
+// Define the toast function
 const toast = (props: Omit<ToasterToast, "id">) => {
-  const { toast: toastFn } = useToastOriginal();
+  const { toast: toastFn } = useToast();
   return toastFn(props);
 };
 
