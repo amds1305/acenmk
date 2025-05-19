@@ -10,6 +10,7 @@ import TekoTrustedClients from './TekoTrustedClients';
 import TekoTestimonials from './TekoTestimonials';
 import TekoFaq from './TekoFaq';
 import TekoContact from './TekoContact';
+import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for Teko template
@@ -22,7 +23,8 @@ const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'testimonials': TekoTestimonials,
   'faq': TekoFaq,
   'contact': TekoContact,
-  'custom': () => null // Default for custom components
+  'custom': () => null, // Default for custom components
+  'external-link': ExternalLinkSection
 };
 
 // Component principal du template Teko

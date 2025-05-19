@@ -6,8 +6,12 @@ export interface TeamMember {
   id: string;
   name: string;
   role: string;
-  image: string;
+  image?: string;
   bio?: string;
+  delay?: number;
+  linkedin?: string;
+  twitter?: string;
+  email?: string;
   socialLinks?: {
     platform: string;
     url: string;
@@ -22,6 +26,10 @@ const teamData: TeamMember[] = [
     role: 'CEO',
     image: 'https://randomuser.me/api/portraits/men/1.jpg',
     bio: 'Expert en stratégie digitale avec plus de 15 ans d\'expérience.',
+    linkedin: '#',
+    twitter: '#',
+    email: 'jean@example.com',
+    delay: 0,
     socialLinks: [
       { platform: 'linkedin', url: '#' },
       { platform: 'twitter', url: '#' }
@@ -33,6 +41,10 @@ const teamData: TeamMember[] = [
     role: 'CTO',
     image: 'https://randomuser.me/api/portraits/women/2.jpg',
     bio: 'Ingénieure en informatique spécialisée en développement web.',
+    linkedin: '#',
+    twitter: '#',
+    email: 'marie@example.com',
+    delay: 100,
     socialLinks: [
       { platform: 'linkedin', url: '#' },
       { platform: 'github', url: '#' }
@@ -44,6 +56,10 @@ const teamData: TeamMember[] = [
     role: 'Designer UI/UX',
     image: 'https://randomuser.me/api/portraits/men/3.jpg',
     bio: 'Créatif passionné par l\'expérience utilisateur et l\'interface.',
+    linkedin: '#',
+    twitter: '#',
+    email: 'pierre@example.com',
+    delay: 200,
     socialLinks: [
       { platform: 'linkedin', url: '#' },
       { platform: 'dribbble', url: '#' }

@@ -10,6 +10,7 @@ import NmkRobotTrustedClients from './NmkRobotTrustedClients';
 import NmkRobotTestimonials from './NmkRobotTestimonials';
 import NmkRobotFaq from './NmkRobotFaq';
 import NmkRobotContact from './NmkRobotContact';
+import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkRobot template
@@ -22,7 +23,8 @@ const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'testimonials': NmkRobotTestimonials,
   'faq': NmkRobotFaq,
   'contact': NmkRobotContact,
-  'custom': () => null // Default for custom components
+  'custom': () => null, // Default for custom components
+  'external-link': ExternalLinkSection
 };
 
 const NmkRobotHomeTemplate: React.FC = () => {

@@ -1,60 +1,33 @@
 
-// Basic User type
+// Type definitions for authentication and user-related data
+
+export type UserRole = 'user' | 'manager' | 'admin' | 'guest' | 'client_standard' | 'client_premium' | 'external_provider' | 'contributor' | 'business_admin' | 'super_admin';
+
 export interface User {
   id: string;
-  name: string;
   email: string;
-  role: UserRole;
-  avatar?: string;
+  name?: string;
+  role?: UserRole;
+  avatar_url?: string;
   company?: string;
   phone?: string;
-  createdAt: string;
-  updatedAt?: string;
-  twoFactorEnabled?: boolean;
-  projects?: Project[];
-  estimates?: Estimate[];
-  address?: Address;
-  socialLinks?: SocialLink[];
-  loginHistory?: LoginHistory[];
-  preferences?: UserPreferences;
   biography?: string;
   lastLoginDate?: string;
-}
-
-// UserRole type
-export type UserRole = 'admin' | 'manager' | 'user' | 'guest';
-
-// AuthState interface
-export interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
-
-// Auth context interface
-export interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<any>;
-  logout: () => Promise<any>;
-  register: (data: any) => Promise<any>;
-  updateProfile: (data: Partial<User>) => Promise<any>;
-  uploadAvatar: (file: File) => Promise<string | null>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<any>;
-  toggleTwoFactor: (enable: boolean) => Promise<any>;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  messages: Message[];
-  unreadMessages: number;
+  projects?: Project[];
+  estimates?: Estimate[];
+  loginHistory?: LoginHistory[];
+  socialLinks?: SocialLink[];
+  address?: Address;
+  preferences?: UserPreferences;
 }
 
 export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  zipCode?: string;
+  country?: string;
 }
 
 export interface SocialLink {
@@ -65,18 +38,25 @@ export interface SocialLink {
 
 export interface LoginHistory {
   id: string;
-  date: string;
-  ip: string;
+  timestamp: string;
+  ipAddress: string;
   device: string;
-  location: string;
+  location?: string;
   success?: boolean;
   deviceInfo?: string;
 }
 
+export interface Message {
+  id: string;
+  sender: string;
+  senderAvatar?: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+  date?: string;
+}
+
 export interface UserPreferences {
-  emailNotifications: boolean;
-  darkMode: boolean;
-  language: string;
   notifications?: {
     email?: boolean;
     sms?: boolean;
@@ -84,38 +64,41 @@ export interface UserPreferences {
     marketing?: boolean;
   };
   privacy?: {
-    profileVisibility?: "public" | "private" | "contacts_only";
+    profileVisibility?: 'public' | 'private' | 'contacts_only';
     showEmail?: boolean;
     showPhone?: boolean;
   };
-  theme?: "light" | "dark" | "system";
+  theme?: 'light' | 'dark' | 'system';
+  emailNotifications?: boolean;
+  darkMode?: boolean;
+  language?: string;
 }
 
-export interface Message {
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (data: any) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+  updatePreferences: (preferences: UserPreferences) => Promise<void>;
+}
+
+export interface Project {
   id: string;
-  sender: string;
-  timestamp: string;
-  content: string;
-  read: boolean;
-  avatar?: string;
-  date?: string;
+  name: string;
+  client: string;
+  status: 'active' | 'completed' | 'onhold';
+  dueDate: string;
+  progress: number;
 }
 
 export interface Estimate {
   id: string;
   title: string;
-  description: string;
-  status: string;
+  client: string;
   amount: number;
-  createdAt: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  progress: number;
-  startDate: string;
-  endDate?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  date: string;
 }

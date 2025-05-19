@@ -1,4 +1,3 @@
-
 // Types for section configuration
 export type SectionType = 'hero' | 'services' | 'about' | 'team' | 'trusted-clients' | 'testimonials' | 'faq' | 'contact' | 'custom' | 'external-link';
 
@@ -50,3 +49,4 @@ export type HomeTemplateType = 'default' | 'teko' | 'nmk_kink' | 'nmk_fire' | 'n
 export interface SectionData {
   [key: string]: any;
 }
+

@@ -10,6 +10,7 @@ import NmkFireTrustedClients from './NmkFireTrustedClients';
 import NmkFireTestimonials from './NmkFireTestimonials';
 import NmkFireFaq from './NmkFireFaq';
 import NmkFireContact from './NmkFireContact';
+import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkFire template
@@ -22,7 +23,8 @@ const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'testimonials': NmkFireTestimonials,
   'faq': NmkFireFaq,
   'contact': NmkFireContact,
-  'custom': () => null // Default for custom components
+  'custom': () => null, // Default for custom components
+  'external-link': ExternalLinkSection
 };
 
 const NmkFireHomeTemplate: React.FC = () => {

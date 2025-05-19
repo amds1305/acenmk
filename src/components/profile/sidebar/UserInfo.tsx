@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,7 +9,27 @@ interface UserInfoProps {
   user: UserType;
 }
 
-const UserInfo = ({ user }: UserInfoProps) => {
+const UserInfo: React.FC<{ user: User }> = ({ user }) => {
+  // Get user role badge color based on role
+  const getRoleBadgeColor = (role?: string) => {
+    if (!role) return 'bg-gray-200 text-gray-800';
+    
+    switch(role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'manager':
+        return 'bg-blue-100 text-blue-800';
+      case 'user':
+        return 'bg-green-100 text-green-800';
+      case 'super_admin':
+        return 'bg-purple-100 text-purple-800';
+      case 'client_premium':
+        return 'bg-amber-100 text-amber-800';
+      default:
+        return 'bg-gray-200 text-gray-800';
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="text-center pb-0">

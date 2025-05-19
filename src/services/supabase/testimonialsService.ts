@@ -6,7 +6,9 @@ export interface Testimonial {
   id: string;
   name: string;
   company?: string;
-  text: string;
+  role?: string;
+  text?: string;
+  content?: string;
   rating: number;
   image?: string;
 }
@@ -16,7 +18,9 @@ const testimonialsData: Testimonial[] = [
   {
     id: '1',
     name: 'Sophie Leroux',
+    role: 'Directrice Marketing',
     company: 'Entreprise ABC',
+    content: 'Une équipe professionnelle et réactive qui a su comprendre nos besoins et y répondre parfaitement.',
     text: 'Une équipe professionnelle et réactive qui a su comprendre nos besoins et y répondre parfaitement.',
     rating: 5,
     image: 'https://randomuser.me/api/portraits/women/65.jpg'
@@ -24,7 +28,9 @@ const testimonialsData: Testimonial[] = [
   {
     id: '2',
     name: 'Thomas Bernard',
+    role: 'CEO',
     company: 'Startup XYZ',
+    content: 'Excellent travail sur notre application mobile. Les délais ont été respectés et la qualité est au rendez-vous.',
     text: 'Excellent travail sur notre application mobile. Les délais ont été respectés et la qualité est au rendez-vous.',
     rating: 5,
     image: 'https://randomuser.me/api/portraits/men/22.jpg'
@@ -32,7 +38,9 @@ const testimonialsData: Testimonial[] = [
   {
     id: '3',
     name: 'Claire Dubois',
+    role: 'Responsable e-commerce',
     company: 'Boutique Mode',
+    content: 'Notre site e-commerce fonctionne parfaitement et les ventes ont augmenté depuis sa mise en ligne.',
     text: 'Notre site e-commerce fonctionne parfaitement et les ventes ont augmenté depuis sa mise en ligne.',
     rating: 4,
     image: 'https://randomuser.me/api/portraits/women/43.jpg'
