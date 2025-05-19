@@ -34,8 +34,8 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <a href="#hero" className="text-xl font-bold tracking-tight">
-              <span className="text-primary">VISION</span> 
-              <span className="text-white">TECH</span>
+              <span className="text-primary">ace</span> 
+              <span className="text-white">nümerik</span>
             </a>
             <p className="text-gray-400 mt-4 mb-6 max-w-xs">
               Solutions numériques innovantes pour transformer votre entreprise et accélérer votre croissance.

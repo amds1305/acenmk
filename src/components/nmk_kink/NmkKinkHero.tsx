@@ -19,16 +19,17 @@ const NmkKinkHero: React.FC = () => {
       
       <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center">
         <h1 className="mb-4 font-sans text-5xl font-bold leading-tight tracking-tighter md:text-7xl lg:text-8xl">
-          <span className="block">Créer des</span>
+          <span className="block">L'infogérance</span>
           <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-            expériences numériques
+            révolutionnées
           </span>
-          <span className="block">exceptionnelles</span>
+          <span className="block">flexible et équitable</span>
         </h1>
         
         <p className="mt-6 max-w-2xl text-lg text-gray-600 md:text-xl">
-          Nous concevons et développons des sites web et applications de haute qualité 
-          qui transforment votre vision en réalité numérique.
+          Composez.Testez. Payez si satisfait. 
+          Des services modulaires, un prix juste, une relaton basée sur la transparence.
+          Et si l'équité redevenait la norme en infogérance ?
         </p>
         
         <div className="mt-10 flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">

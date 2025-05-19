@@ -41,13 +41,13 @@ const NmkKinkServices: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
           <span className="inline-block rounded-full bg-gray-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-700">
-            Nos services
+            Nos services IT
           </span>
           <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
-            Solutions numériques complètes
+            Modulaires, fiables et orientés résultats
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            Notre équipe d'experts fournit des services de haute qualité pour vous aider à réaliser vos ambitions numériques.
+            Choisissez, composez, évoluez à votre rythme — l’infogérance devient un levier stratégique, pas une contrainte.
           </p>
         </div>
 
