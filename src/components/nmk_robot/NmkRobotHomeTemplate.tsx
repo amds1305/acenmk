@@ -14,7 +14,7 @@ import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkRobot template
-const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
+const sectionComponents: Record<SectionType, React.ComponentType<any>> = {
   'hero': NmkRobotHero,
   'services': NmkRobotServices,
   'about': NmkRobotAbout,
@@ -57,7 +57,7 @@ const NmkRobotHomeTemplate: React.FC = () => {
           return null;
         }
         
-        return <SectionComponent key={section.id} />;
+        return <SectionComponent key={section.id} sectionData={section.data} />;
       })}
     </div>
   );

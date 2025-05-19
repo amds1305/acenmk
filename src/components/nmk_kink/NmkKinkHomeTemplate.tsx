@@ -14,7 +14,7 @@ import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for NmkKink template
-const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
+const sectionComponents: Record<SectionType, React.ComponentType<any>> = {
   'hero': NmkKinkHero,
   'services': NmkKinkServices,
   'about': NmkKinkAbout,
@@ -27,7 +27,6 @@ const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
   'external-link': ExternalLinkSection
 };
 
-// Component principal du template NmkKink
 const NmkKinkHomeTemplate: React.FC = () => {
   // Get sections configuration from the API
   const { data: config, isLoading } = useQuery({
@@ -58,7 +57,7 @@ const NmkKinkHomeTemplate: React.FC = () => {
           return null;
         }
         
-        return <SectionComponent key={section.id} />;
+        return <SectionComponent key={section.id} sectionData={section.data} />;
       })}
     </div>
   );

@@ -1,6 +1,9 @@
 
 import React from 'react';
 import Index from '@/pages/Index';
+import About from '@/pages/About';
+import Services from '@/pages/Services';
+import Contact from '@/pages/Contact';
 import { Navigate } from 'react-router-dom';
 
 const routes = [
@@ -8,18 +11,18 @@ const routes = [
     path: '/',
     element: <Index />,
   },
-  // Routes pour les pages statiques
+  // Routes for static pages with their own components
   {
-    path: '/a-propos',
-    element: <Navigate to="/#about" replace />,
+    path: '/about',
+    element: <About />,
   },
   {
     path: '/services',
-    element: <Navigate to="/#services" replace />,
+    element: <Services />,
   },
   {
     path: '/contact',
-    element: <Navigate to="/#contact" replace />,
+    element: <Contact />,
   },
   {
     path: '*',

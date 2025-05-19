@@ -35,9 +35,9 @@ const Header = () => {
   // Default nav links if not loaded from context
   const navLinks = headerConfig?.navLinks || [
     { id: 'home', name: 'Accueil', href: '/', is_visible: true },
-    { id: 'services', name: 'Services', href: '/#services', is_visible: true },
-    { id: 'about', name: 'À propos', href: '/#about', is_visible: true },
-    { id: 'contact', name: 'Contact', href: '/#contact', is_visible: true },
+    { id: 'services', name: 'Services', href: '/services', is_visible: true },
+    { id: 'about', name: 'À propos', href: '/about', is_visible: true },
+    { id: 'contact', name: 'Contact', href: '/contact', is_visible: true },
   ];
   
   // Filter visible links and remove Portfolio
@@ -58,15 +58,15 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
           {visibleNavLinks.map((link) => (
-            <a
+            <Link
               key={link.id}
-              href={link.href}
+              to={link.href}
               className={`text-sm font-medium transition-colors ${
                 isScrolled ? 'text-gray-700 hover:text-black' : 'text-white hover:text-white/80'
               }`}
             >
               {link.name}
-            </a>
+            </Link>
           ))}
           
           {/* Theme toggle */}
@@ -121,14 +121,14 @@ const Header = () => {
         <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg">
           <div className="px-4 pt-2 pb-4 space-y-1">
             {visibleNavLinks.map((link) => (
-              <a
+              <Link
                 key={link.id}
-                href={link.href}
+                to={link.href}
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

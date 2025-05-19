@@ -16,9 +16,9 @@ export const useHeader = () => {
   // Default values for navigation links if not available from context
   const defaultNavLinks = [
     { id: 'home', name: 'Accueil', href: '/', is_visible: true },
-    { id: 'services', name: 'Services', href: '/#services', is_visible: true },
-    { id: 'about', name: 'À propos', href: '/#about', is_visible: true },
-    { id: 'contact', name: 'Contact', href: '/#contact', is_visible: true },
+    { id: 'services', name: 'Services', href: '/services', is_visible: true },
+    { id: 'about', name: 'À propos', href: '/about', is_visible: true },
+    { id: 'contact', name: 'Contact', href: '/contact', is_visible: true },
   ];
   
   const navLinks = headerConfig?.navLinks || defaultNavLinks;

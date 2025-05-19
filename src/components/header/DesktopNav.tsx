@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,27 +27,24 @@ const DesktopNav = ({
   const { headerStyle } = useHeaderContext();
   const navigate = useNavigate();
   
-  // Fonction pour vérifier si un lien est actif
+  // Function to check if a link is active
   const isActive = (href: string): boolean => {
     if (href === '/') {
       return location.pathname === '/';
     }
     
-    if (href.startsWith('/#')) {
-      return location.pathname === '/' && location.hash === href.substring(1);
-    }
-    
-    return location.pathname.startsWith(href);
+    // Update this to match exact paths instead of hash fragments
+    return location.pathname === href;
   };
   
-  // Filtrer les liens pour supprimer le portfolio et les sections d'administration
+  // Filter links to remove admin-related sections
   const filteredNavLinks = navLinks.filter(link => 
     !link.href.includes('portfolio') && 
     !link.href.includes('admin') &&
     !link.href.includes('profile')
   );
   
-  // Génération de styles CSS personnalisés
+  // CSS style generation
   const navItemStyle = {
     color: headerStyle?.textColor,
     fontFamily: headerStyle?.fontFamily,
@@ -88,18 +84,14 @@ const DesktopNav = ({
     transition: `color ${headerStyle?.transitionDuration || '0.3s'} ${headerStyle?.transitionTiming || 'ease'}`,
   };
 
-  // Handler pour naviguer vers un lien
+  // Handler for navigation
   const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     
-    // Gérer les liens internes vs externes
+    // Navigate to full paths directly
     if (href.startsWith('/')) {
       navigate(href);
-    } else if (href.startsWith('#')) {
-      navigate('/' + href);
-    } else if (href.startsWith('/#')) {
-      navigate(href);
-    } else {
+    } else if (href.startsWith('http')) {
       window.open(href, '_blank');
     }
   };
@@ -109,7 +101,7 @@ const DesktopNav = ({
       {/* Navigation Links */}
       <nav className="flex items-center space-x-3 overflow-x-auto max-w-[40vw] no-scrollbar">
         {filteredNavLinks.map((link) => {
-          // Vérifier si ce lien a une icône à afficher
+          // Check if this link has an icon
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
           return (

@@ -24,20 +24,16 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   
   if (!isOpen) return null;
 
-  // Fonction pour vérifier si un lien est actif
+  // Function to check if a link is active - updated to match exact paths
   const isActive = (href: string): boolean => {
     if (href === '/') {
       return location.pathname === '/';
     }
     
-    if (href.startsWith('/#')) {
-      return location.pathname === '/' && location.hash === href.substring(1);
-    }
-    
-    return location.pathname.startsWith(href);
+    return location.pathname === href;
   };
 
-  // Génération de styles CSS personnalisés
+  // CSS style generation
   const navItemStyle = {
     color: headerStyle?.textColor,
     fontFamily: headerStyle?.fontFamily,
@@ -60,7 +56,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     borderColor: headerStyle?.socialIconBorderColor,
   };
 
-  // Filtrer les liens pour supprimer portfolio et admin
+  // Filter links to remove portfolio and admin
   const filteredLinks = links.filter(link => 
     !link.href.includes('portfolio') && 
     !link.href.includes('admin') &&
@@ -71,7 +67,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
         {filteredLinks.map((link, index) => {
-          // Vérifier si ce lien a une icône à afficher
+          // Check if this link has an icon
           const IconComponent = link.icon ? iconsMap[link.icon] : null;
           
           return (

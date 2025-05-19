@@ -14,7 +14,7 @@ import ExternalLinkSection from '@/components/ExternalLinkSection';
 import { SectionType } from '@/types/sections';
 
 // Component mapping for Teko template
-const sectionComponents: Record<SectionType, React.ComponentType<{}>> = {
+const sectionComponents: Record<SectionType, React.ComponentType<any>> = {
   'hero': TekoHero,
   'services': TekoServices,
   'about': TekoAbout,
@@ -94,7 +94,7 @@ const TekoHomeTemplate: React.FC = () => {
         }
         
         console.log(`Rendering section: ${section.id} (${section.type})`);
-        return <SectionComponent key={section.id} />;
+        return <SectionComponent key={section.id} sectionData={section.data} />;
       })}
     </div>
   );
