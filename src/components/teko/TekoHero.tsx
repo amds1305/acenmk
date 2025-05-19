@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
+import { getHomepageConfig } from '@/services/sections';
 
 const TekoHero = () => {
   const { data: config } = useQuery({

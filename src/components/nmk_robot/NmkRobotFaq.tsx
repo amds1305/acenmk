@@ -1,139 +1,84 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
-// Demo FAQ items
-const demoFaqs = [
+const faqs = [
   {
-    id: '1',
-    question: 'Comment planifier un rendez-vous avec votre équipe?',
-    answer: 'Pour planifier un rendez-vous, veuillez nous contacter via notre formulaire en ligne ou par téléphone. Notre équipe vous répondra dans les 24 heures pour organiser une consultation.'
+    question: "What types of robots do you offer?",
+    answer: "We offer a comprehensive range of robotic solutions including collaborative robots (cobots), industrial robots, autonomous mobile robots (AMRs), and custom-designed robotics systems tailored to specific industry requirements."
   },
   {
-    id: '2', 
-    question: 'Quels services de robotique proposez-vous?',
-    answer: 'Nous proposons une gamme complète de services de robotique incluant la conception de prototypes, la programmation de robots industriels, l\'automatisation des processus, la maintenance et le support technique continu.'
+    question: "How long does implementation typically take?",
+    answer: "Implementation timelines vary based on project complexity, but typically range from 2-12 weeks. This includes assessment, design, installation, programming, testing, and staff training. Our project managers provide detailed timelines during the initial consultation."
   },
   {
-    id: '3',
-    question: 'Quelle est votre expertise en intelligence artificielle?',
-    answer: 'Notre équipe possède une expérience approfondie en intelligence artificielle appliquée à la robotique, notamment dans les domaines de la vision par ordinateur, du traitement du langage naturel et de l\'apprentissage automatique pour robots autonomes.'
+    question: "Do your robots require specialized maintenance?",
+    answer: "Our robots are designed for reliability and ease of maintenance. We provide comprehensive maintenance plans, remote diagnostics capabilities, and predictive maintenance features. Our support team is available 24/7 to address any issues that may arise."
   },
   {
-    id: '4',
-    question: 'Proposez-vous des solutions personnalisées?',
-    answer: 'Absolument. Chaque projet est unique et nous développons des solutions sur mesure adaptées à vos besoins spécifiques et à votre secteur d\'activité.'
+    question: "Can your systems integrate with our existing equipment?",
+    answer: "Yes, our robotic systems are designed to seamlessly integrate with existing equipment and infrastructure. We use industry-standard communication protocols and offer custom interface solutions when needed to ensure compatibility with your current systems."
   },
   {
-    id: '5',
-    question: 'Dans quels secteurs d\'activité intervenez-vous?',
-    answer: 'Nous intervenons principalement dans l\'industrie manufacturière, la logistique, la santé, l\'agriculture, et la recherche académique, mais notre expertise peut s\'adapter à tout secteur nécessitant des solutions robotiques.'
+    question: "What safety standards do your robots comply with?",
+    answer: "All our robotic systems comply with international safety standards including ISO/TS 15066 for collaborative robots, ISO 10218-1 and ISO 10218-2 for industrial robots, and relevant regional safety regulations. Safety is our highest priority in all implementations."
+  },
+  {
+    question: "Do you offer financing options?",
+    answer: "Yes, we offer flexible financing options including leasing, rent-to-own, and performance-based payment structures. Our financial consultants can help determine the best arrangement for your specific situation and ROI requirements."
   }
 ];
 
 const NmkRobotFaq = () => {
-  const [activeItem, setActiveItem] = useState<string | null>(null);
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true
-  });
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
-  
-  const titleVariants = {
-    hidden: { scale: 0.95, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.6
-      }
-    }
-  };
-
   return (
-    <section id="faq" className="py-20 bg-[#010015] relative">
+    <section id="faq" className="py-24 bg-[#111827]">
       <div className="container mx-auto px-4">
-        <motion.div
-          ref={ref}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="max-w-4xl mx-auto"
-        >
-          <motion.div variants={titleVariants} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Questions Fréquentes
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div>
+            <span className="text-[#9b87f5] font-mono uppercase tracking-wider">
+              Frequently Asked Questions
+            </span>
+            
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-8 text-white">
+              Get answers to common questions
             </h2>
-            <p className="text-indigo-300 text-lg max-w-2xl mx-auto">
-              Découvrez les réponses aux questions les plus courantes sur nos services et technologies robotiques
+            
+            <p className="text-gray-300 text-xl mb-8">
+              We've compiled answers to the questions we get asked the most about our robotic solutions and services.
             </p>
-          </motion.div>
+            
+            <p className="text-gray-400 mb-12">
+              If you don't see what you're looking for, reach out to our team directly for personalized assistance.
+            </p>
+            
+            <Button className="bg-[#9b87f5] hover:bg-[#8B5CF6] text-white rounded-none px-8 py-6 text-lg group">
+              Contact our experts
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
           
-          <div className="space-y-6">
-            <Accordion
-              type="single"
-              collapsible
-              value={activeItem}
-              onValueChange={setActiveItem}
-            >
-              {demoFaqs.map((faq, index) => (
-                <motion.div key={faq.id} variants={itemVariants}>
-                  <AccordionItem 
-                    value={faq.id} 
-                    className="bg-[#07061a] border border-indigo-900/40 rounded-xl mb-4 overflow-hidden"
-                  >
-                    <AccordionTrigger className="px-6 py-4 text-white hover:text-indigo-300 font-medium text-left">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-6 text-indigo-200">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                </motion.div>
+          <div className="space-y-4">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-800">
+                  <AccordionTrigger className="text-white hover:text-[#9b87f5] text-left py-6">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-300 pb-6">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
               ))}
             </Accordion>
           </div>
-          
-          <motion.div 
-            variants={itemVariants}
-            className="mt-12 text-center"
-          >
-            <p className="text-indigo-300">
-              Vous avez d'autres questions? <a href="#contact" className="text-indigo-400 hover:text-indigo-300 underline">Contactez-nous</a>
-            </p>
-          </motion.div>
-        </motion.div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-40 left-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+        </div>
       </div>
     </section>
   );

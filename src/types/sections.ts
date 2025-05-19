@@ -1,13 +1,53 @@
-// Types for section configuration
-export type SectionType = 'hero' | 'services' | 'about' | 'team' | 'trusted-clients' | 'testimonials' | 'faq' | 'contact' | 'custom' | 'external-link';
+
+// Types pour la gestion des sections de la page d'accueil
+import { HeroData } from '@/components/Hero';
+
+export type SectionType = 
+  | 'hero' 
+  | 'services' 
+  | 'about' 
+  | 'team' 
+  | 'testimonials' 
+  | 'faq' 
+  | 'contact'
+  | 'custom'
+  | 'trusted-clients'; // Ajout du nouveau type pour la section "Ils nous font confiance"
 
 export interface Section {
   id: string;
   type: SectionType;
-  title?: string;
+  title: string;
   visible: boolean;
   order: number;
-  data?: any;
+  customComponent?: string; // Pour les sections personnalisées
+}
+
+export interface SectionData {
+  [key: string]: any; // Données spécifiques à chaque type de section
+}
+
+// Templates disponibles pour la page d'accueil
+export type HomeTemplateType = 'default' | 'teko' | 'nmk_fire' | 'nmk_robot' | 'nmk_kink';
+
+// Specialized section data types
+export interface HeroSectionData extends HeroData {}
+export interface ServicesSectionData {
+  // Define properties specific to services section
+}
+export interface AboutSectionData {
+  // Define properties specific to about section
+}
+
+// Configuration du template de la page d'accueil
+export interface HomeTemplateConfig {
+  activeTemplate: HomeTemplateType;
+}
+
+// Nouvelle interface pour les données de la section clients de confiance
+export interface TrustedClientsSectionData {
+  title: string;
+  featuredLabel?: string;
+  clients: ClientLogo[];
 }
 
 export interface ClientLogo {
@@ -15,38 +55,11 @@ export interface ClientLogo {
   name: string;
   logoUrl: string;
   websiteUrl?: string;
-  category?: string;
-}
-
-export interface TrustedClientsSectionData {
-  title: string;
-  clients: ClientLogo[];
-  featuredLabel?: string;
-  showTrustedClients?: boolean;
-}
-
-export interface ExternalLinkSectionData {
-  title: string;
-  url: string;
-  openInNewTab: boolean;
-  requiresAuth: boolean;
-  allowedRoles?: string[];
+  category?: string; // New field for client category
 }
 
 export interface HomepageConfig {
   sections: Section[];
-  header?: any;
-  sectionData?: {
-    [key: string]: any;
-  };
-  templateConfig?: {
-    activeTemplate: string;
-  };
+  sectionData: Record<string, SectionData>;
+  templateConfig?: HomeTemplateConfig;
 }
-
-export type HomeTemplateType = 'default' | 'teko' | 'nmk_kink' | 'nmk_fire' | 'nmk_robot';
-
-export interface SectionData {
-  [key: string]: any;
-}
-

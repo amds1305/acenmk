@@ -8,19 +8,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
 
 const NmkKinkTestimonials: React.FC = () => {
-  const { data: config } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig
-  });
-  
-  // Témoignages par défaut
-  const defaultTestimonials = [
+  // Utiliser les testimonials du composant existant
+  const testimonials = [
     {
-      id: '1',
       text: "L'équipe a parfaitement compris notre vision et l'a transformée en une expérience numérique exceptionnelle qui a dépassé toutes nos attentes.",
       author: "Marie Dubois",
       position: "Directrice Marketing, TechStart",
@@ -28,7 +20,6 @@ const NmkKinkTestimonials: React.FC = () => {
       rating: 5
     },
     {
-      id: '2',
       text: "Leur approche méthodique et leur expertise technique nous ont permis de lancer notre plateforme e-commerce en un temps record avec des résultats impressionnants.",
       author: "Alexandre Martin",
       position: "CEO, FashionRetail",
@@ -36,7 +27,6 @@ const NmkKinkTestimonials: React.FC = () => {
       rating: 5
     },
     {
-      id: '3',
       text: "Une collaboration exceptionnelle qui a transformé notre présence en ligne et augmenté significativement notre taux de conversion.",
       author: "Sophie Lambert",
       position: "Fondatrice, GreenSolutions",
@@ -44,13 +34,6 @@ const NmkKinkTestimonials: React.FC = () => {
       rating: 4
     }
   ];
-  
-  const testimonialsData = {
-    title: "Ce qu'en disent nos clients",
-    subtitle: "Découvrez les témoignages de nos clients satisfaits",
-    testimonials: defaultTestimonials,
-    ...(config?.sectionData.testimonials || {})
-  };
   
   // Fonction pour rendre les étoiles en fonction de la note
   const renderStars = (rating: number) => {
@@ -75,13 +58,8 @@ const NmkKinkTestimonials: React.FC = () => {
             Témoignages
           </span>
           <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
-            {testimonialsData.title}
+            Ce qu'en disent nos clients
           </h2>
-          {testimonialsData.subtitle && (
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-              {testimonialsData.subtitle}
-            </p>
-          )}
         </div>
 
         <div className="mx-auto max-w-7xl">
@@ -93,8 +71,8 @@ const NmkKinkTestimonials: React.FC = () => {
             }}
           >
             <CarouselContent className="-ml-6 md:-ml-4">
-              {testimonialsData.testimonials.map((testimonial, index) => (
-                <CarouselItem key={testimonial.id || index} className="pl-6 md:pl-4 md:basis-1/3">
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="pl-6 md:pl-4 md:basis-1/3">
                   <div className="relative overflow-hidden rounded-2xl bg-gray-50 p-8 md:p-10 shadow-sm h-full">
                     <div className="relative z-10">
                       {/* Système de notation en étoiles */}

@@ -1,26 +1,8 @@
 
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
 
 const NmkKinkHero: React.FC = () => {
-  // Récupérer les données hero depuis la configuration
-  const { data: config } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig
-  });
-
-  // Définir les données par défaut et les fusionner avec les données de configuration
-  const heroData = {
-    title: 'Créer des expériences numériques exceptionnelles',
-    subtitle: 'Nous concevons et développons des sites web et applications de haute qualité qui transforment votre vision en réalité numérique.',
-    ctaText: 'Nos services',
-    ctaSecondaryText: 'Nous contacter',
-    backgroundImage: '',
-    ...(config?.sectionData.hero || {})
-  };
-
   return (
     <section className="relative h-screen w-full overflow-hidden bg-white">
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
@@ -37,31 +19,28 @@ const NmkKinkHero: React.FC = () => {
       
       <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center">
         <h1 className="mb-4 font-sans text-5xl font-bold leading-tight tracking-tighter md:text-7xl lg:text-8xl">
-          <span className="block">
-            {heroData.title.split(' ').slice(0, 2).join(' ')}
-          </span>
+          <span className="block">Créer des</span>
           <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-            {heroData.title.split(' ').slice(2, 4).join(' ')}
+            expériences numériques
           </span>
-          <span className="block">
-            {heroData.title.split(' ').slice(4).join(' ')}
-          </span>
+          <span className="block">exceptionnelles</span>
         </h1>
         
         <p className="mt-6 max-w-2xl text-lg text-gray-600 md:text-xl">
-          {heroData.subtitle}
+          Nous concevons et développons des sites web et applications de haute qualité 
+          qui transforment votre vision en réalité numérique.
         </p>
         
         <div className="mt-10 flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
           <a href="#services" 
             className="group inline-flex items-center justify-center rounded-full border-2 border-gray-900 bg-gray-900 px-8 py-3 text-base font-medium text-white transition-all duration-300 hover:bg-transparent hover:text-gray-900">
-            {heroData.ctaText}
+            Nos services
             <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
           </a>
           
           <a href="#contact" 
             className="group inline-flex items-center justify-center rounded-full border-2 border-gray-300 bg-transparent px-8 py-3 text-base font-medium text-gray-700 transition-all duration-300 hover:border-gray-900 hover:bg-transparent hover:text-gray-900">
-            {heroData.ctaSecondaryText}
+            Nous contacter
             <ArrowRight className="ml-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" />
           </a>
         </div>

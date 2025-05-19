@@ -1,132 +1,110 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User } from '@/types/auth';
-import ProfileInfo from './ProfileInfo';
-import UserPreferences from './UserPreferences';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Briefcase, FileText, BarChart2, User, Settings, Shield, History } from 'lucide-react';
 import ProjectsList from './ProjectsList';
 import EstimatesList from './EstimatesList';
+import StatsContent from './StatsContent';
+import ProfileInfo from './ProfileInfo';
+import UserPreferences from './UserPreferences';
+import SecuritySettings from './SecuritySettings';
+import ActivityLog from './ActivityLog';
+import { User as UserType } from '@/types/auth';
+import { getStatusColor, getStatusText, formatDate, formatAmount } from './ProfileUtils';
 
-// Add props interface for ProfileTabs
 interface ProfileTabsProps {
-  user: User;
-  updateProfile: (data: Partial<User>) => Promise<void>;
+  user: UserType;
+  updateProfile: (data: Partial<UserType>) => Promise<void>;
   uploadAvatar: (file: File) => Promise<string>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  toggleTwoFactor: (enable: boolean) => Promise<void>;
   updatePreferences: (preferences: any) => Promise<void>;
-  updatePassword?: (currentPassword: string, newPassword: string) => Promise<void>;
-  toggleTwoFactor?: (enable: boolean) => Promise<void>;
 }
 
-const ProfileTabs: React.FC<ProfileTabsProps> = ({ 
-  user, 
-  updateProfile, 
-  uploadAvatar, 
-  updatePreferences,
+const ProfileTabs = ({
+  user,
+  updateProfile,
+  uploadAvatar,
   updatePassword,
-  toggleTwoFactor
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Format date helper
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('fr-FR');
-  };
-
-  // Format amount helper
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
-
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-      case 'accepted':
-        return 'bg-green-500';
-      case 'pending':
-      case 'in_review':
-      case 'in_progress':
-        return 'bg-amber-500';
-      case 'completed':
-        return 'bg-blue-500';
-      case 'rejected':
-        return 'bg-red-500';
-      case 'onhold':
-        return 'bg-gray-500';
-      default:
-        return 'bg-gray-300';
-    }
-  };
-
-  // Get status text
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'active': return 'Actif';
-      case 'completed': return 'Terminé';
-      case 'onhold': return 'En pause';
-      case 'in_progress': return 'En cours';
-      case 'pending': return 'En attente';
-      case 'accepted': return 'Accepté';
-      case 'rejected': return 'Rejeté';
-      case 'in_review': return 'En révision';
-      default: return status;
-    }
-  };
-
+  toggleTwoFactor,
+  updatePreferences
+}: ProfileTabsProps) => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Tabs defaultValue="profile" className="w-[400px]">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="estimates">Estimates</TabsTrigger>
-        </TabsList>
+    <Tabs defaultValue="profile" className="space-y-4">
+      <TabsList className="grid grid-cols-3 md:grid-cols-7">
+        <TabsTrigger value="profile" className="flex items-center gap-2">
+          <User className="h-4 w-4" />
+          <span className="hidden md:inline">Profil</span>
+        </TabsTrigger>
+        <TabsTrigger value="projects" className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4" />
+          <span className="hidden md:inline">Projets</span>
+        </TabsTrigger>
+        <TabsTrigger value="estimates" className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          <span className="hidden md:inline">Devis</span>
+        </TabsTrigger>
+        <TabsTrigger value="stats" className="flex items-center gap-2">
+          <BarChart2 className="h-4 w-4" />
+          <span className="hidden md:inline">Statistiques</span>
+        </TabsTrigger>
+        <TabsTrigger value="preferences" className="flex items-center gap-2">
+          <Settings className="h-4 w-4" />
+          <span className="hidden md:inline">Préférences</span>
+        </TabsTrigger>
+        <TabsTrigger value="security" className="flex items-center gap-2">
+          <Shield className="h-4 w-4" />
+          <span className="hidden md:inline">Sécurité</span>
+        </TabsTrigger>
+        <TabsTrigger value="activity" className="flex items-center gap-2">
+          <History className="h-4 w-4" />
+          <span className="hidden md:inline">Activité</span>
+        </TabsTrigger>
+      </TabsList>
       
-      <TabsContent value="profile" className="space-y-6">
-        {user && (
-          <ProfileInfo 
-            user={user} 
-            updateProfile={updateProfile} 
-            uploadAvatar={uploadAvatar} 
-          />
-        )}
+      <TabsContent value="profile">
+        <ProfileInfo user={user} updateProfile={updateProfile} uploadAvatar={uploadAvatar} />
       </TabsContent>
       
-      <TabsContent value="preferences" className="space-y-6">
-        {user && (
-          <UserPreferences 
-            user={user} 
-            updatePreferences={updatePreferences} 
-          />
-        )}
+      <TabsContent value="projects">
+        <ProjectsList 
+          projects={user.projects}
+          getStatusColor={getStatusColor}
+          getStatusText={getStatusText}
+          formatDate={formatDate}
+        />
       </TabsContent>
-
-        <TabsContent value="projects" className="space-y-6">
-          <ProjectsList 
-            projects={user?.projects || []} 
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-            formatDate={formatDate}
-          />
-        </TabsContent>
-
-        <TabsContent value="estimates" className="space-y-6">
-          <EstimatesList 
-            estimates={user?.estimates || []} 
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-            formatDate={formatDate}
-            formatAmount={formatAmount}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+      
+      <TabsContent value="estimates">
+        <EstimatesList 
+          estimates={user.estimates}
+          getStatusColor={getStatusColor}
+          getStatusText={getStatusText}
+          formatDate={formatDate}
+          formatAmount={formatAmount}
+        />
+      </TabsContent>
+      
+      <TabsContent value="stats">
+        <StatsContent />
+      </TabsContent>
+      
+      <TabsContent value="preferences">
+        <UserPreferences user={user} updatePreferences={updatePreferences} />
+      </TabsContent>
+      
+      <TabsContent value="security">
+        <SecuritySettings 
+          user={user} 
+          updatePassword={updatePassword} 
+          toggleTwoFactor={toggleTwoFactor} 
+        />
+      </TabsContent>
+      
+      <TabsContent value="activity">
+        <ActivityLog loginHistory={user.loginHistory || []} formatDate={formatDate} />
+      </TabsContent>
+    </Tabs>
   );
 };
 

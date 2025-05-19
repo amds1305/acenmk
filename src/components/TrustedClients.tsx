@@ -2,34 +2,27 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getHomepageConfig } from '@/services/sections';
-import { TrustedClientsSectionData, ClientLogo } from '@/types/sections';
+import { TrustedClientsSectionData } from '@/types/sections';
 
 const fetchTrustedClientsData = async (): Promise<TrustedClientsSectionData> => {
-  try {
-    const config = await getHomepageConfig();
-    
-    // Find the trusted-clients section data
-    const trustedClientsSection = config.sections.find(section => section.type === 'trusted-clients');
-    if (trustedClientsSection && trustedClientsSection.data) {
-      return trustedClientsSection.data as TrustedClientsSectionData;
-    }
-    
-    // Fallback to hero data if no dedicated section exists
-    const heroSection = config.sections.find(section => section.type === 'hero');
-    if (heroSection && heroSection.data) {
-      const heroData = heroSection.data;
-      if (heroData.trustedClients) {
-        return {
-          title: heroData.trustedClientsTitle || 'Ils nous font confiance',
-          clients: heroData.trustedClients || []
-        };
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching trusted clients data:", error);
+  const config = getHomepageConfig();
+  
+  // D'abord, vérifier si on a des données spécifiques pour la section trusted-clients
+  if (config.sectionData && config.sectionData['trusted-clients']) {
+    return config.sectionData['trusted-clients'] as TrustedClientsSectionData;
   }
   
-  // Default data
+  // Sinon, récupérer les données du hero pour la rétrocompatibilité
+  if (config.sectionData && config.sectionData.hero) {
+    const heroData = config.sectionData.hero;
+    if (heroData.trustedClients) {
+      return {
+        title: heroData.trustedClientsTitle || 'Ils nous font confiance',
+        clients: heroData.trustedClients || []
+      };
+    }
+  }
+  
   return {
     title: 'Ils nous font confiance',
     clients: []
@@ -43,7 +36,7 @@ const TrustedClients: React.FC = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  if (!data || !data.clients || data.clients.length === 0) {
+  if (!data || data.clients.length === 0) {
     return null;
   }
 
@@ -56,7 +49,7 @@ const TrustedClients: React.FC = () => {
         </div>
         
         <div className="flex flex-wrap justify-center items-center gap-16">
-          {data.clients.map((client: ClientLogo) => (
+          {data.clients.map((client) => (
             <div key={client.id} className="h-16 w-auto transition-all duration-300 hover:scale-105">
               {client.websiteUrl ? (
                 <a href={client.websiteUrl} target="_blank" rel="noopener noreferrer" className="block h-full">

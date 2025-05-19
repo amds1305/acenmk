@@ -2,14 +2,24 @@
 export interface CV {
   id: string;
   candidateName: string;
-  title: string;
   email: string;
   phone: string;
-  experience: number;
-  education: string;
-  skills: string[];
+  title: string;
   uploadDate: string;
+  skills: string[];
+  experience: number; // en années
+  education: string;
+  tags: string[];
   rating: number;
-  tags?: string[];
-  lastInteraction?: string;
+  lastInteraction: string;
+}
+
+export interface CVFilterOptions {
+  minExperience?: number;
+  maxExperience?: number;
+  educationLevels?: string[];
+  skills?: string[];
+  availability?: string;
+  status?: string[];
+  rating?: number;
 }

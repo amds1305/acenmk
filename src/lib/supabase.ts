@@ -1,21 +1,9 @@
 
-// Placeholder file to satisfy imports
-// This is a simplified version without actual Supabase functionality
-// since we're using static data instead
+import { createClient } from '@supabase/supabase-js';
 
-export const supabase = {
-  from: (table: string) => ({
-    select: (columns: string) => ({
-      eq: (column: string, value: any) => ({
-        single: async () => {
-          console.log(`Mock Supabase query: SELECT ${columns} FROM ${table} WHERE ${column} = ${value}`);
-          return { data: null, error: null };
-        },
-        order: (column: string) => ({
-          data: [],
-          error: null
-        })
-      })
-    })
-  })
-};
+// These values should be accessed through import.meta.env in Vite applications
+// instead of process.env which is not defined in the browser
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

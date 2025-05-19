@@ -6,102 +6,61 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ArrowRight, PlusCircle, MinusCircle } from 'lucide-react';
+import { Check, X, ArrowRight, PlusCircle, MinusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
-import { getFAQs, Faq } from '@/services/supabase/faqService';
+
+const faqItems = [
+  {
+    question: "Quels services proposez-vous exactement ?",
+    answer: "Nous offrons une gamme complète de services numériques incluant le développement d'applications web et mobiles sur mesure, la conception UX/UI, l'infrastructure cloud, la transformation digitale et l'intégration de solutions d'intelligence artificielle. Chaque solution est personnalisée selon les besoins spécifiques de votre entreprise."
+  },
+  {
+    question: "Combien coûte un projet typique ?",
+    answer: "Les coûts varient considérablement en fonction de la complexité, de l'envergure et des fonctionnalités requises. Nous proposons une tarification transparente avec des devis détaillés après une analyse approfondie de vos besoins. Contactez-nous pour une consultation gratuite et un devis personnalisé."
+  },
+  {
+    question: "Quelle est la durée moyenne d'un projet ?",
+    answer: "La durée d'un projet dépend de sa complexité et de son envergure. Un site web simple peut prendre 2-4 semaines, tandis qu'une application complexe peut nécessiter 3-6 mois ou plus. Nous établissons toujours un calendrier détaillé au début du projet et vous tenons informé de l'avancement à chaque étape."
+  },
+  {
+    question: "Proposez-vous un support après le lancement du projet ?",
+    answer: "Absolument. Nous offrons divers plans de maintenance et de support continu pour assurer le bon fonctionnement de votre solution. Ces plans incluent les mises à jour de sécurité, l'optimisation des performances, le support technique et l'évolution fonctionnelle selon vos besoins."
+  },
+  {
+    question: "Comment assurez-vous la qualité de vos développements ?",
+    answer: "Notre processus de développement comprend plusieurs phases de tests rigoureux : tests unitaires, tests d'intégration, tests de performance et tests d'acceptation utilisateur. Nous utilisons également des méthodes de développement agiles qui permettent des ajustements continus basés sur vos retours."
+  },
+  {
+    question: "Avez-vous de l'expérience dans notre secteur d'activité ?",
+    answer: "Notre équipe a travaillé avec des clients de nombreux secteurs, notamment la finance, la santé, l'éducation, le commerce de détail et l'industrie. Nous adaptons notre approche à chaque secteur et ses défis spécifiques. N'hésitez pas à nous demander des références ou études de cas pertinentes pour votre domaine."
+  }
+];
+
+// Catégories de FAQ
+const categories = [
+  { id: "all", name: "Toutes les questions" },
+  { id: "services", name: "Services" },
+  { id: "pricing", name: "Tarification" },
+  { id: "process", name: "Processus" },
+  { id: "support", name: "Support" }
+];
+
+// Mapping des questions par catégorie
+const categoryMapping = {
+  "services": [0, 5],
+  "pricing": [1],
+  "process": [2, 4],
+  "support": [3]
+};
 
 const FaqSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  const { data: faqs, isLoading, error } = useQuery({
-    queryKey: ['faqs', 'default'],
-    queryFn: () => getFAQs('default'),
-    staleTime: 0,
-    refetchOnMount: true,
-  });
-
-  console.log("FaqSection - Données FAQ reçues:", faqs);
-
-  // Données par défaut si aucune donnée n'est trouvée
-  const defaultFaqItems: Faq[] = [
-    {
-      id: '1',
-      question: "Quels services proposez-vous exactement ?",
-      answer: "Nous offrons une gamme complète de services numériques incluant le développement d'applications web et mobiles sur mesure, la conception UX/UI, l'infrastructure cloud, la transformation digitale et l'intégration de solutions d'intelligence artificielle. Chaque solution est personnalisée selon les besoins spécifiques de votre entreprise."
-    },
-    {
-      id: '2',
-      question: "Combien coûte un projet typique ?",
-      answer: "Les coûts varient considérablement en fonction de la complexité, de l'envergure et des fonctionnalités requises. Nous proposons une tarification transparente avec des devis détaillés après une analyse approfondie de vos besoins. Contactez-nous pour une consultation gratuite et un devis personnalisé."
-    },
-    {
-      id: '3',
-      question: "Quelle est la durée moyenne d'un projet ?",
-      answer: "La durée d'un projet dépend de sa complexité et de son envergure. Un site web simple peut prendre 2-4 semaines, tandis qu'une application complexe peut nécessiter 3-6 mois ou plus. Nous établissons toujours un calendrier détaillé au début du projet et vous tenons informé de l'avancement à chaque étape."
-    },
-    {
-      id: '4',
-      question: "Proposez-vous un support après le lancement du projet ?",
-      answer: "Absolument. Nous offrons divers plans de maintenance et de support continu pour assurer le bon fonctionnement de votre solution. Ces plans incluent les mises à jour de sécurité, l'optimisation des performances, le support technique et l'évolution fonctionnelle selon vos besoins."
-    },
-    {
-      id: '5',
-      question: "Comment assurez-vous la qualité de vos développements ?",
-      answer: "Notre processus de développement comprend plusieurs phases de tests rigoureux : tests unitaires, tests d'intégration, tests de performance et tests d'acceptation utilisateur. Nous utilisons également des méthodes de développement agiles qui permettent des ajustements continus basés sur vos retours."
-    },
-    {
-      id: '6',
-      question: "Avez-vous de l'expérience dans notre secteur d'activité ?",
-      answer: "Notre équipe a travaillé avec des clients de nombreux secteurs, notamment la finance, la santé, l'éducation, le commerce de détail et l'industrie. Nous adaptons notre approche à chaque secteur et ses défis spécifiques. N'hésitez pas à nous demander des références ou études de cas pertinentes pour votre domaine."
-    }
-  ];
-
-  // Catégories de FAQ
-  const categories = [
-    { id: "all", name: "Toutes les questions" },
-    { id: "services", name: "Services" },
-    { id: "pricing", name: "Tarification" },
-    { id: "process", name: "Processus" },
-    { id: "support", name: "Support" }
-  ];
-
-  // Mapping des questions par catégorie
-  const categoryMapping = {
-    "services": [0, 5],
-    "pricing": [1],
-    "process": [2, 4],
-    "support": [3]
-  };
-
-  if (isLoading) {
-    return (
-      <section className="py-20 bg-white dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    console.error("Erreur lors du chargement des FAQs:", error);
-  }
-  
-  const faqItems = faqs && faqs.length > 0 ? faqs : defaultFaqItems;
-
   // Filtrer les questions selon la catégorie
   const filteredFaqItems = activeCategory === "all" 
     ? faqItems 
-    : faqItems.filter((_, index) => {
-        const originalIndex = faqs && faqs.length > 0 
-          ? index 
-          : categoryMapping[activeCategory as keyof typeof categoryMapping]?.includes(index) ? index : -1;
-        return originalIndex >= 0;
-      });
+    : faqItems.filter((_, index) => categoryMapping[activeCategory as keyof typeof categoryMapping]?.includes(index));
 
   const toggleItem = (value: string) => {
     setExpandedItems(prev => 
@@ -148,21 +107,21 @@ const FaqSection = () => {
           >
             {filteredFaqItems.map((item, index) => (
               <AccordionItem 
-                key={item.id || `item-${index}`} 
-                value={item.id || `item-${index}`}
+                key={`item-${index}`} 
+                value={`item-${index}`}
                 className={cn(
                   "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all",
-                  expandedItems.includes(item.id || `item-${index}`) 
+                  expandedItems.includes(`item-${index}`) 
                     ? "bg-white dark:bg-gray-800 shadow-md" 
                     : "bg-gray-50 dark:bg-gray-800/50"
                 )}
               >
                 <AccordionTrigger 
-                  onClick={() => toggleItem(item.id || `item-${index}`)}
+                  onClick={() => toggleItem(`item-${index}`)}
                   className="text-left font-semibold py-4 px-6 hover:text-primary dark:text-white dark:hover:text-primary transition-colors flex items-center justify-between"
                 >
                   <span>{item.question}</span>
-                  {expandedItems.includes(item.id || `item-${index}`) ? (
+                  {expandedItems.includes(`item-${index}`) ? (
                     <MinusCircle className="h-5 w-5 text-primary shrink-0" />
                   ) : (
                     <PlusCircle className="h-5 w-5 text-gray-400 shrink-0" />

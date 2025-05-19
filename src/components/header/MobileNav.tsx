@@ -1,33 +1,57 @@
 
 import React from 'react';
-import { Menu } from 'lucide-react';
-import ThemeSelector from './ThemeSelector';
+import { Menu, X, Moon, Sun, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-export interface MobileNavProps {
+interface MobileNavProps {
   mobileMenuOpen: boolean;
   toggleMobileMenu: () => void;
+  toggleTheme: () => void;
   toggleSearch: () => void;
-  showThemeSelector?: boolean;
-  toggleTheme?: () => void;
-  theme?: string;
+  theme: string;
 }
 
 const MobileNav: React.FC<MobileNavProps> = ({
   mobileMenuOpen,
   toggleMobileMenu,
+  toggleTheme,
   toggleSearch,
-  showThemeSelector,
+  theme
 }) => {
   return (
-    <div className="flex items-center md:hidden">
-      {showThemeSelector && <ThemeSelector />}
-      <button
-        onClick={toggleMobileMenu}
-        className="p-2 ml-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-        aria-label="Menu"
+    <div className="md:hidden flex items-center space-x-3">
+      <Button
+        onClick={toggleTheme}
+        variant="ghost"
+        size="icon"
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
+        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       >
-        <Menu className="h-6 w-6" />
-      </button>
+        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </Button>
+      
+      <Button
+        onClick={toggleSearch}
+        variant="ghost"
+        size="icon"
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors border border-gray-200 dark:border-gray-700 rounded-full w-9 h-9 hover-scale"
+        aria-label="Search"
+      >
+        <Search size={18} />
+      </Button>
+      
+      <Button 
+        variant="ghost"
+        size="icon"
+        onClick={toggleMobileMenu}
+        className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors hover-scale"
+        aria-label="Toggle Menu"
+      >
+        {mobileMenuOpen ? 
+          <X size={24} className="animate-fade-in" /> : 
+          <Menu size={24} className="animate-fade-in" />
+        }
+      </Button>
     </div>
   );
 };

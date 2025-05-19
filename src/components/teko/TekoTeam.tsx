@@ -1,21 +1,8 @@
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
 
 const TekoTeam: React.FC = () => {
-  const { data: config } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig,
-    staleTime: 0,
-    refetchOnMount: true,
-  });
-
-  // Utiliser les données de l'équipe depuis la base de données si disponibles
-  const teamMembers = config?.sections.find(section => section.type === 'team')?.data?.members || [];
-  
-  // Données par défaut si aucune donnée n'est trouvée
-  const defaultTeam = [
+  const team = [
     {
       name: "Sophie Martin",
       role: "CEO & Fondatrice",
@@ -38,9 +25,6 @@ const TekoTeam: React.FC = () => {
     }
   ];
   
-  console.log("TekoTeam - Données d'équipe reçues:", teamMembers);
-  const team = teamMembers.length > 0 ? teamMembers : defaultTeam;
-  
   return (
     <section id="team" className="py-24 bg-[#f8fafc]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,10 +39,10 @@ const TekoTeam: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {team.map((member, index) => (
-            <div key={member.id || index} className="group relative">
+            <div key={index} className="group relative">
               <div className="aspect-square rounded-2xl overflow-hidden mb-4">
                 <img 
-                  src={member.image || `https://via.placeholder.com/400x400?text=${member.name.charAt(0)}`} 
+                  src={member.image} 
                   alt={member.name} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />

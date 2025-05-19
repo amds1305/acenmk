@@ -63,7 +63,7 @@ const CVGeneratorRefactored = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/ace-job">AceJob</BreadcrumbLink>
+            <BreadcrumbLink href="/ace-job">ACE JOB</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>

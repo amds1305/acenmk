@@ -36,7 +36,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {loginHistory && loginHistory.length > 0 ? (
+        {loginHistory.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -49,12 +49,12 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
             </TableHeader>
             <TableBody>
               {loginHistory.sort((a, b) => 
-                new Date(b.timestamp || b.date || '').getTime() - new Date(a.timestamp || a.date || '').getTime()
+                new Date(b.date).getTime() - new Date(a.date).getTime()
               ).map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {entry.success !== false ? (
+                      {entry.success ? (
                         <div className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 p-1 rounded-full">
                           <Check className="h-4 w-4" />
                         </div>
@@ -63,18 +63,18 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
                           <X className="h-4 w-4" />
                         </div>
                       )}
-                      {entry.success !== false ? 'Réussi' : 'Échec'}
+                      {entry.success ? 'Réussi' : 'Échec'}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {formatDate(entry.timestamp || entry.date || '')}
+                    {formatDate(entry.date)}
                     <div className="text-xs text-muted-foreground">
-                      {new Date(entry.timestamp || entry.date || '').toLocaleTimeString('fr-FR')}
+                      {new Date(entry.date).toLocaleTimeString('fr-FR')}
                     </div>
                   </TableCell>
-                  <TableCell>{entry.deviceInfo || entry.device}</TableCell>
+                  <TableCell>{entry.deviceInfo}</TableCell>
                   <TableCell>{entry.location || 'Inconnu'}</TableCell>
-                  <TableCell>{entry.ipAddress || entry.ip || 'Inconnu'}</TableCell>
+                  <TableCell>{entry.ip}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

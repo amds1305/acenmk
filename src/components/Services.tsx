@@ -3,92 +3,47 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Code, Database, Layout, Smartphone, Globe, BarChart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
-// Mapping des noms d'icônes vers les composants Lucide
-const iconMap = {
-  'Code': Code,
-  'Database': Database,
-  'Layout': Layout,
-  'Smartphone': Smartphone,
-  'Globe': Globe,
-  'BarChart': BarChart,
-  // Ajoutez d'autres icônes au besoin
-};
-
-// Service interface
-interface Service {
-  id: string;
-  icon: string;
-  title: string;
-  description: string;
-  order_index: number;
-}
-
-// Custom hook for services
-const useServices = () => {
-  // Default services data
-  const defaultServices = [
-    {
-      id: '1',
-      icon: 'Code',
-      title: 'Développement sur mesure',
-      description: 'Applications web et mobiles personnalisées selon vos besoins spécifiques et les dernières technologies.',
-      order_index: 0,
-    },
-    {
-      id: '2',
-      icon: 'Database',
-      title: 'Infrastructure cloud',
-      description: 'Solutions d\'hébergement sécurisées, évolutives et performantes pour vos applications critiques.',
-      order_index: 1,
-    },
-    {
-      id: '3',
-      icon: 'Layout',
-      title: 'UX/UI Design',
-      description: 'Interfaces utilisateur intuitives et esthétiques qui améliorent l\'expérience de vos utilisateurs.',
-      order_index: 2,
-    },
-    {
-      id: '4',
-      icon: 'Smartphone',
-      title: 'Applications mobiles',
-      description: 'Applications natives et hybrides pour iOS et Android avec une expérience utilisateur fluide.',
-      order_index: 3,
-    },
-    {
-      id: '5',
-      icon: 'Globe',
-      title: 'Transformation digitale',
-      description: 'Accompagnement stratégique pour digitaliser vos processus métier et gagner en efficacité.',
-      order_index: 4,
-    },
-    {
-      id: '6',
-      icon: 'BarChart',
-      title: 'Intelligence artificielle',
-      description: 'Intégration de solutions d\'IA et machine learning pour optimiser vos processus et analyses.',
-      order_index: 5,
-    },
-  ];
-  
-  return { 
-    services: defaultServices, 
-    isLoading: false, 
-    error: null 
-  };
-};
+const services = [
+  {
+    icon: <Code className="h-10 w-10 text-primary" />,
+    title: 'Développement sur mesure',
+    description: 'Applications web et mobiles personnalisées selon vos besoins spécifiques et les dernières technologies.',
+    delay: 0,
+  },
+  {
+    icon: <Database className="h-10 w-10 text-primary" />,
+    title: 'Infrastructure cloud',
+    description: 'Solutions d\'hébergement sécurisées, évolutives et performantes pour vos applications critiques.',
+    delay: 100,
+  },
+  {
+    icon: <Layout className="h-10 w-10 text-primary" />,
+    title: 'UX/UI Design',
+    description: 'Interfaces utilisateur intuitives et esthétiques qui améliorent l\'expérience de vos utilisateurs.',
+    delay: 200,
+  },
+  {
+    icon: <Smartphone className="h-10 w-10 text-primary" />,
+    title: 'Applications mobiles',
+    description: 'Applications natives et hybrides pour iOS et Android avec une expérience utilisateur fluide.',
+    delay: 300,
+  },
+  {
+    icon: <Globe className="h-10 w-10 text-primary" />,
+    title: 'Transformation digitale',
+    description: 'Accompagnement stratégique pour digitaliser vos processus métier et gagner en efficacité.',
+    delay: 400,
+  },
+  {
+    icon: <BarChart className="h-10 w-10 text-primary" />,
+    title: 'Intelligence artificielle',
+    description: 'Intégration de solutions d\'IA et machine learning pour optimiser vos processus et analyses.',
+    delay: 500,
+  },
+];
 
 const Services = () => {
-  const { services, isLoading, error } = useServices();
-  const { toast } = useToast();
-
-  // Afficher un message d'erreur si le chargement échoue
-  if (error) {
-    console.error("Erreur lors du chargement des services:", error);
-  }
-
   return (
     <section id="services" className="py-24 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -104,34 +59,29 @@ const Services = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service) => {
-            // Obtenir le composant d'icône ou utiliser Code comme icône par défaut
-            const IconComponent = iconMap[service.icon as keyof typeof iconMap] || Code;
-            
-            return (
-              <div 
-                key={service.id}
-                className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex">
-                  <IconComponent className="h-10 w-10 text-primary" />
-                </div>
-                
-                <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
-                  {service.title}
-                </h3>
-                
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  {service.description}
-                </p>
-                
-                <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto underline-animation">
-                  En savoir plus
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
+          {services.map((service, index) => (
+            <div 
+              key={index}
+              className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="mb-6 p-4 rounded-lg bg-primary/10 inline-flex">
+                {service.icon}
               </div>
-            );
-          })}
+              
+              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                {service.title}
+              </h3>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                {service.description}
+              </p>
+              
+              <a href="#contact" className="text-primary font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all mt-auto underline-animation">
+                En savoir plus
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
+            </div>
+          ))}
         </div>
         
         <div className="mt-16 text-center">

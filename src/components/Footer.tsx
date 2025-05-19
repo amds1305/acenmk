@@ -1,392 +1,31 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-
-interface FooterLink {
-  name: string;
-  href: string;
-}
-
-interface ContactInfo {
-  icon: string;
-  title: string;
-  value: string;
-  href: string;
-}
-
-interface SocialLink {
-  name: string;
-  href: string;
-}
-
-interface FooterData {
-  companyInfo: {
-    name: string;
-    description: string;
-  };
-  serviceLinks: FooterLink[];
-  legalLinks: FooterLink[];
-  contactInfo: ContactInfo[];
-  socialLinks: SocialLink[];
-  sectionTitles: {
-    services: string;
-    contact: string;
-    legal: string;
-  };
-}
-
-interface FooterStyle {
-  companyName: {
-    color: string;
-    fontSize: string;
-    fontWeight: string;
-    isVisible: boolean;
-  };
-  sectionTitles: {
-    color: string;
-    fontSize: string;
-    fontWeight: string;
-    isVisible: boolean;
-  };
-  links: {
-    isVisible: boolean;
-    color: string;
-    hoverColor: string;
-  };
-  services: {
-    isVisible: boolean;
-  };
-  legalLinks: {
-    isVisible: boolean;
-  };
-  social: {
-    isVisible: boolean;
-    iconColor: string;
-    iconHoverColor: string;
-    iconBgColor: string;
-    iconBgHoverColor: string;
-  };
-  backToTopButton: {
-    isVisible: boolean;
-    textColor: string;
-    bgColor: string;
-    borderColor: string;
-    hoverBgColor: string;
-    hoverTextColor: string;
-  }
-}
-
-const defaultFooterData: FooterData = {
-  companyInfo: {
-    name: "VISIONTECH",
-    description: "Solutions numériques innovantes pour transformer votre entreprise et accélérer votre croissance."
-  },
-  serviceLinks: [
-    { name: "Développement sur mesure", href: "#services" },
-    { name: "Infrastructure cloud", href: "#services" },
-    { name: "UX/UI Design", href: "#services" },
-    { name: "Applications mobiles", href: "#services" },
-    { name: "Transformation digitale", href: "#services" }
-  ],
-  sectionTitles: {
-    services: "Services",
-    contact: "Contact",
-    legal: "Légal"
-  },
-  legalLinks: [
-    { name: "Mentions légales", href: "/mentions-legales" },
-    { name: "Politique de confidentialité", href: "/politique-de-confidentialite" },
-    { name: "Conditions d'utilisation", href: "/conditions-utilisation" },
-    { name: "Cookies", href: "/politique-cookies" }
-  ],
-  contactInfo: [
-    {
-      icon: "Mail",
-      title: "Email",
-      value: "contact@visiontech.fr",
-      href: "mailto:contact@visiontech.fr",
-    },
-    {
-      icon: "Phone",
-      title: "Téléphone",
-      value: "+33 1 23 45 67 89",
-      href: "tel:+33123456789",
-    },
-    {
-      icon: "MapPin",
-      title: "Adresse",
-      value: "123 Avenue de l'Innovation, 75001 Paris",
-      href: "https://maps.google.com",
-    }
-  ],
-  socialLinks: [
-    { name: "Facebook", href: "#" },
-    { name: "Twitter", href: "#" },
-    { name: "Instagram", href: "#" },
-    { name: "LinkedIn", href: "#" }
-  ]
-};
-
-const defaultFooterStyle: FooterStyle = {
-  companyName: {
-    color: "#FFFFFF",
-    fontSize: "1.5rem",
-    fontWeight: "700",
-    isVisible: true,
-  },
-  sectionTitles: {
-    color: "#FFFFFF",
-    fontSize: "1.25rem",
-    fontWeight: "600",
-    isVisible: true,
-  },
-  links: {
-    isVisible: true,
-    color: "#9CA3AF",
-    hoverColor: "#FFFFFF",
-  },
-  services: {
-    isVisible: true,
-  },
-  legalLinks: {
-    isVisible: true,
-  },
-  social: {
-    isVisible: true,
-    iconColor: "#9CA3AF",
-    iconHoverColor: "#FFFFFF",
-    iconBgColor: "rgba(255, 255, 255, 0.1)",
-    iconBgHoverColor: "rgba(255, 255, 255, 0.2)",
-  },
-  backToTopButton: {
-    isVisible: true,
-    textColor: "#FFFFFF",
-    bgColor: "rgba(255, 255, 255, 0.1)",
-    borderColor: "transparent",
-    hoverBgColor: "rgba(255, 255, 255, 0.2)",
-    hoverTextColor: "#FFFFFF",
-  }
-};
-
-const getFooterIcon = (iconName: string) => {
-  switch (iconName) {
-    case 'Mail': return <Mail className="h-5 w-5" />;
-    case 'Phone': return <Phone className="h-5 w-5" />;
-    case 'MapPin': return <MapPin className="h-5 w-5" />;
-    case 'Facebook': return <Facebook className="h-5 w-5" />;
-    case 'Twitter': return <Twitter className="h-5 w-5" />;
-    case 'Instagram': return <Instagram className="h-5 w-5" />;
-    case 'LinkedIn': return <Linkedin className="h-5 w-5" />;
-    default: return <Mail className="h-5 w-5" />;
-  }
-};
-
-const getSocialIcon = (name: string) => {
-  switch (name.toLowerCase()) {
-    case 'facebook': return <Facebook className="h-5 w-5" />;
-    case 'twitter': return <Twitter className="h-5 w-5" />;
-    case 'instagram': return <Instagram className="h-5 w-5" />;
-    case 'linkedin': return <Linkedin className="h-5 w-5" />;
-    default: return <Linkedin className="h-5 w-5" />;
-  }
-};
-
-// Function to fetch footer data
-const fetchFooterData = async () => {
-  try {
-    // Try to get from Supabase
-    try {
-      const { data, error } = await supabase
-        .from('section_data')
-        .select('data')
-        .eq('section_id', 'footer')
-        .single();
-        
-      if (!error && data && data.data) {
-        return data.data as FooterData;
-      }
-    } catch (supabaseError) {
-      console.error("Supabase error:", supabaseError);
-      // Continue to localStorage if Supabase fails
-    }
-    
-    // Try to get from localStorage
-    const savedData = localStorage.getItem('footerData');
-    if (savedData) {
-      return JSON.parse(savedData) as FooterData;
-    }
-  } catch (error) {
-    console.error("Error fetching footer data:", error);
-  }
-  
-  // Return default data if all else fails
-  return defaultFooterData;
-};
-
-// Function to fetch footer styles
-const fetchFooterStyles = async () => {
-  try {
-    // Try to get from Supabase
-    try {
-      const { data, error } = await supabase
-        .from('section_data')
-        .select('data')
-        .eq('section_id', 'footer-style')
-        .single();
-        
-      if (!error && data && data.data) {
-        // Merge with default styles to ensure all properties exist
-        return { ...defaultFooterStyle, ...data.data } as FooterStyle;
-      }
-    } catch (supabaseError) {
-      console.error("Supabase error fetching styles:", supabaseError);
-    }
-  } catch (error) {
-    console.error("Error fetching footer styles:", error);
-  }
-  
-  // Return default styles if all else fails
-  return defaultFooterStyle;
-};
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [footerData, setFooterData] = useState(defaultFooterData);
-  const [footerStyle, setFooterStyle] = useState(defaultFooterStyle);
   
-  const { data: dataFromQuery } = useQuery({
-    queryKey: ['footerData'],
-    queryFn: fetchFooterData,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-  });
-  
-  const { data: styleFromQuery } = useQuery({
-    queryKey: ['footerStyle'],
-    queryFn: fetchFooterStyles,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-  });
-  
-  useEffect(() => {
-    if (dataFromQuery) {
-      setFooterData({
-        ...defaultFooterData,
-        ...dataFromQuery
-      });
-    }
-    
-    if (styleFromQuery) {
-      setFooterStyle({
-        ...defaultFooterStyle,
-        ...styleFromQuery
-      });
-    }
-    
-    // Listen for admin changes
-    const handleAdminChanges = () => {
-      console.log("Admin changes detected, refetching footer data...");
-      fetchFooterData().then(data => setFooterData({...defaultFooterData, ...data}));
-      fetchFooterStyles().then(style => setFooterStyle({...defaultFooterStyle, ...style}));
-    };
-    
-    // Listen for footer style updates
-    const handleStyleUpdates = (e: CustomEvent) => {
-      console.log("Footer style updated:", e.detail);
-      if (e.detail.style) {
-        setFooterStyle({...defaultFooterStyle, ...e.detail.style});
-      }
-      if (e.detail.data) {
-        setFooterData({...defaultFooterData, ...e.detail.data});
-      }
-    };
-    
-    window.addEventListener('admin-changes-saved', handleAdminChanges);
-    window.addEventListener('footer-style-updated', handleStyleUpdates as EventListener);
-    
-    return () => {
-      window.removeEventListener('admin-changes-saved', handleAdminChanges);
-      window.removeEventListener('footer-style-updated', handleStyleUpdates as EventListener);
-    };
-  }, [dataFromQuery, styleFromQuery]);
-
-  // Extract the data for easy usage with safe defaults
-  const { 
-    companyInfo = { name: "VISIONTECH", description: "" }, 
-    serviceLinks = [], 
-    legalLinks = [], 
-    contactInfo = [], 
-    socialLinks = [], 
-    sectionTitles = { services: "Services", contact: "Contact", legal: "Légal" }
-  } = footerData || defaultFooterData;
-  
-  // Generate CSS styles from footerStyle with safe defaults
-  const companyNameStyle = {
-    color: footerStyle?.companyName?.color || "#FFFFFF",
-    fontSize: footerStyle?.companyName?.fontSize || "1.5rem",
-    fontWeight: footerStyle?.companyName?.fontWeight || "700",
-    display: footerStyle?.companyName?.isVisible !== false ? 'block' : 'none'
-  };
-  
-  const sectionTitleStyle = {
-    color: footerStyle?.sectionTitles?.color || "#FFFFFF",
-    fontSize: footerStyle?.sectionTitles?.fontSize || "1.25rem",
-    fontWeight: footerStyle?.sectionTitles?.fontWeight || "600",
-    display: footerStyle?.sectionTitles?.isVisible !== false ? 'block' : 'none'
-  };
-  
-  const linkStyle = {
-    color: footerStyle?.links?.color || "#9CA3AF",
-    transition: 'color 0.2s ease'
-  };
-  
-  // Create custom CSS styles for hover effects
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.innerHTML = `
-      .footer-link:hover {
-        color: ${footerStyle?.links?.hoverColor || "#FFFFFF"} !important;
-      }
-      .footer-social:hover {
-        color: ${footerStyle?.social?.iconHoverColor || "#FFFFFF"} !important;
-        background-color: ${footerStyle?.social?.iconBgHoverColor || "rgba(255, 255, 255, 0.2)"} !important;
-      }
-      .footer-back-to-top:hover {
-        color: ${footerStyle?.backToTopButton?.hoverTextColor || "#FFFFFF"} !important;
-        background-color: ${footerStyle?.backToTopButton?.hoverBgColor || "rgba(255, 255, 255, 0.2)"} !important;
-      }
-    `;
-    document.head.appendChild(styleElement);
-    
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, [footerStyle]);
-
-  // Styles for social icons with safe defaults
-  const socialIconStyle = {
-    color: footerStyle?.social?.iconColor || "#9CA3AF",
-    backgroundColor: footerStyle?.social?.iconBgColor || "rgba(255, 255, 255, 0.1)",
-    transition: 'color 0.2s ease, background-color 0.2s ease'
-  };
-  
-  // Style for the "Back to top" button with safe defaults
-  const backToTopButtonStyle = {
-    color: footerStyle?.backToTopButton?.textColor || "#FFFFFF",
-    backgroundColor: footerStyle?.backToTopButton?.bgColor || "rgba(255, 255, 255, 0.1)",
-    borderColor: footerStyle?.backToTopButton?.borderColor || "transparent",
-    display: footerStyle?.backToTopButton?.isVisible !== false ? 'inline-flex' : 'none',
-    transition: 'color 0.2s ease, background-color 0.2s ease'
-  };
-  
-  // Check if the services and legal links sections should be visible
-  const showServices = footerStyle?.services?.isVisible !== false;
-  const showLegalLinks = footerStyle?.legalLinks?.isVisible !== false;
-  const showSocialLinks = footerStyle?.social?.isVisible !== false;
+  // Contact information that was moved from the contact form
+  const contactInfo = [
+    {
+      icon: <Mail className="h-5 w-5" />,
+      title: 'Email',
+      value: 'contact@visiontech.fr',
+      href: 'mailto:contact@visiontech.fr',
+    },
+    {
+      icon: <Phone className="h-5 w-5" />,
+      title: 'Téléphone',
+      value: '+33 1 23 45 67 89',
+      href: 'tel:+33123456789',
+    },
+    {
+      icon: <MapPin className="h-5 w-5" />,
+      title: 'Adresse',
+      value: '123 Avenue de l\'Innovation, 75001 Paris',
+      href: 'https://maps.google.com',
+    },
+  ];
   
   return (
     <footer className="bg-gray-900 text-white">
@@ -394,73 +33,54 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Company Info */}
           <div>
-            {footerStyle?.companyName?.isVisible !== false && (
-              <a href="#hero" className="text-xl font-bold tracking-tight" style={companyNameStyle}>
-                <span className="text-primary">{companyInfo?.name?.split(' ')[0] || 'VISION'}</span> 
-                <span className="text-white">{companyInfo?.name?.split(' ')[1] || 'TECH'}</span>
-              </a>
-            )}
+            <a href="#hero" className="text-xl font-bold tracking-tight">
+              <span className="text-primary">VISION</span> 
+              <span className="text-white">TECH</span>
+            </a>
             <p className="text-gray-400 mt-4 mb-6 max-w-xs">
-              {companyInfo?.description}
+              Solutions numériques innovantes pour transformer votre entreprise et accélérer votre croissance.
             </p>
-            {showSocialLinks && (
-              <div className="flex space-x-4">
-                {(socialLinks || []).map((social, index) => (
-                  <a 
-                    key={index}
-                    href={social.href} 
-                    className="p-2 bg-white/10 rounded-full hover:bg-primary/90 transition-colors footer-social"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={socialIconStyle}
-                  >
-                    {getSocialIcon(social.name)}
-                  </a>
-                ))}
-              </div>
-            )}
+            <div className="flex space-x-4">
+              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-primary/90 transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-primary/90 transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-primary/90 transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-primary/90 transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
           </div>
           
           {/* Services */}
-          {showServices && (
-            <div>
-              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-                {sectionTitles?.services || "Services"}
-              </h4>
-              <ul className="space-y-4">
-                {(serviceLinks || []).map((link, index) => (
-                  <li key={index}>
-                    <a 
-                      href={link.href} 
-                      className="footer-link transition-colors"
-                      style={linkStyle}
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-              {sectionTitles?.contact || "Contact"}
-            </h4>
+            <h4 className="text-lg font-semibold mb-6">Services</h4>
             <ul className="space-y-4">
-              {(contactInfo || []).map((info, index) => (
+              <li><a href="#services" className="text-gray-400 hover:text-white transition-colors">Développement sur mesure</a></li>
+              <li><a href="#services" className="text-gray-400 hover:text-white transition-colors">Infrastructure cloud</a></li>
+              <li><a href="#services" className="text-gray-400 hover:text-white transition-colors">UX/UI Design</a></li>
+              <li><a href="#services" className="text-gray-400 hover:text-white transition-colors">Applications mobiles</a></li>
+              <li><a href="#services" className="text-gray-400 hover:text-white transition-colors">Transformation digitale</a></li>
+            </ul>
+          </div>
+          
+          {/* Contact Info - Added from Contact component */}
+          <div>
+            <h4 className="text-lg font-semibold mb-6">Contact</h4>
+            <ul className="space-y-4">
+              {contactInfo.map((info, index) => (
                 <li key={index}>
                   <a 
                     href={info.href}
-                    className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 footer-link"
+                    className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
                     target="_blank"
                     rel="noreferrer"
-                    style={linkStyle}
                   >
-                    <span className="bg-white/10 p-1.5 rounded-full">
-                      {getFooterIcon(info.icon)}
-                    </span>
+                    <span className="bg-white/10 p-1.5 rounded-full">{info.icon}</span>
                     <span>{info.value}</span>
                   </a>
                 </li>
@@ -469,39 +89,25 @@ const Footer = () => {
           </div>
           
           {/* Legal */}
-          {showLegalLinks && (
-            <div>
-              <h4 className="text-lg font-semibold mb-6" style={sectionTitleStyle}>
-                {sectionTitles?.legal || "Légal"}
-              </h4>
-              <ul className="space-y-4">
-                {(legalLinks || []).map((link, index) => (
-                  <li key={index}>
-                    <a 
-                      href={link.href} 
-                      className="footer-link transition-colors"
-                      style={linkStyle}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div>
+            <h4 className="text-lg font-semibold mb-6">Légal</h4>
+            <ul className="space-y-4">
+              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Mentions légales</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Politique de confidentialité</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Conditions d'utilisation</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Cookies</a></li>
+            </ul>
+          </div>
         </div>
         
         <div className="border-t border-white/10 pt-8 mt-12 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © {currentYear} {companyInfo?.name || "VISIONTECH"}. Tous droits réservés.
+            © {currentYear} VisionTech. Tous droits réservés.
           </p>
           <div className="mt-4 md:mt-0">
             <a 
               href="#hero" 
-              className="footer-back-to-top inline-flex items-center justify-center h-10 px-4 rounded-full text-white text-sm font-medium"
-              style={backToTopButtonStyle}
+              className="inline-flex items-center justify-center h-10 px-4 rounded-full bg-white/10 text-white text-sm font-medium transition-colors hover:bg-primary/90"
             >
               Retour en haut
             </a>

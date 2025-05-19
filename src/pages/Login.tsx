@@ -1,93 +1,99 @@
-
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
-  // Get from param or default to home
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || '/profile';
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
+    setIsSubmitting(true);
+    
     try {
-      const result = await login(email, password);
-      
-      if (result.success) {
-        console.log("Login successful, checking if admin");
-        
-        // Check if this is the admin test account
-        if (email === 'admin@example.com' && password === 'password') {
-          console.log("Admin test account detected, redirecting to admin");
-          navigate('/admin', { replace: true });
-        } else {
-          console.log("Regular user login, redirecting to:", from);
-          navigate(from, { replace: true });
-        }
-      }
+      await login(email, password);
+      toast({
+        title: 'Connexion réussie',
+        description: 'Bienvenue sur votre espace client.',
+      });
+      navigate(from, { replace: true });
     } catch (error) {
-      console.error("Login form error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Échec de la connexion',
+        description: 'Veuillez vérifier vos identifiants',
+      });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-md px-4">
-        <Card>
+    <>
+      <Header />
+      <div className="min-h-screen py-16 px-4 bg-muted/30 flex items-center justify-center">
+        <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Connexion</CardTitle>
-            <CardDescription>
-              Entrez vos identifiants pour accéder à votre compte
+            <CardTitle className="text-2xl text-center">Connexion</CardTitle>
+            <CardDescription className="text-center">
+              Connectez-vous pour accéder à votre espace client
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  required
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="exemple@email.com" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Mot de passe</Label>
-                  <a
-                    href="/reset-password"
-                    className="text-sm text-primary hover:underline"
-                  >
+                  <Link to="/reset-password" className="text-xs text-primary hover:underline">
                     Mot de passe oublié?
-                  </a>
+                  </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
                 />
               </div>
-              <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? (
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Connexion en cours...
@@ -97,22 +103,30 @@ const Login = () => {
                 )}
               </Button>
             </form>
+            <div className="mt-6 pt-4 border-t text-sm text-muted-foreground">
+              <p className="text-center">
+                Pour les besoins de la démo:
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                <li><strong>Client:</strong> user@example.com / user123</li>
+                <li><strong>Admin:</strong> admin@example.com / admin123</li>
+              </ul>
+            </div>
           </CardContent>
           <CardFooter>
-            <div className="text-sm text-gray-500 dark:text-gray-400 text-center w-full">
-              Vous n'avez pas de compte?{' '}
-              <a href="/register" className="text-primary hover:underline">
-                S'inscrire
-              </a>
+            <div className="w-full text-center">
+              <p className="text-sm text-muted-foreground">
+                Vous n'avez pas de compte?{' '}
+                <Link to="/register" className="text-primary hover:underline">
+                  Créer un compte
+                </Link>
+              </p>
             </div>
           </CardFooter>
-          {/* Admin test login hint */}
-          <div className="text-xs text-center pb-4 text-gray-500">
-            Compte administrateur test: admin@example.com / password
-          </div>
         </Card>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
