@@ -22,4 +22,10 @@ const useToast = () => {
   };
 };
 
+// Define the toast function that was missing
+const toast = (props: Omit<ToasterToast, "id">) => {
+  const { toast: toastFn } = useToastOriginal();
+  return toastFn(props);
+};
+
 export { useToast, toast };
