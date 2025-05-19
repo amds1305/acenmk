@@ -21,10 +21,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { SaveIndicator } from '@/components/ui/save-indicator';
-import { Address, SocialLink } from '@/types/auth';
+import { Address, SocialLink, User } from '@/types/auth';
 
-const ProfileInfo = () => {
-  const { user, updateProfile, uploadAvatar } = useAuth();
+interface ProfileInfoProps {
+  user: User;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<string>;
+}
+
+const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAvatar }) => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -78,7 +83,7 @@ const ProfileInfo = () => {
     setIsSaving('saving');
     try {
       // Handle avatar upload if a new file was selected
-      let avatarUrl = user?.avatar;
+      let avatarUrl = user?.avatar_url || user?.avatar;
       if (avatarFile) {
         const uploadedUrl = await uploadAvatar(avatarFile);
         if (uploadedUrl) {
@@ -94,7 +99,7 @@ const ProfileInfo = () => {
         company: data.company,
         phone: data.phone,
         biography: data.biography,
-        avatar: avatarUrl,
+        avatar_url: avatarUrl,
         address: {
           street: data.address.street,
           city: data.address.city,
@@ -132,7 +137,7 @@ const ProfileInfo = () => {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border border-gray-200 dark:border-gray-800">
                   <img
-                    src={avatarPreview || user?.avatar || '/placeholder.svg'}
+                    src={avatarPreview || user?.avatar_url || user?.avatar || '/placeholder.svg'}
                     alt="Avatar"
                     className="w-full h-full object-cover"
                   />

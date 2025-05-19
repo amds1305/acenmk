@@ -1,89 +1,92 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Bell, ExternalLink } from 'lucide-react';
-import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Message } from '@/types/auth';
+import { MessageSquare, BellRing } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface RecentMessagesProps {
   messages: Message[];
 }
 
-const RecentMessages: React.FC<RecentMessagesProps> = ({ messages }) => {
-  // Format the timestamp based on when it was received
-  const formatMessageTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    
-    if (isToday(date)) {
-      return format(date, 'HH:mm', { locale: fr });
-    } else if (isYesterday(date)) {
-      return `Hier, ${format(date, 'HH:mm', { locale: fr })}`;
-    } else {
-      return formatDistanceToNow(date, { locale: fr, addSuffix: true });
+const RecentMessages: React.FC<RecentMessagesProps> = ({ messages = [] }) => {
+  const formatMessageDate = (timestamp: string) => {
+    try {
+      return formatDistanceToNow(new Date(timestamp), {
+        addSuffix: true,
+        locale: fr,
+      });
+    } catch (error) {
+      console.error('Error formatting message date:', error);
+      return 'Date invalide';
     }
   };
-  
-  // Get initials from a name
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .substr(0, 2);
-  };
-  
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center">
-          <Bell className="h-4 w-4 mr-2" />
-          Messages récents
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Messages récents
+          </CardTitle>
+          <span className="inline-flex items-center justify-center w-5 h-5 bg-primary text-white text-xs font-medium rounded-full">
+            {messages.filter(m => !m.read).length}
+          </span>
+        </div>
+        <CardDescription>
+          Vos derniers messages reçus
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         {messages.length > 0 ? (
-          <div className="divide-y divide-border">
+          <div className="divide-y">
             {messages.slice(0, 3).map((message) => (
-              <div key={message.id} className="p-4 hover:bg-muted/50 transition-colors">
-                <div className="flex gap-3">
-                  <Avatar className="h-9 w-9">
-                    {message.avatar ? (
-                      <AvatarImage src={message.avatar} alt={message.sender} />
+              <div key={message.id} className={`px-4 py-3 ${!message.read ? 'bg-muted/50' : ''}`}>
+                <div className="flex items-center gap-3">
+                  <div className="relative h-8 w-8 rounded-full overflow-hidden bg-secondary">
+                    {message.senderAvatar || message.avatar ? (
+                      <img src={message.senderAvatar || message.avatar} alt={message.sender} className="object-cover" />
                     ) : (
-                      <AvatarFallback>{getInitials(message.sender)}</AvatarFallback>
+                      <span className="flex items-center justify-center w-full h-full text-xs font-medium">
+                        {message.sender.charAt(0).toUpperCase()}
+                      </span>
                     )}
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
+                    {!message.read && (
+                      <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1">
                     <div className="flex justify-between items-start">
-                      <p className="text-sm font-medium leading-none">{message.sender}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatMessageTime(message.timestamp || message.date || '')}
-                      </p>
+                      <p className="font-medium text-sm">{message.sender}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {formatMessageDate(message.timestamp || message.date || '')}
+                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{message.content}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                      {message.content}
+                    </p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="py-6 text-center">
-            <p className="text-sm text-muted-foreground">Aucun message récent</p>
+          <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+            <BellRing className="h-8 w-8 text-muted-foreground mb-3" />
+            <p className="text-sm text-muted-foreground">
+              Vous n'avez aucun message pour le moment
+            </p>
           </div>
         )}
-        
-        <div className="p-4 border-t">
-          <Button variant="ghost" size="sm" className="w-full" asChild>
-            <a href="/messages">
-              <ExternalLink className="h-4 w-4 mr-2" />
+        {messages.length > 0 && (
+          <div className="p-2 text-center">
+            <button className="text-xs text-primary hover:underline">
               Voir tous les messages
-            </a>
-          </Button>
-        </div>
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

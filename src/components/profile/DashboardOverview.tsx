@@ -83,7 +83,7 @@ const DashboardOverview: React.FC = () => {
             {formatLastLogin()}
           </div>
           <p className="text-xs text-muted-foreground">
-            IP: {user?.loginHistory?.[0]?.ip || 'Non disponible'}
+            IP: {user?.loginHistory?.[0]?.ipAddress || user?.loginHistory?.[0]?.ip || 'Non disponible'}
           </p>
         </CardContent>
       </Card>

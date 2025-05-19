@@ -9,10 +9,13 @@ export interface User {
   name?: string;
   role?: UserRole;
   avatar_url?: string;
+  avatar?: string; // Added for backwards compatibility
   company?: string;
   phone?: string;
   biography?: string;
   lastLoginDate?: string;
+  createdAt?: string;
+  twoFactorEnabled?: boolean;
   projects?: Project[];
   estimates?: Estimate[];
   loginHistory?: LoginHistory[];
@@ -44,12 +47,15 @@ export interface LoginHistory {
   location?: string;
   success?: boolean;
   deviceInfo?: string;
+  date?: string;
+  ip?: string; // Added for backwards compatibility
 }
 
 export interface Message {
   id: string;
   sender: string;
   senderAvatar?: string;
+  avatar?: string; // Added for backwards compatibility
   content: string;
   timestamp: string;
   read: boolean;
@@ -80,18 +86,24 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (data: any) => Promise<void>;
+  register: (data: any) => Promise<any>; // Updated to return a value
   updateProfile: (data: Partial<User>) => Promise<void>;
   updatePreferences: (preferences: UserPreferences) => Promise<void>;
+  uploadAvatar?: (file: File) => Promise<string>; // Added uploadAvatar
+  messages?: Message[];
+  updatePassword?: (currentPassword: string, newPassword: string) => Promise<void>;
+  toggleTwoFactor?: (enable: boolean) => Promise<void>;
 }
 
 export interface Project {
   id: string;
   name: string;
+  title?: string; // Added for backwards compatibility
   client: string;
-  status: 'active' | 'completed' | 'onhold';
+  status: 'active' | 'completed' | 'onhold' | 'in_progress';
   dueDate: string;
   progress: number;
+  lastUpdated?: string;
 }
 
 export interface Estimate {
@@ -99,6 +111,6 @@ export interface Estimate {
   title: string;
   client: string;
   amount: number;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected' | 'in_review';
   date: string;
 }

@@ -40,18 +40,18 @@ const RegisterForm = () => {
       const { confirmPassword, terms, ...userData } = data;
       const response = await register(userData);
       
-      if (response && !response.error) {
-        toast({
-          title: "Inscription réussie",
-          description: "Votre compte a été créé avec succès.",
-        });
-        navigate('/login');
-      } else {
+      if (response && response.error) {
         toast({
           variant: 'destructive',
           title: "Erreur d'inscription",
           description: response.error.message || "Une erreur est survenue lors de l'inscription.",
         });
+      } else {
+        toast({
+          title: "Inscription réussie",
+          description: "Votre compte a été créé avec succès.",
+        });
+        navigate('/login');
       }
     } catch (error: any) {
       toast({

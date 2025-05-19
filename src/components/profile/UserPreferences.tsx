@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { SaveIndicator } from '@/components/ui/save-indicator';
 import { useAuth } from '@/contexts/AuthContext';
-import type { UserPreferences as UserPreferencesType } from '@/types/auth';
+import type { User, UserPreferences as UserPreferencesType } from '@/types/auth';
 
 // Form structure for preferences
 interface PreferencesFormValues {
@@ -40,8 +40,12 @@ interface PreferencesFormValues {
   theme?: "light" | "dark" | "system";
 }
 
-const UserPreferences: React.FC = () => {
-  const { user, updateProfile } = useAuth();
+interface UserPreferencesProps {
+  user: User;
+  updatePreferences: (preferences: any) => Promise<void>;
+}
+
+const UserPreferences: React.FC<UserPreferencesProps> = ({ user, updatePreferences }) => {
   const [isSaving, setIsSaving] = React.useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   
   // Default values if user preferences are not set
@@ -89,10 +93,7 @@ const UserPreferences: React.FC = () => {
       };
       
       // Save preferences
-      await updateProfile({ 
-        id: user?.id || '',
-        preferences: userPreferences as UserPreferencesType
-      });
+      await updatePreferences(userPreferences as UserPreferencesType);
       
       setIsSaving('success');
       setTimeout(() => setIsSaving('idle'), 3000);

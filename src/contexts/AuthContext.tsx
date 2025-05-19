@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext } from 'react';
-import { AuthContextType, User } from '@/types/auth';
+import { AuthContextType, User, UserRole, Project, Estimate, Message } from '@/types/auth';
 import { useAuthProvider } from '../hooks/useAuth';
 
 // Create the context with proper typing
@@ -19,5 +20,4 @@ export const useAuth = (): AuthContextType => {
 };
 
 // Re-export types from auth.ts
-import { User, Project, Estimate } from '@/types/auth';
-export type { User, Project, Estimate };
+export type { User, Project, Estimate, Message, UserRole };

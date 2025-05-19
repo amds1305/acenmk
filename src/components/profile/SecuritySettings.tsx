@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -21,7 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { User as UserType } from '@/types/auth';
+import { User } from '@/types/auth';
 import { Shield, Key, AlertTriangle } from 'lucide-react';
 
 const passwordFormSchema = z.object({
@@ -34,7 +33,7 @@ const passwordFormSchema = z.object({
 });
 
 interface SecuritySettingsProps {
-  user: UserType;
+  user: User;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   toggleTwoFactor: (enable: boolean) => Promise<void>;
 }
@@ -74,6 +73,8 @@ const SecuritySettings = ({ user, updatePassword, toggleTwoFactor }: SecuritySet
       setIsChangingPassword(false);
     }
   };
+  
+  const twoFactorEnabled = user?.twoFactorEnabled || false;
   
   return (
     <Card>
@@ -169,13 +170,13 @@ const SecuritySettings = ({ user, updatePassword, toggleTwoFactor }: SecuritySet
               </p>
             </div>
             <Switch 
-              checked={user.twoFactorEnabled || false}
+              checked={twoFactorEnabled}
               onCheckedChange={onTwoFactorToggle}
               disabled={is2FALoading}
             />
           </div>
           
-          {!user.twoFactorEnabled && (
+          {!twoFactorEnabled && (
             <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4 flex gap-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
               <div>

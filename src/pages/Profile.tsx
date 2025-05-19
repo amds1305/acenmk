@@ -17,11 +17,7 @@ const Profile = () => {
     user, 
     isLoading, 
     updateProfile, 
-    uploadAvatar, 
-    messages, 
     isAuthenticated, 
-    updatePassword, 
-    toggleTwoFactor, 
     updatePreferences 
   } = useAuth();
   const { toast } = useToast();
@@ -48,6 +44,46 @@ const Profile = () => {
     }
   };
 
+  // Mock functions for avatar upload and security features
+  const uploadAvatar = async (file: File): Promise<string> => {
+    // Simulate upload delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const url = URL.createObjectURL(file);
+        resolve(url);
+      }, 1500);
+    });
+  };
+
+  const updatePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    // Simulate API call
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Mock validation
+        if (currentPassword === newPassword) {
+          reject(new Error("Le nouveau mot de passe doit être différent de l'ancien"));
+          return;
+        }
+        resolve();
+      }, 1000);
+    });
+  };
+
+  const toggleTwoFactor = async (enable: boolean): Promise<void> => {
+    // Simulate API call
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (user) {
+          updateProfile({
+            ...user,
+            twoFactorEnabled: enable
+          });
+        }
+        resolve();
+      }, 1000);
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -69,13 +105,13 @@ const Profile = () => {
           <h1 className="text-3xl font-bold mb-8">Tableau de bord</h1>
           
           {/* Dashboard Overview */}
-          <DashboardOverview user={user} />
+          <DashboardOverview />
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-8">
             {/* Sidebar / Profile Info */}
             <UserSidebar 
               user={user}
-              messages={messages}
+              messages={[]}
             />
             
             {/* Main content */}
