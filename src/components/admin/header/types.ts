@@ -78,5 +78,4 @@ export interface HeaderStyle {
   borderBottom: boolean;
   borderColor: string;
   dropShadow: boolean;
-  showThemeSelector: boolean;
 }

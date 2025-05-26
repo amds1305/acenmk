@@ -1,32 +1,78 @@
 
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { UploadCloud, Trash2, Save } from 'lucide-react';
-import { useLogo } from './logo/useLogo';
-import { SaveIndicator } from '@/components/ui/save-indicator';
-import { useAdminNotification } from '@/hooks/use-admin-notification';
+import { useToast } from '@/hooks/use-toast';
+import { UploadCloud, Trash2 } from 'lucide-react';
+import { Logo } from './types';
 
 const LogoManager = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { saveStatus } = useAdminNotification();
-  const {
-    logo,
-    selectedFile,
-    updateLogoProperty,
-    handleFileChange,
-    handleUpload,
-    saveLogoChanges,
-    isLoading
-  } = useLogo();
+  const { toast } = useToast();
+  
+  // État initial du logo (simulé - devrait venir d'une source de données réelle en production)
+  const [logo, setLogo] = useState<Logo>({
+    src: '/placeholder.svg',
+    alt: 'Logo Acenümerik',
+    width: 150,
+    height: 40,
+    position: 'left',
+  });
+
+  // Pour l'upload de fichier
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Gérer la sélection de fichier
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      
+      // Prévisualisation du logo
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogo({
+          ...logo,
+          src: e.target?.result as string,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Simuler un upload de fichier
+  const handleUpload = () => {
+    if (!selectedFile) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un fichier",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Ici, vous implémenteriez l'upload réel vers votre serveur
+    toast({
+      title: "Succès",
+      description: "Logo téléchargé avec succès"
+    });
+  };
 
   // Déclencheur pour ouvrir la boîte de dialogue de sélection de fichier
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  // Mettre à jour les propriétés du logo
+  const updateLogoProperty = (property: keyof Logo, value: any) => {
+    setLogo({
+      ...logo,
+      [property]: value
+    });
   };
 
   return (
@@ -50,7 +96,7 @@ const LogoManager = () => {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => updateLogoProperty('src', '/placeholder.svg')}
+              onClick={() => setLogo({...logo, src: '/placeholder.svg'})}
               className="flex items-center gap-2"
             >
               <Trash2 className="h-4 w-4" />
@@ -123,17 +169,7 @@ const LogoManager = () => {
         </div>
 
         {/* Bouton de sauvegarde */}
-        <div className="flex items-center justify-between">
-          <SaveIndicator status={saveStatus} />
-          <Button 
-            onClick={saveLogoChanges} 
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            Sauvegarder les modifications
-          </Button>
-        </div>
+        <Button className="w-full">Sauvegarder les modifications</Button>
       </div>
     </CardContent>
   );

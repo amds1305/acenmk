@@ -1,9 +1,14 @@
 
 import React from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import AdminBlogPosts from '@/components/admin/AdminBlogPosts';
 
-const AdminBlogPage = () => {
-  return <AdminBlogPosts />;
+const AdminBlog = () => {
+  return (
+    <AdminLayout>
+      <AdminBlogPosts />
+    </AdminLayout>
+  );
 };
 
-export default AdminBlogPage;
+export default AdminBlog;

@@ -3,65 +3,35 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Linkedin, Twitter, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { getTeamMembers } from '@/services/supabase/teamService';
+
+const teamMembers = [
+  {
+    name: 'Marie Dubois',
+    role: 'CEO & Fondatrice',
+    bio: 'Plus de 15 ans d\'expérience dans la tech et la stratégie digitale.',
+    delay: 0,
+  },
+  {
+    name: 'Thomas Martin',
+    role: 'Directeur Technique',
+    bio: 'Expert en architecture logicielle et innovation technologique.',
+    delay: 100,
+  },
+  {
+    name: 'Sophie Leroy',
+    role: 'Directrice UX/UI',
+    bio: 'Passionnée par la création d\'expériences utilisateur exceptionnelles.',
+    delay: 200,
+  },
+  {
+    name: 'David Bernard',
+    role: 'Lead Developer',
+    bio: 'Spécialiste en développement web et mobile full-stack.',
+    delay: 300,
+  },
+];
 
 const Team = () => {
-  const { data: teamMembers, isLoading, error } = useQuery({
-    queryKey: ['teamMembers'],
-    queryFn: getTeamMembers,
-    staleTime: 0,
-    refetchOnMount: true,
-  });
-  
-  console.log("Team component - Données d'équipe:", teamMembers);
-  
-  // Utiliser des données par défaut si aucune donnée n'est disponible
-  const defaultTeamMembers = [
-    {
-      name: 'Marie Dubois',
-      role: 'CEO & Fondatrice',
-      bio: 'Plus de 15 ans d\'expérience dans la tech et la stratégie digitale.',
-      delay: 0,
-    },
-    {
-      name: 'Thomas Martin',
-      role: 'Directeur Technique',
-      bio: 'Expert en architecture logicielle et innovation technologique.',
-      delay: 100,
-    },
-    {
-      name: 'Sophie Leroy',
-      role: 'Directrice UX/UI',
-      bio: 'Passionnée par la création d\'expériences utilisateur exceptionnelles.',
-      delay: 200,
-    },
-    {
-      name: 'David Bernard',
-      role: 'Lead Developer',
-      bio: 'Spécialiste en développement web et mobile full-stack.',
-      delay: 300,
-    },
-  ];
-  
-  const displayTeamMembers = teamMembers && teamMembers.length > 0 ? teamMembers : defaultTeamMembers;
-  
-  if (isLoading) {
-    return (
-      <section id="team" className="elite-section py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    console.error("Erreur lors du chargement des membres de l'équipe:", error);
-  }
-
   return (
     <section id="team" className="elite-section bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto">
@@ -75,40 +45,28 @@ const Team = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
-          {displayTeamMembers.map((member, index) => (
+          {teamMembers.map((member, index) => (
             <div 
-              key={member.id || index}
+              key={index}
               className={cn(
                 "glass-panel overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl opacity-0 animate-fade-in rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700",
-                `animation-delay-${member.delay || (index * 100)}`
+                `animation-delay-${member.delay}`
               )}
             >
               <div className="relative group">
                 <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
-                  {member.image ? (
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-7xl font-light text-gray-300 dark:text-gray-500">{member.name.charAt(0)}</div>
-                    </div>
-                  )}
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-7xl font-light text-gray-300 dark:text-gray-500">{member.name.charAt(0)}</div>
+                  </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-6">
                   <div className="flex space-x-4">
-                    {member.linkedin && (
-                      <a href={member.linkedin} className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/40 transition-colors hover-scale">
-                        <Linkedin className="h-5 w-5 text-white" />
-                      </a>
-                    )}
-                    {member.twitter && (
-                      <a href={member.twitter} className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/40 transition-colors hover-scale">
-                        <Twitter className="h-5 w-5 text-white" />
-                      </a>
-                    )}
+                    <a href="#" className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/40 transition-colors hover-scale">
+                      <Linkedin className="h-5 w-5 text-white" />
+                    </a>
+                    <a href="#" className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/40 transition-colors hover-scale">
+                      <Twitter className="h-5 w-5 text-white" />
+                    </a>
                   </div>
                 </div>
               </div>

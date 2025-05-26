@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NavLink, SocialLink } from './types';
 import { ArrowRight } from 'lucide-react';
-import { iconsMap } from '@/components/admin/header/iconsMap';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -39,28 +38,22 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   return (
     <div className="md:hidden fixed inset-0 top-20 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg z-40 animate-fade-in overflow-auto">
       <div className="flex flex-col items-center justify-center h-full space-y-2 p-8">
-        {navLinks.map((link, index) => {
-          // Vérifier si ce lien a une icône à afficher
-          const IconComponent = link.icon ? iconsMap[link.icon] : null;
-          
-          return (
-            <a 
-              key={link.name}
-              href={link.href} 
-              onClick={onNavLinkClick}
-              className={cn(
-                "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center flex items-center justify-center gap-2",
-                isActive(link.href) 
-                  ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
-                  : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5",
-                `animation-delay-${index * 50}`
-              )}
-            >
-              {IconComponent ? <IconComponent size={20} /> : null}
-              <span>{link.name}</span>
-            </a>
-          );
-        })}
+        {navLinks.map((link, index) => (
+          <a 
+            key={link.name}
+            href={link.href} 
+            onClick={onNavLinkClick}
+            className={cn(
+              "text-lg font-medium transition-colors animate-fade-in-up px-4 py-2 rounded-md w-full text-center",
+              isActive(link.href) 
+                ? "text-primary dark:text-primary bg-primary/5 font-semibold" 
+                : "text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary hover:bg-primary/5",
+              `animation-delay-${index * 50}`
+            )}
+          >
+            {link.name}
+          </a>
+        ))}
         
         {/* Social Links in Mobile Menu */}
         <div className="flex space-x-6 mt-6">

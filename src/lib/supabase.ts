@@ -1,43 +1,9 @@
 
-// Import the supabase client from our integration
-import { supabase } from "@/integrations/supabase/client";
-import { User, UserRole } from "@/types/auth";
+import { createClient } from '@supabase/supabase-js';
 
-// Re-export the supabase client
-export { supabase };
+// Définir des valeurs par défaut pour éviter les erreurs
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://kbigpjrjarlbncdtonuz.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiaWdwanJqYXJsYm5jZHRvbnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NTE4ODEsImV4cCI6MjA2MDAyNzg4MX0.rM-Ra62sAdNYy0c8ep0ey1WIyv8qj3nUBRRTy_ndRLs';
 
-// Fonction utilitaire pour créer/récupérer un bucket de stockage
-export const ensureStorageBucket = async (name: string) => {
-  try {
-    // Vérifier si le bucket existe déjà
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const bucketExists = buckets?.some(bucket => bucket.name === name);
-    
-    if (!bucketExists) {
-      // Créer le bucket s'il n'existe pas
-      const { error } = await supabase.storage.createBucket(name, {
-        public: true
-      });
-      
-      if (error) throw error;
-      console.log(`Bucket de stockage "${name}" créé avec succès.`);
-    }
-  } catch (error) {
-    console.error(`Erreur lors de la vérification/création du bucket "${name}":`, error);
-  }
-};
-
-// Fonction utilitaire pour mapper le format de l'utilisateur entre Supabase et notre appli
-export const mapUserData = (profile: any, role: UserRole): User => {
-  return {
-    id: profile.id,
-    email: profile.email,
-    name: profile.name,
-    role: role,
-    company: profile.company || undefined,
-    phone: profile.phone || undefined,
-    avatar: profile.avatar_url || undefined,
-    createdAt: profile.created_at,
-    // Ajouter d'autres champs selon vos besoins
-  } as User;
-};
+// Créer et exporter le client Supabase
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

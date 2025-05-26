@@ -9,7 +9,7 @@ import ProfileInfo from './ProfileInfo';
 import UserPreferences from './UserPreferences';
 import SecuritySettings from './SecuritySettings';
 import ActivityLog from './ActivityLog';
-import { User as UserType } from '@/types/auth';
+import { User as UserType, Project, Estimate } from '@/types/auth';
 import { getStatusColor, getStatusText, formatDate, formatAmount } from './ProfileUtils';
 
 interface ProfileTabsProps {
@@ -63,7 +63,11 @@ const ProfileTabs = ({
       </TabsList>
       
       <TabsContent value="profile">
-        <ProfileInfo user={user} updateProfile={updateProfile} uploadAvatar={uploadAvatar} />
+        <ProfileInfo 
+          user={user} 
+          updateProfile={updateProfile} 
+          uploadAvatar={uploadAvatar} 
+        />
       </TabsContent>
       
       <TabsContent value="projects">
@@ -90,7 +94,10 @@ const ProfileTabs = ({
       </TabsContent>
       
       <TabsContent value="preferences">
-        <UserPreferences user={user} updatePreferences={updatePreferences} />
+        <UserPreferences 
+          user={user} 
+          updatePreferences={updatePreferences} 
+        />
       </TabsContent>
       
       <TabsContent value="security">

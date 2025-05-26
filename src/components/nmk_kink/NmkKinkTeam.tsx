@@ -1,18 +1,10 @@
 
 import React from 'react';
 import { Linkedin, Twitter, Mail } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
 
 const NmkKinkTeam: React.FC = () => {
-  const { data: config } = useQuery({
-    queryKey: ['homeConfig'],
-    queryFn: getHomepageConfig
-  });
-
-  const defaultTeamMembers = [
+  const teamMembers = [
     {
-      id: '1',
       name: 'Sarah Martinez',
       role: 'Directrice Créative',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=687',
@@ -23,7 +15,6 @@ const NmkKinkTeam: React.FC = () => {
       }
     },
     {
-      id: '2',
       name: 'David Chen',
       role: 'Lead Développeur',
       image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=687',
@@ -34,7 +25,6 @@ const NmkKinkTeam: React.FC = () => {
       }
     },
     {
-      id: '3',
       name: 'Emma Wilson',
       role: 'Designer UX',
       image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=761',
@@ -45,7 +35,6 @@ const NmkKinkTeam: React.FC = () => {
       }
     },
     {
-      id: '4',
       name: 'Thomas Dubois',
       role: 'Stratège Marketing',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=687',
@@ -57,13 +46,6 @@ const NmkKinkTeam: React.FC = () => {
     }
   ];
 
-  const teamData = {
-    title: 'Des experts passionnés',
-    subtitle: 'Notre équipe talentueuse combine créativité et expertise technique pour donner vie à vos projets numériques.',
-    members: defaultTeamMembers,
-    ...(config?.sectionData.team || {})
-  };
-
   return (
     <section id="team" className="py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -72,16 +54,16 @@ const NmkKinkTeam: React.FC = () => {
             Notre équipe
           </span>
           <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
-            {teamData.title}
+            Des experts passionnés
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            {teamData.subtitle}
+            Notre équipe talentueuse combine créativité et expertise technique pour donner vie à vos projets numériques.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {teamData.members.map((member, index) => (
-            <div key={member.id || index} className="group relative">
+          {teamMembers.map((member, index) => (
+            <div key={index} className="group relative">
               <div className="overflow-hidden rounded-2xl">
                 <img
                   src={member.image}

@@ -1,19 +1,42 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Search, Save } from 'lucide-react';
-import { useSearchBar } from './search/useSearchBar';
-import { SaveIndicator } from '@/components/ui/save-indicator';
-import { useAdminNotification } from '@/hooks/use-admin-notification';
+import { SearchBarSettings } from './types';
+import { Search } from 'lucide-react';
 
 const SearchBarManager = () => {
-  const { saveStatus } = useAdminNotification();
-  const { searchSettings, updateSetting, saveSettings, isLoading } = useSearchBar();
+  const { toast } = useToast();
+  
+  // État des paramètres de la barre de recherche
+  const [searchSettings, setSearchSettings] = useState<SearchBarSettings>({
+    isEnabled: true,
+    placeholder: 'Rechercher...',
+    position: 'right',
+    expandOnFocus: true
+  });
+
+  // Mettre à jour un paramètre spécifique
+  const updateSetting = <K extends keyof SearchBarSettings>(key: K, value: SearchBarSettings[K]) => {
+    setSearchSettings({
+      ...searchSettings,
+      [key]: value
+    });
+  };
+
+  // Sauvegarder les paramètres
+  const saveSettings = () => {
+    // Ici, vous implémenteriez la sauvegarde vers votre backend
+    toast({
+      title: "Succès",
+      description: "Paramètres de la barre de recherche mis à jour"
+    });
+  };
 
   return (
     <CardContent>
@@ -99,17 +122,9 @@ const SearchBarManager = () => {
         </div>
 
         {/* Bouton de sauvegarde */}
-        <div className="flex items-center justify-between">
-          <SaveIndicator status={saveStatus} />
-          <Button 
-            onClick={saveSettings} 
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            Sauvegarder les modifications
-          </Button>
-        </div>
+        <Button onClick={saveSettings} className="w-full">
+          Sauvegarder les modifications
+        </Button>
       </div>
     </CardContent>
   );

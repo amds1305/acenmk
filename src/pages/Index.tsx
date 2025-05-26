@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
@@ -10,16 +9,16 @@ import FaqSection from '@/components/FaqSection';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import TrustedClients from '@/components/TrustedClients';
-import Pricing from '@/components/Pricing';
-import { TekoHomeTemplate } from '@/components/teko';
+import TekoHomeTemplate from '@/components/teko/TekoHomeTemplate';
 import { NmkFireHomeTemplate } from '@/components/nmk_fire';
 import { NmkRobotHomeTemplate } from '@/components/nmk_robot';
 import { NmkKinkHomeTemplate } from '@/components/nmk_kink';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHomepageConfig } from '@/services/mysql';
-import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/sections';
+import { toast } from '@/hooks/use-toast';
 import { HomeTemplateType } from '@/types/sections';
 
+// Interface for section visibility
 export interface SectionVisibility {
   hero: boolean;
   services: boolean;
@@ -31,6 +30,7 @@ export interface SectionVisibility {
   'trusted-clients': boolean;
 }
 
+// Component map for rendering sections
 const sectionComponents: Record<string, React.FC> = {
   hero: Hero,
   services: Services,
@@ -42,8 +42,9 @@ const sectionComponents: Record<string, React.FC> = {
   'trusted-clients': TrustedClients,
 };
 
+// Templates disponibles
 const templates: Record<HomeTemplateType, React.FC> = {
-  default: () => null,
+  default: () => null, // Le template par défaut utilise les sections individuelles
   teko: TekoHomeTemplate,
   nmk_fire: NmkFireHomeTemplate,
   nmk_robot: NmkRobotHomeTemplate,
@@ -51,49 +52,15 @@ const templates: Record<HomeTemplateType, React.FC> = {
 };
 
 const Index = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // Force un rechargement des données au montage du composant
-  useEffect(() => {
-    // Nettoyer le cache de localStorage pour forcer un rechargement depuis Supabase
-    localStorage.removeItem('cachedHomepageConfig');
-    localStorage.removeItem('cachedConfigTimestamp');
-    
-    // Invalider le cache pour forcer un rafraîchissement complet
-    queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    
-    // Ajouter un écouteur d'événements pour les changements administratifs
-    const handleAdminChanges = () => {
-      console.log("Changements administratifs détectés, rechargement...");
-      queryClient.invalidateQueries();
-      window.location.reload();
-    };
-
-    window.addEventListener('admin-changes-saved', handleAdminChanges);
-    
-    // Réactualiser régulièrement (toutes les 30 secondes)
-    const intervalId = setInterval(() => {
-      console.log("Actualisation périodique des données...");
-      queryClient.invalidateQueries({ queryKey: ['homeConfig'] });
-    }, 30000);
-    
-    return () => {
-      window.removeEventListener('admin-changes-saved', handleAdminChanges);
-      clearInterval(intervalId);
-    };
-  }, [queryClient]);
-  
+  // Use React Query to fetch and cache the homepage configuration
   const { data: homeConfig, isLoading, error } = useQuery({
     queryKey: ['homeConfig'],
     queryFn: getHomepageConfig,
-    staleTime: 0, // Toujours considérer comme périmé pour forcer le rechargement
-    refetchOnMount: true, // Recharger à chaque montage
-    refetchOnWindowFocus: true, // Recharger quand la fenêtre obtient le focus
+    staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
   });
-
+  
+  // Afficher une notification en cas d'erreur de chargement
   useEffect(() => {
     if (error) {
       toast({
@@ -103,17 +70,19 @@ const Index = () => {
       });
       console.error("Erreur lors du chargement de la configuration:", error);
     }
-  }, [error, toast]);
-
-  console.log("Template actif:", homeConfig?.templateConfig?.activeTemplate);
+  }, [error]);
+  
+  // Template actif
   const activeTemplate = homeConfig?.templateConfig?.activeTemplate || 'default';
   const TemplateComponent = templates[activeTemplate];
 
+  // Obtenir les sections à afficher (pour le template par défaut uniquement)
   const sectionsToDisplay = homeConfig?.sections
-    ?.filter(section => section.visible)
-    ?.sort((a, b) => a.order - b.order) || [];
-
+    .filter(section => section.visible)
+    .sort((a, b) => a.order - b.order) || [];
+  
   useEffect(() => {
+    // Initialize intersection observer for animations
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -129,6 +98,7 @@ const Index = () => {
       });
     }, observerOptions);
 
+    // Observe all elements with animation classes
     const animatedElements = document.querySelectorAll('.animate-fade-in, .animate-fade-in-up, .animate-slide-in-right, .animate-blur-in');
     animatedElements.forEach((el) => observer.observe(el));
 
@@ -139,6 +109,7 @@ const Index = () => {
     };
   }, [sectionsToDisplay]);
 
+  // Pendant le chargement, montrer un écran de chargement
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -148,8 +119,8 @@ const Index = () => {
     );
   }
 
+  // Si un template spécial est sélectionné, l'afficher
   if (activeTemplate !== 'default' && TemplateComponent) {
-    console.log(`Utilisation du template ${activeTemplate}`);
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
@@ -161,6 +132,7 @@ const Index = () => {
     );
   }
 
+  // Si aucune section n'est configurée ou visible, afficher toutes les sections dans l'ordre par défaut
   const displaySections = sectionsToDisplay.length > 0 ? sectionsToDisplay : [
     { id: 'hero-default', type: 'hero', order: 1 },
     { id: 'services-default', type: 'services', order: 2 },
@@ -171,6 +143,7 @@ const Index = () => {
     { id: 'contact-default', type: 'contact', order: 7 },
   ];
 
+  // Afficher le template par défaut avec les sections individuelles
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -185,7 +158,6 @@ const Index = () => {
           
           return <SectionComponent key={section.id} />;
         })}
-        <Pricing />
       </main>
       <Footer />
     </div>

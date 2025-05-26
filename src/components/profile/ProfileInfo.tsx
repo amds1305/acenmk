@@ -1,408 +1,323 @@
 
 import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
+import { User, UserPreferences, Address, SocialLink } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { User as UserType, Address, SocialLink } from '@/types/auth';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Briefcase, 
-  MapPin, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Linkedin, 
-  Github,
-  Camera,
-  Plus,
-  Trash2
-} from 'lucide-react';
-
-const profileFormSchema = z.object({
-  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  email: z.string().email("Email invalide"),
-  company: z.string().optional(),
-  phone: z.string().optional(),
-  biography: z.string().optional(),
-  address: z.object({
-    street: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zipCode: z.string().optional(),
-    country: z.string().optional(),
-  }).optional(),
-  socialLinks: z.array(
-    z.object({
-      platform: z.enum(['facebook', 'twitter', 'instagram', 'linkedin', 'github', 'other']),
-      url: z.string().url("URL invalide"),
-      label: z.string().optional(),
-    })
-  ).optional(),
-});
+import { Check, Loader2, Upload, User as UserIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileInfoProps {
-  user: UserType;
-  updateProfile: (data: Partial<UserType>) => Promise<void>;
+  user: User;
+  updateProfile: (data: Partial<User>) => Promise<void>;
   uploadAvatar: (file: File) => Promise<string>;
 }
 
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, updateProfile, uploadAvatar }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  
-  // Set up form with existing user data
-  const form = useForm<z.infer<typeof profileFormSchema>>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      name: user.name || '',
-      email: user.email || '',
-      company: user.company || '',
-      phone: user.phone || '',
-      biography: user.biography || '',
-      address: user.address || {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
-      },
-      socialLinks: user.socialLinks || [],
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user.name || '',
+    email: user.email || '',
+    company: user.company || '',
+    phone: user.phone || '',
+    biography: user.biography || '',
+    address: {
+      street: user.address?.street || '',
+      city: user.address?.city || '',
+      state: user.address?.state || '',
+      zipCode: user.address?.zipCode || '',
+      country: user.address?.country || '',
     },
+    socialLinks: user.socialLinks || [
+      { platform: 'linkedin', url: '' },
+      { platform: 'twitter', url: '' },
+      { platform: 'github', url: '' },
+    ],
   });
+  const { toast } = useToast();
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setIsUploading(true);
-      try {
-        await uploadAvatar(file);
-      } catch (error) {
-        console.error('Error uploading avatar:', error);
-      } finally {
-        setIsUploading(false);
-      }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData({
+        ...formData,
+        [parent]: {
+          ...formData[parent as keyof typeof formData],
+          [child]: value,
+        },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
     }
   };
 
-  const onSubmit = async (data: z.infer<typeof profileFormSchema>) => {
-    await updateProfile(data);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      await updateProfile({
+        name: formData.name,
+        company: formData.company,
+        phone: formData.phone,
+        biography: formData.biography,
+        address: formData.address as Address,
+        socialLinks: formData.socialLinks as SocialLink[],
+        avatar: user.avatar,
+      });
+      
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations ont été enregistrées avec succès."
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour de votre profil."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const addSocialLink = () => {
-    const currentLinks = form.getValues('socialLinks') || [];
-    form.setValue('socialLinks', [
-      ...currentLinks,
-      { platform: 'other', url: '', label: '' }
-    ]);
-  };
-
-  const removeSocialLink = (index: number) => {
-    const currentLinks = form.getValues('socialLinks') || [];
-    form.setValue('socialLinks', currentLinks.filter((_, i) => i !== index));
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case 'facebook': return <Facebook className="h-4 w-4" />;
-      case 'twitter': return <Twitter className="h-4 w-4" />;
-      case 'instagram': return <Instagram className="h-4 w-4" />;
-      case 'linkedin': return <Linkedin className="h-4 w-4" />;
-      case 'github': return <Github className="h-4 w-4" />;
-      default: return null;
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    setIsUploadingAvatar(true);
+    
+    try {
+      const avatarUrl = await uploadAvatar(file);
+      setFormData({ ...formData, avatar: avatarUrl });
+      
+      toast({
+        title: "Avatar mis à jour",
+        description: "Votre photo de profil a été mise à jour avec succès."
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors du téléchargement de l'avatar."
+      });
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Informations de profil</CardTitle>
-        <CardDescription>
-          Mettez à jour vos informations personnelles et professionnelles
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Avatar Upload */}
-          <div className="flex flex-col items-center">
-            <div className="relative group">
-              <Avatar className="h-32 w-32">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="text-4xl">{user.name.charAt(0)}</AvatarFallback>
+    <form onSubmit={handleSubmit}>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="text-xl">
+                  <UserIcon className="h-12 w-12" />
+                </AvatarFallback>
               </Avatar>
-              <label 
-                htmlFor="avatar-upload" 
-                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 cursor-pointer transition"
-              >
-                <Camera className="h-6 w-6" />
-              </label>
-              <input 
-                id="avatar-upload" 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleAvatarUpload} 
-                disabled={isUploading}
-              />
-            </div>
-            {isUploading && <p className="text-sm mt-2">Téléchargement...</p>}
-          </div>
-          
-          {/* Profile Form */}
-          <div className="flex-1">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <User className="h-4 w-4" /> Nom complet
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Votre nom" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+              <div className="absolute -right-2 -bottom-2">
+                <Label htmlFor="avatar-upload" className="cursor-pointer">
+                  <div className="bg-primary hover:bg-primary/90 text-white p-2 rounded-full">
+                    {isUploadingAvatar ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" /> Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Votre email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Phone className="h-4 w-4" /> Téléphone
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Votre téléphone" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="company"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" /> Entreprise
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Votre entreprise" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="biography"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Biographie</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Parlez-nous de vous..." 
-                          className="min-h-32" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  </div>
+                </Label>
+                <Input 
+                  id="avatar-upload" 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleAvatarChange} 
+                  className="hidden" 
                 />
-                
-                {/* Address */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <MapPin className="h-4 w-4" /> Adresse
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="address.street"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Rue</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Rue" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="address.city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ville</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ville" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="address.zipCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Code postal</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Code postal" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="address.state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>État/Département</FormLabel>
-                          <FormControl>
-                            <Input placeholder="État/Département" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="address.country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pays</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Pays" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                
-                {/* Social Links */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Réseaux sociaux</h3>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={addSocialLink}
-                      className="text-xs gap-1"
-                    >
-                      <Plus className="h-3 w-3" /> Ajouter
-                    </Button>
-                  </div>
-                  
-                  {form.watch('socialLinks')?.map((_, index) => (
-                    <div className="flex gap-3" key={index}>
-                      <FormField
-                        control={form.control}
-                        name={`socialLinks.${index}.platform`}
-                        render={({ field }) => (
-                          <FormItem className="flex-shrink-0 w-32">
-                            <FormControl>
-                              <select 
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                                {...field}
-                              >
-                                <option value="facebook">Facebook</option>
-                                <option value="twitter">Twitter</option>
-                                <option value="instagram">Instagram</option>
-                                <option value="linkedin">LinkedIn</option>
-                                <option value="github">GitHub</option>
-                                <option value="other">Autre</option>
-                              </select>
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`socialLinks.${index}.url`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <div className="flex gap-2">
-                                <span className="flex items-center pl-3 bg-muted rounded-l-md border border-r-0 border-input">
-                                  {getPlatformIcon(form.watch(`socialLinks.${index}.platform`))}
-                                </span>
-                                <Input placeholder="URL" className="rounded-l-none" {...field} />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => removeSocialLink(index)}
-                        className="h-10 w-10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                
-                <Button type="submit" className="w-full">
-                  Enregistrer les modifications
-                </Button>
-              </form>
-            </Form>
+              </div>
+            </div>
+            <div>
+              <CardTitle className="text-2xl">{user.name}</CardTitle>
+              <CardDescription>{user.email}</CardDescription>
+              <div className="text-sm text-muted-foreground mt-1">
+                Membre depuis le {new Date(user.createdAt).toLocaleDateString('fr-FR')}
+              </div>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="personal">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="personal">Informations personnelles</TabsTrigger>
+              <TabsTrigger value="address">Adresse</TabsTrigger>
+              <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
+            </TabsList>
+            
+            {/* Tab Content: Personal Information */}
+            <TabsContent value="personal">
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nom</Label>
+                    <Input 
+                      id="name" 
+                      name="name" 
+                      value={formData.name} 
+                      onChange={handleInputChange} 
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      name="email" 
+                      value={formData.email} 
+                      onChange={handleInputChange} 
+                      disabled 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Entreprise</Label>
+                    <Input 
+                      id="company" 
+                      name="company" 
+                      value={formData.company} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Téléphone</Label>
+                    <Input 
+                      id="phone" 
+                      name="phone" 
+                      value={formData.phone} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="biography">Biographie</Label>
+                  <Textarea 
+                    id="biography" 
+                    name="biography" 
+                    value={formData.biography} 
+                    onChange={handleInputChange} 
+                    rows={4} 
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Tab Content: Address */}
+            <TabsContent value="address">
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street">Rue</Label>
+                  <Input 
+                    id="street" 
+                    name="address.street" 
+                    value={formData.address.street} 
+                    onChange={handleInputChange} 
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Ville</Label>
+                    <Input 
+                      id="city" 
+                      name="address.city" 
+                      value={formData.address.city} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="zipCode">Code postal</Label>
+                    <Input 
+                      id="zipCode" 
+                      name="address.zipCode" 
+                      value={formData.address.zipCode} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="state">État / Province</Label>
+                    <Input 
+                      id="state" 
+                      name="address.state" 
+                      value={formData.address.state} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Pays</Label>
+                    <Input 
+                      id="country" 
+                      name="address.country" 
+                      value={formData.address.country} 
+                      onChange={handleInputChange} 
+                    />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Tab Content: Social Media */}
+            <TabsContent value="social">
+              <div className="space-y-4 py-4">
+                {formData.socialLinks?.map((link, index) => (
+                  <div key={index} className="space-y-2">
+                    <Label htmlFor={`socialLink-${index}`}>
+                      {link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                    </Label>
+                    <Input 
+                      id={`socialLink-${index}`} 
+                      name={`socialLinks.${index}.url`} 
+                      value={link.url} 
+                      onChange={(e) => {
+                        const newSocialLinks = [...formData.socialLinks];
+                        newSocialLinks[index].url = e.target.value;
+                        setFormData({ ...formData, socialLinks: newSocialLinks });
+                      }} 
+                      placeholder={`Votre URL ${link.platform}`} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="flex justify-end mt-6">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Enregistrer les modifications
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </form>
   );
 };
 

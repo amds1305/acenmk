@@ -1,15 +1,11 @@
 
-// Re-exporter les fonctions du service Supabase
+// Re-exporter les fonctions du nouveau service Supabase
 // Cela permet aux composants existants de continuer à fonctionner sans modifications
 import { 
   getHomepageConfig, 
   saveHomepageConfig,
   addSection,
-  removeSection,
-  migrateLocalStorageToSupabase,
-  getTrustedClients,
-  upsertTrustedClient,
-  deleteTrustedClient
+  removeSection
 } from '@/services/supabase/sectionsService';
 
 // Export des types
@@ -28,13 +24,4 @@ export * from './defaultData';
 export { DEFAULT_TEMPLATE_CONFIG, DEFAULT_HOMEPAGE_CONFIG } from './defaultData';
 
 // Re-exporter les fonctions du service Supabase
-export { 
-  getHomepageConfig, 
-  saveHomepageConfig, 
-  addSection, 
-  removeSection,
-  migrateLocalStorageToSupabase,
-  getTrustedClients,
-  upsertTrustedClient,
-  deleteTrustedClient
-};
+export { getHomepageConfig, saveHomepageConfig };

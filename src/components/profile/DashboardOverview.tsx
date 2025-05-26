@@ -24,7 +24,7 @@ const DashboardOverview = ({ user }: DashboardOverviewProps) => {
     },
     {
       title: "Devis en attente",
-      value: user.estimates?.filter(e => e.status === 'pending').length || 0,
+      value: user.estimates?.filter(e => e.status === 'pending' || e.status === 'in_review').length || 0,
       total: user.estimates?.length || 0,
       icon: <FileText className="h-6 w-6" />,
       color: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
