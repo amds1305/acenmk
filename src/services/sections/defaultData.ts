@@ -3,7 +3,7 @@ import { HomepageConfig, HomeTemplateType, Section } from './types';
 
 // Configuration par défaut du template
 export const DEFAULT_TEMPLATE_CONFIG = {
-  activeTemplate: 'default' as HomeTemplateType,
+  activeTemplate: 'nmk_kink' as HomeTemplateType,
   // Ajoutez ici d'autres configurations de template si nécessaire
 };
 

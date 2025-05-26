@@ -49,7 +49,7 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
             </TableHeader>
             <TableBody>
               {loginHistory.sort((a, b) => 
-                new Date(b.timestamp || b.date || '').getTime() - new Date(a.timestamp || a.date || '').getTime()
+                new Date(b.date).getTime() - new Date(a.date).getTime()
               ).map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell>
@@ -67,14 +67,14 @@ const ActivityLog = ({ loginHistory, formatDate }: ActivityLogProps) => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {formatDate(entry.timestamp || entry.date || '')}
+                    {formatDate(entry.date)}
                     <div className="text-xs text-muted-foreground">
-                      {new Date(entry.timestamp || entry.date || '').toLocaleTimeString('fr-FR')}
+                      {new Date(entry.date).toLocaleTimeString('fr-FR')}
                     </div>
                   </TableCell>
-                  <TableCell>{entry.device || entry.deviceInfo || ''}</TableCell>
+                  <TableCell>{entry.deviceInfo}</TableCell>
                   <TableCell>{entry.location || 'Inconnu'}</TableCell>
-                  <TableCell>{entry.ipAddress || entry.ip || ''}</TableCell>
+                  <TableCell>{entry.ip}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

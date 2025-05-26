@@ -1,14 +1,9 @@
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
-import AdminServicesComponent from '@/components/admin/AdminServices';
+import AdminServices from '@/components/admin/AdminServices';
 
-const AdminServices = () => {
-  return (
-    <AdminLayout>
-      <AdminServicesComponent />
-    </AdminLayout>
-  );
+const AdminServicesPage = () => {
+  return <AdminServices />;
 };
 
-export default AdminServices;
+export default AdminServicesPage;

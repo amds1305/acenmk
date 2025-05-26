@@ -135,95 +135,6 @@ export type Database = {
         }
         Relationships: []
       }
-      contact_email_settings: {
-        Row: {
-          bcc: string[] | null
-          cc: string[] | null
-          created_at: string
-          destinataires: string[]
-          id: string
-          objet: string
-          updated_at: string
-        }
-        Insert: {
-          bcc?: string[] | null
-          cc?: string[] | null
-          created_at?: string
-          destinataires?: string[]
-          id?: string
-          objet?: string
-          updated_at?: string
-        }
-        Update: {
-          bcc?: string[] | null
-          cc?: string[] | null
-          created_at?: string
-          destinataires?: string[]
-          id?: string
-          objet?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      contact_requests: {
-        Row: {
-          consentement: boolean
-          converted_to_lead: boolean | null
-          created_at: string
-          description: string
-          email: string
-          entreprise: string | null
-          id: string
-          lead_id: string | null
-          nom: string
-          origine: string | null
-          prenom: string
-          service_requis: string | null
-          site_web: string | null
-          telephone: string | null
-        }
-        Insert: {
-          consentement?: boolean
-          converted_to_lead?: boolean | null
-          created_at?: string
-          description: string
-          email: string
-          entreprise?: string | null
-          id?: string
-          lead_id?: string | null
-          nom: string
-          origine?: string | null
-          prenom: string
-          service_requis?: string | null
-          site_web?: string | null
-          telephone?: string | null
-        }
-        Update: {
-          consentement?: boolean
-          converted_to_lead?: boolean | null
-          created_at?: string
-          description?: string
-          email?: string
-          entreprise?: string | null
-          id?: string
-          lead_id?: string | null
-          nom?: string
-          origine?: string | null
-          prenom?: string
-          service_requis?: string | null
-          site_web?: string | null
-          telephone?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "contact_requests_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cvs: {
         Row: {
           content: Json
@@ -233,7 +144,7 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           content: Json
@@ -243,7 +154,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           content?: Json
@@ -253,40 +164,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      external_links: {
-        Row: {
-          allowed_roles: string[] | null
-          created_at: string | null
-          icon: string | null
-          id: string
-          name: string
-          requires_auth: boolean | null
-          updated_at: string | null
-          url: string
-        }
-        Insert: {
-          allowed_roles?: string[] | null
-          created_at?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          requires_auth?: boolean | null
-          updated_at?: string | null
-          url: string
-        }
-        Update: {
-          allowed_roles?: string[] | null
-          created_at?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          requires_auth?: boolean | null
-          updated_at?: string | null
-          url?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -542,38 +420,14 @@ export type Database = {
           drop_shadow: boolean | null
           font_family: string
           font_size: string
-          font_weight: string | null
           glassmorphism: boolean | null
           hover_color: string
           id: string
-          letter_spacing: string | null
-          menu_active_bg_color: string | null
-          menu_border_radius: string | null
-          menu_hover_bg_color: string | null
-          menu_transition: string | null
           padding: string
-          scrolled_bg_color: string | null
-          scrolled_border_color: string | null
-          scrolled_shadow: string | null
-          scrolled_text_color: string | null
-          social_icon_bg_color: string | null
-          social_icon_border_color: string | null
-          social_icon_color: string | null
-          social_icon_hover_color: string | null
-          social_icon_size: string | null
-          social_icon_spacing: string | null
           sticky: boolean | null
           text_color: string
-          text_transform: string | null
-          transition_duration: string | null
-          transition_timing: string | null
           transparent: boolean | null
           updated_at: string
-          utility_icon_bg_color: string | null
-          utility_icon_border_color: string | null
-          utility_icon_color: string | null
-          utility_icon_hover_color: string | null
-          utility_icon_size: string | null
         }
         Insert: {
           active_color: string
@@ -584,38 +438,14 @@ export type Database = {
           drop_shadow?: boolean | null
           font_family: string
           font_size: string
-          font_weight?: string | null
           glassmorphism?: boolean | null
           hover_color: string
           id?: string
-          letter_spacing?: string | null
-          menu_active_bg_color?: string | null
-          menu_border_radius?: string | null
-          menu_hover_bg_color?: string | null
-          menu_transition?: string | null
           padding: string
-          scrolled_bg_color?: string | null
-          scrolled_border_color?: string | null
-          scrolled_shadow?: string | null
-          scrolled_text_color?: string | null
-          social_icon_bg_color?: string | null
-          social_icon_border_color?: string | null
-          social_icon_color?: string | null
-          social_icon_hover_color?: string | null
-          social_icon_size?: string | null
-          social_icon_spacing?: string | null
           sticky?: boolean | null
           text_color: string
-          text_transform?: string | null
-          transition_duration?: string | null
-          transition_timing?: string | null
           transparent?: boolean | null
           updated_at?: string
-          utility_icon_bg_color?: string | null
-          utility_icon_border_color?: string | null
-          utility_icon_color?: string | null
-          utility_icon_hover_color?: string | null
-          utility_icon_size?: string | null
         }
         Update: {
           active_color?: string
@@ -626,38 +456,14 @@ export type Database = {
           drop_shadow?: boolean | null
           font_family?: string
           font_size?: string
-          font_weight?: string | null
           glassmorphism?: boolean | null
           hover_color?: string
           id?: string
-          letter_spacing?: string | null
-          menu_active_bg_color?: string | null
-          menu_border_radius?: string | null
-          menu_hover_bg_color?: string | null
-          menu_transition?: string | null
           padding?: string
-          scrolled_bg_color?: string | null
-          scrolled_border_color?: string | null
-          scrolled_shadow?: string | null
-          scrolled_text_color?: string | null
-          social_icon_bg_color?: string | null
-          social_icon_border_color?: string | null
-          social_icon_color?: string | null
-          social_icon_hover_color?: string | null
-          social_icon_size?: string | null
-          social_icon_spacing?: string | null
           sticky?: boolean | null
           text_color?: string
-          text_transform?: string | null
-          transition_duration?: string | null
-          transition_timing?: string | null
           transparent?: boolean | null
           updated_at?: string
-          utility_icon_bg_color?: string | null
-          utility_icon_border_color?: string | null
-          utility_icon_color?: string | null
-          utility_icon_hover_color?: string | null
-          utility_icon_size?: string | null
         }
         Relationships: []
       }
@@ -733,131 +539,6 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      lead_interactions: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          lead_id: string | null
-          type: string
-          user_id: string | null
-          user_name: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          lead_id?: string | null
-          type: string
-          user_id?: string | null
-          user_name: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          lead_id?: string | null
-          type?: string
-          user_id?: string | null
-          user_name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lead_interactions_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      leads: {
-        Row: {
-          assignedto: string | null
-          company: string | null
-          created_at: string
-          description: string
-          email: string
-          id: string
-          name: string
-          phone: string | null
-          service: string | null
-          source: string | null
-          status: string
-          tags: string[] | null
-          updated_at: string
-          website: string | null
-        }
-        Insert: {
-          assignedto?: string | null
-          company?: string | null
-          created_at?: string
-          description: string
-          email: string
-          id?: string
-          name: string
-          phone?: string | null
-          service?: string | null
-          source?: string | null
-          status?: string
-          tags?: string[] | null
-          updated_at?: string
-          website?: string | null
-        }
-        Update: {
-          assignedto?: string | null
-          company?: string | null
-          created_at?: string
-          description?: string
-          email?: string
-          id?: string
-          name?: string
-          phone?: string | null
-          service?: string | null
-          source?: string | null
-          status?: string
-          tags?: string[] | null
-          updated_at?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
-      legal_contents: {
-        Row: {
-          content: string
-          content_type: string
-          created_at: string | null
-          id: string
-          is_published: boolean | null
-          meta_description: string | null
-          slug: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          content: string
-          content_type: string
-          created_at?: string | null
-          id?: string
-          is_published?: boolean | null
-          meta_description?: string | null
-          slug: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string
-          content_type?: string
-          created_at?: string | null
-          id?: string
-          is_published?: boolean | null
-          meta_description?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1246,10 +927,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      get_auth_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
       has_role: {
         Args: {
           _user_id: string
@@ -1261,22 +938,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
       rollback_transaction: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
     Enums: {
-      app_role:
-        | "super_admin"
-        | "admin"
-        | "client_premium"
-        | "user"
-        | "business_admin"
+      app_role: "super_admin" | "admin" | "client_premium" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1392,13 +1060,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: [
-        "super_admin",
-        "admin",
-        "client_premium",
-        "user",
-        "business_admin",
-      ],
+      app_role: ["super_admin", "admin", "client_premium", "user"],
     },
   },
 } as const

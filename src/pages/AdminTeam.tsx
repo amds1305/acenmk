@@ -1,14 +1,9 @@
 
-import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
-import AdminTeamComponent from '@/components/admin/AdminTeam';
+import React, { useState } from 'react';
+import { AdminTeam } from '@/components/admin/team';
 
-const AdminTeam = () => {
-  return (
-    <AdminLayout>
-      <AdminTeamComponent />
-    </AdminLayout>
-  );
+const AdminTeamPage = () => {
+  return <AdminTeam />;
 };
 
-export default AdminTeam;
+export default AdminTeamPage;

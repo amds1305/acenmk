@@ -1,9 +1,17 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getHomepageConfig } from '@/services/mysql';
 
 const NmkKinkAbout: React.FC = () => {
-  const benefits = [
+  // Récupérer les données about depuis la configuration
+  const { data: config } = useQuery({
+    queryKey: ['homeConfig'],
+    queryFn: getHomepageConfig
+  });
+
+  const defaultBenefits = [
     'Design moderne et responsive',
     'Optimisation SEO intégrée',
     'Performance et vitesse optimales',
@@ -11,6 +19,22 @@ const NmkKinkAbout: React.FC = () => {
     'Compatibilité multiplateforme',
     'Support technique dédié'
   ];
+
+  const defaultStats = {
+    yearsExperience: 12,
+    projectsDelivered: 200,
+    clientSatisfaction: 98
+  };
+
+  // Définir les données par défaut et les fusionner avec les données de configuration
+  const aboutData = {
+    title: 'Nous créons des expériences numériques impactantes',
+    description: 'Depuis plus de 10 ans, notre agence aide les entreprises à transformer leurs idées en solutions numériques performantes. Notre approche centrée sur l\'utilisateur garantit des projets qui non seulement impressionnent visuellement, mais atteignent également vos objectifs commerciaux.',
+    benefits: defaultBenefits,
+    stats: defaultStats,
+    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1470',
+    ...(config?.sectionData.about || {})
+  };
 
   return (
     <section id="about" className="py-24 bg-gray-50">
@@ -21,21 +45,14 @@ const NmkKinkAbout: React.FC = () => {
               À propos de nous
             </span>
             <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-              Au-delà des outils : une vision éthique de l'informatique
+              {aboutData.title}
             </h2>
             <p className="mt-6 text-lg text-gray-600">
-              Nous sommes une jeune entreprise IT animée par une conviction forte :
-l'informatique ne doit plus être subie, elle doit libérer.
-Notre mission ? Réinventer la relation client-prestataire dans le monde du numérique, avec plus de transparence, d’équité et d’impact.
-Nous pensons qu’une bonne IT ne commence pas par des outils, mais par de l’écoute, du sens et des valeurs partagées.
-C’est pourquoi nous avons conçu une offre fondée sur la liberté de choix, la confiance mutuelle et des résultats concrets.
-Pas d’engagement contraignant, pas de jargon, pas de surpromesse.
-Juste des services utiles, configurables, et une équipe qui s’adapte à votre réalité.
-Nous voulons prouver qu’on peut faire de l’infogérance autrement : avec de la pédagogie, de l’humanité… et un peu d’audace.
+              {aboutData.description}
             </p>
             
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {benefits.map((benefit, index) => (
+              {aboutData.benefits.map((benefit, index) => (
                 <div key={index} className="flex items-center">
                   <div className="flex-shrink-0">
                     <Check className="h-5 w-5 text-gray-900" />
@@ -47,25 +64,19 @@ Nous voulons prouver qu’on peut faire de l’infogérance autrement : avec de 
             
             <div className="mt-10 flex items-center gap-4">
               <div>
-                <p className="text-4xl font-bold text-gray-900">100%</p>
-                <p className="text-sm text-gray-600">Made in France</p>
+                <p className="text-4xl font-bold text-gray-900">{aboutData.stats.yearsExperience}+</p>
+                <p className="text-sm text-gray-600">Années d'expérience</p>
               </div>
               <div className="h-12 w-px bg-gray-300"></div>
               <div>
-                <p className="text-4xl font-bold text-gray-900">0€+</p>
-                <p className="text-sm text-gray-600">à payer si vous n'êtes pas satisfait</p>
+                <p className="text-4xl font-bold text-gray-900">{aboutData.stats.projectsDelivered}+</p>
+                <p className="text-sm text-gray-600">Projets livrés</p>
               </div>
               <div className="h-12 w-px bg-gray-300"></div>
               <div>
-                <p className="text-4xl font-bold text-gray-900">100%</p>
-                <p className="text-sm text-gray-600">Sans engagement forcé</p>
+                <p className="text-4xl font-bold text-gray-900">{aboutData.stats.clientSatisfaction}%</p>
+                <p className="text-sm text-gray-600">Clients satisfaits</p>
               </div>
-              <div className="h-12 w-px bg-gray-300"></div>
-              <div>
-                <p className="text-4xl font-bold text-gray-900">100%</p>
-                <p className="text-sm text-gray-600">à l'écoute</p>
-              </div>
-
             </div>
           </div>
           
@@ -75,7 +86,7 @@ Nous voulons prouver qu’on peut faire de l’infogérance autrement : avec de 
             
             <div className="relative overflow-hidden rounded-2xl shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1470"
+                src={aboutData.imageUrl}
                 alt="Notre équipe en pleine collaboration"
                 className="h-full w-full object-cover"
               />

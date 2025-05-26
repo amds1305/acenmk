@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
@@ -9,14 +9,43 @@
   <meta name="description" content="Application web complète avec dashboard administrateur" />
   <link rel="apple-touch-icon" href="/logo192.png" />
   <link rel="manifest" href="/manifest.json" />
-  <!-- Ajout des polices Google pour correspondre au design Teko -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
-  <title>App Web</title>
+  <title>ESN Showcase Garden</title>
+  
+  <style>
+    #loading-message {
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .spinner {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to {transform: rotate(360deg);}
+    }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div id="loading-message">
+      <h1>ESN Showcase Garden</h1>
+      <div class="spinner"></div>
+      <p>Chargement de l'application...</p>
+    </div>
+  </div>
+  <!-- Script Lovable pour les nouvelles fonctionnalités -->
+  <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

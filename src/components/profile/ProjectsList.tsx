@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Project } from '@/types/auth';
+import { Project } from '@/contexts/AuthContext';
 
 interface ProjectsListProps {
   projects: Project[] | undefined;
@@ -33,7 +33,7 @@ const ProjectsList = ({ projects, getStatusColor, getStatusText, formatDate }: P
               <div key={project.id} className="border rounded-lg p-4 bg-card">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium">{project.name || project.title}</h3>
+                    <h3 className="font-medium">{project.title}</h3>
                     <div className="flex items-center mt-2">
                       <div className={`h-2.5 w-2.5 rounded-full mr-2 ${getStatusColor(project.status)}`}></div>
                       <span className="text-sm text-muted-foreground">
@@ -47,9 +47,9 @@ const ProjectsList = ({ projects, getStatusColor, getStatusText, formatDate }: P
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>{project.name || project.title}</DialogTitle>
+                        <DialogTitle>{project.title}</DialogTitle>
                         <DialogDescription>
-                          Dernière mise à jour: {formatDate(project.lastUpdated || '')}
+                          Dernière mise à jour: {formatDate(project.lastUpdated)}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
@@ -79,7 +79,7 @@ const ProjectsList = ({ projects, getStatusColor, getStatusText, formatDate }: P
                   </Dialog>
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Dernière mise à jour: {formatDate(project.lastUpdated || '')}
+                  Dernière mise à jour: {formatDate(project.lastUpdated)}
                 </div>
               </div>
             ))}

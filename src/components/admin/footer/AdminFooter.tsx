@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -97,6 +96,119 @@ const AdminFooter = () => {
   const [newSocialName, setNewSocialName] = useState("");
   const [newSocialHref, setNewSocialHref] = useState("");
 
+  // Sauvegarder les données du footer en localStorage et dans Supabase si possible
+  const saveFooterData = async () => {
+    try {
+      // Créer un objet avec toutes les données du footer
+      const footerData = {
+        companyInfo: {
+          name: companyName,
+          description: companyDescription
+        },
+        serviceLinks,
+        legalLinks,
+        contactInfo,
+        socialLinks
+      };
+      
+      // Sauvegarder en localStorage
+      localStorage.setItem('footerData', JSON.stringify(footerData));
+      
+      // Essayer de sauvegarder dans Supabase via le service de sections
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { error } = await supabase
+          .from('section_data')
+          .upsert({
+            section_id: 'footer',
+            data: footerData,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'section_id' });
+        
+        if (error) throw error;
+        
+        // Invalider le cache pour forcer un rechargement
+        const { useQueryClient } = await import('@tanstack/react-query');
+        const queryClient = useQueryClient();
+        queryClient.invalidateQueries();
+        
+        // Déclencher l'événement de changements administratifs
+        window.dispatchEvent(new CustomEvent('admin-changes-saved'));
+        
+        // Forcer un rechargement après 1 seconde
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } catch (error) {
+        console.error("Erreur Supabase lors de la sauvegarde du footer:", error);
+        // Continue malgré l'erreur Supabase, nous avons sauvegardé en localStorage
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du footer:", error);
+      return false;
+    }
+  };
+
+  // Charger les données du footer depuis localStorage ou Supabase
+  useEffect(() => {
+    const loadFooterData = async () => {
+      try {
+        // Essayer de charger depuis Supabase d'abord
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { data, error } = await supabase
+            .from('section_data')
+            .select('data')
+            .eq('section_id', 'footer')
+            .single();
+          
+          if (error) throw error;
+          
+          if (data && data.data) {
+            const footerData = data.data;
+            
+            if (footerData.companyInfo) {
+              setCompanyName(footerData.companyInfo.name);
+              setCompanyDescription(footerData.companyInfo.description);
+            }
+            
+            if (footerData.serviceLinks) setServiceLinks(footerData.serviceLinks);
+            if (footerData.legalLinks) setLegalLinks(footerData.legalLinks);
+            if (footerData.contactInfo) setContactInfo(footerData.contactInfo);
+            if (footerData.socialLinks) setSocialLinks(footerData.socialLinks);
+            
+            return; // Données chargées depuis Supabase, pas besoin de continuer
+          }
+        } catch (error) {
+          console.error("Erreur Supabase lors du chargement du footer:", error);
+          // Continuer avec localStorage en cas d'erreur
+        }
+        
+        // Charger depuis localStorage si Supabase a échoué
+        const savedData = localStorage.getItem('footerData');
+        if (savedData) {
+          const footerData = JSON.parse(savedData);
+          
+          if (footerData.companyInfo) {
+            setCompanyName(footerData.companyInfo.name);
+            setCompanyDescription(footerData.companyInfo.description);
+          }
+          
+          if (footerData.serviceLinks) setServiceLinks(footerData.serviceLinks);
+          if (footerData.legalLinks) setLegalLinks(footerData.legalLinks);
+          if (footerData.contactInfo) setContactInfo(footerData.contactInfo);
+          if (footerData.socialLinks) setSocialLinks(footerData.socialLinks);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement du footer:", error);
+      }
+    };
+    
+    loadFooterData();
+  }, []);
+
   // Handle links (services and legal)
   const handleSaveLink = () => {
     if (!newLinkName || !newLinkHref) {
@@ -144,6 +256,9 @@ const AdminFooter = () => {
     setEditingLink(null);
     setNewLinkName("");
     setNewLinkHref("");
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   const handleEditLink = (link: FooterLink, section: "services" | "legal") => {
@@ -164,6 +279,9 @@ const AdminFooter = () => {
       title: "Succès",
       description: "Lien supprimé"
     });
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   // Handle contact info
@@ -210,6 +328,9 @@ const AdminFooter = () => {
     setNewContactTitle("");
     setNewContactValue("");
     setNewContactHref("");
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   const handleEditContact = (contact: ContactInfo) => {
@@ -227,6 +348,9 @@ const AdminFooter = () => {
       title: "Succès",
       description: "Contact supprimé"
     });
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   // Handle social links
@@ -266,6 +390,9 @@ const AdminFooter = () => {
     setEditingSocial(null);
     setNewSocialName("");
     setNewSocialHref("");
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   const handleEditSocial = (social: SocialLink) => {
@@ -281,6 +408,9 @@ const AdminFooter = () => {
       title: "Succès",
       description: "Lien social supprimé"
     });
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   // Update company info
@@ -289,12 +419,21 @@ const AdminFooter = () => {
       title: "Succès",
       description: "Informations de l'entreprise mises à jour"
     });
+    
+    // Sauvegarder les modifications
+    saveFooterData();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Administration du pied de page</h1>
+        <Button 
+          onClick={saveFooterData}
+          className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+        >
+          Sauvegarder toutes les modifications
+        </Button>
       </div>
 
       <Tabs defaultValue="company">

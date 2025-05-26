@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { GripHorizontal, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -25,13 +26,49 @@ const AdminLogin = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
-      toast({
-        title: 'Connexion réussie',
-        description: 'Bienvenue dans l\'interface d\'administration',
+      console.log("Tentative de connexion admin avec:", email);
+      
+      // Option temporaire pour connexion avec admin@example.com/password pour les tests
+      if (email === 'admin@example.com' && password === 'password') {
+        toast({
+          title: 'Connexion réussie (mode test)',
+          description: 'Bienvenue dans l\'interface d\'administration (mode test)',
+        });
+        
+        // Simuler une session admin
+        localStorage.setItem('adminTestMode', 'true');
+        localStorage.setItem('adminTestEmail', email);
+        localStorage.setItem('adminTestRole', 'admin');
+        
+        navigate(from, { replace: true });
+        return;
+      }
+      
+      // Appel direct à Supabase pour le débogage
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
-      navigate(from, { replace: true });
+      
+      if (error) {
+        console.error("Erreur Supabase lors de la connexion admin:", error);
+        throw error;
+      }
+      
+      if (data?.session) {
+        console.log("Session admin Supabase créée avec succès:", data.session);
+        
+        // Utiliser le hook login de notre contexte d'auth
+        await login(email, password);
+        
+        toast({
+          title: 'Connexion réussie',
+          description: 'Bienvenue dans l\'interface d\'administration',
+        });
+        navigate(from, { replace: true });
+      }
     } catch (error) {
+      console.error("Erreur complète lors de la connexion admin:", error);
       toast({
         variant: 'destructive',
         title: 'Échec de la connexion',
@@ -76,9 +113,6 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Pour cette démo: email: admin@example.com, mot de passe: admin123
-              </p>
             </div>
             <Button 
               type="submit" 
@@ -98,7 +132,7 @@ const AdminLogin = () => {
         </CardContent>
         <CardFooter>
           <p className="text-xs text-center w-full text-gray-500 dark:text-gray-400">
-            Ceci est une démo sécurisée de l'interface d'administration.
+            Utilisez admin@example.com / password pour la connexion de test
           </p>
         </CardFooter>
       </Card>

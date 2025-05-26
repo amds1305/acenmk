@@ -1,14 +1,9 @@
 
 import React from 'react';
-import { AdminTrustedClients } from '@/components/admin/trusted-clients';
-import AdminLayout from '@/components/admin/AdminLayout';
+import { AdminTrustedClientsMain } from '@/components/admin/trusted-clients';
 
 const AdminTrustedClientsPage = () => {
-  return (
-    <AdminLayout>
-      <AdminTrustedClients />
-    </AdminLayout>
-  );
+  return <AdminTrustedClientsMain />;
 };
 
 export default AdminTrustedClientsPage;
